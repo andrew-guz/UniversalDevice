@@ -7,10 +7,18 @@
 
 Settings Settings::ReadSettings()
 {
-    std::ifstream settings_file_Stream(SETTINGS_FILE);
-    auto settings_json = nlohmann::json::parse(settings_file_Stream);
+    nlohmann::json settings_json;
+    try
+    {
+        std::ifstream settings_file_stream(SETTINGS_FILE);
+        settings_json = nlohmann::json::parse(settings_file_stream);    
+    }
+    catch(...)
+    {
+        return Settings();
+    }
 
     Settings settings;
-    settings._port = settings_json["port"].get<int>();
+    settings._port = settings_json.value("port", DEFAULT_PORT);
     return settings;
 }

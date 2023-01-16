@@ -5,4 +5,6 @@
 
 #define VERSION "1.0"
 
+#define DEFAULT_PORT 8080
+
 #endif //_DEFINES_H_
