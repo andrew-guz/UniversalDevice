@@ -11,6 +11,7 @@ int main()
     crow::SimpleApp app;
 
     CROW_ROUTE(app, "/api/version")(Service::Version);
+    CROW_ROUTE(app, "/api/inform")(Service::Inform);
     CROW_ROUTE(app, "/api/quit")([&](){ return Service::Quit(app); });
 
     app

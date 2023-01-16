@@ -9,6 +9,8 @@ class Service
 public:
     static std::string Version();
 
+    static int Inform(const crow::request& request);
+
     static int Quit(crow::SimpleApp& app);
 };
 
