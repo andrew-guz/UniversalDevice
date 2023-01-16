@@ -1,8 +1,7 @@
 #include "Service.h"
 
 #include "Defines.h"
-
-#include "Message.h"
+#include "Serializer.h"
 
 std::string Service::Version()
 {
@@ -13,6 +12,9 @@ int Service::Inform(const crow::request& request)
 {
     if (request.method != crow::HTTPMethod::Post)
         return crow::BAD_REQUEST;
+    auto body = request.body;
+    auto body_json = nlohmann::json::parse(body);
+    auto message = Serializer<Message>::ToObject(body_json);
     return crow::OK;
 }
 
