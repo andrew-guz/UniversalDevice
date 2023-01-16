@@ -3,9 +3,9 @@
 nlohmann::json MessageHeaderSerializer::ToJson(const MessageHeader& t) const
 {
     return {
-        {"from_type", t._from_type},
-        {"from_id", t._from_id.data()},
-        {"subject", t._subject}
+        { "from_type", t._from_type },
+        { "from_id", t._from_id.data() },
+        { "subject", t._subject }
     };  
 }
 

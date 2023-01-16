@@ -5,7 +5,7 @@
 
 #include "Uuid.h"
 
-struct MessageHeader
+struct MessageHeader final
 {
     std::string _from_type;
 
