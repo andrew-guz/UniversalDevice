@@ -39,4 +39,4 @@ add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 #add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
-target_link_libraries(${PROJECT_NAME} -lpthread)
+target_link_libraries(${PROJECT_NAME} -lpthread -lstdc++fs)
