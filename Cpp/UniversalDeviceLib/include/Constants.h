@@ -7,10 +7,10 @@ class Constants
 {
 public:
     // device types
-    static const std::string device_type_thermometer;
+    static const std::string DeviceTypeThermometer;
 
     //subjects - depends on type
-    static const std::string subject_thermometer_current_value;
+    static const std::string SubjectThermometerCurrentValue;
 };
 
 #endif //_CONSTANTS_H_

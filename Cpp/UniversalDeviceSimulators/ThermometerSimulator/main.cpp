@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
     while (true)
     {
         //prepare message with current temperature
-        auto message = MessageCreator::Create(Constants::device_type_thermometer, id, Constants::subject_thermometer_current_value, {
+        auto message = MessageCreator::Create(Constants::DeviceTypeThermometer, id, Constants::SubjectThermometerCurrentValue, {
             { "value", temperature }
         });
         //send current temperature to server
