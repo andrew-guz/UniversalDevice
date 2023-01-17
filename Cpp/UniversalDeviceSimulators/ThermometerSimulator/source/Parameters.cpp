@@ -8,7 +8,7 @@ Parameters Parameters::ReadFromFile(const std::string fileName)
     nlohmann::json json;
     try
     {
-        std::ifstream file_stream(fileN ame);
+        std::ifstream file_stream(fileName);
         json = nlohmann::json::parse(file_stream);
     }
     catch(...)
