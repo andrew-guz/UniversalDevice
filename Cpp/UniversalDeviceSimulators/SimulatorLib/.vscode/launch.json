@@ -8,7 +8,7 @@
             "name": "build & debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/CrowTest",
+            //"program": "${workspaceFolder}/bin/???",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
