@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 # common variable for project name and executable name
-set(PROJECT_NAME "TemperatureSimulator")
+set(PROJECT_NAME "ThermometerSimulator")
 
 #build in Debug mode
 set(CMAKE_BUILD_TYPE Debug)
@@ -40,4 +40,4 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
-target_link_libraries(${PROJECT_NAME} UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} -lpthread UniversalDeviceLib)

@@ -8,7 +8,7 @@
             "name": "build & debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/TemperatureSimulator",
+            "program": "${workspaceFolder}/bin/ThermometerSimulator",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
