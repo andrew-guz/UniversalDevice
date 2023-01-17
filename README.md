@@ -6,5 +6,5 @@ Used libraries:
 nlohmann - C++ Json
 corwn - C++ REST API server
 curlpp - C++ HTTP requests
-libuuid - C++ Guid
-
+uuid - C++ Guid
+sqlite3 - C++ SQLite
