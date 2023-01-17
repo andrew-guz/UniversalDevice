@@ -1,0 +1,6 @@
+{
+  "port": 8080,
+  "startTemperature": 20.0,
+  "delta" : 0.2,
+  "sleepTimeout" : 1
+}
