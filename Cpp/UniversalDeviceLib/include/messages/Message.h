@@ -8,7 +8,6 @@
 struct Message final
 {
     MessageHeader   _header;
-
     nlohmann::json  _data;
 };
 

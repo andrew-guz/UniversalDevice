@@ -39,4 +39,4 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
-target_link_libraries(${PROJECT_NAME} UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} -lcurlpp UniversalDeviceLib)

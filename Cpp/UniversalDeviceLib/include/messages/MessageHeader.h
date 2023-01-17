@@ -8,9 +8,7 @@
 struct MessageHeader final
 {
     std::string _from_type;
-
     Uuid        _from_id;
-
     std::string _subject;
 };
 
