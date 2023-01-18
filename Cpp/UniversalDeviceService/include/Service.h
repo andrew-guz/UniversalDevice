@@ -4,14 +4,24 @@
 #include <string>
 #include <crow.h>
 
+#include "Storage.h"
+
 class Service
 {
 public:
-    static std::string Version();
+    Service();
 
-    static int Inform(const crow::request& request);
+    ~Service();
 
-    static int Quit(crow::SimpleApp& app);
+public:
+    std::string Version();
+
+    int Inform(const crow::request& request);
+
+    int Quit(crow::SimpleApp& app);
+
+private:
+    Storage _storage;
 };
 
 #endif //_SERVICE_H_

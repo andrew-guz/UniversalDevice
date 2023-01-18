@@ -4,7 +4,7 @@
 #include "RequestAddress.h"
 #include "Message.h"
 
-class PostRequestHelper
+class PostRequestHelper final
 {
 public:
     static void DoInformRequest(const RequestAddress& requestAddress, const Message& message);

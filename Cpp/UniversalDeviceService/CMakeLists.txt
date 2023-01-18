@@ -12,6 +12,7 @@ project(${PROJECT_NAME})
 
 #where to search headers
 include_directories(./include)
+include_directories(./include/database)
 include_directories(./../UniversalDeviceLib/include)
 include_directories(./../UniversalDeviceLib/include/core)
 include_directories(./../UniversalDeviceLib/include/interfaces)
@@ -39,4 +40,4 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
-target_link_libraries(${PROJECT_NAME} -lpthread UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} -lpthread -lsqlite3  UniversalDeviceLib)

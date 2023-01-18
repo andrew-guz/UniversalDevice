@@ -3,6 +3,16 @@
 #include "Defines.h"
 #include "Serializer.h"
 
+Service::Service()
+{
+
+}
+
+Service::~Service()
+{
+
+}
+
 std::string Service::Version()
 {
     return VERSION;

@@ -2,13 +2,14 @@
 
 #include <iostream>
 #include <fstream>
-#include <filesystem>
+
+#include "PathHelper.h"
 
 nlohmann::json ProcessSettingsReader::ReadProcessSettings()
 {
     try
     {
-        auto settingsPath = std::filesystem::canonical("/proc/self/exe").c_str() + std::string(".json");
+        auto settingsPath = PathHelper::AppPath() + std::string(".json");
         std::ifstream settingsFileStream(settingsPath);
         auto settingsJson = nlohmann::json::parse(settingsFileStream);
         return settingsJson;

@@ -3,7 +3,7 @@
 
 #include "Message.h"
 
-class MessageCreator
+class MessageCreator final
 {
 public:
     static Message Create(const std::string& type, const Uuid& id, const std::string subject, const nlohmann::json& data);

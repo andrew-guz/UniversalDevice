@@ -4,7 +4,7 @@
 #include "ISerializer.h"
 #include "Message.h"
 
-class MessageSerializer : public ISerializer<Message>
+class MessageSerializer final : public ISerializer<Message>
 {
 public:
     virtual nlohmann::json ToJson(const Message& t) const override;
