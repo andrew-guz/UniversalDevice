@@ -1,24 +1,15 @@
 #include "Settings.h"
 
-#include <fstream>
-#include <nlohmann/json.hpp>
-
 #include "Defines.h"
+#include "ProcessSettingsReader.h"
 
 Settings Settings::ReadSettings()
 {
-    nlohmann::json settings_json;
-    try
-    {
-        std::ifstream settings_file_stream(SETTINGS_FILE);
-        settings_json = nlohmann::json::parse(settings_file_stream);    
-    }
-    catch(...)
-    {
+    nlohmann::json settingsJson = ProcessSettingsReader::ReadProcessSettings();
+    if (settingsJson.is_null())
         return Settings();
-    }
 
     Settings settings;
-    settings._port = settings_json.value("port", DEFAULT_PORT);
+    settings._port = settingsJson.value("port", DEFAULT_PORT);
     return settings;
 }

@@ -1,20 +1,14 @@
 #include "Parameters.h"
 
+#include "ProcessSettingsReader.h"
 #include <fstream>
 #include <nlohmann/json.hpp>
 
 Parameters Parameters::ReadFromFile(const std::string fileName)
 {
-    nlohmann::json json;
-    try
-    {
-        std::ifstream file_stream(fileName);
-        json = nlohmann::json::parse(file_stream);
-    }
-    catch(...)
-    {
+    nlohmann::json json = ProcessSettingsReader::ReadProcessSettings();
+    if (json.is_null())
         return Parameters();
-    }
 
     Parameters parameters;
     parameters._port = json.value("port", 8080);
