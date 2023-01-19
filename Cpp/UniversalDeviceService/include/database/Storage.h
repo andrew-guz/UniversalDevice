@@ -11,10 +11,12 @@ public:
 
     ~Storage();
 
+    void Execute(const std::string& query);
+
+    void Execute(const std::string& query, int(*callback)(void*, int, char**, char**));
+
 private:
     void InitializeDb();
-
-    void Execute(const std::string& query);
 
 private:
     sqlite3* _connection = nullptr;

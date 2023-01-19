@@ -26,6 +26,22 @@ Storage::~Storage()
     sqlite3_close(_connection);
 }
 
+void Storage::Execute(const std::string& query)
+{
+    Execute(query, NoActionCallback);
+}
+
+void Storage::Execute(const std::string& query, int(*callback)(void*, int, char**, char**))
+{
+    char* error = nullptr;
+    int result = sqlite3_exec(_connection, query.c_str(), callback, this, &error);
+    if (result != SQLITE_OK)
+    {   
+        std::cout << "SQL error: " << error << std::endl;
+        sqlite3_free(error);
+    }
+}
+
 void Storage::InitializeDb()
 {
     std::vector<std::string> queries
@@ -35,15 +51,4 @@ void Storage::InitializeDb()
     };
     for(auto& query : queries)
         Execute(query);
-}
-
-void Storage::Execute(const std::string& query)
-{
-    char* error = nullptr;
-    int result = sqlite3_exec(_connection, query.c_str(), NoActionCallback, this, &error);
-    if (result != SQLITE_OK)
-    {   
-        std::cout << "SQL error: " << error << std::endl;
-        sqlite3_free(error);
-    }
 }
