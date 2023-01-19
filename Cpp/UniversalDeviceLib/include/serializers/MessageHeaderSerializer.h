@@ -7,6 +7,10 @@
 class MessageHeaderSerializer final : public ISerializer<MessageHeader>
 {
 public:
+    MessageHeaderSerializer() = default;
+
+    virtual ~MessageHeaderSerializer() = default;
+
     virtual nlohmann::json ToJson(const MessageHeader& t) const override;
 
     virtual nlohmann::json ToJson(const std::shared_ptr<MessageHeader>& t) const override;

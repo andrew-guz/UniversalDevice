@@ -8,6 +8,10 @@ template<typename T>
 class ISerializer
 {
 public:
+    ISerializer() = default;
+
+    virtual ~ISerializer() = default;
+
     virtual nlohmann::json ToJson(const T& t) const = 0;
 
     virtual nlohmann::json ToJson(const std::shared_ptr<T>& t) const = 0;

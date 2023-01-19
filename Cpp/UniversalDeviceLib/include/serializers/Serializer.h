@@ -5,7 +5,7 @@
 #include "MessageSerializer.h"
 
 template<typename T>
-class Serializer
+class Serializer final
 {
 public:
     static nlohmann::json ToJson(const T& t)

@@ -6,7 +6,7 @@
 
 #include "Storage.h"
 
-class Service
+class Service final
 {
 public:
     Service();

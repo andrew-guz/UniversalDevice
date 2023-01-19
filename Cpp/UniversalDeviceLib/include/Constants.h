@@ -3,7 +3,7 @@
 
 #include <string>
 
-class Constants
+class Constants final
 {
 public:
     // device types

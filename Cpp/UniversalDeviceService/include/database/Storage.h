@@ -4,7 +4,7 @@
 #include <string>
 #include <sqlite3.h>
 
-class Storage
+class Storage final
 {
 public:
     Storage();

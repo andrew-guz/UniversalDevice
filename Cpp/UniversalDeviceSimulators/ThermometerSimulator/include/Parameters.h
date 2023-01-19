@@ -3,7 +3,7 @@
 
 #include "Uuid.h"
 
-class Parameters
+class Parameters final
 {
 protected:
     Parameters() = default;
