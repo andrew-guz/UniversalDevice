@@ -1,6 +1,7 @@
 #ifndef _I_PROCESSOR_H_
 #define _I_PROCESSOR_H_
 
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -13,7 +14,7 @@ public:
 
     virtual ~IProcessor() = default;
 
-    virtual void ProcessMessage(const Message& message) = 0;
+    virtual void ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) = 0;
 };
 
 typedef std::shared_ptr<IProcessor> Processor;

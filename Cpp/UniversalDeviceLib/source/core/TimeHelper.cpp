@@ -2,7 +2,7 @@
 
 #include <iomanip>
 
-std::string TimeHelper::TimeToString(const std::chrono::_V2::system_clock::time_point& time)
+std::string TimeHelper::TimeToString(const std::chrono::system_clock::time_point& time)
 {
     auto time_t = std::chrono::system_clock::to_time_t(time);
     std::stringstream timeStream;

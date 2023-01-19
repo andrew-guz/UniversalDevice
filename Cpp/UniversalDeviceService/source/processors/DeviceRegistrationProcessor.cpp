@@ -6,7 +6,7 @@ DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryEx
 
 }
 
-void DeviceRegistrationProcessor::ProcessMessage(const Message &message)
+void DeviceRegistrationProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message &message)
 {
-    
+    //TODO
 }

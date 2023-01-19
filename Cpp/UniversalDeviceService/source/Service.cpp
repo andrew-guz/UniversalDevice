@@ -32,7 +32,7 @@ int Service::Inform(const crow::request& request)
         message = Serializer<Message>::ToObject(body_json);
         auto processors = ProcessorsFactory::CreateProcessors(message, &_storage);
         for (auto& processor : processors)
-            processor->ProcessMessage(message);
+            processor->ProcessMessage(timestamp, message);
     }
     catch(...)
     {

@@ -10,7 +10,7 @@ public:
 
     virtual ~DeviceRegistrationProcessor() = default;
 
-    virtual void ProcessMessage(const Message& message) override;
+    virtual void ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) override;
 };
 
 #endif //_DEVICE_REGISTRATION_PROCESSOR_H_

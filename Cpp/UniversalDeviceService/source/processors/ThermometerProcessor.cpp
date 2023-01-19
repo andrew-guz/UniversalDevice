@@ -6,7 +6,7 @@ ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) :
 
 }
 
-void ThermometerProcessor::ProcessMessage(const Message &message)
+void ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message &message)
 {
     //TODO
 }
