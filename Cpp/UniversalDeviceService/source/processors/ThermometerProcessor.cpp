@@ -1,7 +1,7 @@
 #include "ThermometerProcessor.h"
 
-ThermometerProcessor::ThermometerProcessor(Storage& storage) :
-    BaseProcessorUsingStorage(storage)
+ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor)
 {
 
 }

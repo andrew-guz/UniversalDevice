@@ -1,12 +1,12 @@
 #ifndef _THERMOMETER_PROCESSOR_H_
 #define _THERMOMETER_PROCESSOR_H_
 
-#include "BaseProcessorUsingStorage.h"
+#include "BaseProcessorWithQueryExecutor.h"
 
-class ThermometerProcessor final : public BaseProcessorUsingStorage
+class ThermometerProcessor final : public BaseProcessorWithQueryExecutor
 {
 public:
-    ThermometerProcessor(Storage& storage);
+    ThermometerProcessor(IQueryExecutor* queryExecutor);
 
     virtual ~ThermometerProcessor() = default;
 

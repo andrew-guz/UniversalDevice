@@ -28,7 +28,7 @@ int Service::Inform(const crow::request& request)
         auto body_json = nlohmann::json::parse(body);
         std::cout << "Inform:  " << body_json.dump() << std::endl;
         message = Serializer<Message>::ToObject(body_json);
-        auto processors = ProcessorsFactory::CreateProcessors(message, _storage);
+        auto processors = ProcessorsFactory::CreateProcessors(message, &_storage);
         for (auto& processor : processors)
             processor->ProcessMessage(message);
     }

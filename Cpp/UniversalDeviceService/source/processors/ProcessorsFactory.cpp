@@ -6,7 +6,7 @@
 #include "DeviceRegistrationProcessor.h"
 #include "ThermometerProcessor.h"
 
-Processors ProcessorsFactory::CreateProcessors(const Message& message, Storage& storage)
+Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExecutor* queryExecutor)
 {
     static std::vector<std::string> allowedTypes = 
     {
@@ -22,10 +22,10 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, Storage& 
     Processors processors;
 
     //always add DeviceRegistrationProcessor
-    processors.push_back(std::shared_ptr<IProcessor>(new DeviceRegistrationProcessor(storage)));
+    processors.push_back(std::shared_ptr<IProcessor>(new DeviceRegistrationProcessor(queryExecutor)));
 
     if (message._header._subject.compare(Constants::DeviceTypeThermometer) == 0)
-        processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(storage)));
+        processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor)));
 
     return processors;
 }

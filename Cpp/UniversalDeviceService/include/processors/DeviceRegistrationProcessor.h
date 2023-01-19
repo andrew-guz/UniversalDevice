@@ -1,12 +1,12 @@
 #ifndef _DEVICE_REGISTRATION_PROCESSOR_H_
 #define _DEVICE_REGISTRATION_PROCESSOR_H_
 
-#include "BaseProcessorUsingStorage.h"
+#include "BaseProcessorWithQueryExecutor.h"
 
-class DeviceRegistrationProcessor final : public BaseProcessorUsingStorage
+class DeviceRegistrationProcessor final : public BaseProcessorWithQueryExecutor
 {
 public:
-    DeviceRegistrationProcessor(Storage& storage);
+    DeviceRegistrationProcessor(IQueryExecutor* queryExecutor);
 
     virtual ~DeviceRegistrationProcessor() = default;
 

@@ -2,12 +2,12 @@
 #define _PROCESSORS_FACTORY_H_
 
 #include "IProcessor.h"
-#include "Storage.h"
+#include "IQueryExecutor.h"
 
 class ProcessorsFactory final
 {
 public:
-    static Processors CreateProcessors(const Message& message, Storage& storage);
+    static Processors CreateProcessors(const Message& message, IQueryExecutor* queryExecutor);
 };
 
 #endif //_PROCESSORS_FACTORY_H_

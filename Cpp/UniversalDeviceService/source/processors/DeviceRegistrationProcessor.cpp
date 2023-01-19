@@ -1,12 +1,12 @@
 #include "DeviceRegistrationProcessor.h"
 
-DeviceRegistrationProcessor::DeviceRegistrationProcessor(Storage& storage) :
-    BaseProcessorUsingStorage(storage)
+DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor)
 {
 
 }
 
 void DeviceRegistrationProcessor::ProcessMessage(const Message &message)
 {
-    //TODO
+
 }

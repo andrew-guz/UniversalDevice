@@ -1,19 +1,20 @@
 #ifndef _STORAGE_H_
 #define _STORAGE_H_
 
-#include <string>
 #include <sqlite3.h>
 
-class Storage final
+#include "IQueryExecutor.h"
+
+class Storage final : public IQueryExecutor
 {
 public:
     Storage();
 
-    ~Storage();
+    virtual ~Storage();
 
-    void Execute(const std::string& query);
+    virtual void Execute(const std::string& query) override;
 
-    void Execute(const std::string& query, int(*callback)(void*, int, char**, char**));
+    virtual void Execute(const std::string& query, int(*callback)(void*, int, char**, char**)) override;
 
 private:
     void InitializeDb();
