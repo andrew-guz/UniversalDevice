@@ -8,5 +8,5 @@ DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryEx
 
 void DeviceRegistrationProcessor::ProcessMessage(const Message &message)
 {
-
+    
 }

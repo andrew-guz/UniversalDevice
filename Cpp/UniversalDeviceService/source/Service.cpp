@@ -2,6 +2,7 @@
 
 #include "Defines.h"
 #include "Serializer.h"
+#include "TimeHelper.h"
 #include "ProcessorsFactory.h"
 
 Service::Service()
@@ -25,8 +26,9 @@ int Service::Inform(const crow::request& request)
     Message message;
     try
     {
+        auto timestamp = std::chrono::system_clock::now();
         auto body_json = nlohmann::json::parse(body);
-        std::cout << "Inform:  " << body_json.dump() << std::endl;
+        std::cout << "Inform [" << TimeHelper::TimeToString(timestamp) << "]:  " << body_json.dump() << std::endl;
         message = Serializer<Message>::ToObject(body_json);
         auto processors = ProcessorsFactory::CreateProcessors(message, &_storage);
         for (auto& processor : processors)
