@@ -1,9 +1,9 @@
 #ifndef _DEVICE_REGISTRATION_PROCESSOR_H_
 #define _DEVICE_REGISTRATION_PROCESSOR_H_
 
-#include "StorageProcessor.h"
+#include "BaseProcessorUsingStorage.h"
 
-class DeviceRegistrationProcessor final : public StorageProcessor
+class DeviceRegistrationProcessor final : public BaseProcessorUsingStorage
 {
 public:
     DeviceRegistrationProcessor(Storage& storage);
