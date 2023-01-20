@@ -24,7 +24,7 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
     //always add DeviceRegistrationProcessor
     processors.push_back(std::shared_ptr<IProcessor>(new DeviceRegistrationProcessor(queryExecutor)));
 
-    if (message._header._subject.compare(Constants::DeviceTypeThermometer) == 0)
+    if (message._header._type == Constants::DeviceTypeThermometer)
         processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor)));
 
     return processors;

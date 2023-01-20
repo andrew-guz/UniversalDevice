@@ -16,7 +16,7 @@ public:
     Uuid    _id;
     double  _startTemperature = 20.0f;
     double  _delta = 0.1f;
-    int     _sleepTimeout = 1;
+    int     _sleepTimeout = 5;
 };
 
 #endif //_PARAMETERS_H_
