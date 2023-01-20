@@ -24,9 +24,9 @@ int main(int argc, char* argv[])
     while (true)
     {
         //prepare message with current temperature
-        auto message = MessageCreator::Create(Constants::DeviceTypeThermometer, parameters._id, Constants::SubjectThermometerCurrentValue, {
-            { "value", temperature }
-        });
+        ThermometerCurrentValue currentValue;
+        currentValue._value = temperature;
+        auto message = MessageCreator::Create(Constants::DeviceTypeThermometer, parameters._id, Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
         //send current temperature to server
         PostRequestHelper::DoInformRequest({"127.0.0.1", parameters._port, "/api/inform"}, message);
         //generate new value

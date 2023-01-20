@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include "Constants.h"
+#include "ThermometerCurrentValue.h"
 #include "TimeHelper.h"
 
 ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) :
@@ -14,13 +15,15 @@ ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) :
 
 void ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message)
 {
-    if (!message._data.contains("value"))
-    {
-        std::cout << "ThermometerProcessor - invalid message" << std::endl;
-        return; 
-    }
     if (message._header._subject == Constants::SubjectThermometerCurrentValue)
     {
+        ThermometerCurrentValue currentValue;
+        currentValue.FromJson(message._data);
+        if (currentValue._value == std::numeric_limits<float>::min())
+        {
+            std::cout << "ThermometerProcessor - invalid message" << std::endl;
+            return; 
+        }
         std::stringstream queryStream;
         queryStream
             << "INSERT INTO 'Thermometers' ('id', 'timestamp', 'value') VALUES ('"
@@ -28,7 +31,7 @@ void ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_
             << "', '" 
             << TimeHelper::TimeToString(timestamp)
             << "', '" 
-            << message._data["value"].get<float>()
+            << currentValue._value
             << "')";
         queryStream.flush();
         _queryExecutor->Execute(queryStream.str());

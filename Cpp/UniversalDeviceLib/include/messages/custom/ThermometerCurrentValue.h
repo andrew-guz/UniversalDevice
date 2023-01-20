@@ -7,7 +7,7 @@
 
 struct ThermometerCurrentValue final : public IJson
 {
-    float _value;
+    float _value = std::numeric_limits<float>::min();
 
     virtual nlohmann::json ToJson() const override
     {
