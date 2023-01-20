@@ -16,7 +16,7 @@ public:
 
     virtual nlohmann::json ToJson(const std::shared_ptr<T>& t) const = 0;
 
-    virtual T ToObject(const nlohmann::json& j) const = 0;  
+    virtual T ToObject(const nlohmann::json& j) const = 0;
 
     virtual std::shared_ptr<T> ToSharedObject(const nlohmann::json& j) const = 0;
 };

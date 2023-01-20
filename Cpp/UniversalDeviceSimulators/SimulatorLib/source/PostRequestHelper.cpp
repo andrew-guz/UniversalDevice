@@ -4,9 +4,6 @@
 #include <curlpp/Easy.hpp>
 #include <curlpp/Options.hpp>
 
-#include "Serializer.h"
-
-
 void PostRequestHelper::DoInformRequest(const RequestAddress& requestAddress, const Message &message)
 {
     try
@@ -21,7 +18,7 @@ void PostRequestHelper::DoInformRequest(const RequestAddress& requestAddress, co
         header.push_back("Content-Type: application/json");
         request.setOpt(new curlpp::options::HttpHeader(header)); 
     
-        auto message_json = Serializer<Message>::ToJson(message);
+        auto message_json = message.ToJson();
         auto post_string = message_json.dump();
 
         request.setOpt(new curlpp::options::PostFields(post_string));
