@@ -17,8 +17,7 @@ void ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_
 {
     if (message._header._subject == Constants::SubjectThermometerCurrentValue)
     {
-        ThermometerCurrentValue currentValue;
-        currentValue.FromJson(message._data);
+        auto currentValue = ThermometerCurrentValue::CreateFromJson(message._data);
         if (currentValue._value == std::numeric_limits<float>::min())
         {
             std::cout << "ThermometerProcessor - invalid message" << std::endl;

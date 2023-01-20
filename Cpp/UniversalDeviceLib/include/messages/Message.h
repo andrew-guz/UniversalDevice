@@ -4,7 +4,7 @@
 #include "IJson.h"
 #include "MessageHeader.h"
 
-struct Message final : public IJson
+struct Message final : public IJson<Message>
 {
     MessageHeader   _header;
     nlohmann::json  _data;

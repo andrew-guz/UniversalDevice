@@ -5,7 +5,7 @@
 
 #include "IJson.h"
 
-struct ThermometerCurrentValue final : public IJson
+struct ThermometerCurrentValue final : public IJson<ThermometerCurrentValue>
 {
     float _value = std::numeric_limits<float>::min();
 

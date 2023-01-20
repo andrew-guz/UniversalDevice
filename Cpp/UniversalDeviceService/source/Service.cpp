@@ -27,8 +27,7 @@ int Service::Inform(const crow::request& request)
         auto timestamp = std::chrono::system_clock::now();
         auto body_json = nlohmann::json::parse(body);
         std::cout << "Inform [" << TimeHelper::TimeToString(timestamp) << "]:  " << body_json.dump() << std::endl;
-        Message message;
-        message.FromJson(body_json);
+        auto message = Message::CreateFromJson(body_json);
         auto processors = ProcessorsFactory::CreateProcessors(message, &_storage);
         for (auto& processor : processors)
             processor->ProcessMessage(timestamp, message);

@@ -7,7 +7,7 @@
 #include "Constants.h"
 #include "Uuid.h"
 
-struct MessageHeader final : public IJson
+struct MessageHeader final : public IJson<MessageHeader>
 {
     std::string _type;
     Uuid        _id;
