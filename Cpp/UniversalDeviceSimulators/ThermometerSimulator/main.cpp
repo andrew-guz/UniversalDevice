@@ -5,6 +5,7 @@
 
 #include "Parameters.h"
 #include "Constants.h"
+#include "ThermometerCurrentValue.h"
 #include "MessageCreator.h"
 #include "PostRequestHelper.h"
 

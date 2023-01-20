@@ -1,12 +1,12 @@
 #include "MessageSerializer.h"
 
+#include "Serializer.h"
 #include "MessageHeaderSerializer.h"
 
 nlohmann::json MessageSerializer::ToJson(const Message& t) const
 {
-    MessageHeaderSerializer header_serializer;
     return {
-        { "header", header_serializer.ToJson(t._header) },
+        { "header", Serializer<MessageHeader>::ToJson(t._header) },
         { "data", t._data }
     };
 }
@@ -20,7 +20,7 @@ Message MessageSerializer::ToObject(const nlohmann::json& j) const
 {
     MessageHeaderSerializer header_serializer;
     Message message;
-    message._header = header_serializer.ToObject(j["header"]);
+    message._header = Serializer<MessageHeader>::ToObject(j["header"]);
     message._data = j["data"];
     return message;
 }

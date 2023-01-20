@@ -17,7 +17,9 @@ include_directories(./../../UniversalDeviceLib/include)
 include_directories(./../../UniversalDeviceLib/include/core)
 include_directories(./../../UniversalDeviceLib/include/interfaces)
 include_directories(./../../UniversalDeviceLib/include/messages)
+include_directories(./../../UniversalDeviceLib/include/messages/custom)
 include_directories(./../../UniversalDeviceLib/include/serializers)
+include_directories(./../../UniversalDeviceLib/include/serializers/custom)
 
 
 #set variable where to put ouput file

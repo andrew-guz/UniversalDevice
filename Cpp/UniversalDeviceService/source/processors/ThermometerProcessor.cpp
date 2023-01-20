@@ -28,7 +28,7 @@ void ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_
             << "', '" 
             << TimeHelper::TimeToString(timestamp)
             << "', '" 
-            << message._data.value("value", 0.0f)
+            << message._data["value"].get<float>()
             << "')";
         queryStream.flush();
         _queryExecutor->Execute(queryStream.str());

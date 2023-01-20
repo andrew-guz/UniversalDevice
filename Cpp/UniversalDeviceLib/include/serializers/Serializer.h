@@ -2,7 +2,9 @@
 #define _SERIALIZER_H_
 
 #include "ISerializer.h"
+#include "MessageHeaderSerializer.h"
 #include "MessageSerializer.h"
+#include "ThermometerCurrentValueSerializer.h"
 
 template<typename T>
 class Serializer final
@@ -43,9 +45,21 @@ std::shared_ptr<ISerializer<T>> Serializer<T>::CreateSerializer()
 }
 
 template<>
+std::shared_ptr<ISerializer<MessageHeader>> Serializer<MessageHeader>::CreateSerializer()
+{
+    return std::make_shared<MessageHeaderSerializer>();
+}
+
+template<>
 std::shared_ptr<ISerializer<Message>> Serializer<Message>::CreateSerializer()
 {
     return std::make_shared<MessageSerializer>();
+}
+
+template<>
+std::shared_ptr<ISerializer<ThermometerCurrentValue>> Serializer<ThermometerCurrentValue>::CreateSerializer()
+{
+    return std::make_shared<ThermometerCurrentValueSerializer>();
 }
 
 #endif //_SERIALIZER_H_
