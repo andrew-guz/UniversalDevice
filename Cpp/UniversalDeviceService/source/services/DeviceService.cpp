@@ -1,5 +1,6 @@
 #include "DeviceService.h"
 
+#include "Defines.h"
 #include "TimeHelper.h"
 #include "ProcessorsFactory.h"
 
@@ -11,7 +12,7 @@ DeviceService::DeviceService(IQueryExecutor* queryExecutor) :
 
 void DeviceService::Initialize(crow::SimpleApp& app)
 {
-    CROW_ROUTE(app, "/api/inform").methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
+    CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
 }
 
 int DeviceService::Inform(const crow::request& request)

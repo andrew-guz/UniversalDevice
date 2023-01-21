@@ -5,6 +5,7 @@
 
 #include "Parameters.h"
 #include "Constants.h"
+#include "Defines.h"
 #include "ThermometerCurrentValue.h"
 #include "MessageCreator.h"
 #include "PostRequestHelper.h"
@@ -32,7 +33,7 @@ int main(int argc, char* argv[])
         currentValue._value = temperature;
         auto message = MessageCreator::Create(deviceDescription, Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
         //send current temperature to server
-        PostRequestHelper::DoInformRequest({"127.0.0.1", parameters._port, "/api/inform"}, message);
+        PostRequestHelper::DoInformRequest({"127.0.0.1", parameters._port, API_DEVICE_INFORM}, message);
         //generate new value
         auto random_value = distribution(random_generator);
         switch (random_value)

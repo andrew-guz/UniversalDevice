@@ -10,8 +10,8 @@ MainService::MainService(IQueryExecutor* queryExecutor) :
 
 void MainService::Initialize(crow::SimpleApp& app)
 {
-    CROW_ROUTE(app, "/api/version")([&](){ return Version(); });
-    CROW_ROUTE(app, "/api/quit")([&](){ return Quit(app); });
+    CROW_ROUTE(app, API_VERSION)([&](){ return Version(); });
+    CROW_ROUTE(app, API_QUIT)([&](){ return Quit(app); });
 }
 
 std::string MainService::Version()
