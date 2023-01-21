@@ -2,19 +2,20 @@
 #include <crow.h>
 
 #include "Settings.h"
-#include "Service.h"
+#include "Storage.h"
+#include "MainService.h"
+#include "DeviceService.h"
 
 int main()
 {
     auto settings = Settings::ReadSettings();
 
-    Service service;
+    Storage storage;
 
     crow::SimpleApp app;
 
-    CROW_ROUTE(app, "/api/version")([&](){ return service.Version(); });
-    CROW_ROUTE(app, "/api/inform").methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return service.Inform(request); });
-    CROW_ROUTE(app, "/api/quit")([&](){ return service.Quit(app); });
+    MainService::Create(app, &storage);
+    DeviceService::Create(app, &storage);
 
     app
         .port(settings._port)

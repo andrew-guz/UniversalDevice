@@ -1,25 +1,20 @@
-#include "Service.h"
+#include "DeviceService.h"
 
-#include "Defines.h"
 #include "TimeHelper.h"
 #include "ProcessorsFactory.h"
 
-Service::Service()
+DeviceService::DeviceService(IQueryExecutor* queryExecutor) :
+    BaseService(queryExecutor)
 {
 
 }
 
-Service::~Service()
+void DeviceService::Initialize(crow::SimpleApp& app)
 {
-
+    CROW_ROUTE(app, "/api/inform").methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
 }
 
-std::string Service::Version()
-{
-    return VERSION;
-}
-
-int Service::Inform(const crow::request& request)
+int DeviceService::Inform(const crow::request& request)
 {
     auto body = request.body;
     try
@@ -28,7 +23,7 @@ int Service::Inform(const crow::request& request)
         auto body_json = nlohmann::json::parse(body);
         std::cout << "Inform [" << TimeHelper::TimeToString(timestamp) << "]:  " << body_json.dump() << std::endl;
         auto message = Message::CreateFromJson(body_json);
-        auto processors = ProcessorsFactory::CreateProcessors(message, &_storage);
+        auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);
         for (auto& processor : processors)
             processor->ProcessMessage(timestamp, message);
     }
@@ -36,11 +31,5 @@ int Service::Inform(const crow::request& request)
     {
         return crow::BAD_REQUEST;
     }    
-    return crow::OK;
-}
-
-int Service::Quit(crow::SimpleApp& app)
-{
-    app.stop();
     return crow::OK;
 }
