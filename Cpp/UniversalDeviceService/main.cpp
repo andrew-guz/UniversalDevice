@@ -5,6 +5,7 @@
 #include "Storage.h"
 #include "MainService.h"
 #include "DeviceService.h"
+#include "ClientService.h"
 
 int main()
 {
@@ -16,6 +17,7 @@ int main()
 
     MainService::Create(app, &storage);
     DeviceService::Create(app, &storage);
+    ClientService::Create(app, &storage);
 
     app
         .port(settings._port)
