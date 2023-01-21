@@ -19,6 +19,10 @@ int main(int argc, char* argv[])
     std::mt19937 random_generator(random_device());
     std::uniform_int_distribution<> distribution(1,10);
 
+    DeviceDescription deviceDescription;
+    deviceDescription._type = Constants::DeviceTypeThermometer;
+    deviceDescription._id = parameters._id;
+
     auto temperature = parameters._startTemperature;
 
     while (true)
@@ -26,7 +30,7 @@ int main(int argc, char* argv[])
         //prepare message with current temperature
         ThermometerCurrentValue currentValue;
         currentValue._value = temperature;
-        auto message = MessageCreator::Create(Constants::DeviceTypeThermometer, parameters._id, Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
+        auto message = MessageCreator::Create(deviceDescription, Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
         //send current temperature to server
         PostRequestHelper::DoInformRequest({"127.0.0.1", parameters._port, "/api/inform"}, message);
         //generate new value

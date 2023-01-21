@@ -12,12 +12,13 @@ DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryEx
 
 void DeviceRegistrationProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message)
 {
+    auto& deviceDescription = message._header._deviceDescription;
     std::stringstream queryStream;
     queryStream
         << "INSERT OR REPLACE INTO 'Devices' ('id', 'type', 'timestamp') VALUES ('"
-        << message._header._id.data()
+        << deviceDescription._id.data()
         << "', '" 
-        << message._header._type 
+        << deviceDescription._type 
         << "', '" 
         << TimeHelper::TimeToString(timestamp)
         << "')";

@@ -13,9 +13,11 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         Constants::DeviceTypeThermometer
     };
     
-    if (std::find(allowedTypes.begin(), allowedTypes.end(), message._header._type) == allowedTypes.end())
+    auto& messageHeader = message._header;
+    auto& deviceDescription = messageHeader._deviceDescription;
+    if (std::find(allowedTypes.begin(), allowedTypes.end(), deviceDescription._type) == allowedTypes.end())
     {
-        std::cout << "No processors found for type " << message._header._type << std::endl;
+        std::cout << "No processors found for type " << deviceDescription._type << std::endl;
         return Processors();
     }
 
@@ -24,7 +26,7 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
     //always add DeviceRegistrationProcessor
     processors.push_back(std::shared_ptr<IProcessor>(new DeviceRegistrationProcessor(queryExecutor)));
 
-    if (message._header._type == Constants::DeviceTypeThermometer)
+    if (deviceDescription._type == Constants::DeviceTypeThermometer)
         processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor)));
 
     return processors;

@@ -46,7 +46,7 @@ void Storage::InitializeDb()
 {
     std::vector<std::string> queries
     {
-        "CREATE TABLE IF NOT EXISTS 'Devices' ('id' TEXT UNIQUE, 'type' TEXT, 'timestamp' TEXT, PRIMARY KEY('id', 'type'))",
+        "CREATE TABLE IF NOT EXISTS 'Devices' ('id' TEXT UNIQUE, 'type' TEXT, 'name' TEXT, 'timestamp' TEXT, PRIMARY KEY('id', 'type'))",
         "CREATE TABLE IF NOT EXISTS 'Thermometers' ('id' TEXT, 'timestamp' TEXT, 'value' REAL)"
     };
     for(auto& query : queries)

@@ -23,10 +23,11 @@ void ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_
             std::cout << "ThermometerProcessor - invalid message" << std::endl;
             return; 
         }
+        auto& deviceDescription = message._header._deviceDescription;
         std::stringstream queryStream;
         queryStream
             << "INSERT INTO 'Thermometers' ('id', 'timestamp', 'value') VALUES ('"
-            << message._header._id.data()
+            << deviceDescription._id.data()
             << "', '" 
             << TimeHelper::TimeToString(timestamp)
             << "', '" 

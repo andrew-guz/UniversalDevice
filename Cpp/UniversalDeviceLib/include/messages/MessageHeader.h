@@ -1,31 +1,24 @@
 #ifndef _MESSAGE_HEADER_H_
 #define _MESSAGE_HEADER_H_
 
-#include <string>
-
-#include "IJson.h"
-#include "Constants.h"
-#include "Uuid.h"
+#include "DeviceDescription.h"
 
 struct MessageHeader final : public IJson<MessageHeader>
 {
-    std::string _type;
-    Uuid        _id;
-    std::string _subject;
+    DeviceDescription   _deviceDescription;
+    std::string         _subject = Constants::SubjectUndefined;
 
     virtual nlohmann::json ToJson() const override
     {
         return {
-            { "type", _type },
-            { "id", _id.data() },
+            { "deviceDescription", _deviceDescription.ToJson() },
             { "subject", _subject }
         };
     }
 
     virtual void FromJson(const nlohmann::json& json) override
     {
-        _type = json.value("type", Constants::DeviceTypeUndefined);
-        _id = Uuid(json.value("id", ""));
+        _deviceDescription.FromJson(json["deviceDescription"]);
         _subject = json.value("subject", Constants::SubjectUndefined);
     }
 };
