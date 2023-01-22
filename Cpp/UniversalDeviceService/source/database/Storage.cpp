@@ -1,13 +1,22 @@
 #include "Storage.h"
 
 #include <iostream>
-#include <vector>
 
 #include "PathHelper.h"
 
-int NoActionCallback(void* NotUsed, int argc, char** argv, char** azColName)
+int NoActionCallback(void* data, int columnsInRow, char** rowData, char** columnName)
 {
-   return 0;
+    return 0;
+}
+
+int SelectCallback(void* data, int columnsInRow, char** rowData, char** columnName)
+{
+    auto result = (std::vector<std::vector<std::string>>*)data;
+    std::vector<std::string> row;
+    for (int column = 0; column < columnsInRow; ++column)
+        row.push_back(rowData[column]);
+    result->push_back(row);
+    return 0;
 }
 
 std::string DbPath()
@@ -26,20 +35,32 @@ Storage::~Storage()
     sqlite3_close(_connection);
 }
 
-void Storage::Execute(const std::string& query)
+bool Storage::Execute(const std::string& query)
 {
-    Execute(query, NoActionCallback);
+    return Execute(query, NoActionCallback);
 }
 
-void Storage::Execute(const std::string& query, int(*callback)(void*, int, char**, char**))
+bool Storage::Execute(const std::string& query, int(*callback)(void*, int, char**, char**))
+{
+    return InternalExecute(query, callback, this);
+}
+
+bool Storage::Select(const std::string& query, std::vector<std::vector<std::string>>& data)
+{
+    return InternalExecute(query, SelectCallback, &data);
+}
+
+bool Storage::InternalExecute(const std::string& query, int(*callback)(void*, int, char**, char**), void* data)
 {
     char* error = nullptr;
-    int result = sqlite3_exec(_connection, query.c_str(), callback, this, &error);
+    int result = sqlite3_exec(_connection, query.c_str(), callback, data, &error);
     if (result != SQLITE_OK)
     {   
         std::cout << "SQL error: " << error << std::endl;
         sqlite3_free(error);
+        return false;
     }
+    return true;
 }
 
 void Storage::InitializeDb()
