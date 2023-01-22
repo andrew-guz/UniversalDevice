@@ -14,7 +14,11 @@ int SelectCallback(void* data, int columnsInRow, char** rowData, char** columnNa
     auto result = (std::vector<std::vector<std::string>>*)data;
     std::vector<std::string> row;
     for (int column = 0; column < columnsInRow; ++column)
-        row.push_back(rowData[column]);
+    {
+        auto rawCellData = rowData[column];
+        std::string cellData = rawCellData ? std::string(rawCellData) : std::string();
+        row.push_back(cellData);
+    }
     result->push_back(row);
     return 0;
 }
