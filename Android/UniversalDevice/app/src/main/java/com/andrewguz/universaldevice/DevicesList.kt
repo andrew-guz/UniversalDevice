@@ -22,9 +22,19 @@ class DevicesList : AppCompatActivity() {
         //var result = getRequest("http://192.168.1.187:8080/api/client/list");
         //println("!!! - {$result}")
 
-        println("1")
-        run()
-        println("2")
+        //println("1")
+        //run()
+        //println("2")
+
+        run2(object : Callback{
+            override fun onFailure(call: Call, e: IOException) {
+                println("!!! - Failure")
+            }
+            override fun onResponse(call: Call, response: Response) {
+                println("!!! - ${response.body!!.string()}")
+            }
+        });
+
     }
 
     private fun getRequest(sUrl: String): String? {
@@ -68,5 +78,14 @@ class DevicesList : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    fun run2(myCallback : Callback) {
+        println("3")
+        val request = Request.Builder()
+            .url("http://192.168.1.187:8080/api/client/list")
+            .build()
+        println("4")
+        client.newCall(request).enqueue(myCallback)
     }
 }
