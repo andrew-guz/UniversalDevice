@@ -1,12 +1,11 @@
 package com.andrewguz.universaldevice
 
 import android.os.Bundle
-import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
 import androidx.appcompat.app.AppCompatActivity
 import java.net.URL
 import java.io.IOException
 import okhttp3.*
+import kotlin.reflect.KFunction2
 
 class DevicesList : AppCompatActivity() {
     var client: OkHttpClient = OkHttpClient();
@@ -15,16 +14,16 @@ class DevicesList : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_devices_list)
 
-        //val policy = ThreadPolicy.Builder().permitAll().build()
-        //StrictMode.setThreadPolicy(policy)
+        /*val policy = ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
 
-        //println("!!!")
-        //var result = getRequest("http://192.168.1.187:8080/api/client/list");
-        //println("!!! - {$result}")
+        println("!!!")
+        var result = getRequest("http://192.168.1.187:8080/api/client/list");
+        println("!!! - {$result}")*/
 
-        //println("1")
-        //run()
-        //println("2")
+        /*println("1")
+        run()
+        println("2")*/
 
         run2(object : Callback{
             override fun onFailure(call: Call, e: IOException) {
@@ -34,7 +33,6 @@ class DevicesList : AppCompatActivity() {
                 println("!!! - ${response.body!!.string()}")
             }
         });
-
     }
 
     private fun getRequest(sUrl: String): String? {
