@@ -29,6 +29,7 @@ class DevicesList : AppCompatActivity() {
                     var bodyData = response.body!!.string();
                     println(bodyData);
                     var deviceDescriptions = Json.decodeFromString<List<ExtendedDeviceDescription>>(bodyData);
+                    println("!!!")
                     println(deviceDescriptions.size);
                 }
             }
