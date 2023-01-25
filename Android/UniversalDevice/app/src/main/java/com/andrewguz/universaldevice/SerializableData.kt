@@ -10,20 +10,20 @@ import kotlinx.serialization.encodeToString
 import java.util.UUID
 
 @Serializable
-data class ThermometerCurrentValue(
-    val value: Float)
+class ThermometerCurrentValue(
+    val value: Float = 0.0f)
 
 @Serializable
-data class DeviceDescription(
-    val type: String,
-    val id: String)
+class DeviceDescription(
+    val type: String = "",
+    val id: String = "")
 
 @Serializable
-data class MessageHeader(
+class MessageHeader(
     val deviceDescription: DeviceDescription,
-    var subject: String)
+    var subject: String = "")
 
 @Serializable
-data class Message(
+class Message(
     val header: MessageHeader,
-    val data: String)
+    val data: String = "")
