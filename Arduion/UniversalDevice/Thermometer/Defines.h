@@ -7,7 +7,11 @@
 //wifi networks and passwords - specify before upload
 #define SSID_MAIN "1"
 #define SSID_ADDITIONAL "2"
-#define PASSWORD_MAIN "3"
+#define PASSWORD_MAIN "3["
 #define PASSWORD_ADDITIONAL "4"
+
+//api
+#define API_BASE "http://188.242.186.162:7315/api/device"
+#define API_INFORM API_BASE "/inform"
 
 #endif //_DEFINES_H_
