@@ -16,8 +16,9 @@ std::string TimeHelper::TimeToString(const std::chrono::system_clock::time_point
 
 std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::string& string)
 {
-    std::tm tm;
-    strptime(string.c_str(), "%d-%m-%Y %T", &tm);
+    std::tm tm = {};
+    std::stringstream sstream(string);
+    sstream >> std::get_time(&tm, "%d-%m-%Y %T");
     auto time_t = std::mktime(&tm);
     return std::chrono::system_clock::from_time_t(time_t);
 }
