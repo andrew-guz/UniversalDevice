@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import java.net.URL
 import java.io.IOException
 import okhttp3.*
-import kotlin.reflect.KFunction2
 
 class DevicesList : AppCompatActivity() {
     var requestWrapper = RequestWrapper()
