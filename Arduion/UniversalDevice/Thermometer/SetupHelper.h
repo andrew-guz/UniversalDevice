@@ -3,7 +3,7 @@
 
 #include "Defines.h"
 
-void setupHelper()
+void CheckDefines()
 {
     //check that variables are set
     #ifndef UUID

@@ -4,7 +4,7 @@
 
 void setup()
 {
-    setupHelper();
+    CheckDefines();
 }
 
 void loop()

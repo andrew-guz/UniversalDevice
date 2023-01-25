@@ -10,6 +10,6 @@ Settings Settings::ReadSettings()
         return Settings();
 
     Settings settings;
-    settings._port = settingsJson.value("port", 8080);
+    settings._port = settingsJson.value("port", 7315);
     return settings;
 }

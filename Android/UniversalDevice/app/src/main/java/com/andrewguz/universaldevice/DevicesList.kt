@@ -14,7 +14,7 @@ class DevicesList : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_devices_list)
 
-        requestWrapper.GetRequest("http://192.168.1.187:8080/api/client/list", object : Callback{
+        requestWrapper.GetRequest("http://188.242.186.162:7315/api/client/list", object : Callback{
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
             }

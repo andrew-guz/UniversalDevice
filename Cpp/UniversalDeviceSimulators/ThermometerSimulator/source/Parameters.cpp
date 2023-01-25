@@ -2,7 +2,6 @@
 
 #include "ProcessSettingsReader.h"
 #include <fstream>
-#include <nlohmann/json.hpp>
 
 Parameters Parameters::ReadFromFile(const std::string fileName)
 {
@@ -11,7 +10,7 @@ Parameters Parameters::ReadFromFile(const std::string fileName)
         return Parameters();
 
     Parameters parameters;
-    parameters._port = json.value("port", 8080);
+    parameters._port = json.value("port", 7315);
     parameters._id = Uuid(json.value("id", ""));
     parameters._startTemperature = json.value("startTemperature", 20.0f);
     parameters._delta = json.value("delta", 0.1f);

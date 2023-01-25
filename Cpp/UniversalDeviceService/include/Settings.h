@@ -5,7 +5,7 @@
 
 struct Settings
 {
-    int _port = 8080;
+    int _port = 7315;
 
     static Settings ReadSettings();
 }; 
