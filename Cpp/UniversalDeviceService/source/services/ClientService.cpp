@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 
 #include "Defines.h"
+#include "ExtendedDeviceDescription.h"
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor)
@@ -21,13 +22,9 @@ std::string ClientService::ListDevices()
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select("SELECT * FROM 'Devices'", data))
     {
-        for (auto& row : data)
-            result.push_back({
-                { "id", row[0] },
-                { "type", row[1] },
-                { "name", row[2] },
-                { "timestamp", row[3] }
-            });
+        auto extendedDeviceDescriptions = ExtendedDeviceDescription::CreateFromDbStrings(data);
+        for (auto& extendedDeviceDescription : extendedDeviceDescriptions)
+            result.push_back(extendedDeviceDescription.ToJson());
     }
     return result.dump();
 }
