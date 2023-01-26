@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "PathHelper.h"
+#include "TimeHelper.h"
 
 class FileStreamWrapper final
 {
@@ -39,9 +40,21 @@ public:
     static Logger& Instance(LogLevel logLevel, const std::string& path);
 
     template <typename T>
-    std::ostream& operator<<(const T& data_)
+    std::ostream& operator<<(const T& data)
     {
-        return FileStreamWrapper::Stream("");
+        auto& stream = FileStreamWrapper::Stream(_logPath);
+        stream << TimeHelper::TimeToString(std::chrono::system_clock::now()) << "\t";
+        switch (_logLevel)
+        {
+        case LogLevel::INFO:
+            stream << "[INFO]";
+            break;
+        case LogLevel::ERROR:
+            stream << "[ERROR]";
+            break;
+        }
+        stream << "\t" << data;
+        return stream;
     }
 
 private:
@@ -50,7 +63,7 @@ private:
     std::string                         _logPath;
 };
 
-#define LOG_INFO Logger::Instance(LogLevel::INFO, "?")
-#define LOG_ERROR Logger::Instance(LogLevel::ERROR, "?")
+#define LOG_INFO Logger::Instance(LogLevel::INFO, PathHelper::AppLogPath())
+#define LOG_ERROR Logger::Instance(LogLevel::ERROR, PathHelper::AppLogPath())
 
 #endif // _LOGGER_H_

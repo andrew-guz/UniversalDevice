@@ -9,6 +9,12 @@ public:
     static std::string AppPath();
 
     static std::string AppDirPath();
+
+    static std::string AppSettingsPath();
+
+    static std::string AppLogPath();
+
+    static std::string AppDbPath();
 };
 
 #endif //_PATH_HELPER_H_

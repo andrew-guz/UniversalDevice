@@ -1,12 +1,12 @@
 #ifndef _EXTENDED_DEVICE_DESCRIPTION_H_
 #define _EXTENDED_DEVICE_DESCRIPTION_H_
 
-#include <iostream>
 #include <chrono>
 
 #include "IDb.h"
 #include "TimeHelper.h"
 #include "DeviceDescription.h"
+#include "Logger.h"
 
 struct ExtendedDeviceDescription final : DeviceDescription, public IJson<ExtendedDeviceDescription>, public IDb<ExtendedDeviceDescription>
 {
@@ -50,7 +50,7 @@ struct ExtendedDeviceDescription final : DeviceDescription, public IJson<Extende
             _timestamp = TimeHelper::TimeFromString(dbStrings[3]);
         }
         else
-            std::cout << "Invalid db strings" << std::endl;
+            LOG_ERROR << "Invalid db strings" << std::endl;
     }
 };
 

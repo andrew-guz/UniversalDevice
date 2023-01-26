@@ -1,8 +1,8 @@
 #include "ThermometerProcessor.h"
 
-#include <iostream>
 #include <sstream>
 
+#include "Logger.h"
 #include "Constants.h"
 #include "ThermometerCurrentValue.h"
 #include "TimeHelper.h"
@@ -20,7 +20,7 @@ void ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_
         auto currentValue = ThermometerCurrentValue::CreateFromJson(message._data);
         if (currentValue._value == std::numeric_limits<float>::min())
         {
-            std::cout << "ThermometerProcessor - invalid message" << std::endl;
+            LOG_ERROR << "ThermometerProcessor - invalid message" << std::endl;
             return; 
         }
         auto& deviceDescription = message._header._deviceDescription;

@@ -1,7 +1,6 @@
 #include "ProcessorsFactory.h"
 
-#include <iostream>
-
+#include "Logger.h"
 #include "Constants.h"
 #include "DeviceRegistrationProcessor.h"
 #include "ThermometerProcessor.h"
@@ -17,7 +16,7 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
     auto& deviceDescription = messageHeader._deviceDescription;
     if (std::find(allowedTypes.begin(), allowedTypes.end(), deviceDescription._type) == allowedTypes.end())
     {
-        std::cout << "No processors found for type " << deviceDescription._type << std::endl;
+        LOG_ERROR << "No processors found for type " << deviceDescription._type << std::endl;
         return Processors();
     }
 

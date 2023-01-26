@@ -1,6 +1,7 @@
 #include "DeviceService.h"
 
 #include "Defines.h"
+#include "Logger.h"
 #include "TimeHelper.h"
 #include "ProcessorsFactory.h"
 
@@ -22,7 +23,7 @@ int DeviceService::Inform(const crow::request& request)
     {
         auto timestamp = std::chrono::system_clock::now();
         auto body_json = nlohmann::json::parse(body);
-        std::cout << "Inform [" << TimeHelper::TimeToString(timestamp) << "]:  " << body_json.dump() << std::endl;
+        LOG_INFO << body_json.dump() << std::endl;
         auto message = Message::CreateFromJson(body_json);
         auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);
         for (auto& processor : processors)

@@ -1,8 +1,6 @@
 #include "Storage.h"
 
-#include <iostream>
-
-#include "PathHelper.h"
+#include "Logger.h"
 
 int NoActionCallback(void* data, int columnsInRow, char** rowData, char** columnName)
 {
@@ -23,14 +21,9 @@ int SelectCallback(void* data, int columnsInRow, char** rowData, char** columnNa
     return 0;
 }
 
-std::string DbPath()
-{
-    return PathHelper::AppPath() + std::string(".db");
-}
-
 Storage::Storage()
 {
-    sqlite3_open(DbPath().c_str(), &_connection);
+    sqlite3_open(PathHelper::AppDbPath().c_str(), &_connection);
     InitializeDb();
 }
 
@@ -60,7 +53,7 @@ bool Storage::InternalExecute(const std::string& query, int(*callback)(void*, in
     int result = sqlite3_exec(_connection, query.c_str(), callback, data, &error);
     if (result != SQLITE_OK)
     {   
-        std::cout << "SQL error: " << error << std::endl;
+        LOG_ERROR << "SQL error: " << error << std::endl;
         sqlite3_free(error);
         return false;
     }
