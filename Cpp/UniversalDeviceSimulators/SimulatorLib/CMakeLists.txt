@@ -18,6 +18,7 @@ include_directories(./../../UniversalDeviceLib/include/device)
 include_directories(./../../UniversalDeviceLib/include/interfaces)
 include_directories(./../../UniversalDeviceLib/include/messages)
 include_directories(./../../UniversalDeviceLib/include/messages/custom)
+include_directories(./../../UniversalDeviceLib/include/network)
 include_directories(./../../UniversalDeviceLib/include/serializers)
 include_directories(./../../UniversalDeviceLib/include/serializers/custom)
 
@@ -42,4 +43,4 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
-target_link_libraries(${PROJECT_NAME} -lcurlpp UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} UniversalDeviceLib)

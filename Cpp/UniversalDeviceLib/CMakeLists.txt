@@ -17,6 +17,7 @@ include_directories(./include/device)
 include_directories(./include/interfaces)
 include_directories(./include/messages)
 include_directories(./include/messages/custom)
+include_directories(./include/network)
 include_directories(./include/serializers)
 include_directories(./include/serializers/custom)
 
@@ -40,4 +41,4 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
-target_link_libraries(${PROJECT_NAME} -luuid)
+target_link_libraries(${PROJECT_NAME} -luuid -lcurlpp)
