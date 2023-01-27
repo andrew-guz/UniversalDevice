@@ -5,12 +5,13 @@
 #include <Wt/WGridLayout.h>
 #include <Wt/WPushButton.h>
 
+#include "BaseStackWidget.h"
 #include "Settings.h"
 
-class DevicesWidget final : public Wt::WContainerWidget
+class DevicesWidget final : public Wt::WContainerWidget, public BaseStackWidget
 {
 public:
-    DevicesWidget(const Settings& settings);
+    DevicesWidget(IStackHolder* stackHolder, const Settings& settings);
 
     virtual ~DevicesWidget() = default;
 
@@ -20,7 +21,6 @@ private:
     void Refresh();
 
 private:
-    const Settings&                 _settings;
     Wt::WGridLayout*                _mainLayout;
     Wt::WPushButton*                _refreshButton;
     std::vector<Wt::WPushButton*>   _deviceButtons;

@@ -7,8 +7,8 @@
 
 using namespace Wt;
 
-DevicesWidget::DevicesWidget(const Settings& settings) :
-    _settings(settings)
+DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseStackWidget(stackHolder, settings)
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
     auto text = _mainLayout->addWidget(std::make_unique<WText>(), 0, 0, 0, 4, AlignmentFlag::Left);

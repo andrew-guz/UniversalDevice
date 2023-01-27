@@ -12,6 +12,8 @@ project(${PROJECT_NAME})
 
 #where to search headers
 include_directories(./include)
+include_directories(./include/interfaces)
+include_directories(./include/stackWidgets)
 include_directories(./../UniversalDeviceLib/include)
 include_directories(./../UniversalDeviceLib/include/core)
 include_directories(./../UniversalDeviceLib/include/device)
