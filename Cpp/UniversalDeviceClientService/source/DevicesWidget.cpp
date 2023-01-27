@@ -9,9 +9,9 @@ DevicesWidget::DevicesWidget(const Settings& settings) :
     _settings(settings)
 {
     _mainLayout = setLayout(std::make_unique<Wt::WGridLayout>());
-    auto text = _mainLayout->addWidget(std::make_unique<Wt::WText>(), 0, 0);
+    auto text = _mainLayout->addWidget(std::make_unique<Wt::WText>(), 0, 0, 0, 4, Wt::AlignmentFlag::Left);
     text->setText("Список известных устройств:");
-    _refreshButton = _mainLayout->addWidget(std::make_unique<Wt::WPushButton>(), 0, 1, Wt::AlignmentFlag::Right);
+    _refreshButton = _mainLayout->addWidget(std::make_unique<Wt::WPushButton>(), 0, 4, Wt::AlignmentFlag::Right);
     _refreshButton->setText("Обновить...");
     _refreshButton->clicked().connect([&](){ this->Refresh(); });
 
@@ -20,7 +20,9 @@ DevicesWidget::DevicesWidget(const Settings& settings) :
 
 void DevicesWidget::Clear()
 {
-
+    for(auto& button : _deviceButtons)
+        _mainLayout->removeWidget(button);
+    _deviceButtons.clear();
 }
 
 void DevicesWidget::Refresh()
@@ -52,4 +54,19 @@ void DevicesWidget::Refresh()
     if (descriptions.empty())
         return;
     LOG_INFO << descriptions.size() << " descriptions found." << std::endl;
+    int row = 2;
+    int column = 0;
+    for (auto& description : descriptions)
+    {
+        auto button = _mainLayout->addWidget(std::make_unique<Wt::WPushButton>(), row, column, Wt::AlignmentFlag::Center);
+        button->setText(description._name.size() ? description._name : description._id.data());
+        button->setMinimumSize(200, 150);
+        _deviceButtons.push_back(button);
+        ++column;
+        if (column == 5)
+        {
+            ++row;
+            column = 0;
+        }
+    }
 }

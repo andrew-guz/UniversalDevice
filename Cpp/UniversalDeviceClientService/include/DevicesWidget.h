@@ -20,9 +20,10 @@ private:
     void Refresh();
 
 private:
-    const Settings&     _settings;
-    Wt::WGridLayout*    _mainLayout;
-    Wt::WPushButton*    _refreshButton;
+    const Settings&                 _settings;
+    Wt::WGridLayout*                _mainLayout;
+    Wt::WPushButton*                _refreshButton;
+    std::vector<Wt::WPushButton*>   _deviceButtons;
 };
 
 #endif //_DEVICES_WIDGET_H_

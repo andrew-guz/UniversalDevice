@@ -25,7 +25,7 @@ struct ExtendedDeviceDescription final : DeviceDescription, public IJson<Extende
     virtual void FromJson(const nlohmann::json& json) override
     {
         DeviceDescription::FromJson(json);
-        _id = json.value("name", "");
+        _name = json.value("name", "");
         _timestamp = TimeHelper::TimeFromString(json.value("timestamp", ""));
     }
 
