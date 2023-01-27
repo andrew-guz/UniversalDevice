@@ -1,10 +1,11 @@
 #ifndef _BASE_STACK_WIDGET_H_
 #define _BASE_STACK_WIDGET_H_
 
+#include "IStackWidget.h"
 #include "IStackHolder.h"
 #include "Settings.h"
 
-class BaseStackWidget
+class BaseStackWidget : public IStackWidget
 {
 public:
     BaseStackWidget(IStackHolder* stackHolder, const Settings& settings) :

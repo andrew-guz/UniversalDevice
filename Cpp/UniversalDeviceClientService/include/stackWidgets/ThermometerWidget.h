@@ -13,6 +13,8 @@ public:
 
     virtual ~ThermometerWidget() = default;
 
+    virtual void Initialize(const std::string& data) override;
+
 private:
     Wt::WGridLayout* _mainLayout;
 };

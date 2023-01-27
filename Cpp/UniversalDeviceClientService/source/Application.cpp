@@ -18,18 +18,23 @@ Application::Application(const Settings& settings, const WEnvironment& env) :
     _mainStack->setCurrentIndex(0);
 }
 
-void Application::SetWidget(StackWidgetType type, void* data)
+void Application::SetWidget(StackWidgetType type, const std::string& data)
 {
+    IStackWidget* stackWidget = nullptr;
     switch (type)
     {
     case StackWidgetType::Devices:
         _mainStack->setCurrentIndex(0);
+        stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(0));
         break;
     case StackWidgetType::Thermometer:
         _mainStack->setCurrentIndex(1);
+        stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(1));
         break;
     default:
         LOG_ERROR << "Unknown widget type " << (int)type << "." << std::endl;
         break;
     }
+    if (stackWidget)
+        stackWidget->Initialize(data);
 }

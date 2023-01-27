@@ -15,7 +15,7 @@ public:
 
     virtual ~Application() = default;
 
-    virtual void SetWidget(StackWidgetType type, void* data) override;
+    virtual void SetWidget(StackWidgetType type, const std::string& data) override;
 
 private:
     Wt::WHBoxLayout*    _mainLayout;

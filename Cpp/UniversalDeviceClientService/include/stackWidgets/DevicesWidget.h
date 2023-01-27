@@ -15,6 +15,8 @@ public:
 
     virtual ~DevicesWidget() = default;
 
+    virtual void Initialize(const std::string& data) override;
+
 private:
     void Clear();
 

@@ -10,7 +10,7 @@ public:
 
     virtual ~IStackHolder() = default;
 
-    virtual void SetWidget(StackWidgetType type, void* data) = 0;
+    virtual void SetWidget(StackWidgetType type, const std::string& data) = 0;
 };
 
 #endif //_STACK_HOLDER_H_

@@ -1,6 +1,7 @@
 #include "DevicesWidget.h"
 
 #include "Defines.h"
+#include "Constants.h"
 #include "Logger.h"
 #include "RequestHelper.h"
 #include "ExtendedDeviceDescription.h"
@@ -15,8 +16,13 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     text->setText("Список известных устройств:");
     _refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 0, 4, AlignmentFlag::Right);
     _refreshButton->setText("Обновить...");
-    _refreshButton->clicked().connect([&](){ this->Refresh(); });
+    _refreshButton->clicked().connect([&](){ Refresh(); });
 
+    Refresh();
+}
+
+void DevicesWidget::Initialize(const std::string& data)
+{
     Refresh();
 }
 
@@ -63,6 +69,10 @@ void DevicesWidget::Refresh()
         auto button = _mainLayout->addWidget(std::make_unique<WPushButton>(), row, column, AlignmentFlag::Center);
         button->setText(description._name.size() ? description._name : description._id.data());
         button->setMinimumSize(200, 150);
+        button->clicked().connect([description, this](){
+            if (description._type == Constants::DeviceTypeThermometer)
+                _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
+        });
         _deviceButtons.push_back(button);
         ++column;
         if (column == 5)
