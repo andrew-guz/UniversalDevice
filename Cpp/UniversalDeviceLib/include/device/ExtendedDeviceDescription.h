@@ -8,6 +8,7 @@
 #include "DeviceDescription.h"
 #include "Logger.h"
 
+//since we deriveed from other Json<T> static method CreateFromJson will be ambiguous
 struct ExtendedDeviceDescription final : DeviceDescription, public IJson<ExtendedDeviceDescription>, public IDb<ExtendedDeviceDescription>
 {
     std::string                             _name;
@@ -50,7 +51,7 @@ struct ExtendedDeviceDescription final : DeviceDescription, public IJson<Extende
             _timestamp = TimeHelper::TimeFromString(dbStrings[3]);
         }
         else
-            LOG_ERROR << "Invalid db strings" << std::endl;
+            LOG_ERROR << "Invalid db strings." << std::endl;
     }
 };
 

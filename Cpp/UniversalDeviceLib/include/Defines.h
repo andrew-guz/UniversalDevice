@@ -3,6 +3,9 @@
 
 #define VERSION "1.0"
 
+#define DEFAULT_SERVICE_PORT 7315
+#define DEFAULT_CLIENT_PORT 7316
+
 //api addresses
 //common
 #define API_VERSION "/api/version"

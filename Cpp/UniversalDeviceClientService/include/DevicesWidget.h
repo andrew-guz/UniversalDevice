@@ -5,19 +5,24 @@
 #include <Wt/WGridLayout.h>
 #include <Wt/WPushButton.h>
 
+#include "Settings.h"
+
 class DevicesWidget final : public Wt::WContainerWidget
 {
 public:
-    DevicesWidget();
+    DevicesWidget(const Settings& settings);
 
     virtual ~DevicesWidget() = default;
 
 private:
+    void Clear();
+
     void Refresh();
 
 private:
-    Wt::WGridLayout* _mainLayout;
-    Wt::WPushButton* _refreshButton;
+    const Settings&     _settings;
+    Wt::WGridLayout*    _mainLayout;
+    Wt::WPushButton*    _refreshButton;
 };
 
 #endif //_DEVICES_WIDGET_H_

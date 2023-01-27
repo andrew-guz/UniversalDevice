@@ -10,6 +10,7 @@ Settings Settings::ReadSettings()
         return Settings();
 
     Settings settings;
-    settings._port = settingsJson.value("port", DEFAULT_SERVICE_PORT);
+    settings._servicePort = settingsJson.value("servicePort", DEFAULT_SERVICE_PORT);
+    settings._clientPort = settingsJson.value("clientPort", DEFAULT_CLIENT_PORT);
     return settings;
 }

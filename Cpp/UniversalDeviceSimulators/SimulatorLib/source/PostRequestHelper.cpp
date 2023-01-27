@@ -14,7 +14,7 @@ void PostRequestHelper::DoInformRequest(const RequestAddress& requestAddress, co
     }
     catch(...)
     {
-        LOG_ERROR << "Can't send message to " << requestAddress.BuildUrl() << std::endl;
+        LOG_ERROR << "Can't send message to " << requestAddress.BuildUrl() << "." << std::endl;
     }
     
 }

@@ -13,7 +13,7 @@ nlohmann::json ProcessSettingsReader::ReadProcessSettings()
     }
     catch (...)
     {
-        LOG_ERROR << "Failed to read settings..." << std::endl;
+        LOG_ERROR << "Failed to read settings." << std::endl;
     }
 
     return nlohmann::json();

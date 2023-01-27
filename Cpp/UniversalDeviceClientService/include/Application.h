@@ -5,10 +5,12 @@
 #include <Wt/WHBoxLayout.h>
 #include <Wt/WStackedWidget.h>
 
+#include "Settings.h"
+
 class Application final: public Wt::WApplication
 {
 public:
-    Application(const Wt::WEnvironment& env);
+    Application(const Settings& settings, const Wt::WEnvironment& env);
 
     virtual ~Application() = default;
 

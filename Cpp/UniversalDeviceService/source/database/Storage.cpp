@@ -53,7 +53,7 @@ bool Storage::InternalExecute(const std::string& query, int(*callback)(void*, in
     int result = sqlite3_exec(_connection, query.c_str(), callback, data, &error);
     if (result != SQLITE_OK)
     {   
-        LOG_ERROR << "SQL error: " << error << std::endl;
+        LOG_ERROR << "SQL error: " << error << "." << std::endl;
         sqlite3_free(error);
         return false;
     }

@@ -5,7 +5,9 @@
 
 struct Settings
 {
-    int _port = DEFAULT_SERVICE_PORT;
+    int _servicePort = DEFAULT_SERVICE_PORT;
+
+    int _clientPort = DEFAULT_CLIENT_PORT;
 
     static Settings ReadSettings();
 }; 
