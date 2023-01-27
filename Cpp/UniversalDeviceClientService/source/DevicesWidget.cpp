@@ -5,13 +5,15 @@
 #include "RequestHelper.h"
 #include "ExtendedDeviceDescription.h"
 
+using namespace Wt;
+
 DevicesWidget::DevicesWidget(const Settings& settings) :
     _settings(settings)
 {
-    _mainLayout = setLayout(std::make_unique<Wt::WGridLayout>());
-    auto text = _mainLayout->addWidget(std::make_unique<Wt::WText>(), 0, 0, 0, 4, Wt::AlignmentFlag::Left);
+    _mainLayout = setLayout(std::make_unique<WGridLayout>());
+    auto text = _mainLayout->addWidget(std::make_unique<WText>(), 0, 0, 0, 4, AlignmentFlag::Left);
     text->setText("Список известных устройств:");
-    _refreshButton = _mainLayout->addWidget(std::make_unique<Wt::WPushButton>(), 0, 4, Wt::AlignmentFlag::Right);
+    _refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 0, 4, AlignmentFlag::Right);
     _refreshButton->setText("Обновить...");
     _refreshButton->clicked().connect([&](){ this->Refresh(); });
 
@@ -58,7 +60,7 @@ void DevicesWidget::Refresh()
     int column = 0;
     for (auto& description : descriptions)
     {
-        auto button = _mainLayout->addWidget(std::make_unique<Wt::WPushButton>(), row, column, Wt::AlignmentFlag::Center);
+        auto button = _mainLayout->addWidget(std::make_unique<WPushButton>(), row, column, AlignmentFlag::Center);
         button->setText(description._name.size() ? description._name : description._id.data());
         button->setMinimumSize(200, 150);
         _deviceButtons.push_back(button);
