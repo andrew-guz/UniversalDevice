@@ -2,6 +2,7 @@
 #define _STORAGE_H_
 
 #include <sqlite3.h>
+#include <mutex>
 
 #include "IQueryExecutor.h"
 
@@ -24,7 +25,8 @@ private:
     void InitializeDb();
 
 private:
-    sqlite3* _connection = nullptr;
+    sqlite3*    _connection = nullptr;
+    std::mutex  _mutex;
 };
 
 #endif //_STORAGE_H_
