@@ -1,30 +1,30 @@
-#ifndef _EXTENDED_DEVICE_DESCRIPTION_H_
-#define _EXTENDED_DEVICE_DESCRIPTION_H_
+#ifndef _EXTENDED_COMPONENT_DESCRIPTION_H_
+#define _EXTENDED_COMPONENT_DESCRIPTION_H_
 
 #include <chrono>
 
 #include "IDb.h"
 #include "TimeHelper.h"
-#include "DeviceDescription.h"
+#include "ComponentDescription.h"
 #include "Logger.h"
 
-//since we deriveed from other Json<T> static method CreateFromJson will be ambiguous
-struct ExtendedDeviceDescription final : DeviceDescription, public IJson<ExtendedDeviceDescription>, public IDb<ExtendedDeviceDescription>
+//since we derived from other Json<T> static method CreateFromJson will be ambiguous
+struct ExtendedComponentDescription final : ComponentDescription, public IJson<ExtendedComponentDescription>, public IDb<ExtendedComponentDescription>
 {
     std::string                             _name;
     std::chrono::system_clock::time_point   _timestamp;
 
     virtual nlohmann::json ToJson() const override
     {
-        auto deviceDescription = DeviceDescription::ToJson();
-        deviceDescription += { "name", _name };
-        deviceDescription += { "timestamp", TimeHelper::TimeToString(_timestamp) };
-        return deviceDescription;
+        auto componentDescription = ComponentDescription::ToJson();
+        componentDescription += { "name", _name };
+        componentDescription += { "timestamp", TimeHelper::TimeToString(_timestamp) };
+        return componentDescription;
     }
 
     virtual void FromJson(const nlohmann::json& json) override
     {
-        DeviceDescription::FromJson(json);
+        ComponentDescription::FromJson(json);
         _name = json.value("name", "");
         _timestamp = TimeHelper::TimeFromString(json.value("timestamp", ""));
     }
@@ -55,4 +55,4 @@ struct ExtendedDeviceDescription final : DeviceDescription, public IJson<Extende
     }
 };
 
-#endif //_EXTENDED_DEVICE_DESCRIPTION_H_
+#endif //_EXTENDED_COMPONENT_DESCRIPTION_H_

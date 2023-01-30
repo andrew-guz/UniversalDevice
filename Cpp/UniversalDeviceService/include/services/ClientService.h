@@ -16,6 +16,8 @@ protected:
 
     std::string ListDevices();
 
+    std::string GetDeviceInfo(const crow::request& request);
+
 private:
     friend class BaseService<ClientService>;
 };

@@ -7,6 +7,6 @@ project("UniversalDevice")
 #subprojects
 add_subdirectory(./UniversalDeviceLib)
 add_subdirectory(./UniversalDeviceService)
-add_subdirectory(./UniversalDeviceClientService)
+add_subdirectory(./UniversalDeviceFrontendService)
 add_subdirectory(./UniversalDeviceSimulators/SimulatorLib)
 add_subdirectory(./UniversalDeviceSimulators/ThermometerSimulator)

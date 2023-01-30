@@ -15,7 +15,9 @@ ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) :
 
 void ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message)
 {
-    if (message._header._subject == Constants::SubjectThermometerCurrentValue)
+    if (message._header._from._type == Constants::DeviceTypeThermometer &&
+        message._header._to._type == Constants::DeviceServiceType &&
+        message._header._subject == Constants::SubjectThermometerCurrentValue)
     {
         auto currentValue = ThermometerCurrentValue::CreateFromJson(message._data);
         if (currentValue._value == std::numeric_limits<float>::min())
@@ -23,11 +25,11 @@ void ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_
             LOG_ERROR << "ThermometerProcessor - invalid message." << std::endl;
             return; 
         }
-        auto& deviceDescription = message._header._deviceDescription;
+        auto& from = message._header._from;
         std::stringstream queryStream;
         queryStream
-            << "INSERT INTO 'Thermometers' ('id', 'timestamp', 'value') VALUES ('"
-            << deviceDescription._id.data()
+            << "INSERT INTO Thermometers (id, timestamp, value) VALUES ('"
+            << from._id.data()
             << "', '" 
             << TimeHelper::TimeToString(timestamp)
             << "', '" 

@@ -1,5 +1,5 @@
-#ifndef _DEVICE_DESCRIPTION_H_
-#define _DEVICE_DESCRIPTION_H_
+#ifndef _COMPONENT_DESCRIPTION_H_
+#define _COMPONENT_DESCRIPTION_H_
 
 #include <string>
 
@@ -7,9 +7,9 @@
 #include "Constants.h"
 #include "Uuid.h"
 
-struct DeviceDescription : public IJson<DeviceDescription>
+struct ComponentDescription : public IJson<ComponentDescription>
 {
-    std::string _type = Constants::DeviceTypeUndefined;
+    std::string _type;
     Uuid        _id;
 
     virtual nlohmann::json ToJson() const override
@@ -22,9 +22,9 @@ struct DeviceDescription : public IJson<DeviceDescription>
 
     virtual void FromJson(const nlohmann::json& json) override
     {
-        _type = json.value("type", Constants::DeviceTypeUndefined);
+        _type = json.value("type", "");
         _id = Uuid(json.value("id", ""));
     }
 };
 
-#endif //_DEVICE_DESCRIPTION_H_
+#endif //_COMPONENT_DESCRIPTION_H_

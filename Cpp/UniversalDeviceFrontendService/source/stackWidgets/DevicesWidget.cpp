@@ -4,7 +4,7 @@
 #include "Constants.h"
 #include "Logger.h"
 #include "RequestHelper.h"
-#include "ExtendedDeviceDescription.h"
+#include "ExtendedComponentDescription.h"
 
 using namespace Wt;
 
@@ -43,13 +43,13 @@ void DevicesWidget::Refresh()
         LOG_ERROR << "Empty " << API_CLIENT_LIST_DEVICES << " response." << std::endl;
         return;
     }
-    std::vector<ExtendedDeviceDescription> descriptions;
+    std::vector<ExtendedComponentDescription> descriptions;
     try
     {
         auto jsonArray = nlohmann::json::parse(result);
         for (auto& json : jsonArray)
         {
-            ExtendedDeviceDescription description;
+            ExtendedComponentDescription description;
             description.FromJson(json);
             descriptions.push_back(description);
         }

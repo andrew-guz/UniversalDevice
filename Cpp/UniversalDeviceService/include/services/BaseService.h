@@ -4,6 +4,8 @@
 #include <crow.h>
 
 #include "IQueryExecutor.h"
+#include "Logger.h"
+#include "Message.h"
 
 template<typename T>
 class BaseService
@@ -27,6 +29,14 @@ public:
 
 protected:
     virtual void Initialize(crow::SimpleApp& app) = 0;
+
+    Message GetMessageFromRequest(const crow::request& request)
+    {
+        auto body = request.body;
+        auto body_json = nlohmann::json::parse(body);
+        LOG_INFO << body_json.dump() << std::endl;
+        return Message::CreateFromJson(body_json);
+    }
 
 protected:
     IQueryExecutor* _queryExecutor = nullptr;

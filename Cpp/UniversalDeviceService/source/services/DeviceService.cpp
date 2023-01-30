@@ -18,13 +18,10 @@ void DeviceService::Initialize(crow::SimpleApp& app)
 
 int DeviceService::Inform(const crow::request& request)
 {
-    auto body = request.body;
     try
     {
         auto timestamp = std::chrono::system_clock::now();
-        auto body_json = nlohmann::json::parse(body);
-        LOG_INFO << body_json.dump() << std::endl;
-        auto message = Message::CreateFromJson(body_json);
+        auto message = GetMessageFromRequest(request);
         auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);
         for (auto& processor : processors)
             processor->ProcessMessage(timestamp, message);

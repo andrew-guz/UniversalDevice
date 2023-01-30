@@ -25,6 +25,10 @@ public:
 
     std::string data() const;
 
+    bool isEmpty() const;
+
+    static Uuid Empty();
+
 private:
   uuid_t _uuid;
 };

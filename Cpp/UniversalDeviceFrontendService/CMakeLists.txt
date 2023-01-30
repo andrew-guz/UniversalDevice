@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 # common variable for project name and executable name
-set(PROJECT_NAME "UniversalDeviceClientService")
+set(PROJECT_NAME "UniversalDeviceFrontendService")
 
 #build in Debug mode
 set(CMAKE_BUILD_TYPE Debug)
@@ -15,8 +15,8 @@ include_directories(./include)
 include_directories(./include/interfaces)
 include_directories(./include/stackWidgets)
 include_directories(./../UniversalDeviceLib/include)
+include_directories(./../UniversalDeviceLib/include/component)
 include_directories(./../UniversalDeviceLib/include/core)
-include_directories(./../UniversalDeviceLib/include/device)
 include_directories(./../UniversalDeviceLib/include/interfaces)
 include_directories(./../UniversalDeviceLib/include/messages)
 include_directories(./../UniversalDeviceLib/include/messages/custom)

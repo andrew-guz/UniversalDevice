@@ -12,8 +12,8 @@ project(${PROJECT_NAME})
 
 #where to search headers
 include_directories(./include)
+include_directories(./include/component)
 include_directories(./include/core)
-include_directories(./include/device)
 include_directories(./include/interfaces)
 include_directories(./include/messages)
 include_directories(./include/messages/custom)

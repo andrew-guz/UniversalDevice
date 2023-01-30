@@ -45,3 +45,15 @@ std::string Uuid::data() const
     uuid_unparse_lower(_uuid, buffer);
     return std::string(buffer);
 }
+
+bool Uuid::isEmpty() const
+{
+    return uuid_is_null(_uuid);
+}
+
+Uuid Uuid::Empty()
+{
+    Uuid result;
+    uuid_clear(result._uuid);
+    return result;
+}
