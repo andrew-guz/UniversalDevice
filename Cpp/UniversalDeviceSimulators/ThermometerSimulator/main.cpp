@@ -8,7 +8,7 @@
 #include "Defines.h"
 #include "ThermometerCurrentValue.h"
 #include "MessageCreator.h"
-#include "PostRequestHelper.h"
+#include "RequestHelper.h"
 
 using namespace std::literals;
 
@@ -20,14 +20,6 @@ int main(int argc, char* argv[])
     std::mt19937 random_generator(random_device());
     std::uniform_int_distribution<> distribution(1,10);
 
-    ComponentDescription from;
-    from._type = Constants::DeviceTypeThermometer;
-    from._id = parameters._id;
-
-    ComponentDescription to;
-    to._type = Constants::DeviceServiceType;
-    to._id = Uuid::Empty();
-
     auto temperature = parameters._startTemperature;
 
     while (true)
@@ -35,9 +27,9 @@ int main(int argc, char* argv[])
         //prepare message with current temperature
         ThermometerCurrentValue currentValue;
         currentValue._value = temperature;
-        auto message = MessageCreator::Create(from, to, Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
+        auto message = MessageCreator::Create(Constants::DeviceTypeThermometer, parameters._id, Constants::DeviceServiceType, Uuid::Empty(), Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
         //send current temperature to server
-        PostRequestHelper::DoInformRequest({"127.0.0.1", parameters._port, API_DEVICE_INFORM}, message);
+        RequestHelper::DoPostRequestWithNoAnswer({"127.0.0.1", parameters._port, API_DEVICE_INFORM}, message);
         //generate new value
         auto random_value = distribution(random_generator);
         switch (random_value)

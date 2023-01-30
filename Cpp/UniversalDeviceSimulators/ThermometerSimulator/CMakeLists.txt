@@ -45,4 +45,5 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
-target_link_libraries(${PROJECT_NAME} -lpthread UniversalDeviceLib SimulatorLib)
+#target_link_libraries(${PROJECT_NAME} -lpthread UniversalDeviceLib SimulatorLib)
+target_link_libraries(${PROJECT_NAME} -lpthread UniversalDeviceLib)

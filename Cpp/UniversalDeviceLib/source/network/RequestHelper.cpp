@@ -8,52 +8,40 @@
 
 #include "Logger.h"
 
-std::string RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
+void RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const Message& message)
 {
-    try
-    {
-        cURLpp::Cleanup cleaner;
-        cURLpp::Easy request;
-
-        std::stringstream result;
-
-        request.setOpt(new cURLpp::options::Url(requestAddress.BuildUrl())); 
-        request.setOpt(new cURLpp::options::Verbose(true)); 
-        request.setOpt(new cURLpp::options::WriteStream(&result)); 
-        
-        request.perform();
-
-        auto returnCode = curlpp::infos::ResponseCode::get(request);
-        if (returnCode == 200)
-            return result.str();
-        else
-            LOG_ERROR << "POST request failed : " << returnCode << "." << std::endl;       
-    }
-    catch(...)
-    {
-        LOG_ERROR << "GET request failed (" << requestAddress.BuildUrl() << ")." << std::endl;
-    }
-
-    return {};
+    DoPostRequest(requestAddress, message, nullptr);
 }
 
-void RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const std::string& post_string)
-{
-    DoPostRequest(requestAddress, post_string, nullptr);
-}
-
-std::string RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const std::string& post_string)
+Message RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const Message& message)
 {
     std::ostringstream response;
-    if (DoPostRequest(requestAddress, post_string, &response) == 200)
-        return response.str();
-    return {};
+    if (DoPostRequest(requestAddress, message, &response) == 200)
+    {
+        auto body = response.str();
+        try
+        {
+            auto body_json = nlohmann::json::parse(body);
+            LOG_INFO << body_json.dump() << std::endl;
+            return Message::CreateFromJson(body_json);
+        }
+        catch(...)
+        {
+            LOG_ERROR << "Invalid response " << body << "." << std::endl;
+        }        
+    }
+    return Message();
 }
 
-int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const std::string &post_string, std::ostream* response)
+int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const Message& message, std::ostream* response)
 {
     try
     {
+        auto message_json = message.ToJson();
+        auto post_string = message_json.dump();
+
+        LOG_INFO << "Posting " << post_string << "." << std::endl;
+
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;
 

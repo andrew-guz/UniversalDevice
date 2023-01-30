@@ -3,6 +3,7 @@
 #include "Defines.h"
 #include "Constants.h"
 #include "Logger.h"
+#include "MessageCreator.h"
 #include "RequestHelper.h"
 #include "ExtendedComponentDescription.h"
 
@@ -36,18 +37,17 @@ void DevicesWidget::Clear()
 void DevicesWidget::Refresh()
 {
     Clear();
-
-    auto result = RequestHelper::DoGetRequest({"127.0.0.1", _settings._servicePort, API_CLIENT_LIST_DEVICES});
-    if (!result.size())
+    auto postMessage = MessageCreator::Create(Constants::FrontendServiceType, Uuid::Empty(), Constants::ClientServiceType, Uuid::Empty(), Constants::SubjectGetDevicesList, {});
+    auto replyMessage = RequestHelper::DoPostRequestWithAnswer({"127.0.0.1", _settings._servicePort, API_CLIENT_LIST_DEVICES}, postMessage);
+    if (!replyMessage.IsValid())
     {
-        LOG_ERROR << "Empty " << API_CLIENT_LIST_DEVICES << " response." << std::endl;
+        LOG_ERROR << "Invalid message" << std::endl;
         return;
     }
     std::vector<ExtendedComponentDescription> descriptions;
     try
     {
-        auto jsonArray = nlohmann::json::parse(result);
-        for (auto& json : jsonArray)
+        for (auto& json : replyMessage._data)
         {
             ExtendedComponentDescription description;
             description.FromJson(json);
@@ -56,7 +56,7 @@ void DevicesWidget::Refresh()
     }
     catch(...)
     {
-        LOG_ERROR << "Broken JSON " << result << "." << std::endl;
+        LOG_ERROR << "Broken JSON in message data" << replyMessage._data.dump() << "." << std::endl;
         return;
     }
     if (descriptions.empty())

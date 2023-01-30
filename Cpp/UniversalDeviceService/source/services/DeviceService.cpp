@@ -22,6 +22,11 @@ int DeviceService::Inform(const crow::request& request)
     {
         auto timestamp = std::chrono::system_clock::now();
         auto message = GetMessageFromRequest(request);
+        if (!message.IsValid())
+        {
+            LOG_ERROR << "Invalid message." << std::endl;
+            return crow::BAD_REQUEST;
+        }
         auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);
         for (auto& processor : processors)
             processor->ProcessMessage(timestamp, message);

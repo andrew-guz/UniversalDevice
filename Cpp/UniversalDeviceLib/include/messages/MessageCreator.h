@@ -6,6 +6,8 @@
 class MessageCreator final
 {
 public:
+    static Message Create(const std::string& fromType, const Uuid& fromId, const std::string& toType, const Uuid& toId, const std::string subject, const nlohmann::json& data);
+
     static Message Create(const ComponentDescription& from, const ComponentDescription& to, const std::string subject, const nlohmann::json& data);
 };
 

@@ -14,7 +14,7 @@ public:
 protected:
     virtual void Initialize(crow::SimpleApp& app) override;
 
-    std::string ListDevices();
+    std::string ListDevices(const crow::request& request);
 
     std::string GetDeviceInfo(const crow::request& request);
 

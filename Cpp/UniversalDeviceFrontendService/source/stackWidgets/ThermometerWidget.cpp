@@ -3,8 +3,11 @@
 #include <Wt/WPushButton.h>
 
 #include "Defines.h"
+#include "Constants.h"
 #include "Logger.h"
 #include "Uuid.h"
+#include "ComponentDescription.h"
+#include "MessageCreator.h"
 #include "RequestHelper.h"
 
 using namespace Wt;
@@ -19,6 +22,9 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
 }
 
 void ThermometerWidget::Initialize(const std::string& data)
-{
-    Uuid id(data);
+{   
+    ComponentDescription messageData;
+    messageData._type = Constants::DeviceTypeThermometer;
+    messageData._id = Uuid(data);
+    auto message = MessageCreator::Create(Constants::FrontendServiceType, Uuid::Empty(), Constants::ClientServiceType, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
 }

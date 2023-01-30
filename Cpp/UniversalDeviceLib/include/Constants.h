@@ -18,6 +18,7 @@ public:
     //subjects - depends on type
     static const std::string SubjectUndefined;
     static const std::string SubjectThermometerCurrentValue;
+    static const std::string SubjectGetDevicesList;
     static const std::string SubjectGetDeviceInformation;
 };
 
