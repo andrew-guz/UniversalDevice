@@ -4,6 +4,7 @@
 
 #include "Defines.h"
 #include "Logger.h"
+#include "Uuid.h"
 #include "RequestHelper.h"
 
 using namespace Wt;
@@ -19,5 +20,5 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
 
 void ThermometerWidget::Initialize(const std::string& data)
 {
-
+    Uuid id(data);
 }

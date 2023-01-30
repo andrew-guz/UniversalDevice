@@ -39,6 +39,19 @@ std::string RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
 
 void RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const std::string& post_string)
 {
+    DoPostRequest(requestAddress, post_string, nullptr);
+}
+
+std::string RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const std::string& post_string)
+{
+    std::ostringstream response;
+    if (DoPostRequest(requestAddress, post_string, &response) == 200)
+        return response.str();
+    return {};
+}
+
+int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const std::string &post_string, std::ostream* response)
+{
     try
     {
         cURLpp::Cleanup cleaner;
@@ -54,14 +67,20 @@ void RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddre
         request.setOpt(new curlpp::options::PostFields(post_string));
         request.setOpt(new curlpp::options::PostFieldSize(post_string.size()));
 
+        if (response)
+            request.setOpt(new curlpp::options::WriteStream(response));
+
         request.perform();
 
         auto returnCode = curlpp::infos::ResponseCode::get(request);
         if (returnCode != 200)
             LOG_ERROR << "POST request failed : " << returnCode << "." << std::endl;
+
+        return returnCode;
     }
     catch(...)
     {
         LOG_ERROR << "POST request failed (" << requestAddress.BuildUrl() << ")." << std::endl;
-    }    
+    }
+    return 400;
 }
