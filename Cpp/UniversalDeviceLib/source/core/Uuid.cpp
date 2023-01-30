@@ -54,6 +54,6 @@ bool Uuid::isEmpty() const
 Uuid Uuid::Empty()
 {
     Uuid result;
-    uuid_clear(result._uuid);
+    uuid_parse("00000000-0000-0000-0000-000000000000", result._uuid);
     return result;
 }

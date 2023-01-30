@@ -9,6 +9,8 @@ void PostRequestHelper::DoInformRequest(const RequestAddress& requestAddress, co
     {
         auto message_json = message.ToJson();
         auto post_string = message_json.dump();
+
+        LOG_INFO << "Posting " << post_string << "." << std::endl;
         
         RequestHelper::DoPostRequestWithNoAnswer(requestAddress, post_string);
     }

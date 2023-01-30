@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     from._id = parameters._id;
 
     ComponentDescription to;
-    to._type == Constants::DeviceServiceType;
+    to._type = Constants::DeviceServiceType;
     to._id = Uuid::Empty();
 
     auto temperature = parameters._startTemperature;

@@ -63,7 +63,6 @@ bool Storage::InternalExecute(const std::string& query, int(*callback)(void*, in
 
 void Storage::InitializeDb()
 {
-    std::lock_guard<std::mutex> lock(_mutex);
     std::vector<std::string> queries
     {
         "CREATE TABLE IF NOT EXISTS Devices (id TEXT UNIQUE, type TEXT, name TEXT, timestamp TEXT, PRIMARY KEY(id, type))",
