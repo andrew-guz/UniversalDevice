@@ -7,7 +7,7 @@
 #include "Constants.h"
 #include "Defines.h"
 #include "ThermometerCurrentValue.h"
-#include "MessageCreator.h"
+#include "MessageHelper.h"
 #include "RequestHelper.h"
 
 using namespace std::literals;
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
         //prepare message with current temperature
         ThermometerCurrentValue currentValue;
         currentValue._value = temperature;
-        auto message = MessageCreator::Create(Constants::DeviceTypeThermometer, parameters._id, Constants::DeviceServiceType, Uuid::Empty(), Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
+        auto message = MessageHelper::Create(Constants::DeviceTypeThermometer, parameters._id, Constants::DeviceServiceType, Uuid::Empty(), Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
         //send current temperature to server
         RequestHelper::DoPostRequestWithNoAnswer({"127.0.0.1", parameters._port, API_DEVICE_INFORM}, message);
         //generate new value

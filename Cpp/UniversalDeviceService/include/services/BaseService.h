@@ -33,9 +33,17 @@ protected:
     Message GetMessageFromRequest(const crow::request& request)
     {
         auto body = request.body;
-        auto body_json = nlohmann::json::parse(body);
-        LOG_INFO << body_json.dump() << std::endl;
-        return Message::CreateFromJson(body_json);
+        try
+        {           
+            auto body_json = nlohmann::json::parse(body);
+            LOG_INFO << body_json.dump() << std::endl;
+            return Message::CreateFromJson(body_json);
+        }
+        catch(...)
+        {
+            LOG_ERROR << "Can't get message from request - " << body << std::endl;
+        }
+        return Message();        
     }
 
 protected:

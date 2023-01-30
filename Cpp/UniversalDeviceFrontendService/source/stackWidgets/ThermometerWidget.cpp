@@ -7,8 +7,9 @@
 #include "Logger.h"
 #include "Uuid.h"
 #include "ComponentDescription.h"
-#include "MessageCreator.h"
+#include "MessageHelper.h"
 #include "RequestHelper.h"
+#include "ExtendedThermometerCurrentValue.h"
 
 using namespace Wt;
 
@@ -26,5 +27,9 @@ void ThermometerWidget::Initialize(const std::string& data)
     ComponentDescription messageData;
     messageData._type = Constants::DeviceTypeThermometer;
     messageData._id = Uuid(data);
-    auto message = MessageCreator::Create(Constants::FrontendServiceType, Uuid::Empty(), Constants::ClientServiceType, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
+    auto postMessage = MessageHelper::Create(Constants::FrontendServiceType, Uuid::Empty(), Constants::ClientServiceType, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
+    auto replyMessage = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE }, postMessage);
+    auto thermometerValues = MessageHelper::ParseMessage<ExtendedThermometerCurrentValue>(replyMessage);
+    if (!thermometerValues.size())
+        return;
 }

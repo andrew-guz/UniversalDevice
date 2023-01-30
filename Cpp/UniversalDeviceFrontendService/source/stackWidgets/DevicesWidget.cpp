@@ -3,7 +3,7 @@
 #include "Defines.h"
 #include "Constants.h"
 #include "Logger.h"
-#include "MessageCreator.h"
+#include "MessageHelper.h"
 #include "RequestHelper.h"
 #include "ExtendedComponentDescription.h"
 
@@ -37,28 +37,8 @@ void DevicesWidget::Clear()
 void DevicesWidget::Refresh()
 {
     Clear();
-    auto postMessage = MessageCreator::Create(Constants::FrontendServiceType, Uuid::Empty(), Constants::ClientServiceType, Uuid::Empty(), Constants::SubjectGetDevicesList, {});
-    auto replyMessage = RequestHelper::DoPostRequestWithAnswer({"127.0.0.1", _settings._servicePort, API_CLIENT_LIST_DEVICES}, postMessage);
-    if (!replyMessage.IsValid())
-    {
-        LOG_ERROR << "Invalid message" << std::endl;
-        return;
-    }
-    std::vector<ExtendedComponentDescription> descriptions;
-    try
-    {
-        for (auto& json : replyMessage._data)
-        {
-            ExtendedComponentDescription description;
-            description.FromJson(json);
-            descriptions.push_back(description);
-        }
-    }
-    catch(...)
-    {
-        LOG_ERROR << "Broken JSON in message data" << replyMessage._data.dump() << "." << std::endl;
-        return;
-    }
+    auto replyMessage = RequestHelper::DoGetRequest({"127.0.0.1", _settings._servicePort, API_CLIENT_LIST_DEVICES});
+    auto descriptions = MessageHelper::ParseMessage<ExtendedComponentDescription>(replyMessage);
     if (descriptions.empty())
         return;
     LOG_INFO << descriptions.size() << " descriptions found." << std::endl;

@@ -9,7 +9,9 @@
 class RequestHelper final
 {
 public:
-    static void DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const Message& message);
+    static Message DoGetRequest(const RequestAddress& requestAddress);
+
+    static int DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const Message& message);
 
     static Message DoPostRequestWithAnswer(const RequestAddress& requestAddress, const Message& message);
 
