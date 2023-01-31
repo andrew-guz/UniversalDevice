@@ -14,7 +14,7 @@ public:
 
     virtual ~IProcessor() = default;
 
-    virtual void ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) = 0;
+    virtual nlohmann::json ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) = 0;
 };
 
 typedef std::shared_ptr<IProcessor> Processor;

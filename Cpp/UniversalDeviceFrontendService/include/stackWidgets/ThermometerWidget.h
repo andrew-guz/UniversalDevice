@@ -2,8 +2,10 @@
 #define _THERMOMETER_WIDGET_H_
 
 #include <Wt/WContainerWidget.h>
-#include <Wt/WGridLayout.h>
+#include <Wt/WVBoxLayout.h>
+#include <Wt/WText.h>
 
+#include "Uuid.h"
 #include "BaseStackWidget.h"
 
 class ThermometerWidget final : public Wt::WContainerWidget, public BaseStackWidget
@@ -16,7 +18,9 @@ public:
     virtual void Initialize(const std::string& data) override;
 
 private:
-    Wt::WGridLayout* _mainLayout;
+    Wt::WVBoxLayout*    _mainLayout;
+    Wt::WText*          _mainText;
+    Uuid                _deviceId;
 };
 
 #endif //_THERMOMETER_WIDGET_H_

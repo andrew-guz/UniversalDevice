@@ -11,7 +11,7 @@ DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryEx
 
 }
 
-void DeviceRegistrationProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message)
+nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message)
 {
     auto& from = message._header._from;
     std::stringstream queryStream;
@@ -25,4 +25,5 @@ void DeviceRegistrationProcessor::ProcessMessage(const std::chrono::system_clock
         << "')";
     queryStream.flush();
     _queryExecutor->Execute(queryStream.str());
+    return {};
 }

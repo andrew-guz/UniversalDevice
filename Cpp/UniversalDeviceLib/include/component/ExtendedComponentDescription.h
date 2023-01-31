@@ -8,7 +8,7 @@
 #include "ComponentDescription.h"
 #include "Logger.h"
 
-//since we derived from other Json<T> static method CreateFromJson will be ambiguous
+//since we derived from other Json<T> static methods will be ambiguous
 struct ExtendedComponentDescription final : ComponentDescription, public IJson<ExtendedComponentDescription>, public IDb<ExtendedComponentDescription>
 {
     std::string                             _name;

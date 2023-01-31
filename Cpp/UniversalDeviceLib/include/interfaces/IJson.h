@@ -2,6 +2,7 @@
 #define _I_JSON_H_
 
 #include <nlohmann/json.hpp>
+#include <vector>
 
 template<typename T>
 class IJson
@@ -20,6 +21,15 @@ public:
         T t;
         t.FromJson(json);
         return t;
+    }
+
+    static std::vector<T> CreateVectorFromJson(const nlohmann::json& json)
+    {
+        std::vector<T> result;
+        if (json.is_array())
+            for (auto& j : json)
+                result.push_back(CreateFromJson(j));
+        return result;
     }
 };
 

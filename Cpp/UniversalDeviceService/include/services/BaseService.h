@@ -35,9 +35,9 @@ protected:
         auto body = request.body;
         try
         {           
-            auto body_json = nlohmann::json::parse(body);
-            LOG_INFO << body_json.dump() << std::endl;
-            return Message::CreateFromJson(body_json);
+            auto bodyJson = nlohmann::json::parse(body);
+            LOG_INFO << bodyJson.dump() << std::endl;
+            return Message::CreateFromJson(bodyJson);
         }
         catch(...)
         {

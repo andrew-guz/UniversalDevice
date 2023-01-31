@@ -43,5 +43,16 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         }
     }
 
+    if (to._type == Constants::ClientServiceType)
+    {
+        if (from._type == Constants::FrontendServiceType)
+        {
+            if (message._header._subject == Constants::SubjectGetDeviceInformation)
+            {
+                processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor)));            
+            }
+        }
+    }
+
     return processors;
 }

@@ -8,7 +8,7 @@
 
 #include "Logger.h"
 
-Message RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
+nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
 {
     try
     {
@@ -33,9 +33,9 @@ Message RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
         auto body = response.str();
         try
         {
-            auto body_json = nlohmann::json::parse(body);
-            LOG_INFO << body_json.dump() << std::endl;
-            return Message::CreateFromJson(body_json);
+            auto bodyJson = nlohmann::json::parse(body);
+            LOG_INFO << bodyJson.dump() << std::endl;
+            return bodyJson;
         }
         catch(...)
         {
@@ -46,7 +46,7 @@ Message RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
     {
         LOG_ERROR << "GET request failed (" << requestAddress.BuildUrl() << ")." << std::endl;
     }
-    return Message();
+    return {};
 }
 
 int RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const Message& message)
@@ -62,9 +62,9 @@ Message RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddr
         auto body = response.str();
         try
         {
-            auto body_json = nlohmann::json::parse(body);
-            LOG_INFO << body_json.dump() << std::endl;
-            return Message::CreateFromJson(body_json);
+            auto bodyJson = nlohmann::json::parse(body);
+            LOG_INFO << bodyJson.dump() << std::endl;
+            return Message::CreateFromJson(bodyJson);
         }
         catch(...)
         {
@@ -78,10 +78,10 @@ int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const Mes
 {
     try
     {
-        auto message_json = message.ToJson();
-        auto post_string = message_json.dump();
+        auto messageJson = message.ToJson();
+        auto postString = messageJson.dump();
 
-        LOG_INFO << "POST " << requestAddress.BuildUrl() << " data " <<  post_string << "." << std::endl;
+        LOG_INFO << "POST " << requestAddress.BuildUrl() << " data " <<  postString << "." << std::endl;
 
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;
@@ -93,8 +93,8 @@ int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const Mes
         header.push_back("Content-Type: application/json");
         request.setOpt(new curlpp::options::HttpHeader(header)); 
     
-        request.setOpt(new curlpp::options::PostFields(post_string));
-        request.setOpt(new curlpp::options::PostFieldSize(post_string.size()));
+        request.setOpt(new curlpp::options::PostFields(postString));
+        request.setOpt(new curlpp::options::PostFieldSize(postString.size()));
 
         if (response)
             request.setOpt(new curlpp::options::WriteStream(response));

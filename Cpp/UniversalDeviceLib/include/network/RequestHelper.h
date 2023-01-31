@@ -9,7 +9,7 @@
 class RequestHelper final
 {
 public:
-    static Message DoGetRequest(const RequestAddress& requestAddress);
+    static nlohmann::json DoGetRequest(const RequestAddress& requestAddress);
 
     static int DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const Message& message);
 
