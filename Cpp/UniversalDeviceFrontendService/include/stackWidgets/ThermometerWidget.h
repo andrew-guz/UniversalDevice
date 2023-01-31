@@ -2,7 +2,7 @@
 #define _THERMOMETER_WIDGET_H_
 
 #include <Wt/WContainerWidget.h>
-#include <Wt/WVBoxLayout.h>
+#include <Wt/WGridLayout.h>
 #include <Wt/WText.h>
 
 #include "Uuid.h"
@@ -18,7 +18,7 @@ public:
     virtual void Initialize(const std::string& data) override;
 
 private:
-    Wt::WVBoxLayout*    _mainLayout;
+    Wt::WGridLayout*    _mainLayout;
     Wt::WText*          _mainText;
     Uuid                _deviceId;
 };

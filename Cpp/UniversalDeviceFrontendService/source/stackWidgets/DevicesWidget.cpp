@@ -6,6 +6,7 @@
 #include "MessageHelper.h"
 #include "RequestHelper.h"
 #include "ExtendedComponentDescription.h"
+#include "WidgetHelper.h"
 
 using namespace Wt;
 
@@ -16,6 +17,7 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     auto text = _mainLayout->addWidget(std::make_unique<WText>(), 0, 0, 0, 4, AlignmentFlag::Left);
     text->setText("Список известных устройств:");
     _refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 0, 4, AlignmentFlag::Right);
+    WidgetHelper::SetUsualButtonSize(_refreshButton);
     _refreshButton->setText("Обновить...");
     _refreshButton->clicked().connect([&](){ Refresh(); });
 
