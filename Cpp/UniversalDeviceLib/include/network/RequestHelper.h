@@ -11,12 +11,12 @@ class RequestHelper final
 public:
     static nlohmann::json DoGetRequest(const RequestAddress& requestAddress);
 
-    static int DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const Message& message);
+    static int DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const nlohmann::json& json);
 
-    static Message DoPostRequestWithAnswer(const RequestAddress& requestAddress, const Message& message);
+    static nlohmann::json DoPostRequestWithAnswer(const RequestAddress& requestAddress, const nlohmann::json& json);
 
 private:
-    static int DoPostRequest(const RequestAddress& requestAddress, const Message& message, std::ostream* response);
+    static int DoPostRequest(const RequestAddress& requestAddress, const nlohmann::json& json, std::ostream* response);
 };
 
 #endif //_REQUEST_HELPER_H_

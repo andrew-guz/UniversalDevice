@@ -3,7 +3,7 @@
 
 #include "BaseService.h"
 
-class MainService final : public BaseService<MainService>
+class MainService final : public BaseService
 {
 protected:
     MainService(IQueryExecutor* queryExecutor);
@@ -19,7 +19,7 @@ protected:
     int Quit(crow::SimpleApp& app);
 
 private:
-    friend class BaseService<MainService>;
+    friend class BaseServiceExtension;
 };
 
 #endif //_MAIN_SERVICE_H_

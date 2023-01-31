@@ -25,7 +25,7 @@ std::string ClientService::ListDevices()
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select("SELECT * FROM Devices", data))
     {
-        auto extendedComponentDescriptions = ExtendedComponentDescription::CreateFromDbStrings(data);
+        auto extendedComponentDescriptions = DbExtension::CreateVectorFromDbStrings<ExtendedComponentDescription>(data);
         for (auto& extendedComponentDescription : extendedComponentDescriptions)
             result.push_back(extendedComponentDescription.ToJson());
     }
@@ -38,12 +38,25 @@ std::string ClientService::GetDeviceInfo(const crow::request& request)
     try
     {
         auto timestamp = std::chrono::system_clock::now();
-        auto message = GetMessageFromRequest(request);
+        auto message = BaseServiceExtension::GetMessageFromRequest(request);
         if (message.IsValid())
         {
             auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);
             for (auto& processor : processors)
-                result.push_back(processor->ProcessMessage(timestamp, message));
+            {
+                auto processorResultJson = processor->ProcessMessage(timestamp, message);
+                if(processorResultJson.is_null())
+                {
+                    continue;
+                }
+                else if(processorResultJson.is_array())
+                {
+                    for (auto& subResult : processorResultJson)
+                        result.push_back(subResult);
+                }
+                else
+                    result.push_back(processorResultJson);
+            }
         }
         else
         {
@@ -53,6 +66,6 @@ std::string ClientService::GetDeviceInfo(const crow::request& request)
     catch(...)
     {
         //do nothing
-    }   
-    return MessageHelper::Create(Constants::ClientServiceType, Uuid::Empty(), Constants::FrontendServiceType, Uuid::Empty(), Constants::SubjectGetDeviceInformation, result).ToJson().dump();
+    } 
+    return result.dump();
 }

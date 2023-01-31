@@ -21,7 +21,7 @@ int DeviceService::Inform(const crow::request& request)
     try
     {
         auto timestamp = std::chrono::system_clock::now();
-        auto message = GetMessageFromRequest(request);
+        auto message = BaseServiceExtension::GetMessageFromRequest(request);
         if (!message.IsValid())
         {
             LOG_ERROR << "Invalid message." << std::endl;

@@ -20,7 +20,7 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
         message._header._to._type == Constants::DeviceServiceType &&
         message._header._subject == Constants::SubjectThermometerCurrentValue)
     {
-        auto currentValue = ThermometerCurrentValue::CreateFromJson(message._data);
+        auto currentValue = JsonExtension::CreateFromJson<ThermometerCurrentValue>(message._data);
         if (currentValue._value == std::numeric_limits<float>::min())
         {
             LOG_ERROR << "ThermometerProcessor - invalid message." << std::endl;
@@ -45,13 +45,13 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
         message._header._to._type == Constants::ClientServiceType &&
         message._header._subject == Constants::SubjectGetDeviceInformation)
     {
-        auto description = ComponentDescription::CreateFromJson(message._data);
+        auto description = JsonExtension::CreateFromJson<ComponentDescription>(message._data);
         if (description._type == Constants::DeviceTypeThermometer &&
             !description._id.isEmpty())
         {
             std::stringstream queryStream;
             queryStream
-                << "SELECT * FROM Thermometers WHERE id = '"
+                << "SELECT timestamp, value FROM Thermometers WHERE id = '"
                 << description._id.data()
                 << "'  ORDER BY idx DESC LIMIT 100";
             queryStream.flush();
@@ -59,7 +59,7 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             std::vector<std::vector<std::string>> data;
             if(_queryExecutor->Select(queryStream.str(), data))
             {
-                auto extendedThermometerCurrentValues = ExtendedThermometerCurrentValue::CreateFromDbStrings(data);
+                auto extendedThermometerCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedThermometerCurrentValue>(data);
                 for (auto& extendedThermometerCurrentValue : extendedThermometerCurrentValues)
                     result.push_back(extendedThermometerCurrentValue.ToJson());
                 return result;

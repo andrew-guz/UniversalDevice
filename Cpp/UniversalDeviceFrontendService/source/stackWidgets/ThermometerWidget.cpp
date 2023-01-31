@@ -35,8 +35,8 @@ void ThermometerWidget::Initialize(const std::string& data)
     messageData._type = Constants::DeviceTypeThermometer;
     messageData._id = _deviceId;
     auto postMessage = MessageHelper::Create(Constants::FrontendServiceType, Uuid::Empty(), Constants::ClientServiceType, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
-    auto replyMessage = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE }, postMessage);
-    auto thermometerValues = MessageHelper::ParseMessage<ExtendedThermometerCurrentValue>(replyMessage);
+    auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE }, postMessage.ToJson());
+    auto thermometerValues = JsonExtension::CreateVectorFromJson<ExtendedThermometerCurrentValue>(replyJson);
     if (!thermometerValues.size())
         return;
     _mainText->setText(std::to_string(thermometerValues.begin()->_value));

@@ -33,11 +33,16 @@ struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue, p
 
     virtual void FromDbStrings(const std::vector<std::string>& dbStrings) override
     {
-        if(dbStrings.size() == 4)
+        if (dbStrings.size() % 2 == 0)
         {
-            //id, timestamp, value
-            _timestamp = TimeHelper::TimeFromString(dbStrings[1]);
-            _value = atof(dbStrings[2].c_str());
+            auto timestamp = DbExtension::FindValueByName(dbStrings, "timestamp");
+            auto value = DbExtension::FindValueByName(dbStrings, "value");
+            if (timestamp.size() &&
+                value.size())
+            {
+                _timestamp = TimeHelper::TimeFromString(timestamp);
+                _value = atof(value.c_str());
+            }
         }
         else
             LOG_ERROR << "Invalid db strings." << std::endl;

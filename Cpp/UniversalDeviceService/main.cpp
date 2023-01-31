@@ -15,9 +15,9 @@ int main()
 
     crow::SimpleApp app;
 
-    MainService::Create(app, &storage);
-    DeviceService::Create(app, &storage);
-    ClientService::Create(app, &storage);
+    BaseServiceExtension::Create<MainService>(app, &storage);
+    BaseServiceExtension::Create<DeviceService>(app, &storage);
+    BaseServiceExtension::Create<ClientService>(app, &storage);
 
     app
         .port(settings._port)

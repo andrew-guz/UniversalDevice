@@ -3,7 +3,7 @@
 
 #include "BaseService.h"
 
-class DeviceService final : public BaseService<DeviceService>
+class DeviceService final : public BaseService
 {
 protected:
     DeviceService(IQueryExecutor* queryExecutor);
@@ -17,7 +17,7 @@ protected:
     int Inform(const crow::request& request);
 
 private:
-    friend class BaseService<DeviceService>;
+    friend class BaseServiceExtension;
 };
 
 #endif //_DEVICE_SERVICE_H_

@@ -7,7 +7,6 @@
 #include "Logger.h"
 #include "Message.h"
 
-template<typename T>
 class BaseService
 {
 protected:
@@ -19,25 +18,38 @@ protected:
 
 public:
     virtual ~BaseService() = default;
-
-    static BaseService* Create(crow::SimpleApp& app, IQueryExecutor* queryExecutor)
-    {
-        T* t = new T(queryExecutor);
-        t->Initialize(app);
-        return t;
-    }
+    
 
 protected:
     virtual void Initialize(crow::SimpleApp& app) = 0;
 
-    Message GetMessageFromRequest(const crow::request& request)
+protected:
+    IQueryExecutor* _queryExecutor = nullptr;
+};
+
+class BaseServiceExtension final
+{
+public:
+    BaseServiceExtension() = delete;
+
+    ~BaseServiceExtension() = default;
+
+    template<typename T>
+    static BaseService* Create(crow::SimpleApp& app, IQueryExecutor* queryExecutor)
+    {
+        auto t = new T(queryExecutor);
+        t->Initialize(app);
+        return t;
+    }
+
+    static Message GetMessageFromRequest(const crow::request& request)
     {
         auto body = request.body;
         try
         {           
             auto bodyJson = nlohmann::json::parse(body);
             LOG_INFO << bodyJson.dump() << std::endl;
-            return Message::CreateFromJson(bodyJson);
+            return JsonExtension::CreateFromJson<Message>(bodyJson);
         }
         catch(...)
         {
@@ -46,8 +58,6 @@ protected:
         return Message();        
     }
 
-protected:
-    IQueryExecutor* _queryExecutor = nullptr;
 };
 
 #endif //_BASE_SERVICE_H_

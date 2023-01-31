@@ -34,7 +34,7 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
         try
         {
             auto bodyJson = nlohmann::json::parse(body);
-            LOG_INFO << bodyJson.dump() << std::endl;
+            LOG_INFO << "GET result - " << bodyJson.dump() << std::endl;
             return bodyJson;
         }
         catch(...)
@@ -49,39 +49,38 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
     return {};
 }
 
-int RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const Message& message)
+int RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const nlohmann::json& json)
 {
-    return DoPostRequest(requestAddress, message, nullptr);
+    return DoPostRequest(requestAddress, json, nullptr);
 }
 
-Message RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const Message& message)
+nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const nlohmann::json& json)
 {
     std::ostringstream response;
-    if (DoPostRequest(requestAddress, message, &response) == 200)
+    if (DoPostRequest(requestAddress, json, &response) == 200)
     {
         auto body = response.str();
+        LOG_INFO << "POST result - " << body << std::endl;
         try
         {
             auto bodyJson = nlohmann::json::parse(body);
-            LOG_INFO << bodyJson.dump() << std::endl;
-            return Message::CreateFromJson(bodyJson);
+            return bodyJson;
         }
         catch(...)
         {
-            LOG_ERROR << "Invalid response " << body << "." << std::endl;
+            LOG_ERROR << "Failed to parse POST result as JSON." << std::endl;
         }        
     }
-    return Message();
+    return {};
 }
 
-int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const Message& message, std::ostream* response)
+int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const nlohmann::json& json, std::ostream* response)
 {
     try
     {
-        auto messageJson = message.ToJson();
-        auto postString = messageJson.dump();
+        auto postString = json.dump();
 
-        LOG_INFO << "POST " << requestAddress.BuildUrl() << " data " <<  postString << "." << std::endl;
+        LOG_INFO << "POST " << requestAddress.BuildUrl() << " " <<  postString << "." << std::endl;
 
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;

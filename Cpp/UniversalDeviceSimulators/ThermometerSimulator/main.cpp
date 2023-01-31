@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
         currentValue._value = temperature;
         auto message = MessageHelper::Create(Constants::DeviceTypeThermometer, parameters._id, Constants::DeviceServiceType, Uuid::Empty(), Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
         //send current temperature to server
-        RequestHelper::DoPostRequestWithNoAnswer({"127.0.0.1", parameters._port, API_DEVICE_INFORM}, message);
+        RequestHelper::DoPostRequestWithNoAnswer({"127.0.0.1", parameters._port, API_DEVICE_INFORM}, message.ToJson());
         //generate new value
         auto random_value = distribution(random_generator);
         switch (random_value)

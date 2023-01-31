@@ -8,7 +8,7 @@
 #include "ComponentDescription.h"
 #include "Logger.h"
 
-//since we derived from other Json<T> static methods will be ambiguous
+
 struct ExtendedComponentDescription final : ComponentDescription, public IJson<ExtendedComponentDescription>, public IDb<ExtendedComponentDescription>
 {
     std::string                             _name;
@@ -42,13 +42,21 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
 
     virtual void FromDbStrings(const std::vector<std::string>& dbStrings) override
     {
-        if(dbStrings.size() == 4)
+        if (dbStrings.size() % 2 == 0)
         {
-            //id, type, name, timestamp
-            _type = dbStrings[1];
-            _id = dbStrings[0];
-            _name = dbStrings[2];
-            _timestamp = TimeHelper::TimeFromString(dbStrings[3]);
+            auto type = DbExtension::FindValueByName(dbStrings, "type");
+            auto id = DbExtension::FindValueByName(dbStrings, "id");           
+            auto name = DbExtension::FindValueByName(dbStrings, "name");
+            auto timestamp = DbExtension::FindValueByName(dbStrings, "timestamp");
+            if (type.size() &&
+                id.size() &&
+                timestamp.size())
+            {
+                _type = type;
+                _id = id;
+                _name = name;
+                _timestamp = TimeHelper::TimeFromString(timestamp);
+            }
         }
         else
             LOG_ERROR << "Invalid db strings." << std::endl;

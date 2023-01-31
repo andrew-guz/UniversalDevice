@@ -38,23 +38,7 @@ void DevicesWidget::Refresh()
 {
     Clear();
     auto replyJson = RequestHelper::DoGetRequest({"127.0.0.1", _settings._servicePort, API_CLIENT_LIST_DEVICES});
-    std::vector<ExtendedComponentDescription> descriptions;
-    try
-    {
-        if (replyJson.is_array())
-        {
-            for (auto& json : replyJson)
-            {
-                ExtendedComponentDescription description;
-                description.FromJson(json);
-                descriptions.push_back(description);
-            }
-        }        
-    }
-    catch(...)
-    {
-        LOG_ERROR << "Can't convert JSON " << replyJson.dump() << " to ExtendedComponentDescription." << std::endl;
-    }    
+    auto descriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
     if (descriptions.empty())
         return;
     LOG_INFO << descriptions.size() << " descriptions found." << std::endl;

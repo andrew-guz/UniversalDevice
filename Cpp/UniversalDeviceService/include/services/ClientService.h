@@ -3,7 +3,7 @@
 
 #include "BaseService.h"
 
-class ClientService final : public BaseService<ClientService>
+class ClientService final : public BaseService
 {
 protected:
     ClientService(IQueryExecutor* queryExecutor);
@@ -19,7 +19,7 @@ protected:
     std::string GetDeviceInfo(const crow::request& request);
 
 private:
-    friend class BaseService<ClientService>;
+    friend class BaseServiceExtension;
 };
 
 #endif //_CLIENT_SERVICE_H_
