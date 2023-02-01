@@ -12,7 +12,7 @@ TemperatureChartModel::TemperatureChartModel(const std::vector<ExtendedThermomet
 void TemperatureChartModel::UpdateData(const std::vector<ExtendedThermometerCurrentValue>& data)
 {
     _data = data;
-    dataChanged().emit(index(0, 0), index(_data.size() - 1, 1)); //TODO
+    dataChanged().emit(index(0, 0), index(_data.size() - 1, 1));
 }
 
 int TemperatureChartModel::columnCount(const WModelIndex& parent) const
