@@ -2,6 +2,7 @@
 
 #include <Wt/WPushButton.h>
 #include <Wt/WTimer.h>
+#include <Wt/Chart/WCartesianChart.h>
 
 #include "Defines.h"
 #include "Constants.h"
@@ -35,13 +36,27 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
     refreshTimer->setInterval(std::chrono::seconds(5));
     refreshTimer->timeout().connect([&](){ Initialize(_deviceId.data()); });
     refreshTimer->start();
+    _model = std::make_shared<TemperatureChartModel>();
+    auto chart = _mainLayout->addWidget(std::make_unique<Chart::WCartesianChart>(), 2, 2, AlignmentFlag::Center);
+    chart->resize(800, 600);
+    chart->setModel(_model);
+    chart->setXSeriesColumn(0);
+    chart->setType(Chart::ChartType::Scatter);
+    auto series = std::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Curve, Chart::Axis::Y);
+    series->setPen(Wt::WPen(WColor(0, 0, 255, 255)));
+    series->setShadow(Wt::WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+    chart->addSeries(std::move(series));
+    chart->axis(Chart::Axis::X).setScale(Chart::AxisScale::DateTime);
 }
 
 void ThermometerWidget::Initialize(const std::string& data)
-{   
+{       
     _deviceId =  Uuid(data);
     if (_deviceId.isEmpty())
+    {
+        Clear();
         return;
+    }
     ComponentDescription messageData;
     messageData._type = Constants::DeviceTypeThermometer;
     messageData._id = _deviceId;
@@ -49,7 +64,16 @@ void ThermometerWidget::Initialize(const std::string& data)
     auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE }, postMessage.ToJson());
     auto thermometerValues = JsonExtension::CreateVectorFromJson<ExtendedThermometerCurrentValue>(replyJson);
     if (thermometerValues.size())
+    {
         _mainText->setText(WidgetHelper::TextWithFontSize(thermometerValues.begin()->_value, 80));
+        _model->UpdateData(thermometerValues);
+    }
     else
-        _mainText->setText(WidgetHelper::TextWithFontSize(0.0f, 80));
+        Clear();
+}
+
+void ThermometerWidget::Clear()
+{
+    _mainText->setText(WidgetHelper::TextWithFontSize(0.0f, 80));
+    _model->UpdateData({});
 }

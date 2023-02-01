@@ -7,6 +7,7 @@
 
 #include "Uuid.h"
 #include "BaseStackWidget.h"
+#include "TemperatureChartModel.h"
 
 class ThermometerWidget final : public Wt::WContainerWidget, public BaseStackWidget
 {
@@ -18,9 +19,13 @@ public:
     virtual void Initialize(const std::string& data) override;
 
 private:
-    Wt::WGridLayout*    _mainLayout;
-    Wt::WText*          _mainText;
-    Uuid                _deviceId;
+    void Clear();
+
+private:
+    Wt::WGridLayout*                        _mainLayout;
+    Wt::WText*                              _mainText;
+    std::shared_ptr<TemperatureChartModel>  _model;
+    Uuid                                    _deviceId;
 };
 
 #endif //_THERMOMETER_WIDGET_H_

@@ -75,6 +75,9 @@
         "variant": "cpp",
         "*.ipp": "cpp",
         "filesystem": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "unordered_set": "cpp",
+        "WCartesianChart.C": "cpp",
+        "WStandardChartProxyModel.C": "cpp"
     }
 }
