@@ -47,6 +47,8 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
     series->setShadow(Wt::WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     chart->addSeries(std::move(series));
     chart->axis(Chart::Axis::X).setScale(Chart::AxisScale::DateTime);
+    chart->axis(Chart::Axis::Y).setMinimum(-20.0);
+    chart->axis(Chart::Axis::Y).setMaximum(40.0);
 }
 
 void ThermometerWidget::Initialize(const std::string& data)
