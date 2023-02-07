@@ -12,7 +12,8 @@
 #define PASSWORD_ADDITIONAL "4"
 
 //api
-#define API_BASE "http://188.242.186.162:7315/api/device"
-#define API_INFORM API_BASE "/inform"
+#define API_BASE        "https://188.242.186.162:7315/api/device"
+#define API_INFORM      API_BASE "/inform"
+#define API_SETTINGS    API_BASE "/settings"
 
 #endif //_DEFINES_H_

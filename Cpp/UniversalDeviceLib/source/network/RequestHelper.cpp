@@ -19,8 +19,10 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
         cURLpp::Easy request;
 
         request.setOpt(new cURLpp::options::Url(url)); 
-        request.setOpt(new cURLpp::options::Verbose(true)); 
-        
+        request.setOpt(new cURLpp::options::Verbose(true));
+
+        request.setOpt(curlpp::options::SslVerifyPeer(false));
+        request.setOpt(curlpp::options::SslVerifyHost(false));
 
         std::ostringstream response;
         request.setOpt(new curlpp::options::WriteStream(&response));
@@ -88,6 +90,9 @@ int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const nlo
 
         request.setOpt(new cURLpp::options::Url(requestAddress.BuildUrl())); 
         request.setOpt(new cURLpp::options::Verbose(true)); 
+
+        request.setOpt(curlpp::options::SslVerifyPeer(false));
+        request.setOpt(curlpp::options::SslVerifyHost(false));
         
         std::list<std::string> header; 
         header.push_back("Content-Type: application/json");

@@ -33,6 +33,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../bin)
 link_directories(/usr/local/library)
 link_directories(./../bin/)
 
+#set compiler flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -DCROW_ENABLE_SSL")
+
 #set for linker path where libraries are
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,/usr/local/lib")
 
@@ -47,4 +50,4 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
-target_link_libraries(${PROJECT_NAME} -lpthread -lsqlite3  UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} -lpthread -lsqlite3 -lssl -lcrypto UniversalDeviceLib)

@@ -35,7 +35,7 @@ int TemperatureChartModel::rowCount(const WModelIndex& parent) const
 WModelIndex TemperatureChartModel::index(int row, int column, const WModelIndex& parent) const
 {
     if (row >= 0 &&
-        row < _data.size() &&
+        (size_t)row < _data.size() &&
         column >= 0 &&
         column < 2 &&
         !parent.isValid())
@@ -52,7 +52,7 @@ cpp17::any TemperatureChartModel::data(const WModelIndex& index, ItemDataRole ro
 {
     if (index.isValid() &&
         index.row()>= 0 &&
-        index.row() < _data.size() &&
+        (size_t)index.row() < _data.size() &&
         index.column() >= 0 &&
         index.column() < 2  &&
         role == ItemDataRole::Display)

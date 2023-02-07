@@ -9,25 +9,17 @@ SingleTemperatureSensor temperatureSensor(26);
 unsigned long time1;
 int measurementDelay;
 
+//20ms
 int getDelayFromSettings()
 {
     String url = String(API_SETTINGS) + String("/") + String(UUID);
-    auto replyString = GetRequest(url);
+    auto replyString = wifiHelper.GetRequest(url);
     DynamicJsonDocument doc(128);
     auto error = deserializeJson(doc, replyString);
-    if (!error)
-    {
-        if (doc.containsKey("period"))
-            return doc["period"].as<int>();
-    }
+    if (!error &&
+        doc.containsKey("period"))
+        return doc["period"].as<int>();
     return 5000;
-}
-
-float getTemperature()
-{
-    auto temperature = temperatureSensor.GetTemperature();
-    Serial.print("Temp C: ");
-    Serial.println(temperature);
 }
 
 JsonObject CurrentValueData(float value)
@@ -38,10 +30,11 @@ JsonObject CurrentValueData(float value)
     return root;
 }
 
+//30 ms
 void sendTemperature(float temperature)
 {
     auto message = CreateMessage("thermometer", UUID, "current_value", CurrentValueData(temperature));
-    PostRequestNoData(API_INFORM, message);
+    wifiHelper.PostRequestNoData(API_INFORM, message);
 }
 
 void setup()
@@ -58,7 +51,7 @@ void loop()
     //check the connection
     if (WiFi.status() != WL_CONNECTED)
     {
-        bool connected = WiFiConnect();
+        bool connected = wifiHelper.WiFiConnect();
         if (!connected)
         {
             delay(1000);
@@ -80,9 +73,10 @@ void loop()
         return;
     }
 
-    if (time2 - time1 >= measurementDelay)
+    if (time2 - time1 >= measurementDelay - 530)
     {
-        auto temperature = getTemperature();
+        //last for 500 ms
+        auto temperature = temperatureSensor.GetTemperature();
         sendTemperature(temperature);
         time1 = millis();
     }

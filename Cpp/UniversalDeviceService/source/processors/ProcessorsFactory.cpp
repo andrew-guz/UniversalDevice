@@ -8,7 +8,6 @@
 Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExecutor* queryExecutor)
 {
     auto& messageHeader = message._header;
-    auto& description = messageHeader._description;
 
     Processors processors;
 

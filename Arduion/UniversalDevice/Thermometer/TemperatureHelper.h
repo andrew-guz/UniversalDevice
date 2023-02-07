@@ -19,15 +19,32 @@ public:
         _sensor.setResolution(12);
     }
 
+    void Verbose(bool verbose)
+    {
+        _verbose = verbose;
+    }
+
     float GetTemperature()
     {
         _sensor.requestTemperatures();
-        return _sensor.getTempCByIndex(0);
-    }    
+        auto temperature = _sensor.getTempCByIndex(0);        
+        if (_verbose)
+            PrintResults(temperature);
+        return temperature;
+    }
+
+private:
+    void PrintResults(float temperature)
+    {
+        Serial.print("Temp C: ");
+        Serial.println(temperature);
+    }
+
 
 private:
     OneWire             _oneWire;
     DallasTemperature   _sensor;
+    bool                _verbose = false;
 };
 
 #endif //_TEMPERATURE_HELPER_H_

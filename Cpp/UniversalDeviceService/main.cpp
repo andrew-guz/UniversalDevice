@@ -23,6 +23,7 @@ int main()
     BaseServiceExtension::Create<ClientService>(app, &storage);
 
     app
+        .ssl_file("./ssl/backend.crt", "./ssl/backend.key")
         .port(settings._port)
         .multithreaded()
         .run();
