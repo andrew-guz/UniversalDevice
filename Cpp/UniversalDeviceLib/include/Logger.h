@@ -19,12 +19,16 @@ public:
 
     static std::ostream& Stream(const std::string& path);
 
+    static std::ostream& NullStream();
+
 private:
     static std::map<std::string, std::fstream*> _fileStreams;
+    static std::ostream                         _nullStream;
 };
 
 enum class LogLevel
 {
+    DEBUG,
     INFO,
     ERROR
 };
@@ -39,13 +43,20 @@ public:
 
     static Logger& Instance(LogLevel logLevel, const std::string& path);
 
+    static void SetLogLevel(LogLevel minLogLevel);
+
     template <typename T>
     std::ostream& operator<<(const T& data)
     {
-        auto& stream = FileStreamWrapper::Stream(_logPath);
+        auto& stream = _logLevel >= _minLogLevel
+            ? FileStreamWrapper::Stream(_logPath)
+            : FileStreamWrapper::NullStream();
         stream << TimeHelper::TimeToString(std::chrono::system_clock::now()) << "\t";
         switch (_logLevel)
         {
+        case LogLevel::DEBUG:
+            stream << "[DEBUG]";
+            break;
         case LogLevel::INFO:
             stream << "[INFO]";
             break;
@@ -60,9 +71,11 @@ public:
 private:
     static std::map<LogLevel, Logger*>  _instanceMap;
     LogLevel                            _logLevel;
+    static LogLevel                     _minLogLevel;
     std::string                         _logPath;
 };
 
+#define LOG_DEBUG Logger::Instance(LogLevel::DEBUG, PathHelper::AppLogPath())
 #define LOG_INFO Logger::Instance(LogLevel::INFO, PathHelper::AppLogPath())
 #define LOG_ERROR Logger::Instance(LogLevel::ERROR, PathHelper::AppLogPath())
 

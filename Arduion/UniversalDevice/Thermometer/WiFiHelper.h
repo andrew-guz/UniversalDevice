@@ -38,14 +38,29 @@ bool WiFiConnect()
     return false;
 }
 
-int PostJsonWithoutResults(const String& url, const String& data)
+String GetRequest(const String& url)
+{
+    String result;
+    WiFiClient client;
+    HTTPClient http;
+    http.begin(client, url);
+    int httpResponseCode = http.GET();
+    Serial.print("GetRequest - ");
+    Serial.println(httpResponseCode);
+    if (httpResponseCode > 0)
+        result = http.getString();
+    http.end();
+    return result;
+}
+
+int PostRequestNoData(const String& url, const String& data)
 {
     WiFiClient client;
     HTTPClient http;
     http.begin(client, url);
     http.addHeader("Content-Type", "application/json");
     int httpResponseCode = http.POST(data);
-    Serial.print("PostRequestWithoutResults - ");
+    Serial.print("PostRequestNoData - ");
     Serial.println(httpResponseCode);
     http.end();
 }

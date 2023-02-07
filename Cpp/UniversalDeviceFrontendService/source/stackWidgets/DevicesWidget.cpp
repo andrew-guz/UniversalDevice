@@ -43,7 +43,8 @@ void DevicesWidget::Refresh()
     auto descriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
     if (descriptions.empty())
         return;
-    LOG_INFO << descriptions.size() << " descriptions found." << std::endl;
+    LOG_DEBUG << descriptions.size() << " descriptions found." << std::endl;
+    std::sort(descriptions.begin(), descriptions.end(), [](const auto& a, const auto& b){ return a._id < b._id; });
     int row = 2;
     int column = 0;
     for (auto& description : descriptions)

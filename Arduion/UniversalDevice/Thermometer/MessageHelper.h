@@ -8,9 +8,9 @@ String CreateMessage(const String& type, const String& id, const String& subject
     DynamicJsonDocument doc(512);
     auto root = doc.to<JsonObject>();
     auto header = root.createNestedObject("header");
-    auto deviceDescription = header.createNestedObject("deviceDescription");
-    deviceDescription["type"] = type;
-    deviceDescription["id"] = id;
+    auto from = header.createNestedObject("description");
+    from["type"] = type;
+    from["id"] = id;
     header["subject"] = subject;
     root["data"] = data;
 

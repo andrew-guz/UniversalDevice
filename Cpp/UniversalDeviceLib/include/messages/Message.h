@@ -9,14 +9,6 @@ struct Message final : public IJson<Message>
     MessageHeader   _header;
     nlohmann::json  _data;
 
-    bool IsValid() const
-    {
-        return  _header._from._type.size() &&
-                _header._to._type.size() &&
-                _header._subject.size() &&
-                _header._subject != Constants::SubjectUndefined;
-    }
-
     virtual nlohmann::json ToJson() const override
     {
         return {

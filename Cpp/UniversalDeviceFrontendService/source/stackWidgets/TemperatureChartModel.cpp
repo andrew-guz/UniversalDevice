@@ -1,6 +1,9 @@
 #include "TemperatureChartModel.h"
 
 #include <Wt/WDateTime.h>
+#include <Wt/WLocalDateTime.h>
+#include <Wt/WDate.h>
+#include <Wt/WTime.h>
 
 using namespace Wt;
 
@@ -55,7 +58,13 @@ cpp17::any TemperatureChartModel::data(const WModelIndex& index, ItemDataRole ro
         role == ItemDataRole::Display)
     {
         if (index.column() == 0)
-            return WDateTime::fromTimePoint(_data[index.row()]._timestamp);
+        {
+            auto timestamp = _data[index.row()]._timestamp;
+            auto time_t = std::chrono::system_clock::to_time_t(timestamp);
+            auto tm = std::localtime(&time_t);
+            auto updatedTime_t = timegm(tm);
+            return WDateTime::fromTime_t(updatedTime_t);
+        }
         if (index.column() == 1)
             return _data[index.row()]._value;
     }

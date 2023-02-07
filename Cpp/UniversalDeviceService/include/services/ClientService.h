@@ -16,6 +16,10 @@ protected:
 
     std::string ListDevices();
 
+    std::string GetDeviceName(const std::string& idString);
+
+    int SetDeviceName(const std::string& idString, const crow::request& request);
+
     std::string GetDeviceInfo(const crow::request& request);
 
 private:

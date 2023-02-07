@@ -12,8 +12,8 @@ struct ThermometerCurrentValue : public IJson<ThermometerCurrentValue>
     virtual nlohmann::json ToJson() const override
     {
         return {
-                { "value", _value }
-            };  
+            { "value", _value }
+        };  
     }
 
     virtual void FromJson(const nlohmann::json& json) override

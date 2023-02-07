@@ -10,18 +10,17 @@
 class BaseService
 {
 protected:
-    BaseService(IQueryExecutor* queryExecutor) :
-        _queryExecutor(queryExecutor)
-    {
-        
-    }
+    BaseService(IQueryExecutor* queryExecutor);
 
 public:
     virtual ~BaseService() = default;
     
-
 protected:
     virtual void Initialize(crow::SimpleApp& app) = 0;
+
+    void CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
+
+    nlohmann::json CallProcessorsJsonResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
 
 protected:
     IQueryExecutor* _queryExecutor = nullptr;
@@ -42,22 +41,7 @@ public:
         return t;
     }
 
-    static Message GetMessageFromRequest(const crow::request& request)
-    {
-        auto body = request.body;
-        try
-        {           
-            auto bodyJson = nlohmann::json::parse(body);
-            LOG_INFO << bodyJson.dump() << std::endl;
-            return JsonExtension::CreateFromJson<Message>(bodyJson);
-        }
-        catch(...)
-        {
-            LOG_ERROR << "Can't get message from request - " << body << std::endl;
-        }
-        return Message();        
-    }
-
+    static Message GetMessageFromRequest(const crow::request& request);
 };
 
 #endif //_BASE_SERVICE_H_

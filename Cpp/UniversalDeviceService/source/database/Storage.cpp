@@ -56,7 +56,7 @@ bool Storage::InternalExecute(const std::string& query, int(*callback)(void*, in
     int result = sqlite3_exec(_connection, query.c_str(), callback, data, &error);
     if (result != SQLITE_OK)
     {   
-        LOG_ERROR << "SQL error: " << error << "." << std::endl;
+        LOG_ERROR << "SQL error: " << error << " for query " << query << "." << std::endl;
         sqlite3_free(error);
         return false;
     }
@@ -68,7 +68,8 @@ void Storage::InitializeDb()
     std::vector<std::string> queries
     {
         "CREATE TABLE IF NOT EXISTS Devices (id TEXT UNIQUE, type TEXT, name TEXT, timestamp TEXT, PRIMARY KEY(id, type))",
-        "CREATE TABLE IF NOT EXISTS Thermometers (idx INTEGER, id TEXT, timestamp TEXT, value REAL, PRIMARY KEY(idx AUTOINCREMENT))"
+        "CREATE TABLE IF NOT EXISTS Thermometers (idx INTEGER, id TEXT, timestamp TEXT, value REAL, PRIMARY KEY(idx AUTOINCREMENT))",
+        "CREATE TABLE IF NOT EXISTS Settings (id TEXT, settings TEXT, PRIMARY KEY(id))"
     };
     for(auto& query : queries)
         Execute(query);

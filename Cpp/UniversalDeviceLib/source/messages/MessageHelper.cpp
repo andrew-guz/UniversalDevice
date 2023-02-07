@@ -1,21 +1,17 @@
 #include "MessageHelper.h"
 
-Message MessageHelper::Create(const std::string& fromType, const Uuid& fromId, const std::string& toType, const Uuid& toId, const std::string subject, const nlohmann::json& data)
+Message MessageHelper::Create(const std::string& type, const Uuid& id, const std::string subject, const nlohmann::json& data)
 {
-    ComponentDescription from;
-    from._type = fromType;
-    from._id = fromId;
-    ComponentDescription to;
-    to._type = toType;
-    to._id = toId;
-    return MessageHelper::Create(from, to, subject, data);
+    ComponentDescription description;
+    description._type = type;
+    description._id = id;
+    return MessageHelper::Create(description, subject, data);
 }
 
-Message MessageHelper::Create(const ComponentDescription& from, const ComponentDescription& to, const std::string subject, const nlohmann::json& data)
+Message MessageHelper::Create(const ComponentDescription& description, const std::string subject, const nlohmann::json& data)
 {
     Message message;
-    message._header._from = from;
-    message._header._to = to;
+    message._header._description = description;
     message._header._subject = subject;
     message._data = data;
     return message;

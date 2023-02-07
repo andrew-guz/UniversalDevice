@@ -14,6 +14,5 @@ Parameters Parameters::ReadFromFile(const std::string fileName)
     parameters._id = Uuid(json.value("id", ""));
     parameters._startTemperature = json.value("startTemperature", 20.0f);
     parameters._delta = json.value("delta", 0.1f);
-    parameters._sleepTimeout = json.value("sleepTimeout", 1);
     return parameters;
 }

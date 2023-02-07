@@ -1,6 +1,7 @@
 #include <iostream>
 #include <crow.h>
 
+#include "Logger.h"
 #include "Settings.h"
 #include "Storage.h"
 #include "MainService.h"
@@ -9,6 +10,8 @@
 
 int main()
 {
+    Logger::SetLogLevel(LogLevel::INFO);
+
     auto settings = Settings::ReadSettings();
 
     Storage storage;

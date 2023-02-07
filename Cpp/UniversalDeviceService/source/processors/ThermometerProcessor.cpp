@@ -16,9 +16,7 @@ ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) :
 
 nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message)
 {
-    if (message._header._from._type == Constants::DeviceTypeThermometer &&
-        message._header._to._type == Constants::DeviceServiceType &&
-        message._header._subject == Constants::SubjectThermometerCurrentValue)
+    if (message._header._subject == Constants::SubjectThermometerCurrentValue)
     {
         auto currentValue = JsonExtension::CreateFromJson<ThermometerCurrentValue>(message._data);
         if (currentValue._value == std::numeric_limits<float>::min())
@@ -26,24 +24,22 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             LOG_ERROR << "ThermometerProcessor - invalid message." << std::endl;
             return {};
         }
-        auto& from = message._header._from;
+        auto& description = message._header._description;
         std::stringstream queryStream;
         queryStream
             << "INSERT INTO Thermometers (id, timestamp, value) VALUES ('"
-            << from._id.data()
+            << description._id.data()
             << "', '" 
             << TimeHelper::TimeToString(timestamp)
             << "', '" 
             << currentValue._value
             << "')";
         queryStream.flush();
-        _queryExecutor->Execute(queryStream.str());
+        if (!_queryExecutor->Execute(queryStream.str()))
+            LOG_SQL_ERROR(queryStream.str());
         return {};
     }
-
-    if (message._header._from._type == Constants::FrontendServiceType &&
-        message._header._to._type == Constants::ClientServiceType &&
-        message._header._subject == Constants::SubjectGetDeviceInformation)
+    else if (message._header._subject == Constants::SubjectGetDeviceInformation)
     {
         auto description = JsonExtension::CreateFromJson<ComponentDescription>(message._data);
         if (description._type == Constants::DeviceTypeThermometer &&
@@ -57,7 +53,7 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             queryStream.flush();
             nlohmann::json result;
             std::vector<std::vector<std::string>> data;
-            if(_queryExecutor->Select(queryStream.str(), data))
+            if (_queryExecutor->Select(queryStream.str(), data))
             {
                 auto extendedThermometerCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedThermometerCurrentValue>(data);
                 for (auto& extendedThermometerCurrentValue : extendedThermometerCurrentValues)
@@ -65,9 +61,7 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
                 return result;
             }
             else
-            {
-                LOG_ERROR << "Error in query " << queryStream.str() << "." << std::endl;
-            }
+                LOG_SQL_ERROR(queryStream.str());
         }
         return {};
     }

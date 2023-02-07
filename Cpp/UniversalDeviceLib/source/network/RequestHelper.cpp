@@ -12,12 +12,13 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
 {
     try
     {
-        LOG_INFO << "GET " << requestAddress.BuildUrl() << "." << std::endl;
+        std::string url = requestAddress.BuildUrl();
+        LOG_DEBUG << "GET " << url << "." << std::endl;
 
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;
 
-        request.setOpt(new cURLpp::options::Url(requestAddress.BuildUrl())); 
+        request.setOpt(new cURLpp::options::Url(url)); 
         request.setOpt(new cURLpp::options::Verbose(true)); 
         
 
@@ -34,7 +35,7 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
         try
         {
             auto bodyJson = nlohmann::json::parse(body);
-            LOG_INFO << "GET result - " << bodyJson.dump() << std::endl;
+            LOG_DEBUG << "GET result - " << bodyJson.dump() << std::endl;
             return bodyJson;
         }
         catch(...)
@@ -60,7 +61,7 @@ nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requ
     if (DoPostRequest(requestAddress, json, &response) == 200)
     {
         auto body = response.str();
-        LOG_INFO << "POST result - " << body << std::endl;
+        LOG_DEBUG << "POST result - " << body << std::endl;
         try
         {
             auto bodyJson = nlohmann::json::parse(body);
@@ -80,7 +81,7 @@ int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const nlo
     {
         auto postString = json.dump();
 
-        LOG_INFO << "POST " << requestAddress.BuildUrl() << " " <<  postString << "." << std::endl;
+        LOG_DEBUG << "POST " << requestAddress.BuildUrl() << " " <<  postString << "." << std::endl;
 
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;

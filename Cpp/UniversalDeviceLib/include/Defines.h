@@ -8,12 +8,14 @@
 
 //api addresses
 //common
-#define API_VERSION "/api/version"
-#define API_QUIT "/api/quit"
+#define API_VERSION                         "/api/version"
+#define API_QUIT                            "/api/quit"
 //for devices
-#define API_DEVICE_INFORM "/api/device/inform"
+#define API_DEVICE_SETTINGS                 "/api/device/settings/<string>"
+#define API_DEVICE_INFORM                   "/api/device/inform"
 //for client
-#define API_CLIENT_LIST_DEVICES "/api/client/list"
-#define API_CLIENT_DEVICE "/api/client/device"
+#define API_CLIENT_LIST_DEVICES             "/api/client/list"
+#define API_CLIENT_DEVICE_NAME              "/api/client/device/name/<string>"
+#define API_CLIENT_DEVICE_GET_INFO          "/api/client/device"
 
 #endif //_DEFINES_H_

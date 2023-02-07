@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "Logger.h"
+
 class IQueryExecutor
 {
 public:
@@ -17,5 +19,7 @@ public:
 
     virtual bool Select(const std::string& query, std::vector<std::vector<std::string>>& data) = 0;
 };
+
+#define LOG_SQL_ERROR(QUERY) LOG_ERROR << "Error in query: '" << QUERY << "'." << std::endl;
 
 #endif //_I_QUERY_EXECUTOR_H_

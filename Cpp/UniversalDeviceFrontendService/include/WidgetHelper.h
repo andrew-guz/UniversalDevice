@@ -15,7 +15,18 @@ public:
     static std::string TextWithFontSize(T value, int size)
     {
         std::stringstream ss;
-        ss << "<p style='font-size:" << size << "px'>" << value << "°C</p>";
+        ss.precision(1);
+        ss << "<p style='font-size:" << size << "px'>" << std::fixed << value << "</p>";
+        ss.flush();
+        return ss.str();
+    }
+
+    template<typename T, typename U>
+    static std::string TextWithFontSize(T value, U type, int size)
+    {
+        std::stringstream ss;
+        ss.precision(1);
+        ss << "<p style='font-size:" << size << "px'>" << std::fixed << value << type <<"</p>";
         ss.flush();
         return ss.str();
     }

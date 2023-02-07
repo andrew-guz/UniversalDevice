@@ -14,6 +14,10 @@ public:
 protected:
     virtual void Initialize(crow::SimpleApp& app) override;
 
+    std::string GetSettings(const std::string& idString);
+
+    int SetSettings(const std::string& idString, const crow::request& request);
+
     int Inform(const crow::request& request);
 
 private:
