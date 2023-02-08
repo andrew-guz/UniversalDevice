@@ -6,7 +6,8 @@
 #include "TemperatureHelper.h"
 
 SingleTemperatureSensor temperatureSensor(26);
-unsigned long time1;
+unsigned long settingsStartTime;
+unsigned long temperatureStartTime;
 int measurementDelay;
 
 //20ms
@@ -57,27 +58,33 @@ void loop()
             delay(1000);
             return;
         }
-        time1 = millis();
+        settingsStartTime = temperatureStartTime = millis();
     }
 
-    delay(500);
+    delay(100);
 
-    measurementDelay = getDelayFromSettings();
+    auto currentTime = millis();
 
-    auto time2 = millis();
-
-    if (time2 <= time1)
+    if (currentTime <= settingsStartTime ||
+        currentTime <= temperatureStartTime)
     {
         //case when millis goes over 0 - once in rough 50 days
-        time1 = millis();
+        settingsStartTime = temperatureStartTime = millis();
         return;
     }
 
-    if (time2 - time1 >= measurementDelay - 530)
+    if (currentTime - settingsStartTime >= 500)
+    {
+        measurementDelay = getDelayFromSettings();
+        settingsStartTime = currentTime;
+    }
+
+    //500 for measure time and 30 to send - so -30 ms
+    if (currentTime - temperatureStartTime >= measurementDelay - 530)
     {
         //last for 500 ms
         auto temperature = temperatureSensor.GetTemperature();
         sendTemperature(temperature);
-        time1 = millis();
+        temperatureStartTime = currentTime;
     }
 }
