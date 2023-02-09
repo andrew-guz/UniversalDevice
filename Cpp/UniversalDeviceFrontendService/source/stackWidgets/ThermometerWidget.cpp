@@ -26,20 +26,23 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
 
-    auto backButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 0, 0, AlignmentFlag::Left);
+    auto backButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(backButton);
-    backButton->setText("Назад...");
-    backButton->clicked().connect([&](){ _stackHolder->SetWidget(StackWidgetType::Devices, ""); });
+    backButton->clicked().connect([&](){
+        _stackHolder->SetWidget(StackWidgetType::Devices, "");
+    });
 
-    auto settingsButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 0, 1, AlignmentFlag::Center);
+    auto settingsButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Настройки"), 0, 1, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(settingsButton);
-    settingsButton->setText("Настройки");
-    settingsButton->clicked().connect([&](){ OnSettings(); });
+    settingsButton->clicked().connect([&](){
+        OnSettings();
+    });
 
-    auto refresh = _mainLayout->addWidget(std::make_unique<WPushButton>(), 0, 2, AlignmentFlag::Right);
+    auto refresh = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 2, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refresh);
-    refresh->setText("Обновить...");
-    refresh->clicked().connect([&](){ Initialize(_deviceId.data()); });
+    refresh->clicked().connect([&](){
+        Initialize(_deviceId.data());
+    });
 
     _nameText = _mainLayout->addWidget(std::make_unique<WText>(), 1, 1, AlignmentFlag::Center);
     _nameText->setText(WidgetHelper::TextWithFontSize(_thermometerName, 20));
@@ -65,7 +68,9 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
 
     auto refreshTimer = addChild(std::make_unique<WTimer>());
     refreshTimer->setInterval(std::chrono::seconds(5));
-    refreshTimer->timeout().connect([&](){ Initialize(_deviceId.data()); });
+    refreshTimer->timeout().connect([&](){
+        Initialize(_deviceId.data());
+        });
     refreshTimer->start();
 }
 
@@ -114,14 +119,14 @@ void ThermometerWidget::Clear(ThermometerWidget::ClearType type)
 
 void ThermometerWidget::UpdateName()
 {
-    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) });
+    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService);
     _thermometerName = JsonExtension::CreateFromJson<DeviceName>(replyJson)._name;
     _nameText->setText(WidgetHelper::TextWithFontSize(_thermometerName, 20));
 }
 
 ThermometerSettings ThermometerWidget::GetSettings()
 {
-    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) });
+    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService);
     return JsonExtension::CreateFromJson<ThermometerSettings>(replyJson);
 }
 
@@ -131,7 +136,7 @@ std::vector<ExtendedThermometerCurrentValue> ThermometerWidget::GetValues()
     messageData._type = Constants::DeviceTypeThermometer;
     messageData._id = _deviceId;
     auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
-    auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE_GET_INFO }, postMessage.ToJson());
+    auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
     return JsonExtension::CreateVectorFromJson<ExtendedThermometerCurrentValue>(replyJson);
 }
 
@@ -181,7 +186,7 @@ void ThermometerWidget::OnSettings()
     {
         DeviceName deviceName;
         deviceName._name = newName;
-        auto result = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, deviceName.ToJson());
+        auto result = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService, deviceName.ToJson());
         if (result == 200)
         {
             _thermometerName = newName;
@@ -193,7 +198,7 @@ void ThermometerWidget::OnSettings()
     //update settings
     ThermometerSettings newSettings;
     newSettings._period = period->value() * 1000;
-    auto result = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, newSettings.ToJson());
+    auto result = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
     if (result != 200)
         LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
 }

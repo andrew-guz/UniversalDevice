@@ -14,13 +14,13 @@ public:
 protected:
     virtual void Initialize(crow::SimpleApp& app) override;
 
-    std::string ListDevices();
+    crow::response ListDevices(const crow::request& request);
 
-    std::string GetDeviceName(const std::string& idString);
+    crow::response GetDeviceName(const crow::request& request, const std::string& idString);
 
-    int SetDeviceName(const std::string& idString, const crow::request& request);
+    crow::response SetDeviceName(const crow::request& request, const std::string& idString);
 
-    std::string GetDeviceInfo(const crow::request& request);
+    crow::response GetDeviceInfo(const crow::request& request);
 
 private:
     friend class BaseServiceExtension;

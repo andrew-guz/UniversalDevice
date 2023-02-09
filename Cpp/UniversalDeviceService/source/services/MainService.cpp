@@ -10,17 +10,21 @@ MainService::MainService(IQueryExecutor* queryExecutor) :
 
 void MainService::Initialize(crow::SimpleApp& app)
 {
-    CROW_ROUTE(app, API_VERSION).methods(crow::HTTPMethod::GET)([&](){ return Version(); });
-    CROW_ROUTE(app, API_QUIT).methods(crow::HTTPMethod::GET)([&](){ return Quit(app); });
+    CROW_ROUTE(app, API_VERSION).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return Version(request); });
+    CROW_ROUTE(app, API_QUIT).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return Quit(request, app); });
 }
 
-std::string MainService::Version()
+crow::response MainService::Version(const crow::request& request)
 {
-    return VERSION;
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
+    return crow::response(crow::OK, VERSION);
 }
 
-int MainService::Quit(crow::SimpleApp& app)
+crow::response MainService::Quit(const crow::request& request, crow::SimpleApp& app)
 {
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
     app.stop();
-    return crow::OK;
+    return crow::response(crow::OK);
 }

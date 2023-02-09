@@ -14,11 +14,9 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     BaseStackWidget(stackHolder, settings)
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
-    auto text = _mainLayout->addWidget(std::make_unique<WText>(), 0, 0, 0, 4, AlignmentFlag::Left);
-    text->setText("Список известных устройств:");
-    _refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 0, 4, AlignmentFlag::Right);
+    _mainLayout->addWidget(std::make_unique<WText>("Список известных устройств:"), 0, 0, 0, 4, AlignmentFlag::Left);
+    _refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 4, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(_refreshButton);
-    _refreshButton->setText("Обновить...");
     _refreshButton->clicked().connect([&](){ Refresh(); });
 
     Refresh();
@@ -39,7 +37,7 @@ void DevicesWidget::Clear()
 void DevicesWidget::Refresh()
 {
     Clear();
-    auto replyJson = RequestHelper::DoGetRequest({"127.0.0.1", _settings._servicePort, API_CLIENT_LIST_DEVICES});
+    auto replyJson = RequestHelper::DoGetRequest({"127.0.0.1", _settings._servicePort, API_CLIENT_LIST_DEVICES}, Constants::LoginService);
     auto descriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
     if (descriptions.empty())
         return;
@@ -49,9 +47,10 @@ void DevicesWidget::Refresh()
     int column = 0;
     for (auto& description : descriptions)
     {
-        auto button = _mainLayout->addWidget(std::make_unique<WPushButton>(), row, column, AlignmentFlag::Center);
+        auto button = _mainLayout->addWidget(std::make_unique<WPushButton>(), row, column, AlignmentFlag::Top | AlignmentFlag::Center);
         button->setText(description._name.size() ? description._name : description._id.data());
         button->setMinimumSize(200, 150);
+        button->setMaximumSize(200, 150);
         button->clicked().connect([description, this](){
             if (description._type == Constants::DeviceTypeThermometer)
                 _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());

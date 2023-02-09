@@ -44,3 +44,6 @@ CMakeCache.txt
 #logs
 *.log
 TODO
+
+#Arduino specific
+**/RealDefines.h

@@ -14,11 +14,11 @@ public:
 protected:
     virtual void Initialize(crow::SimpleApp& app) override;
 
-    std::string GetSettings(const std::string& idString);
+    crow::response GetSettings(const crow::request& request, const std::string& idString);
 
-    int SetSettings(const std::string& idString, const crow::request& request);
+    crow::response SetSettings(const crow::request& request, const std::string& idString);
 
-    int Inform(const crow::request& request);
+    crow::response Inform(const crow::request& request);
 
 private:
     friend class BaseServiceExtension;

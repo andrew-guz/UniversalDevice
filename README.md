@@ -9,3 +9,5 @@ curlpp - C++ HTTP requests
 uuid - C++ Guid
 sqlite3 - C++ SQLite
 wt - C++ web page client
+libb64 - C++ base64 string conversion
+

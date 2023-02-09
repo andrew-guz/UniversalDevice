@@ -6,6 +6,10 @@
 class Constants final
 {
 public:
+    //login
+    static const std::string LoginService;
+    static const std::string LoginDevice;
+
     // device types   
     static const std::string DeviceTypeUndefined;
     static const std::string DeviceTypeThermometer;

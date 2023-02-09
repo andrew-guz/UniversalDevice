@@ -2,12 +2,21 @@
 
 #include <vector>
 
+#include "AccountManager.h"
 #include "ProcessorsFactory.h"
 
 BaseService::BaseService(IQueryExecutor* queryExecutor) :
     _queryExecutor(queryExecutor)
 {
     
+}
+
+bool BaseService::IsValidUser(const crow::request& request)
+{
+    auto authorization = request.get_header_value("Authorization");
+    if (authorization.empty())
+        return false;
+    return AccountManager::Instance()->IsValidUser(authorization);
 }
 
 void BaseService::CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message)

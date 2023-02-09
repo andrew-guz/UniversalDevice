@@ -31,3 +31,8 @@ std::string PathHelper::AppDbPath()
 {
     return AppPath() + ".db";
 }
+
+std::string PathHelper::FullFilePath(const std::string& shortFileName)
+{
+    return AppDirPath() + std::string("/") + shortFileName;
+}

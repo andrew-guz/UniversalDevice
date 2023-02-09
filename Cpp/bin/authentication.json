@@ -1,0 +1,14 @@
+{
+    "serviceAccount": {
+        "login": "service",
+        "password": ""
+    },
+    "deviceAccount": {
+        "login": "device",
+        "password": ""
+    },
+    "users" : [{
+        "login" : "aguz",
+        "password" : ""
+    }]
+}

@@ -12,6 +12,7 @@ project(${PROJECT_NAME})
 
 #where to search headers
 include_directories(./include)
+include_directories(./include/authentication)
 include_directories(./include/component)
 include_directories(./include/core)
 include_directories(./include/interfaces)
@@ -44,4 +45,4 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
-target_link_libraries(${PROJECT_NAME} -luuid -lcurlpp)
+target_link_libraries(${PROJECT_NAME} -luuid -lcurlpp -lb64)

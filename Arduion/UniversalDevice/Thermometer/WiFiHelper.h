@@ -37,6 +37,7 @@ public:
     {
         String result;
         _httpsClient->begin(*_wifiClient, url);
+        _httpsClient->addHeader("Authorization", AUTHORIZATION_STR);
         int httpResponseCode = _httpsClient->GET();
         if (_verbose)
             PrintResults("GetRequest", url, httpResponseCode);
@@ -52,6 +53,7 @@ public:
     {
         _httpsClient->begin(*_wifiClient, url);
         _httpsClient->addHeader("Content-Type", "application/json");
+        _httpsClient->addHeader("Authorization", AUTHORIZATION_STR);
         int httpResponseCode = _httpsClient->POST(data);
         if (_verbose)
             PrintResults("PostRequestNoData", url, httpResponseCode);

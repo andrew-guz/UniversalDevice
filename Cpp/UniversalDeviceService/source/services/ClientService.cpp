@@ -16,29 +16,41 @@ ClientService::ClientService(IQueryExecutor* queryExecutor) :
 
 void ClientService::Initialize(crow::SimpleApp& app)
 {
-    CROW_ROUTE(app, API_CLIENT_LIST_DEVICES).methods(crow::HTTPMethod::GET)([&](){ return ListDevices(); });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const std::string& idString){ return GetDeviceName(idString); });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceName(idString, request); });
+    CROW_ROUTE(app, API_CLIENT_LIST_DEVICES).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return ListDevices(request); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetDeviceName(request, idString); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceName(request, idString); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return GetDeviceInfo(request); });
 }
 
-std::string ClientService::ListDevices()
+crow::response ClientService::ListDevices(const crow::request& request)
 {
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
     nlohmann::json result;
-    std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select("SELECT * FROM Devices", data))
+    try
     {
-        auto extendedComponentDescriptions = DbExtension::CreateVectorFromDbStrings<ExtendedComponentDescription>(data);
-        for (auto& extendedComponentDescription : extendedComponentDescriptions)
-            result.push_back(extendedComponentDescription.ToJson());
+        std::vector<std::vector<std::string>> data;
+        if (_queryExecutor->Select("SELECT * FROM Devices", data))
+        {
+            auto extendedComponentDescriptions = DbExtension::CreateVectorFromDbStrings<ExtendedComponentDescription>(data);
+            for (auto& extendedComponentDescription : extendedComponentDescriptions)
+                result.push_back(extendedComponentDescription.ToJson());
+        }
+        else
+            LOG_SQL_ERROR("SELECT * FROM Devices");
     }
-    else
-        LOG_SQL_ERROR("SELECT * FROM Devices");
-    return result.dump();
+    catch(...)
+    {
+        LOG_ERROR << "Something went wrong in ClientService::ListDevices." << std::endl;
+        return crow::response(crow::BAD_REQUEST);
+    }
+    return crow::response(crow::OK, result.dump());
 }
 
-std::string ClientService::GetDeviceName(const std::string& idString)
+crow::response ClientService::GetDeviceName(const crow::request& request, const std::string& idString)
 {
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
     nlohmann::json result;
     try
     {
@@ -70,12 +82,15 @@ std::string ClientService::GetDeviceName(const std::string& idString)
     catch(...)
     {
         LOG_ERROR << "Something went wrong in ClientService::GetDeviceName." << std::endl;
+        return crow::response(crow::BAD_REQUEST);
     } 
-    return result.dump();
+    return crow::response(crow::OK, result.dump());
 }
 
-int ClientService::SetDeviceName(const std::string& idString, const crow::request& request)
+crow::response ClientService::SetDeviceName(const crow::request& request, const std::string& idString)
 {
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
     try
     {
         auto bodyJson = nlohmann::json::parse(request.body);
@@ -90,7 +105,7 @@ int ClientService::SetDeviceName(const std::string& idString, const crow::reques
                 << "'";
             queryStream.flush();
             if (_queryExecutor->Execute(queryStream.str()))
-                return crow::OK;
+                return crow::response(crow::OK);
             else
                 LOG_SQL_ERROR(queryStream.str());
         }
@@ -100,12 +115,15 @@ int ClientService::SetDeviceName(const std::string& idString, const crow::reques
     catch(...)
     {
         LOG_ERROR << "Something went wrong in ClientService::GetDeviceName." << std::endl;
+        return crow::response(crow::BAD_REQUEST);
     } 
-    return crow::BAD_REQUEST;
+    return crow::response(crow::BAD_REQUEST);
 }
 
-std::string ClientService::GetDeviceInfo(const crow::request& request)
+crow::response ClientService::GetDeviceInfo(const crow::request& request)
 {
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
     nlohmann::json result;
     try
     {
@@ -117,5 +135,5 @@ std::string ClientService::GetDeviceInfo(const crow::request& request)
     {
         LOG_ERROR << "Something went wrong in ClientService::GetDeviceInfo." << std::endl;
     } 
-    return result.dump();
+    return crow::response(crow::OK, result.dump());
 }

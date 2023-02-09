@@ -1,15 +1,14 @@
 #include "ProcessSettingsReader.h"
 
 #include "Logger.h"
+#include "JsonFileReader.h"
 
 nlohmann::json ProcessSettingsReader::ReadProcessSettings()
 {
     try
     {
         auto settingsPath = PathHelper::AppSettingsPath();
-        std::ifstream settingsFileStream(settingsPath);
-        auto settingsJson = nlohmann::json::parse(settingsFileStream);
-        return settingsJson;
+        return JsonFileReader::ReadJson(settingsPath);
     }
     catch (...)
     {

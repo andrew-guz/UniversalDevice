@@ -3,6 +3,7 @@
 
 enum class StackWidgetType
 {
+    Login,
     Devices,
     Thermometer
 };

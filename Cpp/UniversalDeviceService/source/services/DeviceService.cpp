@@ -13,13 +13,15 @@ DeviceService::DeviceService(IQueryExecutor* queryExecutor) :
 
 void DeviceService::Initialize(crow::SimpleApp& app)
 {
-    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::GET)([&](const std::string& idString){ return GetSettings(idString); });
-    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetSettings(idString, request); });
+    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetSettings(request, idString); });
+    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetSettings(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
 }
 
-std::string DeviceService::GetSettings(const std::string& idString)
+crow::response DeviceService::GetSettings(const crow::request& request, const std::string& idString)
 {
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
     try
     {
         std::stringstream queryStream;
@@ -34,12 +36,9 @@ std::string DeviceService::GetSettings(const std::string& idString)
             {
                 auto settingsString = data[0][1];
                 if (!settingsString.empty())
-                    return settingsString;
+                    return crow::response(crow::OK, settingsString);
                 else
-                {
                     LOG_INFO << "Empty settings for device " << idString << "." << std::endl;
-                    return {};
-                }
             }
             else
             {
@@ -55,12 +54,15 @@ std::string DeviceService::GetSettings(const std::string& idString)
     catch(...)
     {
         LOG_ERROR << "Something went wrong in DeviceService::GetSettings." << std::endl;
-    } 
-    return {};
+        return crow::response(crow::BAD_REQUEST);
+    }
+    return crow::response(crow::OK, std::string());
 }
 
-int DeviceService::SetSettings(const std::string& idString, const crow::request& request)
+crow::response DeviceService::SetSettings(const crow::request& request, const std::string& idString)
 {
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
     try
     {
         auto settingsString = request.body;
@@ -74,7 +76,7 @@ int DeviceService::SetSettings(const std::string& idString, const crow::request&
                 << "')";
             queryStream.flush();
             if (_queryExecutor->Execute(queryStream.str()))
-                return crow::OK;
+                return crow::response(crow::OK);
             else
                 LOG_SQL_ERROR(queryStream.str());
         }
@@ -85,21 +87,23 @@ int DeviceService::SetSettings(const std::string& idString, const crow::request&
     {
         LOG_ERROR << "Something went wrong in DeviceService::SetSettings." << std::endl;
     } 
-    return crow::BAD_REQUEST;
+    return crow::response(crow::BAD_REQUEST);
 }
 
-int DeviceService::Inform(const crow::request& request)
+crow::response DeviceService::Inform(const crow::request& request)
 {
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
     try
     {
         auto timestamp = std::chrono::system_clock::now();
         auto message = BaseServiceExtension::GetMessageFromRequest(request);
         CallProcessorsNoResult(timestamp, message);
-        return crow::OK;
+        return crow::response(crow::OK);
     }
     catch(...)
     {
         LOG_ERROR << "Something went wrong in DeviceService::Inform." << std::endl;
     }
-    return crow::BAD_REQUEST;
+    return crow::response(crow::BAD_REQUEST);
 }

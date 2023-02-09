@@ -15,6 +15,8 @@ public:
     static std::string AppLogPath();
 
     static std::string AppDbPath();
+
+    static std::string FullFilePath(const std::string& shortFileName);
 };
 
 #endif //_PATH_HELPER_H_

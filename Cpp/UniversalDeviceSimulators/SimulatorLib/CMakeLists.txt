@@ -13,6 +13,7 @@ project(${PROJECT_NAME})
 #where to search headers
 include_directories(./include)
 include_directories(./../../UniversalDeviceLib/include)
+include_directories(./../../UniversalDeviceLib/include/authentication)
 include_directories(./../../UniversalDeviceLib/include/component)
 include_directories(./../../UniversalDeviceLib/include/core)
 include_directories(./../../UniversalDeviceLib/include/interfaces)

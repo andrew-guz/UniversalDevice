@@ -14,9 +14,9 @@ public:
 protected:
     virtual void Initialize(crow::SimpleApp& app) override;
 
-    std::string Version();
+    crow::response Version(const crow::request& request);
 
-    int Quit(crow::SimpleApp& app);
+    crow::response Quit(const crow::request& request,crow::SimpleApp& app);
 
 private:
     friend class BaseServiceExtension;

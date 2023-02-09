@@ -7,8 +7,9 @@
 #include <curlpp/Infos.hpp>
 
 #include "Logger.h"
+#include "AccountManager.h"
 
-nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
+nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress, const std::string& login)
 {
     try
     {
@@ -23,6 +24,8 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
 
         request.setOpt(curlpp::options::SslVerifyPeer(false));
         request.setOpt(curlpp::options::SslVerifyHost(false));
+
+        request.setOpt(new curlpp::options::UserPwd(AccountManager::Instance()->GetAuthString(login)));
 
         std::ostringstream response;
         request.setOpt(new curlpp::options::WriteStream(&response));
@@ -52,15 +55,15 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress)
     return {};
 }
 
-int RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const nlohmann::json& json)
+int RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
 {
-    return DoPostRequest(requestAddress, json, nullptr);
+    return DoPostRequest(requestAddress, login, json, nullptr);
 }
 
-nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const nlohmann::json& json)
+nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
 {
     std::ostringstream response;
-    if (DoPostRequest(requestAddress, json, &response) == 200)
+    if (DoPostRequest(requestAddress, login, json, &response) == 200)
     {
         auto body = response.str();
         LOG_DEBUG << "POST result - " << body << std::endl;
@@ -77,7 +80,7 @@ nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requ
     return {};
 }
 
-int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const nlohmann::json& json, std::ostream* response)
+int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const std::string& login, const nlohmann::json& json, std::ostream* response)
 {
     try
     {
@@ -97,6 +100,8 @@ int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const nlo
         std::list<std::string> header; 
         header.push_back("Content-Type: application/json");
         request.setOpt(new curlpp::options::HttpHeader(header)); 
+
+        request.setOpt(new curlpp::options::UserPwd(AccountManager::Instance()->GetAuthString(login)));
     
         request.setOpt(new curlpp::options::PostFields(postString));
         request.setOpt(new curlpp::options::PostFieldSize(postString.size()));

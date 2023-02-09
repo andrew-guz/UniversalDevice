@@ -9,14 +9,14 @@
 class RequestHelper final
 {
 public:
-    static nlohmann::json DoGetRequest(const RequestAddress& requestAddress);
+    static nlohmann::json DoGetRequest(const RequestAddress& requestAddress, const std::string& login);
 
-    static int DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const nlohmann::json& json);
+    static int DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json);
 
-    static nlohmann::json DoPostRequestWithAnswer(const RequestAddress& requestAddress, const nlohmann::json& json);
+    static nlohmann::json DoPostRequestWithAnswer(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json);
 
 private:
-    static int DoPostRequest(const RequestAddress& requestAddress, const nlohmann::json& json, std::ostream* response);
+    static int DoPostRequest(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json, std::ostream* response);
 };
 
 #endif //_REQUEST_HELPER_H_
