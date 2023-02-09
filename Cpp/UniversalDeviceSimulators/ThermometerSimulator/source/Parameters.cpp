@@ -1,6 +1,5 @@
 #include "Parameters.h"
 
-#include "Defines.h"
 #include "ProcessSettingsReader.h"
 
 Parameters Parameters::ReadFromFile(const std::string fileName)
