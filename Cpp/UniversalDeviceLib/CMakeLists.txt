@@ -45,3 +45,5 @@ add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 #executable needs libraries - so link to installed lisbs
 target_link_libraries(${PROJECT_NAME} -luuid -lcurlpp -lb64)
+
+install(TARGETS ${PROJECT_NAME})

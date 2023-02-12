@@ -50,3 +50,6 @@ TODO
 
 #Service specific
 **/authentication.json
+
+#Install specific
+**/install_manifest.txt
