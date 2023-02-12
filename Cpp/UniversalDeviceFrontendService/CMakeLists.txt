@@ -22,8 +22,7 @@ include_directories(./../UniversalDeviceLib/include/interfaces)
 include_directories(./../UniversalDeviceLib/include/messages)
 include_directories(./../UniversalDeviceLib/include/messages/custom)
 include_directories(./../UniversalDeviceLib/include/network)
-include_directories(./../UniversalDeviceLib/include/serializers)
-include_directories(./../UniversalDeviceLib/include/serializers/custom)
+include_directories(./../UniversalDeviceLib/include/settings)
 
 #set variable where to put ouput file
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../bin)

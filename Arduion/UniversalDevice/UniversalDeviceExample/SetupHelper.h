@@ -1,6 +1,8 @@
 #ifndef _SETUP_HELPER_H_
 #define _SETUP_HELPER_H_
 
+#include <assert.h>
+
 #include "Defines.h"
 
 void CheckDefines()

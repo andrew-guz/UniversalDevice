@@ -54,6 +54,8 @@ void DevicesWidget::Refresh()
         button->clicked().connect([description, this](){
             if (description._type == Constants::DeviceTypeThermometer)
                 _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
+            if (description._type == Constants::DeviceTypeRelay)
+                _stackHolder->SetWidget(StackWidgetType::Relay, description._id.data());
         });
         _deviceButtons.push_back(button);
         ++column;

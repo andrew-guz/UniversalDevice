@@ -1,24 +1,19 @@
 #ifndef _THERMOMETER_SETTINGS_H_
 #define _THERMOMETER_SETTINGS_H_
 
-#include <limits>
-
 #include "IJson.h"
+#include "PeriodSettings.h"
 
-struct ThermometerSettings : public IJson<ThermometerSettings>
+struct ThermometerSettings final : public PeriodSettings, public IJson<ThermometerSettings>
 {
-    int _period = 5000;
-
     virtual nlohmann::json ToJson() const override
     {
-        return {
-            { "period", _period }
-        };  
+        return PeriodToJson();
     }
 
     virtual void FromJson(const nlohmann::json& json) override
     {
-        _period = json.value("period", 5000);
+        PeriodFromJson(json);
     }
 };
 

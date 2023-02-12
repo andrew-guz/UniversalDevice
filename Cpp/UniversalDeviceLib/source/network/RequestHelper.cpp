@@ -37,6 +37,8 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress,
             LOG_ERROR << "GET request failed : " << returnCode << "." << std::endl;
 
         auto body = response.str();
+        if (body.empty())
+            return {};
         try
         {
             auto bodyJson = nlohmann::json::parse(body);

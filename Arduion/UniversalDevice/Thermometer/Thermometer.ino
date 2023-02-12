@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include "SetupHelper.h"
 #include "WiFiHelper.h"
 #include "MessageHelper.h"
@@ -8,7 +6,7 @@
 SingleTemperatureSensor temperatureSensor(26);
 unsigned long settingsStartTime;
 unsigned long temperatureStartTime;
-int measurementDelay;
+int measurementDelay = 5000;
 
 //20ms
 int getDelayFromSettings()
@@ -20,7 +18,7 @@ int getDelayFromSettings()
     if (!error &&
         doc.containsKey("period"))
         return doc["period"].as<int>();
-    return 5000;
+    return measurementDelay; //return what I remember
 }
 
 JsonObject CurrentValueData(float value)
@@ -34,7 +32,7 @@ JsonObject CurrentValueData(float value)
 //30 ms
 void sendTemperature(float temperature)
 {
-    auto message = CreateMessage("thermometer", UUID, "current_value", CurrentValueData(temperature));
+    auto message = CreateMessage("thermometer", UUID, "thermometer_current_value", CurrentValueData(temperature));
     wifiHelper.PostRequestNoData(API_INFORM, message);
 }
 
@@ -79,7 +77,7 @@ void loop()
         settingsStartTime = currentTime;
     }
 
-    //500 for measure time and 30 to send - so -30 ms
+    //500 for measure time and 30 to send - so -530 ms
     if (currentTime - temperatureStartTime >= measurementDelay - 530)
     {
         //last for 500 ms

@@ -19,8 +19,7 @@ include_directories(./include/interfaces)
 include_directories(./include/messages)
 include_directories(./include/messages/custom)
 include_directories(./include/network)
-include_directories(./include/serializers)
-include_directories(./include/serializers/custom)
+include_directories(./include/settings)
 
 #set variable where to put ouput file
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../bin)

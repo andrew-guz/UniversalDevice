@@ -3,8 +3,14 @@
 
 #include <string>
 #include <sstream>
+#include <tuple>
 
 #include <Wt/WPushButton.h>
+#include <Wt/WDialog.h>
+#include <Wt/WString.h>
+#include <Wt/WGridLayout.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WSpinBox.h>
 
 class WidgetHelper final
 {
@@ -16,7 +22,10 @@ public:
     {
         std::stringstream ss;
         ss.precision(1);
-        ss << "<p style='font-size:" << size << "px'>" << std::fixed << value << "</p>";
+        if constexpr (std::is_same<T, float>::value ||
+            std::is_same<T, double>::value)
+            ss << std::fixed;
+        ss << "<p style='font-size:" << size << "px'>" << value << "</p>";
         ss.flush();
         return ss.str();
     }
@@ -26,10 +35,15 @@ public:
     {
         std::stringstream ss;
         ss.precision(1);
-        ss << "<p style='font-size:" << size << "px'>" << std::fixed << value << type <<"</p>";
+        if constexpr (std::is_same<T, float>::value ||
+            std::is_same<T, double>::value)
+            ss << std::fixed;
+        ss << "<p style='font-size:" << size << "px'>" << value << type <<"</p>";
         ss.flush();
         return ss.str();
     }
+
+    static std::tuple<Wt::WDialog*, Wt::WGridLayout*, Wt::WLineEdit*, Wt::WSpinBox*> CreateNamePeriodSettingsDialog(Wt::WContainerWidget* parent, const Wt::WString& name, float period);
 };
 
 #endif //WIDGET_HELPER_H_

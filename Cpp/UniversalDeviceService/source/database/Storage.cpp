@@ -68,8 +68,10 @@ void Storage::InitializeDb()
     std::vector<std::string> queries
     {
         "CREATE TABLE IF NOT EXISTS Devices (id TEXT UNIQUE, type TEXT, name TEXT, timestamp TEXT, PRIMARY KEY(id, type))",
+        "CREATE TABLE IF NOT EXISTS Settings (id TEXT, settings TEXT, PRIMARY KEY(id))",
+        "CREATE TABLE IF NOT EXISTS Commands (id TEXT, commands TEXT, PRIMARY KEY(id))",
         "CREATE TABLE IF NOT EXISTS Thermometers (idx INTEGER, id TEXT, timestamp TEXT, value REAL, PRIMARY KEY(idx AUTOINCREMENT))",
-        "CREATE TABLE IF NOT EXISTS Settings (id TEXT, settings TEXT, PRIMARY KEY(id))"
+        "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp TEXT, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))"
     };
     for(auto& query : queries)
         Execute(query);

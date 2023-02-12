@@ -1,38 +1,38 @@
-#include "ThermometerProcessor.h"
+#include "RelayProcessor.h"
 
 #include <sstream>
 
 #include "Logger.h"
 #include "Constants.h"
-#include "ThermometerCurrentValue.h"
-#include "ExtendedThermometerCurrentValue.h"
+#include "RelayCurrentState.h"
+#include "ExtendedRelayCurrentState.h"
 #include "TimeHelper.h"
 
-ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) :
+RelayProcessor::RelayProcessor(IQueryExecutor* queryExecutor) :
     BaseProcessorWithQueryExecutor(queryExecutor)
 {
 
 }
 
-nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message)
+nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message)
 {
-    if (message._header._subject == Constants::SubjectThermometerCurrentValue)
+    if (message._header._subject == Constants::SubjectRelayCurrentState)
     {
-        auto currentValue = JsonExtension::CreateFromJson<ThermometerCurrentValue>(message._data);
-        if (currentValue._value == std::numeric_limits<float>::min())
+        auto currentState = JsonExtension::CreateFromJson<RelayCurrentState>(message._data);
+        if (currentState._state == std::numeric_limits<float>::min())
         {
-            LOG_ERROR << "ThermometerProcessor - invalid message." << std::endl;
+            LOG_ERROR << "RelayProcessor - invalid message." << std::endl;
             return {};
         }
         auto& description = message._header._description;
         std::stringstream queryStream;
         queryStream
-            << "INSERT INTO Thermometers (id, timestamp, value) VALUES ('"
+            << "INSERT INTO Relays (id, timestamp, state) VALUES ('"
             << description._id.data()
             << "', '" 
             << TimeHelper::TimeToString(timestamp)
             << "', '" 
-            << currentValue._value
+            << currentState._state
             << "')";
         queryStream.flush();
         if (!_queryExecutor->Execute(queryStream.str()))
@@ -42,12 +42,12 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
     else if (message._header._subject == Constants::SubjectGetDeviceInformation)
     {
         auto description = JsonExtension::CreateFromJson<ComponentDescription>(message._data);
-        if (description._type == Constants::DeviceTypeThermometer &&
+        if (description._type == Constants::DeviceTypeRelay &&
             !description._id.isEmpty())
         {
             std::stringstream queryStream;
             queryStream
-                << "SELECT timestamp, value FROM Thermometers WHERE id = '"
+                << "SELECT timestamp, state FROM Relays WHERE id = '"
                 << description._id.data()
                 << "' ORDER BY idx DESC LIMIT 100";
             queryStream.flush();
@@ -55,9 +55,9 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             std::vector<std::vector<std::string>> data;
             if (_queryExecutor->Select(queryStream.str(), data))
             {
-                auto extendedThermometerCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedThermometerCurrentValue>(data);
-                for (auto& extendedThermometerCurrentValue : extendedThermometerCurrentValues)
-                    result.push_back(extendedThermometerCurrentValue.ToJson());
+                auto extendedRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedRelayCurrentState>(data);
+                for (auto& extendedRelayCurrentState : extendedRelayCurrentStates)
+                    result.push_back(extendedRelayCurrentState.ToJson());
                 return result;
             }
             else

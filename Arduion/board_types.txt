@@ -1,0 +1,5 @@
+Name - Arduino studio name
+
+WeMos D1 на базе ESP32 UNO (Arduino-совместимая) --- WEMOS LOLIN 32(esp32) --- #include "WiFi.h" #include "HTTPClient.h"
+WeMos D1 mini NodeMcu Lua WIFI на базе ESP8266 --- WEMOS (LOLIN) D1 R2 & mini + freq 160MGz --- #include <ESP8266WiFi.h> #include <ESP8266HTTPClient.h>
+WeMos D1 R2 WiFi на базе ESP8266 UNO (Arduino-совместимая) --- WEMOS (LOLIN) D1 R2 & mini + freq 160MGz --- #include <ESP8266WiFi.h> #include <ESP8266HTTPClient.h>

@@ -18,6 +18,10 @@ protected:
 
     crow::response SetSettings(const crow::request& request, const std::string& idString);
 
+    crow::response GetCommands(const crow::request& request, const std::string& idString);
+
+    crow::response SetCommands(const crow::request& request, const std::string& idString);
+
     crow::response Inform(const crow::request& request);
 
 private:

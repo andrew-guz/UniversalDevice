@@ -5,7 +5,8 @@ enum class StackWidgetType
 {
     Login,
     Devices,
-    Thermometer
+    Thermometer,
+    Relay
 };
 
 #endif //_ENUMS_H_

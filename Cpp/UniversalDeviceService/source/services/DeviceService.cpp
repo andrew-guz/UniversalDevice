@@ -15,6 +15,8 @@ void DeviceService::Initialize(crow::SimpleApp& app)
 {
     CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetSettings(request, idString); });
     CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetSettings(request, idString); });
+    CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetCommands(request, idString); });
+    CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
 }
 
@@ -43,7 +45,7 @@ crow::response DeviceService::GetSettings(const crow::request& request, const st
             else
             {
                 if (data.size() == 0)
-                    LOG_INFO << "No settings for device " << idString << "." << std::endl;
+                    LOG_DEBUG << "No settings for device " << idString << "." << std::endl;
                 else
                     LOG_ERROR << "Too many settings for device " << idString << "." << std::endl;
             }
@@ -86,6 +88,78 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
     catch(...)
     {
         LOG_ERROR << "Something went wrong in DeviceService::SetSettings." << std::endl;
+    } 
+    return crow::response(crow::BAD_REQUEST);
+}
+
+crow::response DeviceService::GetCommands(const crow::request& request, const std::string& idString)
+{
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
+    try
+    {
+        std::stringstream queryStream;
+        queryStream << "SELECT commands FROM Commands WHERE id = '"
+            << idString
+            << "'";
+        queryStream.flush();
+        std::vector<std::vector<std::string>> data;
+        if (_queryExecutor->Select(queryStream.str(), data))
+        {
+            if (data.size() == 1)
+            {
+                auto commandsString = data[0][1];
+                if (!commandsString.empty())
+                    return crow::response(crow::OK, commandsString);
+                else
+                    LOG_INFO << "Empty commands for device " << idString << "." << std::endl;
+            }
+            else
+            {
+                if (data.size() == 0)
+                    LOG_DEBUG << "No commands for device " << idString << "." << std::endl;
+                else
+                    LOG_ERROR << "Too many commands for device " << idString << "." << std::endl;
+            }
+        }
+        else
+            LOG_SQL_ERROR(queryStream.str());
+    }
+    catch(...)
+    {
+        LOG_ERROR << "Something went wrong in DeviceService::GetCommands." << std::endl;
+        return crow::response(crow::BAD_REQUEST);
+    }
+    return crow::response(crow::OK, std::string());
+}
+
+crow::response DeviceService::SetCommands(const crow::request& request, const std::string& idString)
+{
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
+    try
+    {
+        auto commandsString = request.body;
+        if (!commandsString.empty())
+        {
+            std::stringstream queryStream;
+            queryStream << "INSERT OR REPLACE INTO Commands (id, commands) VALUES ('"
+                << idString
+                << "', '"
+                << commandsString
+                << "')";
+            queryStream.flush();
+            if (_queryExecutor->Execute(queryStream.str()))
+                return crow::response(crow::OK);
+            else
+                LOG_SQL_ERROR(queryStream.str());
+        }
+        else
+            LOG_ERROR << "Invalid commands " << commandsString << "." << std::endl;    
+    }
+    catch(...)
+    {
+        LOG_ERROR << "Something went wrong in DeviceService::SetCommands." << std::endl;
     } 
     return crow::response(crow::BAD_REQUEST);
 }
