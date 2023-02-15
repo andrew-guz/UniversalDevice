@@ -3,7 +3,25 @@
 #include "Defines.h"
 #include "Logger.h"
 #include "TimeHelper.h"
-#include "ProcessorsFactory.h"
+#include "CurrentTime.h"
+#include "MessageHelper.h"
+
+void TimerThreadFunction(std::function<void(void)> timerFunction)
+{ 
+    auto [startHour, startMinute] = TimeHelper::GetHourMinute(std::chrono::system_clock::now());
+    auto startValue = startHour * 60 + startMinute;
+    while (true)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        auto [currentHour, currentMinute] = TimeHelper::GetHourMinute(std::chrono::system_clock::now());
+        auto currentValue = currentHour * 60 + currentMinute;
+        if (currentValue != startValue)
+        {
+            timerFunction();
+            startValue = currentValue;
+        }
+    }
+}
 
 DeviceService::DeviceService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor)
@@ -18,6 +36,11 @@ void DeviceService::Initialize(crow::SimpleApp& app)
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
+
+    //also start thread for timer events
+    auto timerFunction = std::bind(&DeviceService::TimerFunction, this);
+    auto timingThread = new std::thread(TimerThreadFunction, timerFunction);
+    timingThread->detach();
 }
 
 crow::response DeviceService::GetSettings(const crow::request& request, const std::string& idString)
@@ -180,4 +203,12 @@ crow::response DeviceService::Inform(const crow::request& request)
         LOG_ERROR << "Something went wrong in DeviceService::Inform." << std::endl;
     }
     return crow::response(crow::BAD_REQUEST);
+}
+
+void DeviceService::TimerFunction()
+{
+    CurrentTime currentTime;
+    currentTime._timestamp = std::chrono::system_clock::now();
+    auto message = MessageHelper::Create(Constants::DeviceTypeTimer, Constants::PredefinedIdTimer, Constants::SubjectTimerEvent, currentTime.ToJson());
+    CallProcessorsNoResult(std::chrono::system_clock::now(), message);
 }

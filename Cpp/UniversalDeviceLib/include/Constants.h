@@ -1,7 +1,7 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
-#include <string>
+#include "Uuid.h"
 
 class Constants final
 {
@@ -12,14 +12,25 @@ public:
 
     // device types   
     static const std::string DeviceTypeUndefined;
+    static const std::string DeviceTypeTimer;
     static const std::string DeviceTypeThermometer;
     static const std::string DeviceTypeRelay;
 
     //subjects - depends on type
     static const std::string SubjectUndefined;
+    static const std::string SubjectTimerEvent;
     static const std::string SubjectGetDeviceInformation;
     static const std::string SubjectThermometerCurrentValue;
     static const std::string SubjectRelayCurrentState;
+
+    //predefined ids for devices
+    static const Uuid PredefinedIdTimer;
+
+    //event types
+    static const std::string EventTypeUndefined;
+    static const std::string EventTypeTime;
+    static const std::string EventTypeThermometer;
+    static const std::string EventTypeRelay;
 };
 
 #endif //_CONSTANTS_H_

@@ -22,3 +22,10 @@ std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::stri
     auto time_t = std::mktime(&tm);
     return std::chrono::system_clock::from_time_t(time_t);
 }
+
+std::tuple<int, int> TimeHelper::GetHourMinute(const std::chrono::system_clock::time_point& time)
+{
+    auto time_t = std::chrono::system_clock::to_time_t(time);
+    auto tm = std::localtime(&time_t);
+    return std::make_tuple(tm->tm_hour, tm->tm_min);
+}

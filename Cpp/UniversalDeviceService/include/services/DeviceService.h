@@ -24,6 +24,8 @@ protected:
 
     crow::response Inform(const crow::request& request);
 
+    void TimerFunction();
+
 private:
     friend class BaseServiceExtension;
 };
