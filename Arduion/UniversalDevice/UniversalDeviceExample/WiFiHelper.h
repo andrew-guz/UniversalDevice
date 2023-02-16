@@ -2,6 +2,12 @@
 #define _WIFI_HELPER_H_
 
 //set here headers suitable for WiFi and HttpClient
+/*
+#include <WiFi.h?
+#include <HTTPClient.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+*/
 
 #include "Defines.h"
 
@@ -59,6 +65,7 @@ public:
         if (httpResponseCode < 0)
             PrintResults("PostRequestNoData", url, httpResponseCode);
         _httpsClient->end();
+        return httpResponseCode;
     }
 
 private:

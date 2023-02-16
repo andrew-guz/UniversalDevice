@@ -60,6 +60,7 @@ public:
         if (httpResponseCode < 0)
             PrintResults("PostRequestNoData", url, httpResponseCode);
         _httpsClient->end();
+        return httpResponseCode;
     }
 
 private:

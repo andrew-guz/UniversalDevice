@@ -2,8 +2,10 @@
 #include "WiFiHelper.h"
 #include "MessageHelper.h"
 #include "TemperatureHelper.h"
+#include <TM1637TinyDisplay.h>
 
-SingleTemperatureSensor temperatureSensor(26);
+SingleTemperatureSensor temperatureSensor(D7);
+TM1637TinyDisplay display(D5, D6);
 unsigned long settingsStartTime;
 unsigned long temperatureStartTime;
 int measurementDelay = 5000;
@@ -29,6 +31,15 @@ JsonObject CurrentValueData(float value)
     return root;
 }
 
+void showTemperature(float temperature)
+{
+    display.showString("\xB0", 1, 3);    
+    if (temperature >= 0.0f)
+        display.showNumber((double)temperature, 1, 3, 0);
+    else
+        display.showNumber((int)std::lround(temperature), false, 3, 0);    
+}
+
 //30 ms
 void sendTemperature(float temperature)
 {
@@ -43,6 +54,8 @@ void setup()
     Serial.begin(115200);
 
     temperatureSensor.Setup();
+
+    display.setBrightness(BRIGHT_7);
 }
 
 void loop()
@@ -82,6 +95,7 @@ void loop()
     {
         //last for 500 ms
         auto temperature = temperatureSensor.GetTemperature();
+        showTemperature(temperature);
         sendTemperature(temperature);
         temperatureStartTime = currentTime;
     }
