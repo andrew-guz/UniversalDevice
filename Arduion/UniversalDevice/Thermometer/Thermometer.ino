@@ -4,11 +4,12 @@
 #include "TemperatureHelper.h"
 #include <TM1637TinyDisplay.h>
 
-SingleTemperatureSensor temperatureSensor(D7);
-TM1637TinyDisplay display(D5, D6);
+SingleTemperatureSensor temperatureSensor(D6);
+TM1637TinyDisplay display(D4, D5);
 unsigned long settingsStartTime;
 unsigned long temperatureStartTime;
 int measurementDelay = 5000;
+float shownTemperature = 0.f;
 
 //20ms
 int getDelayFromSettings()
@@ -23,27 +24,20 @@ int getDelayFromSettings()
     return measurementDelay; //return what I remember
 }
 
-JsonObject CurrentValueData(float value)
-{
-    DynamicJsonDocument doc(128);
-    auto root = doc.to<JsonObject>();
-    root["value"] = value;
-    return root;
-}
-
 void showTemperature(float temperature)
 {
-    display.showString("\xB0", 1, 3);    
-    if (temperature >= 0.0f)
-        display.showNumber((double)temperature, 1, 3, 0);
-    else
-        display.showNumber((int)std::lround(temperature), false, 3, 0);    
+    if (std::abs(shownTemperature -  temperature) > 0.01f)
+    {
+        shownTemperature = temperature;
+        display.clear();
+        display.showNumber(temperature, 1);
+    }
 }
 
 //30 ms
 void sendTemperature(float temperature)
 {
-    auto message = CreateMessage("thermometer", UUID, "thermometer_current_value", CurrentValueData(temperature));
+    auto message = CreateSimpleMessage("thermometer", UUID, "thermometer_current_value", "value", temperature);
     wifiHelper.PostRequestNoData(API_INFORM, message);
 }
 
@@ -91,7 +85,7 @@ void loop()
     }
 
     //500 for measure time and 30 to send - so -530 ms
-    if (currentTime - temperatureStartTime >= measurementDelay - 530)
+    if ((int)(currentTime - temperatureStartTime) >= measurementDelay - 530)
     {
         //last for 500 ms
         auto temperature = temperatureSensor.GetTemperature();

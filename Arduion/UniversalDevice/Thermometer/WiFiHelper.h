@@ -1,10 +1,18 @@
+#include "HardwareSerial.h"
 #ifndef _WIFI_HELPER_H_
 #define _WIFI_HELPER_H_
 
-#include "WiFi.h"
-#include "HTTPClient.h"
-
 #include "Defines.h"
+
+#ifdef WIFI_ESP32
+#include <WiFi.h>
+#include <HTTPClient.h>
+#endif
+
+#ifdef WIFI_ESP8266
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#endif
 
 class WiFiHelper
 {
@@ -60,6 +68,7 @@ public:
         if (httpResponseCode < 0)
             PrintResults("PostRequestNoData", url, httpResponseCode);
         _httpsClient->end();
+        return httpResponseCode;
     }
 
 private:

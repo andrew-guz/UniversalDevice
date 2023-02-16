@@ -4,6 +4,9 @@
 //uuid of current UniversalDevice
 #define UUID "XXX"
 
+//#define WIFI_ESP32
+//#define WIFI_ESP8266
+
 //wifi networks and passwords - specify before upload
 #define SSID_MAIN "XXX"
 #define SSID_ADDITIONAL "XXX"
