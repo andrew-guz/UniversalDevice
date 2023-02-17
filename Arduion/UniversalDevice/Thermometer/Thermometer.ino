@@ -9,7 +9,6 @@ TM1637TinyDisplay display(D4, D5);
 unsigned long settingsStartTime;
 unsigned long temperatureStartTime;
 int measurementDelay = 5000;
-float shownTemperature = 0.f;
 
 //20ms
 int getDelayFromSettings()
@@ -26,12 +25,7 @@ int getDelayFromSettings()
 
 void showTemperature(float temperature)
 {
-    if (std::abs(shownTemperature -  temperature) > 0.01f)
-    {
-        shownTemperature = temperature;
-        display.clear();
-        display.showNumber(temperature, 1);
-    }
+    display.showNumber(temperature, 1);
 }
 
 //30 ms
@@ -50,6 +44,7 @@ void setup()
     temperatureSensor.Setup();
 
     display.setBrightness(BRIGHT_7);
+    display.showString("HELO");
 }
 
 void loop()
@@ -57,9 +52,10 @@ void loop()
     //check the connection
     if (WiFi.status() != WL_CONNECTED)
     {
+        display.showString("HELO");
         bool connected = wifiHelper.WiFiConnect();
         if (!connected)
-        {
+        {            
             delay(1000);
             return;
         }
