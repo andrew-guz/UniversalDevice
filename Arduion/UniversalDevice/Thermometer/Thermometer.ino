@@ -8,7 +8,7 @@ SingleTemperatureSensor temperatureSensor(D6);
 #ifdef USE_LED
 TM1637TinyDisplay display(D4, D5);
 #endif
-unsigned long settingsStartTime;
+unsigned long settingsCommandStartTime;
 unsigned long temperatureStartTime;
 int measurementDelay = 5000;
 
@@ -25,17 +25,30 @@ int getDelayFromSettings()
     return measurementDelay; //return what I remember
 }
 
+//20ms
+int getBrightnessFromCommands()
+{
+    String url = String(API_COMMANDS) + String("/") + String(UUID);
+    auto replyString = wifiHelper.GetRequest(url);
+    DynamicJsonDocument doc(128);
+    auto error = deserializeJson(doc, replyString);
+    if (!error &&
+        doc.containsKey("brightness"))
+        return doc["brightness"].as<int>();
+    return BRIGHT_7;
+}
+
 void ledSetBrightness(int value)
 {
 #ifdef USE_LED
-    display.setBrightness(BRIGHT_7);
+    display.setBrightness(value);
 #endif   
 }
 
 void ledShowString(const String& str)
 {
 #ifdef USE_LED
-    display.showString(str);
+    display.showString(str.c_str());
 #endif    
 }
 
@@ -78,26 +91,28 @@ void loop()
             delay(1000);
             return;
         }
-        ledShowString("CONI");
-        settingsStartTime = temperatureStartTime = millis();
+        ledShowString("CONN");
+        settingsCommandStartTime = temperatureStartTime = millis();
     }
 
     delay(100);
 
     auto currentTime = millis();
 
-    if (currentTime <= settingsStartTime ||
+    if (currentTime <= settingsCommandStartTime ||
         currentTime <= temperatureStartTime)
     {
         //case when millis goes over 0 - once in rough 50 days
-        settingsStartTime = temperatureStartTime = millis();
+        settingsCommandStartTime = temperatureStartTime = millis();
         return;
     }
 
-    if (currentTime - settingsStartTime >= 500)
+    if (currentTime - settingsCommandStartTime >= 500)
     {
         measurementDelay = getDelayFromSettings();
-        settingsStartTime = currentTime;
+        auto brightnessFromCommand = getBrightnessFromCommands();
+        ledSetBrightness(brightnessFromCommand);
+        settingsCommandStartTime = currentTime;
     }
 
     //500 for measure time and 30 to send - so -530 ms

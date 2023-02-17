@@ -43,7 +43,7 @@ public:
         return ss.str();
     }
 
-    static std::tuple<Wt::WDialog*, Wt::WGridLayout*, Wt::WLineEdit*, Wt::WSpinBox*> CreateNamePeriodSettingsDialog(Wt::WContainerWidget* parent, const Wt::WString& name, float period);
+    static std::tuple<Wt::WDialog*, Wt::WGridLayout*, Wt::WLineEdit*, Wt::WSpinBox*, Wt::WPushButton*> CreateNamePeriodSettingsDialog(Wt::WContainerWidget* parent, int height, const Wt::WString& name, float period, bool useDefaultValidation);
 };
 
 #endif //WIDGET_HELPER_H_

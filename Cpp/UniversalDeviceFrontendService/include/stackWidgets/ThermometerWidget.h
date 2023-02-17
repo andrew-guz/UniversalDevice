@@ -7,6 +7,7 @@
 #include "TemperatureChartModel.h"
 #include "ThermometerSettings.h"
 #include "ExtendedThermometerCurrentValue.h"
+#include "ThermometerLedBrightness.h"
 
 class ThermometerWidget final : public BaseDeviceWidget
 {
@@ -23,6 +24,8 @@ protected:
     ThermometerSettings GetSettings();
 
     std::vector<ExtendedThermometerCurrentValue> GetValues();
+
+    ThermometerLedBrightness GetBrightness();
 
     virtual void OnSettingsButton() override;
 

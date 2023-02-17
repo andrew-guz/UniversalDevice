@@ -75,11 +75,37 @@ std::vector<ExtendedThermometerCurrentValue> ThermometerWidget::GetValues()
     return JsonExtension::CreateVectorFromJson<ExtendedThermometerCurrentValue>(replyJson);
 }
 
+ThermometerLedBrightness ThermometerWidget::GetBrightness()
+{
+    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService);
+    return JsonExtension::CreateFromJson<ThermometerLedBrightness>(replyJson);
+}
+
 void ThermometerWidget::OnSettingsButton()
 {
     if (_deviceId.isEmpty())
         return;
-    auto [dialog, layout, nameEdit, periodEdit] = WidgetHelper::CreateNamePeriodSettingsDialog(this, _deviceName, GetSettings()._period);
+    auto [dialog, layout, nameEdit, periodEdit, ok] = WidgetHelper::CreateNamePeriodSettingsDialog(this, 180, _deviceName, GetSettings()._period, false);
+    //brightness
+    layout->addWidget(std::make_unique<WText>("Яркость:"), 2, 0);
+    auto brightnessEdit = layout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
+    brightnessEdit->setMinimum(1);
+    brightnessEdit->setMaximum(7);
+    brightnessEdit->setValue(GetBrightness()._brightness);
+    //validation
+    auto okValidation = [&]()
+    {
+        ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid ||
+                        periodEdit->validate() != Wt::ValidationState::Valid ||
+                        brightnessEdit->validate() != Wt::ValidationState::Valid);
+    };
+    nameEdit->keyWentUp().connect(okValidation);
+    periodEdit->valueChanged().connect(okValidation);
+    periodEdit->keyWentUp().connect(okValidation);
+    brightnessEdit->valueChanged().connect(okValidation);
+    brightnessEdit->keyWentUp().connect(okValidation);
+    okValidation();
+    //execute
     if (dialog->exec() != DialogCode::Accepted)
         return;
     //update name
@@ -96,11 +122,17 @@ void ThermometerWidget::OnSettingsButton()
         }
         else
             LOG_ERROR << "Failed to update name to " << newName << "." << std::endl;
-    }
+    }    
     //update settings
     ThermometerSettings newSettings;
     newSettings._period = periodEdit->value() * 1000;
-    auto result = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
-    if (result != 200)
+    auto settingsResult = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
+    if (settingsResult != 200)
         LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
+    //set brightness command
+    ThermometerLedBrightness newBrightnessCommand;
+    newBrightnessCommand._brightness = brightnessEdit->value();
+    auto commandResult = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newBrightnessCommand.ToJson());
+    if (commandResult != 200)
+        LOG_ERROR << "Failed to update settings to " << newBrightnessCommand.ToJson().dump() << "." << std::endl;
 }

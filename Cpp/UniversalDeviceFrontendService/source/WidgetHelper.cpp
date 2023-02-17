@@ -13,11 +13,11 @@ void WidgetHelper::SetUsualButtonSize(WPushButton* button)
     button->setMaximumSize(100, 50);
 }
 
-std::tuple<WDialog*, WGridLayout*, WLineEdit*, WSpinBox*>WidgetHelper::CreateNamePeriodSettingsDialog(WContainerWidget* parent, const WString& name, float period)
+std::tuple<WDialog*, WGridLayout*, WLineEdit*, WSpinBox*, Wt::WPushButton*> WidgetHelper::CreateNamePeriodSettingsDialog(WContainerWidget* parent, int height, const WString& name, float period, bool useDefaultValidation)
 {
     auto dialog = parent->addChild(std::make_unique<WDialog>("Настройки"));
     auto layout = dialog->contents()->setLayout(std::make_unique<WGridLayout>());
-    dialog->setMinimumSize(400, 150);
+    dialog->setMinimumSize(400, height);
     dialog->setClosable(true);
     dialog->setResizable(false);
     dialog->rejectWhenEscapePressed(true);
@@ -38,15 +38,19 @@ std::tuple<WDialog*, WGridLayout*, WLineEdit*, WSpinBox*>WidgetHelper::CreateNam
     //ok button
     auto ok = dialog->footer()->addWidget(std::make_unique<WPushButton>("Ok"));
     ok->setDefault(true);
-    ok->clicked().connect(dialog, &WDialog::accept); 
-    auto okValidation = [=]()
+    ok->clicked().connect(dialog, &WDialog::accept);
+    if (useDefaultValidation)
     {
-        ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid ||
-                        periodEdit->validate() != Wt::ValidationState::Valid);
-    };
-    nameEdit->keyWentUp().connect(okValidation);
-    periodEdit->valueChanged().connect(okValidation);
-    periodEdit->keyWentUp().connect(okValidation);
-    okValidation();
-    return std::make_tuple(dialog, layout, nameEdit, periodEdit);
+        //validation
+        auto okValidation = [=]()
+        {
+            ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid ||
+                            periodEdit->validate() != Wt::ValidationState::Valid);
+        };
+        nameEdit->keyWentUp().connect(okValidation);
+        periodEdit->valueChanged().connect(okValidation);
+        periodEdit->keyWentUp().connect(okValidation);
+        okValidation();
+    }
+    return std::make_tuple(dialog, layout, nameEdit, periodEdit, ok);
 }

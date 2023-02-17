@@ -77,7 +77,8 @@ void RelayWidget::OnSettingsButton()
     if (_deviceId.isEmpty())
         return;
     auto settings = GetSettings();
-    auto [dialog, layout, nameEdit, periodEdit] = WidgetHelper::CreateNamePeriodSettingsDialog(this, _deviceName, settings._period);
+    auto [dialog, layout, nameEdit, periodEdit, ok] = WidgetHelper::CreateNamePeriodSettingsDialog(this, 150, _deviceName, settings._period, true);
+    //execute
     if (dialog->exec() != DialogCode::Accepted)
         return;    
     //update name
