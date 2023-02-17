@@ -52,13 +52,15 @@ void loop()
     //check the connection
     if (WiFi.status() != WL_CONNECTED)
     {
-        display.showString("HELO");
+        display.showString("CON-");
         bool connected = wifiHelper.WiFiConnect();
         if (!connected)
         {            
+            display.showString("EROR");
             delay(1000);
             return;
         }
+        display.showString("CONI");
         settingsStartTime = temperatureStartTime = millis();
     }
 
