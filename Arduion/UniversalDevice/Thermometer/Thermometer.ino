@@ -5,7 +5,9 @@
 #include <TM1637TinyDisplay.h>
 
 SingleTemperatureSensor temperatureSensor(D6);
+#ifdef USE_LED
 TM1637TinyDisplay display(D4, D5);
+#endif
 unsigned long settingsStartTime;
 unsigned long temperatureStartTime;
 int measurementDelay = 5000;
@@ -23,9 +25,25 @@ int getDelayFromSettings()
     return measurementDelay; //return what I remember
 }
 
-void showTemperature(float temperature)
+void ledSetBrightness(int value)
 {
+#ifdef USE_LED
+    display.setBrightness(BRIGHT_7);
+#endif   
+}
+
+void ledShowString(const String& str)
+{
+#ifdef USE_LED
+    display.showString(str);
+#endif    
+}
+
+void ledShowTemperature(float temperature)
+{
+#ifdef USE_LED  
     display.showNumber(temperature, 1);
+#endif
 }
 
 //30 ms
@@ -43,8 +61,8 @@ void setup()
 
     temperatureSensor.Setup();
 
-    display.setBrightness(BRIGHT_7);
-    display.showString("HELO");
+    ledSetBrightness(BRIGHT_7);
+    ledShowString("HELO");
 }
 
 void loop()
@@ -52,15 +70,15 @@ void loop()
     //check the connection
     if (WiFi.status() != WL_CONNECTED)
     {
-        display.showString("CON-");
+        ledShowString("CON-");
         bool connected = wifiHelper.WiFiConnect();
         if (!connected)
         {            
-            display.showString("EROR");
+            ledShowString("EROR");
             delay(1000);
             return;
         }
-        display.showString("CONI");
+        ledShowString("CONI");
         settingsStartTime = temperatureStartTime = millis();
     }
 
@@ -87,7 +105,7 @@ void loop()
     {
         //last for 500 ms
         auto temperature = temperatureSensor.GetTemperature();
-        showTemperature(temperature);
+        ledShowTemperature(temperature);
         sendTemperature(temperature);
         temperatureStartTime = currentTime;
     }
