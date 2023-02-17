@@ -5,6 +5,7 @@ enum class StackWidgetType
 {
     Login,
     Devices,
+    Events,
     Thermometer,
     Relay
 };
