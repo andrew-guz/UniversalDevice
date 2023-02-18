@@ -11,6 +11,7 @@ TM1637TinyDisplay display(D4, D5);
 unsigned long settingsCommandStartTime;
 unsigned long temperatureStartTime;
 int measurementDelay = 5000;
+int ledBrightness = BRIGHT_7;
 
 //20ms
 int getDelayFromSettings()
@@ -34,14 +35,17 @@ int getBrightnessFromCommands()
     auto error = deserializeJson(doc, replyString);
     if (!error &&
         doc.containsKey("brightness"))
-        return doc["brightness"].as<int>();
-    return BRIGHT_7;
+        ledBrightness = doc["brightness"].as<int>();
+    return ledBrightness;
 }
 
 void ledSetBrightness(int value)
 {
 #ifdef USE_LED
-    display.setBrightness(value);
+    if (value != BRIGHT_0)
+      display.setBrightness(value, true);
+    else
+      display.setBrightness(value, false);
 #endif   
 }
 
@@ -74,7 +78,7 @@ void setup()
 
     temperatureSensor.Setup();
 
-    ledSetBrightness(BRIGHT_7);
+    ledSetBrightness(ledBrightness);
     ledShowString("HELO");
 }
 
