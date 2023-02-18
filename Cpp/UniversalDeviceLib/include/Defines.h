@@ -8,6 +8,9 @@
 
 #define DEFAULT_PERIOD 5000
 
+#define MIN_BRIGHTNESS 0
+#define MAX_BRIGHTNESS 7
+
 //api addresses
 //common
 #define API_VERSION                         "/api/version"

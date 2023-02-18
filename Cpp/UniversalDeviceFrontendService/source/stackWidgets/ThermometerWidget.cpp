@@ -89,8 +89,8 @@ void ThermometerWidget::OnSettingsButton()
     //brightness
     layout->addWidget(std::make_unique<WText>("Яркость:"), 2, 0);
     auto brightnessEdit = layout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
-    brightnessEdit->setMinimum(1);
-    brightnessEdit->setMaximum(7);
+    brightnessEdit->setMinimum(MIN_BRIGHTNESS);
+    brightnessEdit->setMaximum(MAX_BRIGHTNESS);
     brightnessEdit->setValue(GetBrightness()._brightness);
     //validation
     auto okValidation = [&]()

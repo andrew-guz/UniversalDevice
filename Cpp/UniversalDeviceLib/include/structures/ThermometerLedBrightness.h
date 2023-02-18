@@ -1,11 +1,12 @@
 #ifndef _THERMOMETER_LED_BRIGHTNESS_H_
 #define _THERMOMETER_LED_BRIGHTNESS_H_
 
+#include "Defines.h"
 #include "IJson.h"
 
 struct ThermometerLedBrightness : public IJson<ThermometerLedBrightness>
 {
-    int _brightness = 7;
+    int _brightness = MAX_BRIGHTNESS;
 
     virtual nlohmann::json ToJson() const override
     {
