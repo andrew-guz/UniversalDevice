@@ -49,6 +49,10 @@ crow::response DeviceService::GetSettings(const crow::request& request, const st
         return crow::response(crow::UNAUTHORIZED);
     try
     {
+        std::lock_guard<std::mutex> lockGuard(_settingsMutex);
+        auto iter = _settingsMap.find(idString);
+        if (iter != _settingsMap.end())
+            return crow::response(crow::OK, iter->second);
         std::stringstream queryStream;
         queryStream << "SELECT settings FROM Settings WHERE id = '"
             << idString
@@ -61,7 +65,10 @@ crow::response DeviceService::GetSettings(const crow::request& request, const st
             {
                 auto settingsString = data[0][1];
                 if (!settingsString.empty())
+                {
+                    _settingsMap.insert(std::make_pair(idString, settingsString));
                     return crow::response(crow::OK, settingsString);
+                }
                 else
                     LOG_INFO << "Empty settings for device " << idString << "." << std::endl;
             }
@@ -90,6 +97,7 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
         return crow::response(crow::UNAUTHORIZED);
     try
     {
+        std::lock_guard<std::mutex> lockGuard(_settingsMutex);
         auto settingsString = request.body;
         if (!settingsString.empty())
         {
@@ -101,7 +109,10 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
                 << "')";
             queryStream.flush();
             if (_queryExecutor->Execute(queryStream.str()))
+            {
+                _settingsMap[idString] = settingsString;
                 return crow::response(crow::OK);
+            }
             else
                 LOG_SQL_ERROR(queryStream.str());
         }
@@ -121,6 +132,10 @@ crow::response DeviceService::GetCommands(const crow::request& request, const st
         return crow::response(crow::UNAUTHORIZED);
     try
     {
+        std::lock_guard<std::mutex> lockGuard(_commandsMutex);
+        auto iter = _commandsMap.find(idString);
+        if (iter != _commandsMap.end())
+            return crow::response(crow::OK, iter->second);
         std::stringstream queryStream;
         queryStream << "SELECT commands FROM Commands WHERE id = '"
             << idString
@@ -133,7 +148,10 @@ crow::response DeviceService::GetCommands(const crow::request& request, const st
             {
                 auto commandsString = data[0][1];
                 if (!commandsString.empty())
+                {
+                    _commandsMap.insert(std::make_pair(idString, commandsString));
                     return crow::response(crow::OK, commandsString);
+                }
                 else
                     LOG_INFO << "Empty commands for device " << idString << "." << std::endl;
             }
@@ -162,6 +180,7 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
         return crow::response(crow::UNAUTHORIZED);
     try
     {
+        std::lock_guard<std::mutex> lockGuard(_commandsMutex);
         auto commandsString = request.body;
         if (!commandsString.empty())
         {
@@ -173,7 +192,10 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
                 << "')";
             queryStream.flush();
             if (_queryExecutor->Execute(queryStream.str()))
+            {
+                _commandsMap[idString] = commandsString;
                 return crow::response(crow::OK);
+            }
             else
                 LOG_SQL_ERROR(queryStream.str());
         }
