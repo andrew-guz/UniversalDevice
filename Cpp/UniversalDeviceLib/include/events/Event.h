@@ -11,6 +11,7 @@
 struct Event : public IJson<Event>
 {
     Uuid                    _id;
+    bool                    _active = true;
     std::string             _type;
     ComponentDescription    _provider;
     ComponentDescription    _receiver;
@@ -26,6 +27,7 @@ struct Event : public IJson<Event>
     {
         return {
             { "id", _id.data() },
+            { "active", _active },
             { "type", _type },
             { "provider", _provider.ToJson() },
             { "receiver", _receiver.ToJson() },
@@ -36,6 +38,7 @@ struct Event : public IJson<Event>
     virtual void FromJson(const nlohmann::json& json) override
     {
         _id = Uuid(json.value("id", ""));
+        _active = json.value("active", true);
         _type = json.value("type", Constants::EventTypeUndefined);
         _provider.FromJson(json["provider"]);
         _receiver.FromJson(json["receiver"]);

@@ -57,15 +57,15 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress,
     return {};
 }
 
-int RequestHelper::DoPostRequestWithNoAnswer(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
+int RequestHelper::DoPostRequest(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
 {
-    return DoPostRequest(requestAddress, login, json, nullptr);
+    return DoRequest("POST", requestAddress, login, json, nullptr);
 }
 
 nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
 {
     std::ostringstream response;
-    if (DoPostRequest(requestAddress, login, json, &response) == 200)
+    if (DoRequest("POST", requestAddress, login, json, &response) == 200)
     {
         auto body = response.str();
         LOG_DEBUG << "POST result - " << body << std::endl;
@@ -82,18 +82,33 @@ nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requ
     return {};
 }
 
-int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const std::string& login, const nlohmann::json& json, std::ostream* response)
+int RequestHelper::DoPutRequest(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
 {
+    return DoRequest("PUT", requestAddress, login, json, nullptr);
+}
+
+int RequestHelper::DoDeleteRequest(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
+{
+    return DoRequest("DELETE", requestAddress, login, json, nullptr);
+}
+
+int RequestHelper::DoRequest(const std::string& method, const RequestAddress &requestAddress, const std::string& login, const nlohmann::json& json, std::ostream* response)
+{
+    if (method != "POST" &&
+        method != "PUT" &&
+        method != "DELETE")
+        throw new std::bad_function_call();
     try
     {
-        auto postString = json.dump();
+        std::string url = requestAddress.BuildUrl();
+        auto sendingString = json.dump();
 
-        LOG_DEBUG << "POST " << requestAddress.BuildUrl() << " " <<  postString << "." << std::endl;
+        LOG_DEBUG << method << " " << url << " " <<  sendingString << "." << std::endl;
 
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;
 
-        request.setOpt(new cURLpp::options::Url(requestAddress.BuildUrl())); 
+        request.setOpt(new cURLpp::options::Url(url)); 
         request.setOpt(new cURLpp::options::Verbose(true)); 
 
         request.setOpt(curlpp::options::SslVerifyPeer(false));
@@ -104,9 +119,13 @@ int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const std
         request.setOpt(new curlpp::options::HttpHeader(header)); 
 
         request.setOpt(new curlpp::options::UserPwd(AccountManager::Instance()->GetAuthString(login)));
+
+        if (method == "PUT" ||
+            method == "DELETE")
+            request.setOpt(new curlpp::options::CustomRequest(method));
     
-        request.setOpt(new curlpp::options::PostFields(postString));
-        request.setOpt(new curlpp::options::PostFieldSize(postString.size()));
+        request.setOpt(new curlpp::options::PostFields(sendingString));
+        request.setOpt(new curlpp::options::PostFieldSize(sendingString.size()));
 
         if (response)
             request.setOpt(new curlpp::options::WriteStream(response));
@@ -115,13 +134,13 @@ int RequestHelper::DoPostRequest(const RequestAddress &requestAddress, const std
 
         auto returnCode = curlpp::infos::ResponseCode::get(request);
         if (returnCode != 200)
-            LOG_ERROR << "POST request failed : " << returnCode << "." << std::endl;
+            LOG_ERROR << method << " request failed : " << returnCode << "." << std::endl;
 
         return returnCode;
     }
     catch(...)
     {
-        LOG_ERROR << "POST request failed (" << requestAddress.BuildUrl() << ")." << std::endl;
+        LOG_ERROR << method << " request failed (" << requestAddress.BuildUrl() << ")." << std::endl;
     }
     return 400;
 }

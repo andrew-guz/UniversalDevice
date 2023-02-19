@@ -22,6 +22,14 @@ protected:
 
     crow::response GetDeviceInfo(const crow::request& request);
 
+    crow::response GetEvents(const crow::request& request);
+
+    crow::response AddEvent(const crow::request& request, const std::string& idString);
+
+    crow::response UpdateEvent(const crow::request& request, const std::string& idString);
+
+    crow::response DeleteEvent(const crow::request& request, const std::string& idString);
+
 private:
     friend class BaseServiceExtension;
 };
