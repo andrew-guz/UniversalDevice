@@ -28,7 +28,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
         _stackHolder->SetWidget(StackWidgetType::Devices, "");
     });
 
-    /*_eventsTableModel = std::make_shared<EventsTableModel>(_eventJsons);
+    _eventsTableModel = std::make_shared<EventsTableModel>(_eventJsons);
 
     _eventsTable = _mainLayout->addWidget(std::make_unique<WTableView>(), 1, 0);
     _eventsTable->setColumnResizeEnabled(false);
@@ -36,7 +36,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventsTable->setSelectionMode(SelectionMode::Single);
     _eventsTable->setSelectionBehavior(SelectionBehavior::Rows);
     _eventsTable->setEditTriggers(EditTrigger::None);
-    _eventsTable->setModel(_eventsTableModel);*/
+    _eventsTable->setModel(_eventsTableModel);
 
     Refresh();
 }
@@ -49,7 +49,7 @@ void EventsWidget::Initialize(const std::string& data)
 void EventsWidget::Clear()
 {
     _eventJsons.clear();
-    //_eventsTableModel->UpdateData(_eventJsons);
+    _eventsTableModel->UpdateData(_eventJsons);
 }
 
 void EventsWidget::Refresh()
@@ -57,7 +57,7 @@ void EventsWidget::Refresh()
     Clear();
 
     _eventJsons = GetEvents();
-    //_eventsTableModel->UpdateData(_eventJsons);
+    _eventsTableModel->UpdateData(_eventJsons);
 }
 
 std::vector<nlohmann::json> EventsWidget::GetEvents()

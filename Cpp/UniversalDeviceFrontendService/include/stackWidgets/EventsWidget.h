@@ -30,8 +30,8 @@ private:
 private:
     Wt::WGridLayout*                    _mainLayout;
     std::vector<nlohmann::json>         _eventJsons;
-    /*std::shared_ptr<EventsTableModel>   _eventsTableModel;
-    Wt::WTableView*                     _eventsTable;*/
+    std::shared_ptr<EventsTableModel>   _eventsTableModel;
+    Wt::WTableView*                     _eventsTable;
 };
 
 #endif //_EVENTS_WIDGET_H_

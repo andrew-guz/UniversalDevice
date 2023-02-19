@@ -147,7 +147,7 @@ crow::response ClientService::GetEvents(const crow::request& request)
 {
     if (!IsValidUser(request))
         return crow::response(crow::UNAUTHORIZED);
-    nlohmann::json result;
+    nlohmann::json result = nlohmann::json::array({});
     try
     {
         std::vector<std::vector<std::string>> data;
@@ -167,13 +167,13 @@ crow::response ClientService::GetEvents(const crow::request& request)
                 try
                 {
                     nlohmann::json eventJson = nlohmann::json::parse(eventString);
-                    result.push_back(eventJson);    
+                    result.push_back(eventJson);
                 }
                 catch(...)
                 {
                     LOG_ERROR << "Invalid event JSON " << eventString << "." << std::endl;
                 }
-            }
+            }            
         }
         else
             LOG_SQL_ERROR(queryStream.str());
