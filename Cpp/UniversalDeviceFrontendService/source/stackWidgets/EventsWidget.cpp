@@ -13,7 +13,12 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     BaseStackWidget(stackHolder, settings)
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
-    _mainLayout->addWidget(std::make_unique<WText>("Список известных устройств:"), 0, 0, 0, 4, AlignmentFlag::Left);
+    
+    auto backButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
+    WidgetHelper::SetUsualButtonSize(backButton);
+    backButton->clicked().connect([&](){
+        _stackHolder->SetWidget(StackWidgetType::Devices, "");
+    });
 
     Refresh();
 }

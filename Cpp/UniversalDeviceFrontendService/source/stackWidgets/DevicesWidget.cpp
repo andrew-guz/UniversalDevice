@@ -14,10 +14,24 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     BaseStackWidget(stackHolder, settings)
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
-    _mainLayout->addWidget(std::make_unique<WText>("Список известных устройств:"), 0, 0, 0, 4, AlignmentFlag::Left);
+
+    auto exitButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, 0, AlignmentFlag::Left);
+    WidgetHelper::SetUsualButtonSize(exitButton);
+    exitButton->clicked().connect([&](){
+        _stackHolder->SetWidget(StackWidgetType::Login, {});
+    });
+
+    _eventsButton = _mainLayout->addWidget(std::make_unique<WPushButton>("События"), 0, 1, 1, 3, AlignmentFlag::Center);
+    WidgetHelper::SetUsualButtonSize(_eventsButton);
+    _eventsButton->clicked().connect([&](){
+        _stackHolder->SetWidget(StackWidgetType::Events, {});
+    });
+    
     _refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 4, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(_refreshButton);
-    _refreshButton->clicked().connect([&](){ Refresh(); });
+    _refreshButton->clicked().connect([&](){
+        Refresh();
+    });
 
     Refresh();
 }
