@@ -76,10 +76,11 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     auto tableCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 0);
     auto tableLayout = tableCanvas->setLayout(std::make_unique<WGridLayout>());
 
-    auto deleteEventButton = tableLayout->addWidget(std::make_unique<WPushButton>("Удалить"), 0, 0, AlignmentFlag::Left);
-    WidgetHelper::SetUsualButtonSize(deleteEventButton);
-    deleteEventButton->clicked().connect([&]{
+    _deleteButton = tableLayout->addWidget(std::make_unique<WPushButton>("Удалить"), 0, 0, AlignmentFlag::Left);
+    WidgetHelper::SetUsualButtonSize(_deleteButton);
+    _deleteButton->clicked().connect([&]{
         DeleteEvent();
+        UpdateEnableState();
     });
 
     _eventsTableModel = std::make_shared<EventsTableModel>();
@@ -95,21 +96,24 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventsTable->setModel(_eventsTableModel);
     _eventsTable->selectionChanged().connect([&]() {
         OnSelectionChanged();
+        UpdateEnableState();
     });
 
     auto editorCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 1);
     auto editLayout = editorCanvas->setLayout(std::make_unique<WGridLayout>());
 
-    auto addEventButton = editLayout->addWidget(std::make_unique<WPushButton>("Добавить"), 0, 0, AlignmentFlag::Left);
-    WidgetHelper::SetUsualButtonSize(addEventButton);
-    addEventButton->clicked().connect([&]{
+    _addButton = editLayout->addWidget(std::make_unique<WPushButton>("Добавить"), 0, 0, AlignmentFlag::Left);
+    WidgetHelper::SetUsualButtonSize(_addButton);
+    _addButton->clicked().connect([&]{
         AddEvent();
+        UpdateEnableState();
     });
 
-    auto updateEventButton = editLayout->addWidget(std::make_unique<WPushButton>("Применить"), 0, 1, AlignmentFlag::Right);
-    WidgetHelper::SetUsualButtonSize(updateEventButton);
-    updateEventButton->clicked().connect([&]{
+    _updateButton = editLayout->addWidget(std::make_unique<WPushButton>("Применить"), 0, 1, AlignmentFlag::Right);
+    WidgetHelper::SetUsualButtonSize(_updateButton);
+    _updateButton->clicked().connect([&]{
         UpdateEvent();
+        UpdateEnableState();
     });
 
     auto eventGroup = editLayout->addWidget(std::make_unique<WGroupBox>("Событие"), 1, 0, 1, 2);
@@ -117,36 +121,67 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
 
     eventLayout->addWidget(std::make_unique<WText>("Имя:"), 0, 0);
     _name = eventLayout->addWidget(std::make_unique<WLineEdit>(), 0, 1);
+    _name->keyWentUp().connect([&]() {
+        UpdateEnableState();
+    });
     _active = eventLayout->addWidget(std::make_unique<WCheckBox>("Активно"), 1, 0, 1, 2);
+    _active->checked().connect([&]() {
+        UpdateEnableState();
+    });
     eventLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
     _providers = eventLayout->addWidget(std::make_unique<WComboBox>(), 3, 0, 1, 2);
     _providers->activated().connect([&](int index) {
         OnProviderIndexChanged(index);
+        UpdateEnableState();
     });
     _providerHourText = eventLayout->addWidget(std::make_unique<WText>("Час:"), 4, 0);
     _providerHour = eventLayout->addWidget(std::make_unique<WSpinBox>(), 4, 1);
     _providerHour->setMinimum(0);
     _providerHour->setMaximum(23);
+    _providerHour->keyWentUp().connect([&]() {
+        UpdateEnableState();
+    });
     _providerMinuteText = eventLayout->addWidget(std::make_unique<WText>("Минута:"), 5, 0);
     _providerMinute = eventLayout->addWidget(std::make_unique<WSpinBox>(), 5, 1);
     _providerMinute->setMinimum(0);
     _providerMinute->setMaximum(59);
+    _providerMinute->keyWentUp().connect([&]() {
+        UpdateEnableState();
+    });
     _providerTemperatureText = eventLayout->addWidget(std::make_unique<WText>("Температура:"), 6, 0);
     _providerTemperature = eventLayout->addWidget(std::make_unique<WSpinBox>(), 6, 1);
     _providerTemperature->setMinimum(-40);
     _providerTemperature->setMaximum(40);
+    _providerTemperature->keyWentUp().connect([&]() {
+        UpdateEnableState();
+    });
     _providerTemperatureLower = eventLayout->addWidget(std::make_unique<WCheckBox>("Ниже заданной"), 7, 0, 1, 2);
+    _providerTemperatureLower->checked().connect([&]() {
+        UpdateEnableState();
+    });
     _providerRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включено"), 8, 0, 1, 2);
+    _providerRelay->checked().connect([&]() {
+        UpdateEnableState();
+    });
     eventLayout->addWidget(std::make_unique<WText>("Получатель события:"), 9, 0, 1, 2);
     _receivers = eventLayout->addWidget(std::make_unique<WComboBox>(), 10, 0, 1, 2);
     _receivers->activated().connect([&](int index) {
         OnReceiverIndexChanged(index);
+        UpdateEnableState();
     });
     _receiverBrightnessText = eventLayout->addWidget(std::make_unique<WText>("Яркость:"), 11, 0);
     _receiverBrightness = eventLayout->addWidget(std::make_unique<WSpinBox>(), 11, 1);
     _receiverBrightness->setMinimum(MIN_BRIGHTNESS);
     _receiverBrightness->setMaximum(MAX_BRIGHTNESS);
+    _receiverBrightness->keyWentUp().connect([&]() {
+        UpdateEnableState();
+    });
     _receiverRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включить"), 12, 0, 1, 2);
+    _receiverRelay->checked().connect([&]() {
+        UpdateEnableState();
+    });
+
+    _eventsTable->setMinimumSize(200, 500);
 
     Refresh();
 }
@@ -187,6 +222,7 @@ void EventsWidget::Refresh()
     for (auto& device : _devices)
         _receivers->addItem(device._name);
     OnReceiverIndexChanged(_devices.size() ? 0 : -1);
+    UpdateEnableState();
 }
 
 std::vector<nlohmann::json> EventsWidget::GetEvents()
@@ -304,12 +340,12 @@ void EventsWidget::FillUiWithEvent(const nlohmann::json& eventJson)
     auto receiverDevice = *receiverDeviceIter;
     if (receiverDevice._type == Constants::DeviceTypeThermometer)
     {
-        auto thermometerLedBrightness = JsonExtension::CreateFromJson<ThermometerLedBrightness>(eventJson);
+        auto thermometerLedBrightness = JsonExtension::CreateFromJson<ThermometerLedBrightness>(event._command);
         _receiverBrightness->setValue(thermometerLedBrightness._brightness);
     }
     if (receiverDevice._type == Constants::DeviceTypeRelay)
     {
-        auto relayCurrentState = JsonExtension::CreateFromJson<RelayCurrentState>(eventJson);
+        auto relayCurrentState = JsonExtension::CreateFromJson<RelayCurrentState>(event._command);
         _receiverRelay->setChecked(relayCurrentState._state);
     }
 }
@@ -329,7 +365,7 @@ void EventsWidget::AddEvent()
         return;
     nlohmann::json eventJson;
     if (providerIndex == 0)
-        eventJson = GetThermometerEventFromUi({}, providerIndex, receiverIndex);
+        eventJson = GetTimerEventFromUi({}, providerIndex, receiverIndex);
     else
     {
         auto providerDevice = _devices[providerIndex - 1];
@@ -379,7 +415,7 @@ void EventsWidget::UpdateEvent()
     auto selectedEventId = JsonExtension::CreateFromJson<Event>(selectedEventJson)._id;
     nlohmann::json eventJson;
     if (providerIndex == 0)
-        eventJson = GetThermometerEventFromUi(selectedEventId, providerIndex, receiverIndex);
+        eventJson = GetTimerEventFromUi(selectedEventId, providerIndex, receiverIndex);
     else
     {
         auto providerDevice = _devices[providerIndex - 1];
@@ -458,4 +494,20 @@ void EventsWidget::OnReceiverIndexChanged(int index)
             Hide(_receiverBrightnessText, _receiverBrightness);
         }    
     }
+}
+
+void EventsWidget::UpdateEnableState()
+{
+    _deleteButton->setEnabled(_eventsTable->selectedIndexes().size());
+    auto addUpdate = _name->text().toUTF8().size() &&
+        _providers->currentIndex() >= 0 &&
+        (size_t)_providers->currentIndex() < _devices.size() + 1 &&
+        ((_providerHour->isVisible() && _providerHour->validate() == ValidationState::Valid) || _providerHour->isHidden()) &&
+        ((_providerMinute->isVisible() && _providerMinute->validate() == ValidationState::Valid) || _providerMinute->isHidden()) &&
+        ((_providerTemperature->isVisible() && _providerTemperature->validate() == ValidationState::Valid) || _providerTemperature->isHidden()) &&
+        _receivers->currentIndex() >= 0 &&
+        (size_t)_receivers->currentIndex() < _devices.size() &&
+        ((_receiverBrightness->isVisible() && _receiverBrightness->validate() == ValidationState::Valid) || _receiverBrightness->isHidden());
+    _addButton->setEnabled(addUpdate);
+    _updateButton->setEnabled(addUpdate);
 }

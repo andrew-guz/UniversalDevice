@@ -58,8 +58,13 @@ private:
 
     void OnReceiverIndexChanged(int index);
 
+    void UpdateEnableState();
+
 private:
     Wt::WGridLayout*                            _mainLayout;
+    Wt::WPushButton*                            _deleteButton;
+    Wt::WPushButton*                            _addButton;
+    Wt::WPushButton*                            _updateButton;
     std::shared_ptr<EventsTableModel>           _eventsTableModel;
     Wt::WTableView*                             _eventsTable;
     std::vector<ExtendedComponentDescription>   _devices;
