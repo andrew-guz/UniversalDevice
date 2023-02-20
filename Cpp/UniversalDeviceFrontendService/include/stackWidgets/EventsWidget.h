@@ -16,6 +16,7 @@
 #include "Settings.h"
 #include "EventsTableModel.h"
 #include "ExtendedComponentDescription.h"
+#include "Event.h"
 
 class EventsWidget final : public Wt::WContainerWidget, public BaseStackWidget
 {
@@ -33,9 +34,17 @@ private:
 
     std::vector<nlohmann::json> GetEvents();
 
-    std::vector<ExtendedComponentDescription> GetDevices();
+    std::vector<ExtendedComponentDescription> GetDevices();    
+    
+    void GetEventFromUi(Event& event, const Uuid& id, int providerIndex, int receiverIndex);
 
-    nlohmann::json GetCommand(int receiverIndex);
+    nlohmann::json GetTimerEventFromUi(const Uuid& id, int providerIndex, int receiverIndex);
+
+    nlohmann::json GetThermometerEventFromUi(const Uuid& id, int providerIndex, int receiverIndex);
+
+    nlohmann::json GetRelayEventFromUi(const Uuid& id, int providerIndex, int receiverIndex);
+
+    void FillUiWithEvent(const nlohmann::json& eventJson);
 
     void AddEvent();
 

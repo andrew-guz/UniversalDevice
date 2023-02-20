@@ -10,7 +10,6 @@
 #include "UrlHelper.h"
 #include "RequestHelper.h"
 #include "WidgetHelper.h"
-#include "Event.h"
 #include "TimerEvent.h"
 #include "ThermometerEvent.h"
 #include "RelayEvent.h"
@@ -201,121 +200,75 @@ std::vector<ExtendedComponentDescription> EventsWidget::GetDevices()
     return JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(resultJson);
 }
 
-nlohmann::json EventsWidget::GetCommand(int receiverIndex)
+void EventsWidget::GetEventFromUi(Event& event, const Uuid& id, int providerIndex, int receiverIndex)
 {
-    auto receiver = _devices[receiverIndex];
-    if (receiver._type == Constants::DeviceTypeThermometer)
-    {
-        ThermometerLedBrightness thermometerLedBrightness;
-        thermometerLedBrightness._brightness = _receiverBrightness->value();
-        return thermometerLedBrightness.ToJson();
-    }
-    if (receiver._type == Constants::DeviceTypeRelay)
-    {
-        RelayCurrentState relayCurrentState;
-        relayCurrentState._state = _receiverRelay->isChecked();
-        return relayCurrentState.ToJson();
-    }
-    return {};
-}
-
-void EventsWidget::AddEvent()
-{
-    if (_devices.empty())
-        return;
-    size_t providerIndex = _providers->currentIndex();
-    size_t receiverIndex = _receivers->currentIndex();
-    if (providerIndex < 0 ||
-        providerIndex >= _devices.size() + 1 ||
-        receiverIndex < 0 ||
-        receiverIndex >= _devices.size())
-        return;
-    if (_name->text().empty())
-        return;
-    nlohmann::json eventJson;
+    event._id = id;
+    event._name = _name->text().toUTF8();
+    event._active = _active->isChecked();
     if (providerIndex == 0)
     {
-        //timer
-        TimerEvent timerEvent;
-        timerEvent._id = Uuid();
-        timerEvent._name = _name->text().toUTF8();
-        timerEvent._active = _active->isChecked();
-        timerEvent._type = Constants::EventTypeTimer;
-        timerEvent._provider._id = Constants::PredefinedIdTimer;
-        timerEvent._provider._type = Constants::DeviceTypeTimer;
-        timerEvent._receiver._id = _devices[receiverIndex]._id;
-        timerEvent._receiver._type = _devices[receiverIndex]._type;
-        timerEvent._command = GetCommand(receiverIndex);
-        timerEvent._hour = _providerHour->value();
-        timerEvent._minute = _providerMinute->value();
-        eventJson = timerEvent.ToJson();
+        event._type = Constants::EventTypeTimer;
+        event._provider._id = Constants::PredefinedIdTimer;
+        event._provider._type = Constants::DeviceTypeTimer;
     }
     else
     {
-        auto device = _devices[providerIndex - 1];
-        if (device._type == Constants::DeviceTypeThermometer)
-        {
-            ThermometerEvent thermometerEvent;
-            thermometerEvent._id = Uuid();
-            thermometerEvent._name = _name->text().toUTF8();
-            thermometerEvent._active = _active->isChecked();
-            thermometerEvent._type = Constants::EventTypeThermometer;
-            thermometerEvent._provider._id = device._id;
-            thermometerEvent._provider._type = device._type;
-            thermometerEvent._receiver._id = _devices[receiverIndex]._id;
-            thermometerEvent._receiver._type = _devices[receiverIndex]._type;
-            thermometerEvent._command = GetCommand(receiverIndex);
-            thermometerEvent._temperature = _providerTemperature->value();
-            thermometerEvent._lower = _providerTemperatureLower->isChecked();
-            eventJson = thermometerEvent.ToJson();
-        }
-        if (device._type == Constants::DeviceTypeRelay)
-        {
-            RelayEvent relayEvent;
-            relayEvent._id = Uuid();
-            relayEvent._name = _name->text().toUTF8();
-            relayEvent._active = _active->isChecked();
-            relayEvent._type = Constants::EventTypeThermometer;
-            relayEvent._provider._id = device._id;
-            relayEvent._provider._type = device._type;
-            relayEvent._receiver._id = _devices[receiverIndex]._id;
-            relayEvent._receiver._type = _devices[receiverIndex]._type;
-            relayEvent._command = GetCommand(receiverIndex);
-            relayEvent._state = _providerRelay->isChecked();
-            eventJson = relayEvent.ToJson();
-        }
+        auto providerDevice = _devices[providerIndex - 1];
+        if (providerDevice._type == Constants::DeviceTypeThermometer)
+            event._type = Constants::EventTypeThermometer;
+        if (providerDevice._type == Constants::DeviceTypeRelay)
+            event._type = Constants::EventTypeRelay;
+        event._provider._id = providerDevice._id;
+        event._provider._type = providerDevice._type;
     }
-    if (!eventJson.is_null())
+    auto receiverDevice = _devices[receiverIndex];
+    event._receiver._id = receiverDevice._id;
+    event._receiver._type = receiverDevice._type;
+    if (receiverDevice._type == Constants::DeviceTypeThermometer)
     {
-        auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
-        if (result != 200)
-            LOG_ERROR << "Error while adding new Event " << eventJson.dump() << "." << std::endl;
+        ThermometerLedBrightness thermometerLedBrightness;
+        thermometerLedBrightness._brightness = _receiverBrightness->value();
+        event._command = thermometerLedBrightness.ToJson();
+    }   
+    if (receiverDevice._type == Constants::DeviceTypeRelay)
+    {
+        RelayCurrentState relayCurrentState;
+        relayCurrentState._state = _receiverRelay->isChecked();
+        event._command = relayCurrentState.ToJson();
     }
-    Refresh();
 }
 
-void EventsWidget::DeleteEvent()
+nlohmann::json EventsWidget::GetTimerEventFromUi(const Uuid& id, int providerIndex, int receiverIndex)
 {
-    auto selectedIndexes = _eventsTable->selectedIndexes();
-    if (selectedIndexes.empty())
-        return;
-    auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
-    auto result = RequestHelper::DoDeleteRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
-    if (result != 200)
-            LOG_ERROR << "Error while deleting Event " << eventJson.dump() << "." << std::endl;
-    Refresh();
+    TimerEvent timerEvent;
+    timerEvent._id = Uuid();
+    GetEventFromUi(timerEvent, id, providerIndex, receiverIndex);
+    timerEvent._hour = _providerHour->value();
+    timerEvent._minute = _providerMinute->value();
+    return timerEvent.ToJson();
 }
 
-void EventsWidget::UpdateEvent()
+nlohmann::json EventsWidget::GetThermometerEventFromUi(const Uuid& id, int providerIndex, int receiverIndex)
 {
+    ThermometerEvent thermometerEvent;
+    thermometerEvent._id = Uuid();
+    GetEventFromUi(thermometerEvent, id, providerIndex, receiverIndex);
+    thermometerEvent._temperature = _providerTemperature->value();
+    thermometerEvent._lower = _providerTemperatureLower->isChecked();
+    return thermometerEvent.ToJson();
 }
 
-void EventsWidget::OnSelectionChanged()
+nlohmann::json EventsWidget::GetRelayEventFromUi(const Uuid& id, int providerIndex, int receiverIndex)
 {
-    auto selectedIndexes = _eventsTable->selectedIndexes();
-    if (selectedIndexes.empty())
-        return;
-    auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
+    RelayEvent relayEvent;
+    relayEvent._id = Uuid();
+    GetEventFromUi(relayEvent, id, providerIndex, receiverIndex);
+    relayEvent._state = _providerRelay->isChecked();
+    return relayEvent.ToJson();
+}
+
+void EventsWidget::FillUiWithEvent(const nlohmann::json& eventJson)
+{
     auto event = JsonExtension::CreateFromJson<Event>(eventJson);
     _name->setText(event._name);
     _active->setChecked(event._active);
@@ -359,6 +312,98 @@ void EventsWidget::OnSelectionChanged()
         auto relayCurrentState = JsonExtension::CreateFromJson<RelayCurrentState>(eventJson);
         _receiverRelay->setChecked(relayCurrentState._state);
     }
+}
+
+void EventsWidget::AddEvent()
+{
+    if (_devices.empty())
+        return;
+    size_t providerIndex = _providers->currentIndex();
+    size_t receiverIndex = _receivers->currentIndex();
+    if (providerIndex < 0 ||
+        providerIndex >= _devices.size() + 1 ||
+        receiverIndex < 0 ||
+        receiverIndex >= _devices.size())
+        return;
+    if (_name->text().empty())
+        return;
+    nlohmann::json eventJson;
+    if (providerIndex == 0)
+        eventJson = GetThermometerEventFromUi({}, providerIndex, receiverIndex);
+    else
+    {
+        auto providerDevice = _devices[providerIndex - 1];
+        if (providerDevice._type == Constants::DeviceTypeThermometer)
+            eventJson = GetThermometerEventFromUi({}, providerIndex, receiverIndex);
+        if (providerDevice._type == Constants::DeviceTypeRelay)
+            eventJson = GetRelayEventFromUi({}, providerIndex, receiverIndex);
+    }
+    if (!eventJson.is_null())
+    {
+        auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
+        if (result != 200)
+            LOG_ERROR << "Error while adding new Event " << eventJson.dump() << "." << std::endl;
+    }
+    Refresh();
+}
+
+void EventsWidget::DeleteEvent()
+{
+    auto selectedIndexes = _eventsTable->selectedIndexes();
+    if (selectedIndexes.empty())
+        return;
+    auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
+    auto result = RequestHelper::DoDeleteRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
+    if (result != 200)
+            LOG_ERROR << "Error while deleting Event " << eventJson.dump() << "." << std::endl;
+    Refresh();
+}
+
+void EventsWidget::UpdateEvent()
+{
+    auto selectedIndexes = _eventsTable->selectedIndexes();
+    if (selectedIndexes.empty())
+        return;
+    if (_devices.empty())
+        return;
+    size_t providerIndex = _providers->currentIndex();
+    size_t receiverIndex = _receivers->currentIndex();
+    if (providerIndex < 0 ||
+        providerIndex >= _devices.size() + 1 ||
+        receiverIndex < 0 ||
+        receiverIndex >= _devices.size())
+        return;
+    if (_name->text().empty())
+        return;
+    auto selectedEventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
+    auto selectedEventId = JsonExtension::CreateFromJson<Event>(selectedEventJson)._id;
+    nlohmann::json eventJson;
+    if (providerIndex == 0)
+        eventJson = GetThermometerEventFromUi(selectedEventId, providerIndex, receiverIndex);
+    else
+    {
+        auto providerDevice = _devices[providerIndex - 1];
+        if (providerDevice._type == Constants::DeviceTypeThermometer)
+            eventJson = GetThermometerEventFromUi(selectedEventId, providerIndex, receiverIndex);
+        if (providerDevice._type == Constants::DeviceTypeRelay)
+            eventJson = GetRelayEventFromUi(selectedEventId, providerIndex, receiverIndex);
+    }
+    if (!eventJson.is_null())
+    {
+        auto result = RequestHelper::DoPutRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
+        if (result != 200)
+            LOG_ERROR << "Error while updating Event " << eventJson.dump() << "." << std::endl;
+    }
+    Refresh();    
+}
+
+void EventsWidget::OnSelectionChanged()
+{
+    auto selectedIndexes = _eventsTable->selectedIndexes();
+    if (selectedIndexes.empty())
+        return;
+    auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
+    FillUiWithEvent(eventJson);
 }
 
 void EventsWidget::OnProviderIndexChanged(int index)
