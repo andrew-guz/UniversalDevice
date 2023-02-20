@@ -31,12 +31,6 @@ protected:
     void TimerFunction();
 
 private:
-    std::mutex _settingsMutex;
-    std::mutex _commandsMutex;
-    std::map<std::string, std::string> _settingsMap;
-    std::map<std::string, std::string> _commandsMap;
-
-private:
     friend class BaseServiceExtension;
 };
 

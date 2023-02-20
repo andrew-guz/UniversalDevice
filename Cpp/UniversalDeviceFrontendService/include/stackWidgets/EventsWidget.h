@@ -6,6 +6,7 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WTableView.h>
 #include <Wt/WText.h>
+#include <Wt/WLineEdit.h>
 #include <Wt/WComboBox.h>
 #include <Wt/WSpinBox.h>
 #include <Wt/WCheckBox.h>
@@ -34,6 +35,8 @@ private:
 
     std::vector<ExtendedComponentDescription> GetDevices();
 
+    nlohmann::json GetCommand(int receiverIndex);
+
     void AddEvent();
 
     void DeleteEvent();
@@ -46,10 +49,10 @@ private:
 
 private:
     Wt::WGridLayout*                            _mainLayout;
-    std::vector<nlohmann::json>                 _eventJsons;
     std::shared_ptr<EventsTableModel>           _eventsTableModel;
     Wt::WTableView*                             _eventsTable;
     std::vector<ExtendedComponentDescription>   _devices;
+    Wt::WLineEdit*                              _name;
     Wt::WCheckBox*                              _active;
     Wt::WComboBox*                              _providers;
     Wt::WText*                                  _providerHourText;

@@ -59,7 +59,7 @@ cpp17::any EventsTableModel::data(const WModelIndex& index, ItemDataRole role) c
         if (index.column() == 0)
             return event._name;
         if (index.column() == 1)
-            return event._active;
+            return event._active ? "Активно" : "Неактивно";
     }
     return {};
 }

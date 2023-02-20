@@ -23,7 +23,7 @@ nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::
     for (auto& eventJson : eventJsons)
     {       
         auto simpleEvent = JsonExtension::CreateFromJson<Event>(eventJson);
-        if (simpleEvent._type == Constants::EventTypeTime)
+        if (simpleEvent._type == Constants::EventTypeTimer)
         {
             auto timerEvent = JsonExtension::CreateFromJson<TimerEvent>(eventJson);
             ProcessTimerEvent(timerEvent, message);

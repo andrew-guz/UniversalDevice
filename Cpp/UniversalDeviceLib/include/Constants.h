@@ -28,7 +28,7 @@ public:
 
     //event types
     static const std::string EventTypeUndefined;
-    static const std::string EventTypeTime;
+    static const std::string EventTypeTimer;
     static const std::string EventTypeThermometer;
     static const std::string EventTypeRelay;
 };
