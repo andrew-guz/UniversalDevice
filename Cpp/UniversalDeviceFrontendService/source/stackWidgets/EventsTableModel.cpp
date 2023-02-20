@@ -52,14 +52,18 @@ cpp17::any EventsTableModel::data(const WModelIndex& index, ItemDataRole role) c
         index.row()>= 0 &&
         (size_t)index.row() < _data.size() &&
         index.column() >= 0 &&
-        index.column() < 2  &&
-        role == ItemDataRole::Display)
+        index.column() < 2)
     {
         auto event = JsonExtension::CreateFromJson<Event>(_data[index.row()]);
-        if (index.column() == 0)
-            return event._name;
-        if (index.column() == 1)
-            return event._active ? "Активно" : "Неактивно";
+        if (role == ItemDataRole::Display)
+        {            
+            if (index.column() == 0)
+                return event._name;
+            if (index.column() == 1)
+                return event._active ? "Активно" : "Неактивно";
+        }
+        if (role == ItemDataRole::User)
+            return _data[index.row()];
     }
     return {};
 }

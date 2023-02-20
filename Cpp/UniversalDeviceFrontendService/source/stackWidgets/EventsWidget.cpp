@@ -229,7 +229,7 @@ void EventsWidget::AddEvent()
         return;
     if (_name->text().empty())
         return;
-    nlohmann::json request;
+    nlohmann::json eventJson;
     if (providerIndex == 0)
     {
         //timer
@@ -245,7 +245,7 @@ void EventsWidget::AddEvent()
         timerEvent._command = GetCommand(receiverIndex);
         timerEvent._hour = _providerHour->value();
         timerEvent._minute = _providerMinute->value();
-        request = timerEvent.ToJson();
+        eventJson = timerEvent.ToJson();
     }
     else
     {
@@ -264,7 +264,7 @@ void EventsWidget::AddEvent()
             thermometerEvent._command = GetCommand(receiverIndex);
             thermometerEvent._temperature = _providerTemperature->value();
             thermometerEvent._lower = _providerTemperatureLower->isChecked();
-            request = thermometerEvent.ToJson();
+            eventJson = thermometerEvent.ToJson();
         }
         if (device._type == Constants::DeviceTypeRelay)
         {
@@ -279,17 +279,28 @@ void EventsWidget::AddEvent()
             relayEvent._receiver._type = _devices[receiverIndex]._type;
             relayEvent._command = GetCommand(receiverIndex);
             relayEvent._state = _providerRelay->isChecked();
-            request = relayEvent.ToJson();
+            eventJson = relayEvent.ToJson();
         }
     }
-    if (!request.is_null())
-        RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, request);
+    if (!eventJson.is_null())
+    {
+        auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
+        if (result != 200)
+            LOG_ERROR << "Error while adding new Event " << eventJson.dump() << "." << std::endl;
+    }
     Refresh();
 }
 
 void EventsWidget::DeleteEvent()
 {
-    
+    auto selectedIndexes = _eventsTable->selectedIndexes();
+    if (selectedIndexes.empty())
+        return;
+    auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
+    auto result = RequestHelper::DoDeleteRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
+    if (result != 200)
+            LOG_ERROR << "Error while deleting Event " << eventJson.dump() << "." << std::endl;
+    Refresh();
 }
 
 void EventsWidget::UpdateEvent()
