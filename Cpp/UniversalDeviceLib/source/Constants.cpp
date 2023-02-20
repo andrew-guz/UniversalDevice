@@ -31,7 +31,7 @@ const Uuid Constants::PredefinedIdTimer = Uuid("00000000-0000-0000-0000-00000000
 //event types
 const std::string Constants::EventTypeUndefined = "undefined _event";
 
-const std::string Constants::EventTypeTime = "timer_event";
+const std::string Constants::EventTypeTimer = "timer_event";
 
 const std::string Constants::EventTypeThermometer = "thermometer_event";
 

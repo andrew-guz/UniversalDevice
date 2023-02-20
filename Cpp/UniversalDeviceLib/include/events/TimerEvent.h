@@ -9,7 +9,7 @@ struct TimerEvent : public Event, public IJson<TimerEvent>
     int _minute = 0;
     
     TimerEvent() :
-        Event(Constants::EventTypeTime)
+        Event(Constants::EventTypeTimer)
     {
         
     }

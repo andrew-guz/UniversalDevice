@@ -51,7 +51,7 @@ bool Storage::Select(const std::string& query, std::vector<std::vector<std::stri
 
 bool Storage::InternalExecute(const std::string& query, int(*callback)(void*, int, char**, char**), void* data)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    std::lock_guard<std::mutex> lockGuard(_mutex);
     char* error = nullptr;
     int result = sqlite3_exec(_connection, query.c_str(), callback, data, &error);
     if (result != SQLITE_OK)
@@ -70,7 +70,7 @@ void Storage::InitializeDb()
         "CREATE TABLE IF NOT EXISTS Devices (id TEXT UNIQUE, type TEXT, name TEXT, timestamp TEXT, PRIMARY KEY(id, type))",
         "CREATE TABLE IF NOT EXISTS Settings (id TEXT, settings TEXT, PRIMARY KEY(id))",
         "CREATE TABLE IF NOT EXISTS Commands (id TEXT, commands TEXT, PRIMARY KEY(id))",
-        "CREATE TABLE IF NOT EXISTS Events (id TEXT, type TEXT, active INTEGER, event TEXT)",
+        "CREATE TABLE IF NOT EXISTS Events (id TEXT UNIQUE, active INTEGER, providerId TEXT, providerType TEXT, event TEXT, PRIMARY KEY(id))",
         "CREATE TABLE IF NOT EXISTS Thermometers (idx INTEGER, id TEXT, timestamp TEXT, value REAL, PRIMARY KEY(idx AUTOINCREMENT))",
         "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp TEXT, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))"
     };

@@ -1,0 +1,8 @@
+#thermometers
+
+"439af928-45cd-4c80-bb8d-9493d5afb876" //big arduino Wemos D1
+"53b5a973-8a75-405e-8e85-aa4fb0308c9d" //big arduino wthi LED Wemos D1 R2
+"77d0de0d-b89d-4de3-894e-d0028f5cd467" //middle arduino with LED NodeMCU V3 Lolin ES-12E
+
+#relays
+"6dd96105-35b6-4571-8687-172da0df9d3d" //big arduino Wemos D1

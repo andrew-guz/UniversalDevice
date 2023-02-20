@@ -79,6 +79,7 @@
         "unordered_set": "cpp",
         "WCartesianChart.C": "cpp",
         "WStandardChartProxyModel.C": "cpp",
-        "WWebWidget.C": "cpp"
+        "WWebWidget.C": "cpp",
+        "WWidget.C": "cpp"
     }
 }

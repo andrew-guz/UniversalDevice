@@ -49,7 +49,7 @@ void ReportTemperature()
     ThermometerCurrentValue currentValue;
     currentValue._value = temperature;
     auto message = MessageHelper::Create(Constants::DeviceTypeThermometer, parameters._id, Constants::SubjectThermometerCurrentValue, currentValue.ToJson());
-    RequestHelper::DoPostRequestWithNoAnswer({"127.0.0.1", parameters._port, API_DEVICE_INFORM}, Constants::LoginDevice, message.ToJson());
+    RequestHelper::DoPostRequest({"127.0.0.1", parameters._port, API_DEVICE_INFORM}, Constants::LoginDevice, message.ToJson());
 }
 
 int main(int argc, char* argv[])

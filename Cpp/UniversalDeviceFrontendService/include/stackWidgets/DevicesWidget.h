@@ -24,7 +24,6 @@ private:
 
 private:
     Wt::WGridLayout*                _mainLayout;
-    Wt::WPushButton*                _refreshButton;
     std::vector<Wt::WPushButton*>   _deviceButtons;
 };
 

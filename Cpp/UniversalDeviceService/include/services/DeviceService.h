@@ -1,6 +1,10 @@
 #ifndef _DEVICE_SERVICE_H_
 #define _DEVICE_SERVICE_H_
 
+#include <mutex>
+#include <map>
+#include <string>
+
 #include "BaseService.h"
 
 class DeviceService final : public BaseService

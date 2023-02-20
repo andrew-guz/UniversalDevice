@@ -23,7 +23,7 @@ nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::
     for (auto& eventJson : eventJsons)
     {       
         auto simpleEvent = JsonExtension::CreateFromJson<Event>(eventJson);
-        if (simpleEvent._type == Constants::EventTypeTime)
+        if (simpleEvent._type == Constants::EventTypeTimer)
         {
             auto timerEvent = JsonExtension::CreateFromJson<TimerEvent>(eventJson);
             ProcessTimerEvent(timerEvent, message);
@@ -47,9 +47,9 @@ std::vector<nlohmann::json> EventsProcessor::LoadEvents(const ComponentDescripti
     std::vector<nlohmann::json> result;
     std::stringstream queryStream;
     queryStream
-        << "SELECT event FROM Events WHERE id = '"
+        << "SELECT event FROM Events WHERE providerId = '"
         << description._id.data()
-        << "' AND type = '"
+        << "' AND providerType = '"
         << description._type        
         << "' AND active = 1";
     queryStream.flush();   

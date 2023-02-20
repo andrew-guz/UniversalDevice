@@ -87,7 +87,7 @@ void RelayWidget::OnSettingsButton()
     {
         DeviceName deviceName;
         deviceName._name = newName;
-        auto result = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService, deviceName.ToJson());
+        auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService, deviceName.ToJson());
         if (result == 200)
         {
             _deviceName = newName;
@@ -99,7 +99,7 @@ void RelayWidget::OnSettingsButton()
     //update settings
     RelaySettings newSettings;
     newSettings._period = periodEdit->value() * 1000;
-    auto result = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
+    auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
     if (result != 200)
         LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
 }
@@ -110,7 +110,7 @@ void RelayWidget::OnStateButton()
     //update commands
     RelayCurrentState newCommands;
     newCommands._state = newState;
-    auto result = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newCommands.ToJson());
+    auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newCommands.ToJson());
     if (result != 200)
         LOG_ERROR << "Failed to update commands to " << newCommands.ToJson().dump() << "." << std::endl;
     _stateButton->setEnabled(false);

@@ -7,6 +7,7 @@
 #include "ProcessorsFactory.h"
 #include "DeviceName.h"
 #include "ExtendedComponentDescription.h"
+#include "Event.h"
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor)
@@ -16,10 +17,14 @@ ClientService::ClientService(IQueryExecutor* queryExecutor) :
 
 void ClientService::Initialize(crow::SimpleApp& app)
 {
-    CROW_ROUTE(app, API_CLIENT_LIST_DEVICES).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return ListDevices(request); });
+    CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return ListDevices(request); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetDeviceName(request, idString); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceName(request, idString); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return GetDeviceInfo(request); });
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return GetEvents(request); });
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return AddEvent(request); });
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)([&](const crow::request& request){ return UpdateEvent(request); });
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)([&](const crow::request& request){ return DeleteEvent(request); });
 }
 
 crow::response ClientService::ListDevices(const crow::request& request)
@@ -136,4 +141,137 @@ crow::response ClientService::GetDeviceInfo(const crow::request& request)
         LOG_ERROR << "Something went wrong in ClientService::GetDeviceInfo." << std::endl;
     } 
     return crow::response(crow::OK, result.dump());
+}
+
+crow::response ClientService::GetEvents(const crow::request& request)
+{
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
+    nlohmann::json result = nlohmann::json::array({});
+    try
+    {
+        std::vector<std::vector<std::string>> data;
+        std::stringstream queryStream;
+        queryStream << "SELECT event FROM Events";
+        queryStream.flush();
+        if (_queryExecutor->Select(queryStream.str(), data))
+        {
+            for (auto& row : data)
+            {
+                auto eventString = DbExtension::FindValueByName(row, "event");
+                if (eventString.empty())
+                {
+                    LOG_ERROR << "Empty event found." << std::endl;
+                    continue;
+                }
+                try
+                {
+                    nlohmann::json eventJson = nlohmann::json::parse(eventString);
+                    result.push_back(eventJson);
+                }
+                catch(...)
+                {
+                    LOG_ERROR << "Invalid event JSON " << eventString << "." << std::endl;
+                }
+            }            
+        }
+        else
+            LOG_SQL_ERROR(queryStream.str());
+    }
+    catch(...)
+    {
+        LOG_ERROR << "Something went wrong in ClientService::GetEvents." << std::endl;
+    } 
+    return crow::response(crow::OK, result.dump());
+}
+
+crow::response ClientService::AddEvent(const crow::request& request)
+{
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
+    try
+    {
+        auto bodyJson = nlohmann::json::parse(request.body);
+        auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
+        std::stringstream queryStream;
+        queryStream << "INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('"
+            << event._id.data()
+            << "', "
+            << (event._active ? "1" : "0")
+            << ", '"
+            << event._provider._id.data()
+            << "', '"
+            << event._provider._type
+            << "', '"
+            << request.body
+            << "')";
+        queryStream.flush();
+        if (_queryExecutor->Execute(queryStream.str()))
+            return crow::response(crow::OK);
+        else
+            LOG_SQL_ERROR(queryStream.str());
+    }
+    catch(...)
+    {
+        LOG_ERROR << "Something went wrong in ClientService::DeleteEvent." << std::endl;
+    } 
+    return crow::response(crow::BAD_REQUEST);
+}
+
+crow::response ClientService::UpdateEvent(const crow::request& request)
+{
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
+    try
+    {
+        auto bodyJson = nlohmann::json::parse(request.body);
+        auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
+        std::stringstream queryStream;
+        queryStream << "UPDATE Events SET active = "
+            << (event._active ? "1" : "0")
+            << ", providerId = '"
+            << event._provider._id.data()
+            << "', providerType = '"
+            << event._provider._type
+            << "', event = '"
+            << request.body
+            << "' WHERE id = '"
+            << event._id.data()
+            << "'";
+        queryStream.flush();
+        if (_queryExecutor->Execute(queryStream.str()))
+            return crow::response(crow::OK);
+        else
+            LOG_SQL_ERROR(queryStream.str());
+    }
+    catch(...)
+    {
+        LOG_ERROR << "Something went wrong in ClientService::UpdateEvent." << std::endl;
+    } 
+    return crow::response(crow::BAD_REQUEST);
+}
+
+crow::response ClientService::DeleteEvent(const crow::request& request)
+{
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
+    try
+    {
+        auto bodyJson = nlohmann::json::parse(request.body);
+        auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
+        std::stringstream queryStream;
+        queryStream << "DELETE FROM Events WHERE id='"
+            << event._id.data()
+            << "'";
+        queryStream.flush();
+        if (_queryExecutor->Execute(queryStream.str()))
+            return crow::response(crow::OK);
+        else
+            LOG_SQL_ERROR(queryStream.str());
+    }
+    catch(...)
+    {
+        LOG_ERROR << "Something went wrong in ClientService::DeleteEvent." << std::endl;
+    } 
+    return crow::response(crow::BAD_REQUEST);
 }

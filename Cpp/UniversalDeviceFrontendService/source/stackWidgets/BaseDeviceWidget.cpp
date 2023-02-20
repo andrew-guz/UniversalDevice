@@ -59,7 +59,7 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
 
 void BaseDeviceWidget::Initialize(const std::string& data)
 {
-    std::lock_guard<std::mutex> lock_guard(_requestMutex);
+    std::lock_guard<std::mutex> lockGuard(_requestMutex);
 
     _deviceId =  Uuid(data);
     if (_deviceId.isEmpty())

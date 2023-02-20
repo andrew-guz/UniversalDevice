@@ -89,8 +89,8 @@ void ThermometerWidget::OnSettingsButton()
     //brightness
     layout->addWidget(std::make_unique<WText>("Яркость:"), 2, 0);
     auto brightnessEdit = layout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
-    brightnessEdit->setMinimum(1);
-    brightnessEdit->setMaximum(7);
+    brightnessEdit->setMinimum(MIN_BRIGHTNESS);
+    brightnessEdit->setMaximum(MAX_BRIGHTNESS);
     brightnessEdit->setValue(GetBrightness()._brightness);
     //validation
     auto okValidation = [&]()
@@ -114,7 +114,7 @@ void ThermometerWidget::OnSettingsButton()
     {
         DeviceName deviceName;
         deviceName._name = newName;
-        auto result = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService, deviceName.ToJson());
+        auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService, deviceName.ToJson());
         if (result == 200)
         {
             _deviceName = newName;
@@ -126,13 +126,13 @@ void ThermometerWidget::OnSettingsButton()
     //update settings
     ThermometerSettings newSettings;
     newSettings._period = periodEdit->value() * 1000;
-    auto settingsResult = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
+    auto settingsResult = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
     if (settingsResult != 200)
         LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
     //set brightness command
     ThermometerLedBrightness newBrightnessCommand;
     newBrightnessCommand._brightness = brightnessEdit->value();
-    auto commandResult = RequestHelper::DoPostRequestWithNoAnswer({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newBrightnessCommand.ToJson());
+    auto commandResult = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newBrightnessCommand.ToJson());
     if (commandResult != 200)
         LOG_ERROR << "Failed to update settings to " << newBrightnessCommand.ToJson().dump() << "." << std::endl;
 }
