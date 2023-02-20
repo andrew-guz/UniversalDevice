@@ -17,7 +17,7 @@ ClientService::ClientService(IQueryExecutor* queryExecutor) :
 
 void ClientService::Initialize(crow::SimpleApp& app)
 {
-    CROW_ROUTE(app, API_CLIENT_LIST_DEVICES).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return ListDevices(request); });
+    CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return ListDevices(request); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetDeviceName(request, idString); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceName(request, idString); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return GetDeviceInfo(request); });

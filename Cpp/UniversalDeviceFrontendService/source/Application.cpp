@@ -21,7 +21,8 @@ Application::Application(const Settings& settings, const WEnvironment& env) :
     _mainStack->addWidget(std::make_unique<ThermometerWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<RelayWidget>(this, settings));    
 
-    _mainStack->setCurrentIndex(0);
+    //_mainStack->setCurrentIndex(0);
+    _mainStack->setCurrentIndex(2);
 }
 
 void Application::SetWidget(StackWidgetType type, const std::string& data)

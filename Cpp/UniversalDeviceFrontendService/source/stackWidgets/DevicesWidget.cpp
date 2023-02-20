@@ -21,15 +21,15 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
         _stackHolder->SetWidget(StackWidgetType::Login, {});
     });
 
-    _eventsButton = _mainLayout->addWidget(std::make_unique<WPushButton>("События"), 0, 1, 1, 3, AlignmentFlag::Center);
-    WidgetHelper::SetUsualButtonSize(_eventsButton);
-    _eventsButton->clicked().connect([&](){
+    auto eventsButton = _mainLayout->addWidget(std::make_unique<WPushButton>("События"), 0, 1, 1, 3, AlignmentFlag::Center);
+    WidgetHelper::SetUsualButtonSize(eventsButton);
+    eventsButton->clicked().connect([&](){
         _stackHolder->SetWidget(StackWidgetType::Events, {});
     });
     
-    _refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 4, AlignmentFlag::Right);
-    WidgetHelper::SetUsualButtonSize(_refreshButton);
-    _refreshButton->clicked().connect([&](){
+    auto refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 4, AlignmentFlag::Right);
+    WidgetHelper::SetUsualButtonSize(refreshButton);
+    refreshButton->clicked().connect([&](){
         Refresh();
     });
 
@@ -51,7 +51,7 @@ void DevicesWidget::Clear()
 void DevicesWidget::Refresh()
 {
     Clear();
-    auto replyJson = RequestHelper::DoGetRequest({"127.0.0.1", _settings._servicePort, API_CLIENT_LIST_DEVICES}, Constants::LoginService);
+    auto replyJson = RequestHelper::DoGetRequest({"127.0.0.1", _settings._servicePort, API_CLIENT_DEVICES}, Constants::LoginService);
     auto descriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
     if (descriptions.empty())
         return;

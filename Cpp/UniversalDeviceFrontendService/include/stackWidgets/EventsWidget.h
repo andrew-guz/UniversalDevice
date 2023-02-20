@@ -5,11 +5,16 @@
 #include <Wt/WGridLayout.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WTableView.h>
+#include <Wt/WText.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WSpinBox.h>
+#include <Wt/WCheckBox.h>
 #include <nlohmann/json.hpp>
 
 #include "BaseStackWidget.h"
 #include "Settings.h"
 #include "EventsTableModel.h"
+#include "ExtendedComponentDescription.h"
 
 class EventsWidget final : public Wt::WContainerWidget, public BaseStackWidget
 {
@@ -27,11 +32,37 @@ private:
 
     std::vector<nlohmann::json> GetEvents();
 
+    std::vector<ExtendedComponentDescription> GetDevices();
+
+    void AddEvent();
+
+    void DeleteEvent();
+
+    void UpdateEvent();
+
+    void OnProviderIndexChanged(int index);
+
+    void OnReceiverIndexChanged(int index);
+
 private:
-    Wt::WGridLayout*                    _mainLayout;
-    std::vector<nlohmann::json>         _eventJsons;
-    std::shared_ptr<EventsTableModel>   _eventsTableModel;
-    Wt::WTableView*                     _eventsTable;
+    Wt::WGridLayout*                            _mainLayout;
+    std::vector<nlohmann::json>                 _eventJsons;
+    std::shared_ptr<EventsTableModel>           _eventsTableModel;
+    Wt::WTableView*                             _eventsTable;
+    std::vector<ExtendedComponentDescription>   _devices;
+    Wt::WComboBox*                              _providers;
+    Wt::WText*                                  _providerHourText;
+    Wt::WSpinBox*                               _providerHour;
+    Wt::WText*                                  _providerMinuteText;
+    Wt::WSpinBox*                               _providerMinute;
+    Wt::WText*                                  _providerTemperatureText;
+    Wt::WSpinBox*                               _providerTemperature;
+    Wt::WCheckBox*                              _providerTemperatureLower;
+    Wt::WCheckBox*                              _providerRelay;
+    Wt::WComboBox*                              _receivers;
+    Wt::WText*                                  _receiverBrightnessText;
+    Wt::WSpinBox*                               _receiverBrightness;
+    Wt::WCheckBox*                              _receiverRelay;
 };
 
 #endif //_EVENTS_WIDGET_H_

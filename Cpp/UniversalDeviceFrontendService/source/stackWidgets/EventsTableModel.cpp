@@ -63,3 +63,18 @@ cpp17::any EventsTableModel::data(const WModelIndex& index, ItemDataRole role) c
     }
     return {};
 }
+
+cpp17::any EventsTableModel::headerData(int section, Orientation orientation, ItemDataRole role) const
+{
+    if (section >= 0 &&
+        section < 2 &&
+        orientation == Orientation::Horizontal &&
+        role == ItemDataRole::Display)
+    {
+        if (section == 0)
+            return "Имя";
+        if (section == 1)
+            return "Активно";
+    }
+    return {};
+}
