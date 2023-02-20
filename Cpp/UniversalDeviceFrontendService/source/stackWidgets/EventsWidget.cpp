@@ -109,35 +109,36 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     auto eventGroup = editLayout->addWidget(std::make_unique<WGroupBox>("Событие"), 1, 0, 1, 2);
     auto eventLayout = eventGroup->setLayout(std::make_unique<WGridLayout>());
 
-    eventLayout->addWidget(std::make_unique<WText>("Генератор события:"), 0, 0, 1, 2);
-    _providers = eventLayout->addWidget(std::make_unique<WComboBox>(), 1, 0, 1, 2);
+    _active = eventLayout->addWidget(std::make_unique<WCheckBox>("Активно"), 0, 0, 1, 2);
+    eventLayout->addWidget(std::make_unique<WText>("Генератор события:"), 1, 0, 1, 2);
+    _providers = eventLayout->addWidget(std::make_unique<WComboBox>(), 2, 0, 1, 2);
     _providers->activated().connect([&](int index) {
         OnProviderIndexChanged(index);
     });
-    _providerHourText = eventLayout->addWidget(std::make_unique<WText>("Час:"), 2, 0);
-    _providerHour = eventLayout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
+    _providerHourText = eventLayout->addWidget(std::make_unique<WText>("Час:"), 3, 0);
+    _providerHour = eventLayout->addWidget(std::make_unique<WSpinBox>(), 3, 1);
     _providerHour->setMinimum(0);
     _providerHour->setMaximum(23);
-    _providerMinuteText = eventLayout->addWidget(std::make_unique<WText>("Минута:"), 3, 0);
-    _providerMinute = eventLayout->addWidget(std::make_unique<WSpinBox>(), 3, 1);
+    _providerMinuteText = eventLayout->addWidget(std::make_unique<WText>("Минута:"), 4, 0);
+    _providerMinute = eventLayout->addWidget(std::make_unique<WSpinBox>(), 4, 1);
     _providerMinute->setMinimum(0);
     _providerMinute->setMaximum(59);
-    _providerTemperatureText = eventLayout->addWidget(std::make_unique<WText>("Температура:"), 4, 0);
-    _providerTemperature = eventLayout->addWidget(std::make_unique<WSpinBox>(), 4, 1);
+    _providerTemperatureText = eventLayout->addWidget(std::make_unique<WText>("Температура:"), 5, 0);
+    _providerTemperature = eventLayout->addWidget(std::make_unique<WSpinBox>(), 5, 1);
     _providerTemperature->setMinimum(-40);
     _providerTemperature->setMaximum(40);
-    _providerTemperatureLower = eventLayout->addWidget(std::make_unique<WCheckBox>("Ниже заданной"), 5, 0, 1, 2);
-    _providerRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включено"), 6, 0, 1, 2);
-    eventLayout->addWidget(std::make_unique<WText>("Получатель события:"), 7, 0, 1, 2);
-    _receivers = eventLayout->addWidget(std::make_unique<WComboBox>(), 8, 0, 1, 2);
+    _providerTemperatureLower = eventLayout->addWidget(std::make_unique<WCheckBox>("Ниже заданной"), 6, 0, 1, 2);
+    _providerRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включено"), 7, 0, 1, 2);
+    eventLayout->addWidget(std::make_unique<WText>("Получатель события:"), 8, 0, 1, 2);
+    _receivers = eventLayout->addWidget(std::make_unique<WComboBox>(), 9, 0, 1, 2);
     _receivers->activated().connect([&](int index) {
         OnReceiverIndexChanged(index);
     });
-    _receiverBrightnessText = eventLayout->addWidget(std::make_unique<WText>("Яркость:"), 9, 0);
-    _receiverBrightness = eventLayout->addWidget(std::make_unique<WSpinBox>(), 9, 1);
+    _receiverBrightnessText = eventLayout->addWidget(std::make_unique<WText>("Яркость:"), 10, 0);
+    _receiverBrightness = eventLayout->addWidget(std::make_unique<WSpinBox>(), 10, 1);
     _receiverBrightness->setMinimum(MIN_BRIGHTNESS);
     _receiverBrightness->setMaximum(MAX_BRIGHTNESS);
-    _receiverRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включить"), 10, 0, 1, 2);
+    _receiverRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включить"), 11, 0, 1, 2);
 
     Refresh();
 }
@@ -151,6 +152,7 @@ void EventsWidget::Clear()
 {
     _eventJsons.clear();
     _eventsTableModel->UpdateData(_eventJsons);
+    _active->setChecked(false);
     _providers->clear();
     _providerHour->setValue(0);
     _providerMinute->setValue(0);
@@ -191,7 +193,17 @@ std::vector<ExtendedComponentDescription> EventsWidget::GetDevices()
 
 void EventsWidget::AddEvent()
 {
-    
+    if (_devices.empty())
+        return;
+    auto providerIndex = _providers->currentIndex();
+    if (providerIndex == 0)
+    {
+        //timer
+    }
+    else
+    {
+
+    }
 }
 
 void EventsWidget::DeleteEvent()

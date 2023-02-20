@@ -50,6 +50,7 @@ private:
     std::shared_ptr<EventsTableModel>           _eventsTableModel;
     Wt::WTableView*                             _eventsTable;
     std::vector<ExtendedComponentDescription>   _devices;
+    Wt::WCheckBox*                              _active;
     Wt::WComboBox*                              _providers;
     Wt::WText*                                  _providerHourText;
     Wt::WSpinBox*                               _providerHour;
