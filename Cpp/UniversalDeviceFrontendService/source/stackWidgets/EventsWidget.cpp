@@ -87,6 +87,8 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
 
     _eventsTable = tableLayout->addWidget(std::make_unique<WTableView>(), 1, 0);
     _eventsTable->setColumnResizeEnabled(false);
+    _eventsTable->setColumnAlignment(0, AlignmentFlag::Center);
+    _eventsTable->setColumnAlignment(1, AlignmentFlag::Center);
     _eventsTable->setAlternatingRowColors(true);
     _eventsTable->setSelectionMode(SelectionMode::Single);
     _eventsTable->setSelectionBehavior(SelectionBehavior::Rows);
@@ -173,7 +175,8 @@ void EventsWidget::Refresh()
     Clear();
 
     auto eventJsons = GetEvents();
-    _eventsTableModel->UpdateData(eventJsons);
+    _eventsTableModel = std::make_shared<EventsTableModel>(eventJsons);
+    _eventsTable->setModel(_eventsTableModel);
     _devices = GetDevices();
     _providers->addItem("Таймер");
     for (auto& device : _devices)
@@ -217,16 +220,19 @@ void EventsWidget::AddEvent()
 {
     if (_devices.empty())
         return;
-    auto providerIndex = _providers->currentIndex();
-    auto receiverIndex = _receivers->currentIndex();
+    size_t providerIndex = _providers->currentIndex();
+    size_t receiverIndex = _receivers->currentIndex();
     if (providerIndex < 0 ||
-        receiverIndex < 0)
+        providerIndex >= _devices.size() + 1 ||
+        receiverIndex < 0 ||
+        receiverIndex >= _devices.size())
         return;
+    if (_name->text().empty())
+        return;
+    nlohmann::json request;
     if (providerIndex == 0)
     {
         //timer
-        if (_name->text().empty())
-            return;
         TimerEvent timerEvent;
         timerEvent._id = Uuid();
         timerEvent._name = _name->text().toUTF8();
@@ -239,12 +245,45 @@ void EventsWidget::AddEvent()
         timerEvent._command = GetCommand(receiverIndex);
         timerEvent._hour = _providerHour->value();
         timerEvent._minute = _providerMinute->value();
-        RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, timerEvent.ToJson());
+        request = timerEvent.ToJson();
     }
     else
     {
-
+        auto device = _devices[providerIndex - 1];
+        if (device._type == Constants::DeviceTypeThermometer)
+        {
+            ThermometerEvent thermometerEvent;
+            thermometerEvent._id = Uuid();
+            thermometerEvent._name = _name->text().toUTF8();
+            thermometerEvent._active = _active->isChecked();
+            thermometerEvent._type = Constants::EventTypeThermometer;
+            thermometerEvent._provider._id = device._id;
+            thermometerEvent._provider._type = device._type;
+            thermometerEvent._receiver._id = _devices[receiverIndex]._id;
+            thermometerEvent._receiver._type = _devices[receiverIndex]._type;
+            thermometerEvent._command = GetCommand(receiverIndex);
+            thermometerEvent._temperature = _providerTemperature->value();
+            thermometerEvent._lower = _providerTemperatureLower->isChecked();
+            request = thermometerEvent.ToJson();
+        }
+        if (device._type == Constants::DeviceTypeRelay)
+        {
+            RelayEvent relayEvent;
+            relayEvent._id = Uuid();
+            relayEvent._name = _name->text().toUTF8();
+            relayEvent._active = _active->isChecked();
+            relayEvent._type = Constants::EventTypeThermometer;
+            relayEvent._provider._id = device._id;
+            relayEvent._provider._type = device._type;
+            relayEvent._receiver._id = _devices[receiverIndex]._id;
+            relayEvent._receiver._type = _devices[receiverIndex]._type;
+            relayEvent._command = GetCommand(receiverIndex);
+            relayEvent._state = _providerRelay->isChecked();
+            request = relayEvent.ToJson();
+        }
     }
+    if (!request.is_null())
+        RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, request);
     Refresh();
 }
 
