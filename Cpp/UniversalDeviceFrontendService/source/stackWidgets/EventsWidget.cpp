@@ -94,6 +94,9 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventsTable->setSelectionBehavior(SelectionBehavior::Rows);
     _eventsTable->setEditTriggers(EditTrigger::None);
     _eventsTable->setModel(_eventsTableModel);
+    _eventsTable->selectionChanged().connect([&]() {
+        OnSelectionChanged();
+    });
 
     auto editorCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 1);
     auto editLayout = editorCanvas->setLayout(std::make_unique<WGridLayout>());
@@ -305,6 +308,57 @@ void EventsWidget::DeleteEvent()
 
 void EventsWidget::UpdateEvent()
 {
+}
+
+void EventsWidget::OnSelectionChanged()
+{
+    auto selectedIndexes = _eventsTable->selectedIndexes();
+    if (selectedIndexes.empty())
+        return;
+    auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
+    auto event = JsonExtension::CreateFromJson<Event>(eventJson);
+    _name->setText(event._name);
+    _active->setChecked(event._active);
+    if (event._provider._id == Constants::PredefinedIdTimer)
+    {
+        _providers->setCurrentIndex(0);
+        OnProviderIndexChanged(0);
+        auto timerEvent = JsonExtension::CreateFromJson<TimerEvent>(eventJson);
+        _providerHour->setValue(timerEvent._hour);
+        _providerMinute->setValue(timerEvent._minute);
+    }
+    else
+    {
+        auto providerDeviceIter = std::find_if(_devices.begin(), _devices.end(), [&](const auto& device){ return device._id == event._provider._id; });
+        _providers->setCurrentIndex(providerDeviceIter - _devices.begin() + 1);
+        OnProviderIndexChanged(providerDeviceIter - _devices.begin() + 1);
+        auto providerDevice = *providerDeviceIter;
+        if (providerDevice._type == Constants::DeviceTypeThermometer)
+        {
+            auto thermometerEvent = JsonExtension::CreateFromJson<ThermometerEvent>(eventJson);
+            _providerTemperature->setValue(thermometerEvent._temperature);
+            _providerTemperatureLower->setChecked(thermometerEvent._lower);
+        }
+        if (providerDevice._type == Constants::DeviceTypeRelay)
+        {
+            auto relayEvent = JsonExtension::CreateFromJson<RelayEvent>(eventJson);
+            _providerRelay->setChecked(relayEvent._state);
+        }
+    }
+    auto receiverDeviceIter = std::find_if(_devices.begin(), _devices.end(), [&](const auto& device){ return device._id == event._receiver._id; });
+    _receivers->setCurrentIndex(receiverDeviceIter - _devices.begin());
+    OnReceiverIndexChanged(receiverDeviceIter - _devices.begin());
+    auto receiverDevice = *receiverDeviceIter;
+    if (receiverDevice._type == Constants::DeviceTypeThermometer)
+    {
+        auto thermometerLedBrightness = JsonExtension::CreateFromJson<ThermometerLedBrightness>(eventJson);
+        _receiverBrightness->setValue(thermometerLedBrightness._brightness);
+    }
+    if (receiverDevice._type == Constants::DeviceTypeRelay)
+    {
+        auto relayCurrentState = JsonExtension::CreateFromJson<RelayCurrentState>(eventJson);
+        _receiverRelay->setChecked(relayCurrentState._state);
+    }
 }
 
 void EventsWidget::OnProviderIndexChanged(int index)

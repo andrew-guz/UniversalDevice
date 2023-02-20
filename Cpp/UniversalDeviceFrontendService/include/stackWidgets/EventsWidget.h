@@ -43,6 +43,8 @@ private:
 
     void UpdateEvent();
 
+    void OnSelectionChanged();
+
     void OnProviderIndexChanged(int index);
 
     void OnReceiverIndexChanged(int index);
