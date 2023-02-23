@@ -23,6 +23,7 @@ public:
     static const std::string SubjectGetDeviceInformation;
     static const std::string SubjectThermometerCurrentValue;
     static const std::string SubjectRelayCurrentState;
+    static const std::string SubjectMotionRelayCurrentState;
 
     //predefined ids for devices
     static const Uuid PredefinedIdTimer;

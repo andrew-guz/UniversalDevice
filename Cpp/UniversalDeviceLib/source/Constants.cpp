@@ -27,6 +27,8 @@ const std::string Constants::SubjectThermometerCurrentValue = "thermometer_curre
 
 const std::string Constants::SubjectRelayCurrentState = "relay_current_state";
 
+const std::string Constants::SubjectMotionRelayCurrentState = "motion_relay_current_state";
+
 //predefined ids
 const Uuid Constants::PredefinedIdTimer = Uuid("00000000-0000-0000-0000-000000000001");
 

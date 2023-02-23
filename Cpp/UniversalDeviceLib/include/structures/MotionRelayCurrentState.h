@@ -13,7 +13,7 @@ struct MotionRelayCurrentState : public IJson<MotionRelayCurrentState>
     virtual nlohmann::json ToJson() const override
     {
         return {
-            { "motion", _motion }
+            { "motion", _motion },
             { "state", _state }
         };  
     }
