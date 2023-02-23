@@ -5,7 +5,7 @@
 
 #include "BaseDeviceWidget.h"
 #include "TemperatureChartModel.h"
-#include "ThermometerSettings.h"
+#include "PeriodSettings.h"
 #include "ExtendedThermometerCurrentValue.h"
 #include "ThermometerLedBrightness.h"
 
@@ -21,7 +21,7 @@ protected:
 
     virtual void ClearData() override;
     
-    ThermometerSettings GetSettings();
+    PeriodSettings GetSettings();
 
     std::vector<ExtendedThermometerCurrentValue> GetValues();
 

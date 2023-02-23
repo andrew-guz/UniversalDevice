@@ -7,8 +7,8 @@
 #include "Parameters.h"
 #include "Constants.h"
 #include "Defines.h"
-#include "RelaySettings.h"
 #include "RelayCurrentState.h"
+#include "PeriodSettings.h"
 #include "MessageHelper.h"
 #include "UrlHelper.h"
 #include "RequestHelper.h"
@@ -18,12 +18,12 @@ using namespace std::literals;
 int state = 0;
 Parameters parameters;
 
-RelaySettings GetSettings()
+PeriodSettings GetSettings()
 {
     auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", parameters._port, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", parameters._id.data()) }, Constants::LoginDevice);
     if (replyJson.is_null())
         return {};
-    return JsonExtension::CreateFromJson<RelaySettings>(replyJson);
+    return JsonExtension::CreateFromJson<PeriodSettings>(replyJson);
 }
 
 RelayCurrentState GetCommands()
@@ -48,13 +48,11 @@ int main(int argc, char* argv[])
 
     parameters = Parameters::ReadFromFile("RelaySimulator.json");    
 
-    RelaySettings settings;
-
     auto time1 = std::chrono::system_clock::now();
     while (true)
     {
         std::this_thread::sleep_for(std::chrono::duration(std::chrono::milliseconds(500)));
-        settings = GetSettings();
+        auto settings = GetSettings();
         auto command = GetCommands();
         auto newState = command._state;
         if (newState != state)

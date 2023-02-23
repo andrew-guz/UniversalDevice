@@ -20,8 +20,10 @@ include_directories(./../../UniversalDeviceLib/include/events)
 include_directories(./../../UniversalDeviceLib/include/interfaces)
 include_directories(./../../UniversalDeviceLib/include/messages)
 include_directories(./../../UniversalDeviceLib/include/network)
-include_directories(./../../UniversalDeviceLib/include/settings)
 include_directories(./../../UniversalDeviceLib/include/structures)
+include_directories(./../../UniversalDeviceLib/include/structures/commands)
+include_directories(./../../UniversalDeviceLib/include/structures/inform)
+include_directories(./../../UniversalDeviceLib/include/structures/settings)
 
 #set variable where to put ouput file
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)

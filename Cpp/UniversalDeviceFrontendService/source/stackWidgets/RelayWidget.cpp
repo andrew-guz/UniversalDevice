@@ -13,6 +13,7 @@
 #include "ExtendedComponentDescription.h"
 #include "DeviceName.h"
 #include "WidgetHelper.h"
+#include "RelayState.h"
 
 using namespace Wt;
 
@@ -56,10 +57,10 @@ void RelayWidget::ClearData()
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
 }
 
-RelaySettings RelayWidget::GetSettings()
+PeriodSettings RelayWidget::GetSettings()
 {
     auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService);
-    return JsonExtension::CreateFromJson<RelaySettings>(replyJson);
+    return JsonExtension::CreateFromJson<PeriodSettings>(replyJson);
 }
 
 std::vector<ExtendedRelayCurrentState> RelayWidget::GetValues()
@@ -97,7 +98,7 @@ void RelayWidget::OnSettingsButton()
             LOG_ERROR << "Failed to update name to " << newName << "." << std::endl;
     }
     //update settings
-    RelaySettings newSettings;
+    PeriodSettings newSettings;
     newSettings._period = periodEdit->value() * 1000;
     auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
     if (result != 200)
@@ -108,7 +109,7 @@ void RelayWidget::OnStateButton()
 {
     auto newState = _deviceState ? 0 : 1;
     //update commands
-    RelayCurrentState newCommands;
+    RelayState newCommands;
     newCommands._state = newState;
     auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newCommands.ToJson());
     if (result != 200)

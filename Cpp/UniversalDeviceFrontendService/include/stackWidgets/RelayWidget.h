@@ -2,7 +2,7 @@
 #define _RELAY_WIDGET_H_
 
 #include "BaseDeviceWidget.h"
-#include "RelaySettings.h"
+#include "PeriodSettings.h"
 #include "ExtendedRelayCurrentState.h"
 
 class RelayWidget final : public BaseDeviceWidget
@@ -19,7 +19,7 @@ protected:
 
     virtual void ClearData() override;
 
-    RelaySettings GetSettings();
+    PeriodSettings GetSettings();
 
     std::vector<ExtendedRelayCurrentState> GetValues();
 
