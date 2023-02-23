@@ -15,6 +15,7 @@ public:
     static const std::string DeviceTypeTimer;
     static const std::string DeviceTypeThermometer;
     static const std::string DeviceTypeRelay;
+    static const std::string DeviceTypeMotionRelay;
 
     //subjects - depends on type
     static const std::string SubjectUndefined;

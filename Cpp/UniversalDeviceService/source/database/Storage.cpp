@@ -72,7 +72,8 @@ void Storage::InitializeDb()
         "CREATE TABLE IF NOT EXISTS Commands (id TEXT, commands TEXT, PRIMARY KEY(id))",
         "CREATE TABLE IF NOT EXISTS Events (id TEXT UNIQUE, active INTEGER, providerId TEXT, providerType TEXT, event TEXT, PRIMARY KEY(id))",
         "CREATE TABLE IF NOT EXISTS Thermometers (idx INTEGER, id TEXT, timestamp TEXT, value REAL, PRIMARY KEY(idx AUTOINCREMENT))",
-        "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp TEXT, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))"
+        "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp TEXT, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))",
+        "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp TEXT, motion, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))"
     };
     for(auto& query : queries)
         Execute(query);

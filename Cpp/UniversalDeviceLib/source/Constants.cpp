@@ -14,6 +14,8 @@ const std::string Constants::DeviceTypeThermometer = "thermometer";
 
 const std::string Constants::DeviceTypeRelay = "relay";
 
+const std::string Constants::DeviceTypeMotionRelay = "motion_relay";
+
 //subjects - depends on type
 const std::string Constants::SubjectUndefined = "undefined_subject";
 
