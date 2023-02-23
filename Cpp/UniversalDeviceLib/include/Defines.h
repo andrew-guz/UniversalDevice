@@ -11,6 +11,8 @@
 #define MIN_BRIGHTNESS 0
 #define MAX_BRIGHTNESS 7
 
+#define DEFAULT_ACTIVITY_TIME 60000
+
 //api addresses
 //common
 #define API_VERSION                         "/api/version"
