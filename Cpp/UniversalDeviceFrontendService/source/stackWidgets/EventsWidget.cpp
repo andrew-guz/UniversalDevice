@@ -14,7 +14,7 @@
 #include "ThermometerEvent.h"
 #include "RelayEvent.h"
 #include "ThermometerLedBrightness.h"
-#include "RelayCurrentState.h"
+#include "RelayState.h"
 
 using namespace Wt;
 
@@ -268,9 +268,9 @@ void EventsWidget::GetEventFromUi(Event& event, const Uuid& id, int providerInde
     }   
     if (receiverDevice._type == Constants::DeviceTypeRelay)
     {
-        RelayCurrentState relayCurrentState;
-        relayCurrentState._state = _receiverRelay->isChecked();
-        event._command = relayCurrentState.ToJson();
+        RelayState relayState;
+        relayState._state = _receiverRelay->isChecked();
+        event._command = relayState.ToJson();
     }
 }
 
@@ -345,8 +345,8 @@ void EventsWidget::FillUiWithEvent(const nlohmann::json& eventJson)
     }
     if (receiverDevice._type == Constants::DeviceTypeRelay)
     {
-        auto relayCurrentState = JsonExtension::CreateFromJson<RelayCurrentState>(event._command);
-        _receiverRelay->setChecked(relayCurrentState._state);
+        auto relayState = JsonExtension::CreateFromJson<RelayState>(event._command);
+        _receiverRelay->setChecked(relayState._state);
     }
 }
 

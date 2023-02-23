@@ -4,19 +4,20 @@
 #include <nlohmann/json.hpp>
 
 #include "Defines.h"
+#include "IJson.h"
 
-struct PeriodSettings
+struct PeriodSettings : public IJson<PeriodSettings>
 {
     int _period = DEFAULT_PERIOD;
 
-    nlohmann::json PeriodToJson() const
+    virtual nlohmann::json ToJson() const override
     {
         return {
             { "period", _period }
         };  
     }
 
-    void PeriodFromJson(const nlohmann::json& json)
+    virtual void FromJson(const nlohmann::json& json) override
     {
         _period = json.value("period", DEFAULT_PERIOD);
     }

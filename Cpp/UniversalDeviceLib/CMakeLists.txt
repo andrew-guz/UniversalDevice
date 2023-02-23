@@ -19,8 +19,10 @@ include_directories(./include/events)
 include_directories(./include/interfaces)
 include_directories(./include/messages)
 include_directories(./include/network)
-include_directories(./include/settings)
 include_directories(./include/structures)
+include_directories(./include/structures/commands)
+include_directories(./include/structures/inform)
+include_directories(./include/structures/settings)
 
 #set variable where to put ouput file
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../bin)

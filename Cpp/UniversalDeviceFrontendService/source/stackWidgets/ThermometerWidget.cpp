@@ -59,10 +59,10 @@ void ThermometerWidget::ClearData()
     _model->UpdateData({});        
 }
 
-ThermometerSettings ThermometerWidget::GetSettings()
+PeriodSettings ThermometerWidget::GetSettings()
 {
     auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService);
-    return JsonExtension::CreateFromJson<ThermometerSettings>(replyJson);
+    return JsonExtension::CreateFromJson<PeriodSettings>(replyJson);
 }
 
 std::vector<ExtendedThermometerCurrentValue> ThermometerWidget::GetValues()
@@ -124,15 +124,15 @@ void ThermometerWidget::OnSettingsButton()
             LOG_ERROR << "Failed to update name to " << newName << "." << std::endl;
     }    
     //update settings
-    ThermometerSettings newSettings;
+    PeriodSettings  newSettings;
     newSettings._period = periodEdit->value() * 1000;
     auto settingsResult = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
     if (settingsResult != 200)
         LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
     //set brightness command
-    ThermometerLedBrightness newBrightnessCommand;
-    newBrightnessCommand._brightness = brightnessEdit->value();
-    auto commandResult = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newBrightnessCommand.ToJson());
+    ThermometerLedBrightness newCommand;
+    newCommand._brightness = brightnessEdit->value();
+    auto commandResult = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newCommand.ToJson());
     if (commandResult != 200)
-        LOG_ERROR << "Failed to update settings to " << newBrightnessCommand.ToJson().dump() << "." << std::endl;
+        LOG_ERROR << "Failed to update settings to " << newCommand.ToJson().dump() << "." << std::endl;
 }
