@@ -19,10 +19,6 @@ protected:
 
     virtual void ClearData() override;
 
-    MotionRelaySettings GetSettings();
-
-    std::vector<ExtendedMotionRelayCurrentState> GetValues();
-
     virtual void OnSettingsButton() override;
 
     void OnStateButton();

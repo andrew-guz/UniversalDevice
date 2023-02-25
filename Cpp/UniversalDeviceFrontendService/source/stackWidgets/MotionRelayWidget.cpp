@@ -7,9 +7,6 @@
 #include "Constants.h"
 #include "Logger.h"
 #include "ComponentDescription.h"
-#include "MessageHelper.h"
-#include "RequestHelper.h"
-#include "UrlHelper.h"
 #include "ExtendedComponentDescription.h"
 #include "DeviceName.h"
 #include "WidgetHelper.h"
@@ -39,7 +36,7 @@ MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& 
 
 void MotionRelayWidget::Initialize()
 {
-    auto motionStateValues = GetValues();
+    auto motionStateValues = GetValues<ExtendedMotionRelayCurrentState>(Constants::DeviceTypeMotionRelay);
     if (motionStateValues.size())
     {
         auto& motionStateValue = motionStateValues[0];
@@ -64,27 +61,11 @@ void MotionRelayWidget::ClearData()
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
 }
 
-MotionRelaySettings MotionRelayWidget::GetSettings()
-{
-    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService);
-    return JsonExtension::CreateFromJson<MotionRelaySettings>(replyJson);
-}
-
-std::vector<ExtendedMotionRelayCurrentState> MotionRelayWidget::GetValues()
-{
-    ComponentDescription messageData;
-    messageData._type = Constants::DeviceTypeMotionRelay;
-    messageData._id = _deviceId;
-    auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
-    auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
-    return JsonExtension::CreateVectorFromJson<ExtendedMotionRelayCurrentState>(replyJson);
-}
-
 void MotionRelayWidget::OnSettingsButton()
 {
     if (_deviceId.isEmpty())
         return;
-    auto settings = GetSettings();
+    auto settings = GetSettings<MotionRelaySettings>();
     auto [dialog, layout, nameEdit, periodEdit, ok] = WidgetHelper::CreateNamePeriodSettingsDialog(this, 150, _deviceName, settings._period, true);
     //activityDelay
     layout->addWidget(std::make_unique<WText>("Задержка (мин):"), 2, 0);

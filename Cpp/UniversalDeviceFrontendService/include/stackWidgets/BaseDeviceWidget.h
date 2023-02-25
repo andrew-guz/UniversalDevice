@@ -9,6 +9,9 @@
 
 #include "Uuid.h"
 #include "BaseStackWidget.h"
+#include "RequestHelper.h"
+#include "UrlHelper.h"
+#include "MessageHelper.h"
 
 class BaseDeviceWidget : public Wt::WContainerWidget, public BaseStackWidget
 {
@@ -32,6 +35,24 @@ protected:
     void Clear(ClearType type);
 
     virtual void ClearData() = 0;
+    
+    template<typename TSettings>
+    TSettings GetSettings()
+    {
+        auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService);
+        return JsonExtension::CreateFromJson<TSettings>(replyJson);
+    }
+
+    template<typename TValues>
+    std::vector<TValues> GetValues(const std::string& type)
+    {
+        ComponentDescription messageData;
+        messageData._type = type;
+        messageData._id = _deviceId;
+        auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
+        auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
+        return JsonExtension::CreateVectorFromJson<TValues>(replyJson);
+    }
 
     void UpdateName();
 

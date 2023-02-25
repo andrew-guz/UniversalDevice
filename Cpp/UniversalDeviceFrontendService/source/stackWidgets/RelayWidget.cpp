@@ -7,9 +7,6 @@
 #include "Constants.h"
 #include "Logger.h"
 #include "ComponentDescription.h"
-#include "MessageHelper.h"
-#include "RequestHelper.h"
-#include "UrlHelper.h"
 #include "ExtendedComponentDescription.h"
 #include "DeviceName.h"
 #include "WidgetHelper.h"
@@ -36,7 +33,7 @@ RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
 
 void RelayWidget::Initialize()
 {
-    auto stateValues = GetValues();
+    auto stateValues = GetValues<ExtendedRelayCurrentState>(Constants::DeviceTypeRelay);
     if (stateValues.size())
     {
         _deviceState = stateValues.begin()->_state;
@@ -57,27 +54,11 @@ void RelayWidget::ClearData()
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
 }
 
-PeriodSettings RelayWidget::GetSettings()
-{
-    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService);
-    return JsonExtension::CreateFromJson<PeriodSettings>(replyJson);
-}
-
-std::vector<ExtendedRelayCurrentState> RelayWidget::GetValues()
-{
-    ComponentDescription messageData;
-    messageData._type = Constants::DeviceTypeRelay;
-    messageData._id = _deviceId;
-    auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
-    auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
-    return JsonExtension::CreateVectorFromJson<ExtendedRelayCurrentState>(replyJson);
-}
-
 void RelayWidget::OnSettingsButton()
 {
     if (_deviceId.isEmpty())
         return;
-    auto settings = GetSettings();
+    auto settings = GetSettings<PeriodSettings>();
     auto [dialog, layout, nameEdit, periodEdit, ok] = WidgetHelper::CreateNamePeriodSettingsDialog(this, 150, _deviceName, settings._period, true);
     //execute
     if (dialog->exec() != DialogCode::Accepted)

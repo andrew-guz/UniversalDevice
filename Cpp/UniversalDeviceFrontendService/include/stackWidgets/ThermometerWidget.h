@@ -20,10 +20,6 @@ protected:
     virtual void Initialize() override;
 
     virtual void ClearData() override;
-    
-    PeriodSettings GetSettings();
-
-    std::vector<ExtendedThermometerCurrentValue> GetValues();
 
     ThermometerLedBrightness GetBrightness();
 

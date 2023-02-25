@@ -4,9 +4,6 @@
 #include "Constants.h"
 #include "Logger.h"
 #include "ComponentDescription.h"
-#include "MessageHelper.h"
-#include "RequestHelper.h"
-#include "UrlHelper.h"
 #include "ExtendedComponentDescription.h"
 #include "DeviceName.h"
 #include "WidgetHelper.h"
@@ -35,7 +32,7 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
 
 void ThermometerWidget::Initialize()
 {
-    auto thermometerValues = GetValues();
+    auto thermometerValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer);
     if (thermometerValues.size())
     {
         auto value = thermometerValues.begin()->_value;
@@ -59,22 +56,6 @@ void ThermometerWidget::ClearData()
     _model->UpdateData({});        
 }
 
-PeriodSettings ThermometerWidget::GetSettings()
-{
-    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService);
-    return JsonExtension::CreateFromJson<PeriodSettings>(replyJson);
-}
-
-std::vector<ExtendedThermometerCurrentValue> ThermometerWidget::GetValues()
-{
-    ComponentDescription messageData;
-    messageData._type = Constants::DeviceTypeThermometer;
-    messageData._id = _deviceId;
-    auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
-    auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
-    return JsonExtension::CreateVectorFromJson<ExtendedThermometerCurrentValue>(replyJson);
-}
-
 ThermometerLedBrightness ThermometerWidget::GetBrightness()
 {
     auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService);
@@ -85,7 +66,7 @@ void ThermometerWidget::OnSettingsButton()
 {
     if (_deviceId.isEmpty())
         return;
-    auto [dialog, layout, nameEdit, periodEdit, ok] = WidgetHelper::CreateNamePeriodSettingsDialog(this, 180, _deviceName, GetSettings()._period, false);
+    auto [dialog, layout, nameEdit, periodEdit, ok] = WidgetHelper::CreateNamePeriodSettingsDialog(this, 180, _deviceName, GetSettings<PeriodSettings>()._period, false);
     //brightness
     layout->addWidget(std::make_unique<WText>("Яркость:"), 2, 0);
     auto brightnessEdit = layout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
