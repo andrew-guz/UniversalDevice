@@ -70,6 +70,8 @@ void DevicesWidget::Refresh()
                 _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
             if (description._type == Constants::DeviceTypeRelay)
                 _stackHolder->SetWidget(StackWidgetType::Relay, description._id.data());
+            if (description._type == Constants::DeviceTypeMotionRelay)
+                _stackHolder->SetWidget(StackWidgetType::MotionRelay, description._id.data());
         });
         _deviceButtons.push_back(button);
         ++column;

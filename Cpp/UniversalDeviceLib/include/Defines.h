@@ -11,6 +11,9 @@
 #define MIN_BRIGHTNESS 0
 #define MAX_BRIGHTNESS 7
 
+#define MIN_ACTIVITY_DELAY 1
+#define MAX_ACTIVITY_DELAY 5
+
 #define DEFAULT_ACTIVITY_TIME 60000
 
 //api addresses

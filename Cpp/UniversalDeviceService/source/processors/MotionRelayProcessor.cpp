@@ -44,7 +44,7 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
     else if (message._header._subject == Constants::SubjectGetDeviceInformation)
     {
         auto description = JsonExtension::CreateFromJson<ComponentDescription>(message._data);
-        if (description._type == Constants::DeviceTypeRelay &&
+        if (description._type == Constants::DeviceTypeMotionRelay &&
             !description._id.isEmpty())
         {
             std::stringstream queryStream;

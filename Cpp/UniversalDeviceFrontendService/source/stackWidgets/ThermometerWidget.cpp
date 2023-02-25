@@ -49,7 +49,7 @@ void ThermometerWidget::Initialize()
         _model->UpdateData(thermometerValues);
     }
     else
-        Clear(ThermometerWidget::ClearType::Data);
+        Clear(BaseDeviceWidget::ClearType::Data);
 }
 
 void ThermometerWidget::ClearData()
