@@ -6,6 +6,7 @@
 #include "EventsProcessor.h"
 #include "ThermometerProcessor.h"
 #include "RelayProcessor.h"
+#include "MotionRelayProcessor.h"
 
 Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExecutor* queryExecutor)
 {
@@ -23,6 +24,7 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         //we need information about device - here we should call all device processors maybe some one will return data
         processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor)));
         processors.push_back(std::shared_ptr<IProcessor>(new RelayProcessor(queryExecutor)));
+        processors.push_back(std::shared_ptr<IProcessor>(new MotionRelayProcessor(queryExecutor)));
     }
     else if (messageHeader._subject == Constants::SubjectThermometerCurrentValue) //concrete message to register new data from thermometer
     {
@@ -40,6 +42,15 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         //since this is relay - add RelayProcessor
         processors.push_back(std::shared_ptr<IProcessor>(new RelayProcessor(queryExecutor)));
         //process events due to relay state
+        processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor)));            
+    }
+    else if (messageHeader._subject == Constants::SubjectMotionRelayCurrentState) //concrete message to register new data from motion relay
+    {
+        //register motion relay if needed
+        processors.push_back(std::shared_ptr<IProcessor>(new DeviceRegistrationProcessor(queryExecutor)));
+        //since this is motion relay - add MotionRelayProcessor
+        processors.push_back(std::shared_ptr<IProcessor>(new MotionRelayProcessor(queryExecutor)));
+        //process events due to motion relay state
         processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor)));            
     }
 

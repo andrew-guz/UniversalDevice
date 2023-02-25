@@ -19,10 +19,6 @@ protected:
 
     virtual void ClearData() override;
 
-    PeriodSettings GetSettings();
-
-    std::vector<ExtendedRelayCurrentState> GetValues();
-
     virtual void OnSettingsButton() override;
 
     void OnStateButton();

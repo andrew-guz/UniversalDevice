@@ -6,6 +6,7 @@
 #include "EventsWidget.h"
 #include "ThermometerWidget.h"
 #include "RelayWidget.h"
+#include "MotionRelayWidget.h"
 
 using namespace Wt;
 
@@ -19,7 +20,8 @@ Application::Application(const Settings& settings, const WEnvironment& env) :
     _mainStack->addWidget(std::make_unique<DevicesWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<EventsWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<ThermometerWidget>(this, settings));
-    _mainStack->addWidget(std::make_unique<RelayWidget>(this, settings));    
+    _mainStack->addWidget(std::make_unique<RelayWidget>(this, settings));
+    _mainStack->addWidget(std::make_unique<MotionRelayWidget>(this, settings));
 
     _mainStack->setCurrentIndex(0);
 }
@@ -48,6 +50,10 @@ void Application::SetWidget(StackWidgetType type, const std::string& data)
     case StackWidgetType::Relay:
         _mainStack->setCurrentIndex(4);
         stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(4));
+        break;
+    case StackWidgetType::MotionRelay:
+        _mainStack->setCurrentIndex(5);
+        stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(5));
         break;
     default:
         LOG_ERROR << "Unknown widget type " << (int)type << "." << std::endl;

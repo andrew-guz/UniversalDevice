@@ -7,7 +7,8 @@ enum class StackWidgetType
     Devices,
     Events,
     Thermometer,
-    Relay
+    Relay,
+    MotionRelay
 };
 
 #endif //_ENUMS_H_

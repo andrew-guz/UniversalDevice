@@ -14,6 +14,8 @@ const std::string Constants::DeviceTypeThermometer = "thermometer";
 
 const std::string Constants::DeviceTypeRelay = "relay";
 
+const std::string Constants::DeviceTypeMotionRelay = "motion_relay";
+
 //subjects - depends on type
 const std::string Constants::SubjectUndefined = "undefined_subject";
 
@@ -24,6 +26,8 @@ const std::string Constants::SubjectGetDeviceInformation = "get_device_informati
 const std::string Constants::SubjectThermometerCurrentValue = "thermometer_current_value";
 
 const std::string Constants::SubjectRelayCurrentState = "relay_current_state";
+
+const std::string Constants::SubjectMotionRelayCurrentState = "motion_relay_current_state";
 
 //predefined ids
 const Uuid Constants::PredefinedIdTimer = Uuid("00000000-0000-0000-0000-000000000001");

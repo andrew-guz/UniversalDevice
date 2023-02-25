@@ -1,4 +1,4 @@
-#include "RelayWidget.h"
+#include "MotionRelayWidget.h"
 
 #include <Wt/WTimer.h>
 #include <Wt/WEvent.h>
@@ -14,15 +14,18 @@
 
 using namespace Wt;
 
-RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
+MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseDeviceWidget(stackHolder, settings)
 {
-    _stateText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 1, AlignmentFlag::Center);
+    _motionText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 1, AlignmentFlag::Center);
+    _motionText->setText(WidgetHelper::TextWithFontSize("Нет движения", 80));
+
+    _stateText = _mainLayout->addWidget(std::make_unique<WText>(), 4, 1, AlignmentFlag::Center);
     _stateText->setText(WidgetHelper::TextWithFontSize("Выключено", 80));
 
-    _stateButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 4, 1, AlignmentFlag::Center);
+    _stateButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 5, 1, AlignmentFlag::Center);
     _stateButton->setTextFormat(TextFormat::XHTML);
-    _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
+    _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));    
     _stateButton->setMinimumSize(200, 200);
     _stateButton->setMaximumSize(200, 200);
     _stateButton->clicked().connect([&]()
@@ -31,15 +34,18 @@ RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
     });
 }
 
-void RelayWidget::Initialize()
+void MotionRelayWidget::Initialize()
 {
-    auto stateValues = GetValues<ExtendedRelayCurrentState>(Constants::DeviceTypeRelay);
-    if (stateValues.size())
+    auto motionStateValues = GetValues<ExtendedMotionRelayCurrentState>(Constants::DeviceTypeMotionRelay);
+    if (motionStateValues.size())
     {
-        _deviceState = stateValues.begin()->_state;
+        auto& motionStateValue = motionStateValues[0];
+        _motionDetected = motionStateValue._motion;
+        _deviceState = motionStateValue._state;
+        _motionText->setText(WidgetHelper::TextWithFontSize(_motionDetected ? "Движение" : "Нет движения", 80));
         _stateText->setText(WidgetHelper::TextWithFontSize(_deviceState ? "Включено" : "Выключено", 80));
         _stateButton->setText(WidgetHelper::TextWithFontSize(_deviceState ? "Выключить" : "Включить", 32));
-        auto timestamp = stateValues.begin()->_timestamp;
+        auto timestamp = motionStateValue._timestamp;
         _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
     }
     else
@@ -47,19 +53,39 @@ void RelayWidget::Initialize()
     _stateButton->setEnabled(true);
 }
 
-void RelayWidget::ClearData()
+void MotionRelayWidget::ClearData()
 {
     _timeText->setText(WidgetHelper::TextWithFontSize("", 20));
+    _motionText->setText(WidgetHelper::TextWithFontSize("Нет движения", 80));
     _stateText->setText(WidgetHelper::TextWithFontSize("Выключено", 80));
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
 }
 
-void RelayWidget::OnSettingsButton()
+void MotionRelayWidget::OnSettingsButton()
 {
     if (_deviceId.isEmpty())
         return;
-    auto settings = GetSettings<PeriodSettings>();
+    auto settings = GetSettings<MotionRelaySettings>();
     auto [dialog, layout, nameEdit, periodEdit, ok] = WidgetHelper::CreateNamePeriodSettingsDialog(this, 150, _deviceName, settings._period, true);
+    //activityDelay
+    layout->addWidget(std::make_unique<WText>("Задержка (мин):"), 2, 0);
+    auto activityDelayEdit = layout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
+    activityDelayEdit->setMinimum(MIN_ACTIVITY_DELAY);
+    activityDelayEdit->setMaximum(MAX_ACTIVITY_DELAY);
+    activityDelayEdit->setValue(settings._activityTime / 60000);
+    //validation
+    auto okValidation = [&]()
+    {
+        ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid ||
+                        periodEdit->validate() != Wt::ValidationState::Valid ||
+                        activityDelayEdit->validate() != Wt::ValidationState::Valid);
+    };
+    nameEdit->keyWentUp().connect(okValidation);
+    periodEdit->valueChanged().connect(okValidation);
+    periodEdit->keyWentUp().connect(okValidation);
+    activityDelayEdit->valueChanged().connect(okValidation);
+    activityDelayEdit->keyWentUp().connect(okValidation);
+    okValidation();
     //execute
     if (dialog->exec() != DialogCode::Accepted)
         return;    
@@ -79,14 +105,15 @@ void RelayWidget::OnSettingsButton()
             LOG_ERROR << "Failed to update name to " << newName << "." << std::endl;
     }
     //update settings
-    PeriodSettings newSettings;
+    MotionRelaySettings newSettings;
     newSettings._period = periodEdit->value() * 1000;
+    newSettings._activityTime = activityDelayEdit->value() * 60000;
     auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
     if (result != 200)
         LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
 }
 
-void RelayWidget::OnStateButton()
+void MotionRelayWidget::OnStateButton()
 {
     auto newState = _deviceState ? 0 : 1;
     //update commands

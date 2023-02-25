@@ -15,6 +15,7 @@ public:
     static const std::string DeviceTypeTimer;
     static const std::string DeviceTypeThermometer;
     static const std::string DeviceTypeRelay;
+    static const std::string DeviceTypeMotionRelay;
 
     //subjects - depends on type
     static const std::string SubjectUndefined;
@@ -22,6 +23,7 @@ public:
     static const std::string SubjectGetDeviceInformation;
     static const std::string SubjectThermometerCurrentValue;
     static const std::string SubjectRelayCurrentState;
+    static const std::string SubjectMotionRelayCurrentState;
 
     //predefined ids for devices
     static const Uuid PredefinedIdTimer;
