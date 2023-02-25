@@ -61,13 +61,19 @@ void sendState()
     wifiHelper.PostRequestNoData(API_INFORM, message);
 }
 
-void setRelayState()
+int setRelayState()
 {
     if (stateFromCommand == 1 ||
         motion == true)
+    {
         relayHelper.On();
+        return HIGH;
+    }
     else
+    {
         relayHelper.Off();
+        return LOW;
+    }
 }
 
 void setup()
@@ -112,11 +118,9 @@ void loop()
     {
         std::tie(informDelay, activityDelay) = getDelaysFromSettings();
         stateFromCommand = getStateFromCommands();
-        if (stateFromCommand != relayHelper.State())
-        {
-            setRelayState();
+        auto currentState = relayHelper.State();
+        if (setRelayState() != currentState)
             sendState();
-        }        
         settingsCommandStartTime = currentTime;
     }
 
