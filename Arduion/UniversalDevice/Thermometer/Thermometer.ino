@@ -2,7 +2,9 @@
 #include "WiFiHelper.h"
 #include "MessageHelper.h"
 #include "TemperatureHelper.h"
+#ifdef USE_LED
 #include <TM1637TinyDisplay.h>
+#endif
 
 SingleTemperatureSensor temperatureSensor(D6);
 #ifdef USE_LED
@@ -11,7 +13,11 @@ TM1637TinyDisplay display(D4, D5);
 unsigned long settingsCommandStartTime;
 unsigned long temperatureStartTime;
 int measurementDelay = 5000;
+#ifdef USE_LED
 int ledBrightness = BRIGHT_7;
+#else 
+int ledBrightness = 0;
+#endif
 
 //20ms
 int getDelayFromSettings()
