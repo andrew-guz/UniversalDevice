@@ -39,8 +39,8 @@ void ThermometerWidget::Initialize()
         _temperatureText->setText(WidgetHelper::TextWithFontSize(value, "°C", 80));
         auto min = std::min_element(thermometerValues.begin(), thermometerValues.end(), [](const auto& a, const auto& b){ return a._value < b._value;})->_value;
         auto max = std::max_element(thermometerValues.begin(), thermometerValues.end(), [](const auto& a, const auto& b){ return a._value < b._value;})->_value;
-        _chart->axis(Chart::Axis::Y).setMinimum(2 * min - max);
-        _chart->axis(Chart::Axis::Y).setMaximum(2 * max - min);
+        _chart->axis(Chart::Axis::Y).setMinimum(min - 2);
+        _chart->axis(Chart::Axis::Y).setMaximum(max + 2);
         auto timestamp = thermometerValues.begin()->_timestamp;
         _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
         _model->UpdateData(thermometerValues);
