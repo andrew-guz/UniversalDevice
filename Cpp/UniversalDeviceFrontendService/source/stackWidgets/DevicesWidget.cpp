@@ -56,7 +56,7 @@ void DevicesWidget::Refresh()
     if (descriptions.empty())
         return;
     LOG_DEBUG << descriptions.size() << " descriptions found." << std::endl;
-    std::sort(descriptions.begin(), descriptions.end(), [](const auto& a, const auto& b){ return a._id < b._id; });
+    std::sort(descriptions.begin(), descriptions.end(), [](const auto& a, const auto& b){ return a._name.compare(b._name) < 0; });
     int row = 2;
     int column = 0;
     for (auto& description : descriptions)
