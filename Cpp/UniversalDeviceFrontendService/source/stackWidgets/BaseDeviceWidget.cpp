@@ -28,6 +28,7 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([&](){
         _stackHolder->SetWidget(StackWidgetType::Devices, "");
+        _deviceId = Uuid::Empty();
     });
 
     auto settingsButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Настройки"), 0, 1, AlignmentFlag::Center);
