@@ -61,10 +61,7 @@ void DevicesWidget::Refresh()
     int column = 0;
     for (auto& description : descriptions)
     {
-        auto button = _mainLayout->addWidget(std::make_unique<WPushButton>(), row, column, AlignmentFlag::Top | AlignmentFlag::Center);
-        button->setText(description._name.size() ? description._name : description._id.data());
-        button->setMinimumSize(200, 150);
-        button->setMaximumSize(200, 150);
+        auto button = _mainLayout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Center);
         button->clicked().connect([description, this](){
             if (description._type == Constants::DeviceTypeThermometer)
                 _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());

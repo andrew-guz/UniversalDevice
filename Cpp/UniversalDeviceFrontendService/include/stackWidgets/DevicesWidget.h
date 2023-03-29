@@ -7,6 +7,7 @@
 
 #include "BaseStackWidget.h"
 #include "Settings.h"
+#include "DeviceButton.h"
 
 class DevicesWidget final : public Wt::WContainerWidget, public BaseStackWidget
 {
@@ -23,8 +24,8 @@ private:
     void Refresh();
 
 private:
-    Wt::WGridLayout*                _mainLayout;
-    std::vector<Wt::WPushButton*>   _deviceButtons;
+    Wt::WGridLayout*            _mainLayout;
+    std::vector<DeviceButton*>  _deviceButtons;
 };
 
 #endif //_DEVICES_WIDGET_H_
