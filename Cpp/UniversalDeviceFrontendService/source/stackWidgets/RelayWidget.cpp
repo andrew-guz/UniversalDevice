@@ -33,7 +33,7 @@ RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
 
 void RelayWidget::Initialize()
 {
-    auto stateValues = GetValues<ExtendedRelayCurrentState>(Constants::DeviceTypeRelay);
+    auto stateValues = GetValues<ExtendedRelayCurrentState>(Constants::DeviceTypeRelay, true);
     if (stateValues.size())
     {
         _deviceState = stateValues.begin()->_state;

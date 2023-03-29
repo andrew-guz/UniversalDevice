@@ -39,7 +39,8 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             LOG_SQL_ERROR(queryStream.str());
         return {};
     }
-    else if (message._header._subject == Constants::SubjectGetDeviceInformation)
+    else if (message._header._subject == Constants::SubjectGetDeviceInformationSingle ||
+             message._header._subject == Constants::SubjectGetDeviceInformationMultiple)
     {
         auto description = JsonExtension::CreateFromJson<ComponentDescription>(message._data);
         if (description._type == Constants::DeviceTypeThermometer &&
@@ -49,7 +50,8 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             queryStream
                 << "SELECT timestamp, value FROM Thermometers WHERE id = '"
                 << description._id.data()
-                << "' ORDER BY idx DESC LIMIT 100";
+                << "' ORDER BY idx DESC LIMIT "
+                << (message._header._subject == Constants::SubjectGetDeviceInformationSingle ? "1" : "120");
             queryStream.flush();
             nlohmann::json result;
             std::vector<std::vector<std::string>> data;

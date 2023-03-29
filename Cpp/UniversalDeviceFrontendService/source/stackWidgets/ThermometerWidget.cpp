@@ -32,7 +32,7 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
 
 void ThermometerWidget::Initialize()
 {
-    auto thermometerValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer);
+    auto thermometerValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, false);
     if (thermometerValues.size())
     {
         auto value = thermometerValues.begin()->_value;
