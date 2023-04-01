@@ -10,6 +10,8 @@ class TimeHelper final
 public:
     static std::string TimeToString(const std::chrono::system_clock::time_point& time);
 
+    static std::string TimeToShortString(const std::chrono::system_clock::time_point& time);
+
     static std::chrono::system_clock::time_point TimeFromString(const std::string& string);
 
     static std::tuple<int, int> GetHourMinute(const std::chrono::system_clock::time_point& time);

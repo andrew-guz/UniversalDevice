@@ -84,7 +84,7 @@ void DeviceButton::Refresh()
         else
             LOG_ERROR << "Unknown device type" << std::endl;
         if (additionalData.size())
-            text += std::string("\n\n") + additionalData + std::string("\n") + TimeHelper::TimeToString(timestamp);
+            text += std::string("\n\n") + additionalData + std::string("\n\n") + TimeHelper::TimeToShortString(timestamp);
     }
     setText(text);
 }

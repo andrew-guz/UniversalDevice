@@ -14,6 +14,17 @@ std::string TimeHelper::TimeToString(const std::chrono::system_clock::time_point
 
 }
 
+std::string TimeHelper::TimeToShortString(const std::chrono::system_clock::time_point& time)
+{
+    auto time_t = std::chrono::system_clock::to_time_t(time);
+    auto tm = std::localtime(&time_t);
+    std::stringstream sstream;
+    sstream << std::put_time(tm, "%H:%M %d-%m");
+    sstream.flush();
+    return sstream.str();
+
+}
+
 std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::string& string)
 {
     std::tm tm = {};
