@@ -46,34 +46,45 @@ void DeviceButton::Refresh()
     if (!replyJson.is_null())
     {
         std::string additionalData;
+        std::chrono::system_clock::time_point timestamp;
         if (_deviceType == Constants::DeviceTypeThermometer)
         {
             auto values = JsonExtension::CreateVectorFromJson<ExtendedThermometerCurrentValue>(replyJson);
             if (values.size())
             {
+                const auto& value = values[0];
                 std::stringstream ss;
                 ss.precision(1);
-                ss << std::fixed << values[0]._value << "°C";
+                ss << std::fixed << value._value << "°C";
                 ss.flush();
                 additionalData = ss.str();
+                timestamp = value._timestamp;
             }
         }
         else if (_deviceType == Constants::DeviceTypeRelay)
         {
             auto values = JsonExtension::CreateVectorFromJson<ExtendedRelayCurrentState>(replyJson);
             if (values.size())
-                additionalData = values[0]._state == 1 ? "ON" : "OFF";
+            {
+                const auto& value = values[0];
+                additionalData = value._state == 1 ? "ON" : "OFF";
+                timestamp = value._timestamp;
+            }
         }
         else if (_deviceType == Constants::DeviceTypeMotionRelay)
         {
             auto values = JsonExtension::CreateVectorFromJson<ExtendedMotionRelayCurrentState>(replyJson);
             if (values.size())
-                additionalData = values[0]._motion == 1 ? "Движение" : "...";
+            {
+                const auto& value = values[0];
+                additionalData = value._motion == 1 ? "Движение" : "...";
+                timestamp = value._timestamp;
+            }
         }
         else
             LOG_ERROR << "Unknown device type" << std::endl;
         if (additionalData.size())
-            text += "\n\n" + additionalData;
+            text += std::string("\n\n") + additionalData + std::string("\n") + TimeHelper::TimeToString(timestamp);
     }
     setText(text);
 }
