@@ -8,6 +8,7 @@
 #include "CurrentTime.h"
 #include "ThermometerCurrentValue.h"
 #include "RelayCurrentState.h"
+#include "RelayState.h"
 
 EventsProcessor::EventsProcessor(IQueryExecutor* queryExecutor) :
     BaseProcessorWithQueryExecutor(queryExecutor)
@@ -37,6 +38,11 @@ nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::
         {
             auto relayEvent = JsonExtension::CreateFromJson<RelayEvent>(eventJson);
             ProcessRelayEvent(relayEvent, message);
+        }
+        else if (simpleEvent._type == Constants::EventTypeThermostat)
+        {
+            auto thermostatEvent = JsonExtension::CreateFromJson<ThermostatEvent>(eventJson);
+            ProcessThermostatEvent(thermostatEvent, message);
         }
     }
     return {};
@@ -112,6 +118,32 @@ void EventsProcessor::ProcessRelayEvent(const RelayEvent& relayEvent, const Mess
     }
     if (relayCurrentState._state == relayEvent._state)
         SendCommand(relayEvent._receiver._id, relayEvent._command.dump());
+}
+
+void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEvent, const Message& message)
+{
+    auto thermometerCurrentValue = JsonExtension::CreateFromJson<ThermometerCurrentValue>(message._data);
+    if (thermometerCurrentValue._value == std::numeric_limits<int>::min())
+    {
+        LOG_ERROR << "Invalid value in EventsProcessor::ProcessThermostatEvent." << std::endl;
+        return;
+    }
+    std::string command;
+    if (thermometerCurrentValue._value <= thermostatEvent._temperature - thermostatEvent._delta)
+    {
+        //on
+        RelayState relayState;
+        relayState._state = true;
+        command = relayState.ToJson().dump();
+    }
+    if (thermometerCurrentValue._value >= thermostatEvent._temperature + thermostatEvent._delta)
+    {
+        //off
+        RelayState relayState;
+        relayState._state = false;
+        command = relayState.ToJson().dump();
+    }
+    SendCommand(thermostatEvent._receiver._id, command);
 }
 
 void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString)

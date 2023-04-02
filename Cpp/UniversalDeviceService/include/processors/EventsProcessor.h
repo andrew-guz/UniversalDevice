@@ -8,6 +8,7 @@
 #include "TimerEvent.h"
 #include "ThermometerEvent.h"
 #include "RelayEvent.h"
+#include "ThermostatEvent.h"
 
 class EventsProcessor final : public BaseProcessorWithQueryExecutor
 {
@@ -26,6 +27,8 @@ private:
     void ProcessThermometerEvent(const ThermometerEvent& thermometerEvent, const Message& message);
 
     void ProcessRelayEvent(const RelayEvent& relayEvent, const Message& message);
+
+    void ProcessThermostatEvent(const ThermostatEvent& thermostatEvent, const Message& message);
 
     void SendCommand(const Uuid& id, const std::string& commandString);
 };

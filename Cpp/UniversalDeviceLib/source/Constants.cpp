@@ -42,3 +42,5 @@ const std::string Constants::EventTypeTimer = "timer_event";
 const std::string Constants::EventTypeThermometer = "thermometer_event";
 
 const std::string Constants::EventTypeRelay = "relay_event";
+
+const std::string Constants::EventTypeThermostat = "thermostat_event";

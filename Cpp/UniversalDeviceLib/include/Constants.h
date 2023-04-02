@@ -34,6 +34,7 @@ public:
     static const std::string EventTypeTimer;
     static const std::string EventTypeThermometer;
     static const std::string EventTypeRelay;
+    static const std::string EventTypeThermostat;
 };
 
 #endif //_CONSTANTS_H_
