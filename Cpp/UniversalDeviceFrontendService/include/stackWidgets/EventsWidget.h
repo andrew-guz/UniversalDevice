@@ -9,6 +9,7 @@
 #include <Wt/WLineEdit.h>
 #include <Wt/WComboBox.h>
 #include <Wt/WSpinBox.h>
+#include <Wt/WDoubleSpinBox.h>
 #include <Wt/WCheckBox.h>
 #include <nlohmann/json.hpp>
 
@@ -44,6 +45,8 @@ private:
 
     nlohmann::json GetRelayEventFromUi(const Uuid& id, int providerIndex, int receiverIndex);
 
+    nlohmann::json GetThermostatEventFromUi(const Uuid& id, int providerIndex, int receiverIndex);
+
     void FillUiWithEvent(const nlohmann::json& eventJson);
 
     void AddEvent();
@@ -75,9 +78,12 @@ private:
     Wt::WSpinBox*                               _providerHour;
     Wt::WText*                                  _providerMinuteText;
     Wt::WSpinBox*                               _providerMinute;
+    Wt::WCheckBox*                              _providerTemperatureThermostat;
     Wt::WText*                                  _providerTemperatureText;
     Wt::WSpinBox*                               _providerTemperature;
     Wt::WCheckBox*                              _providerTemperatureLower;
+    Wt::WText*                                  _providerTemperatureDeltaText;
+    Wt::WDoubleSpinBox*                         _providerTemperatureDelta;
     Wt::WCheckBox*                              _providerRelay;
     Wt::WComboBox*                              _receivers;
     Wt::WText*                                  _receiverBrightnessText;

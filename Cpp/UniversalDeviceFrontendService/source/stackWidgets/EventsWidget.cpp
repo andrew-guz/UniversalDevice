@@ -13,6 +13,7 @@
 #include "TimerEvent.h"
 #include "ThermometerEvent.h"
 #include "RelayEvent.h"
+#include "ThermostatEvent.h"
 #include "ThermometerLedBrightness.h"
 #include "RelayState.h"
 
@@ -125,7 +126,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
         UpdateEnableState();
     });
     _active = eventLayout->addWidget(std::make_unique<WCheckBox>("Активно"), 1, 0, 1, 2);
-    _active->checked().connect([&]() {
+    _active->changed().connect([&]() {
         UpdateEnableState();
     });
     eventLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
@@ -148,36 +149,63 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _providerMinute->keyWentUp().connect([&]() {
         UpdateEnableState();
     });
-    _providerTemperatureText = eventLayout->addWidget(std::make_unique<WText>("Температура:"), 6, 0);
-    _providerTemperature = eventLayout->addWidget(std::make_unique<WSpinBox>(), 6, 1);
+    _providerTemperatureThermostat = eventLayout->addWidget(std::make_unique<WCheckBox>("Режим термостата"), 6, 0, 1, 2);
+    _providerTemperatureThermostat->changed().connect([&]() {       
+        if (_providerTemperatureThermostat->isChecked())
+        {
+            _providerTemperatureLower->setChecked(false);
+            _providerTemperatureLower->hide();
+            _providerTemperatureDeltaText->show();
+            _providerTemperatureDelta->setValue(0.5f);
+            _providerTemperatureDelta->show();
+        }
+        else
+        {
+            _providerTemperatureLower->setChecked(false);
+            _providerTemperatureLower->show();
+            _providerTemperatureDeltaText->hide();
+            _providerTemperatureDelta->setValue(0.5f);
+            _providerTemperatureDelta->hide();
+        }
+        UpdateEnableState();
+    });
+    _providerTemperatureText = eventLayout->addWidget(std::make_unique<WText>("Температура:"), 7, 0);
+    _providerTemperature = eventLayout->addWidget(std::make_unique<WSpinBox>(), 7, 1);
     _providerTemperature->setMinimum(-40);
     _providerTemperature->setMaximum(40);
     _providerTemperature->keyWentUp().connect([&]() {
         UpdateEnableState();
     });
-    _providerTemperatureLower = eventLayout->addWidget(std::make_unique<WCheckBox>("Ниже заданной"), 7, 0, 1, 2);
-    _providerTemperatureLower->checked().connect([&]() {
+    _providerTemperatureLower = eventLayout->addWidget(std::make_unique<WCheckBox>("Ниже заданной"), 8, 0, 1, 2);
+    _providerTemperatureLower->changed().connect([&]() {
         UpdateEnableState();
     });
-    _providerRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включено"), 8, 0, 1, 2);
-    _providerRelay->checked().connect([&]() {
+    _providerTemperatureDeltaText = eventLayout->addWidget(std::make_unique<WText>("Дельта:"), 9, 0);
+    _providerTemperatureDelta = eventLayout->addWidget(std::make_unique<WDoubleSpinBox>(), 9, 1);
+    _providerTemperatureDelta->setMinimum(0.5f);
+    _providerTemperatureDelta->setMaximum(2.0f);
+    _providerTemperatureDelta->keyWentUp().connect([&]() {
         UpdateEnableState();
     });
-    eventLayout->addWidget(std::make_unique<WText>("Получатель события:"), 9, 0, 1, 2);
-    _receivers = eventLayout->addWidget(std::make_unique<WComboBox>(), 10, 0, 1, 2);
+    _providerRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включено"), 10, 0, 1, 2);
+    _providerRelay->changed().connect([&]() {
+        UpdateEnableState();
+    });
+    eventLayout->addWidget(std::make_unique<WText>("Получатель события:"), 11, 0, 1, 2);
+    _receivers = eventLayout->addWidget(std::make_unique<WComboBox>(), 12, 0, 1, 2);
     _receivers->activated().connect([&](int index) {
         OnReceiverIndexChanged(index);
         UpdateEnableState();
     });
-    _receiverBrightnessText = eventLayout->addWidget(std::make_unique<WText>("Яркость:"), 11, 0);
-    _receiverBrightness = eventLayout->addWidget(std::make_unique<WSpinBox>(), 11, 1);
+    _receiverBrightnessText = eventLayout->addWidget(std::make_unique<WText>("Яркость:"), 13, 0);
+    _receiverBrightness = eventLayout->addWidget(std::make_unique<WSpinBox>(), 13, 1);
     _receiverBrightness->setMinimum(MIN_BRIGHTNESS);
     _receiverBrightness->setMaximum(MAX_BRIGHTNESS);
     _receiverBrightness->keyWentUp().connect([&]() {
         UpdateEnableState();
     });
-    _receiverRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включить"), 12, 0, 1, 2);
-    _receiverRelay->checked().connect([&]() {
+    _receiverRelay = eventLayout->addWidget(std::make_unique<WCheckBox>("Включить"), 14, 0, 1, 2);
+    _receiverRelay->changed().connect([&]() {
         UpdateEnableState();
     });
 
@@ -199,8 +227,13 @@ void EventsWidget::Clear()
     _providers->clear();
     _providerHour->setValue(0);
     _providerMinute->setValue(0);
+    _providerTemperatureThermostat->setChecked(false);
     _providerTemperature->setValue(0);
+    _providerTemperatureLower->show();
     _providerTemperatureLower->setChecked(false);
+    _providerTemperatureDeltaText->hide();
+    _providerTemperatureDelta->setValue(0.5f);
+    _providerTemperatureDelta->hide();
     _providerRelay->setChecked(false);
     _receivers->clear();
     _receiverBrightness->setValue(0);
@@ -264,7 +297,7 @@ void EventsWidget::GetEventFromUi(Event& event, const Uuid& id, int providerInde
     {
         ThermometerLedBrightness thermometerLedBrightness;
         thermometerLedBrightness._brightness = _receiverBrightness->value();
-        event._command = thermometerLedBrightness.ToJson();
+        event._command = thermometerLedBrightness.ToJson();            
     }   
     if (receiverDevice._type == Constants::DeviceTypeRelay)
     {
@@ -303,6 +336,16 @@ nlohmann::json EventsWidget::GetRelayEventFromUi(const Uuid& id, int providerInd
     return relayEvent.ToJson();
 }
 
+nlohmann::json EventsWidget::GetThermostatEventFromUi(const Uuid& id, int providerIndex, int receiverIndex)
+{
+    ThermostatEvent thermostatEvent;
+    thermostatEvent._id = Uuid();
+    GetEventFromUi(thermostatEvent, id, providerIndex, receiverIndex);
+    thermostatEvent._temperature = _providerTemperature->value();
+    thermostatEvent._delta = _providerTemperatureDelta->value();
+    return thermostatEvent.ToJson();
+}
+
 void EventsWidget::FillUiWithEvent(const nlohmann::json& eventJson)
 {
     auto event = JsonExtension::CreateFromJson<Event>(eventJson);
@@ -324,9 +367,20 @@ void EventsWidget::FillUiWithEvent(const nlohmann::json& eventJson)
         auto providerDevice = *providerDeviceIter;
         if (providerDevice._type == Constants::DeviceTypeThermometer)
         {
-            auto thermometerEvent = JsonExtension::CreateFromJson<ThermometerEvent>(eventJson);
-            _providerTemperature->setValue(thermometerEvent._temperature);
-            _providerTemperatureLower->setChecked(thermometerEvent._lower);
+            if (event._type == Constants::EventTypeThermometer)
+            {
+                auto thermometerEvent = JsonExtension::CreateFromJson<ThermometerEvent>(eventJson);
+                _providerTemperatureThermostat->setChecked(false);
+                _providerTemperature->setValue(thermometerEvent._temperature);
+                _providerTemperatureLower->setChecked(thermometerEvent._lower);
+            }
+            else if (event._type == Constants::EventTypeThermostat)
+            {
+                auto thermostatEvent = JsonExtension::CreateFromJson<ThermostatEvent>(eventJson);
+                _providerTemperatureThermostat->setChecked(true);
+                _providerTemperature->setValue(thermostatEvent._temperature);
+                _providerTemperatureDelta->setValue(thermostatEvent._delta);
+            }
         }
         if (providerDevice._type == Constants::DeviceTypeRelay)
         {
@@ -449,25 +503,25 @@ void EventsWidget::OnProviderIndexChanged(int index)
     else if (index == 0) //timer
     {
         Show(_providerHourText, _providerHour, _providerMinuteText, _providerMinute);
-        Hide(_providerTemperatureText, _providerTemperature, _providerTemperatureLower, _providerRelay);
+        Hide(_providerTemperatureThermostat, _providerTemperatureText, _providerTemperature, _providerTemperatureDeltaText, _providerTemperatureDelta, _providerTemperatureLower, _providerRelay);
     }
     else
     {
         if (_devices.empty() ||
             (size_t)(index - 1) >= _devices.size())
-            Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureText, _providerTemperature, _providerTemperatureLower, _providerRelay);
+            Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureThermostat, _providerTemperatureText, _providerTemperature, _providerTemperatureDeltaText, _providerTemperatureDelta, _providerTemperatureLower, _providerRelay);
         else
         {
             auto device = _devices[index - 1];
             if (device._type == Constants::DeviceTypeThermometer)
             {
-                Show(_providerTemperatureText, _providerTemperature, _providerTemperatureLower);
+                Show(_providerTemperatureThermostat, _providerTemperatureText, _providerTemperature,  _providerTemperatureDeltaText, _providerTemperatureDelta, _providerTemperatureLower);
                 Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerRelay);
             }
             else if (device._type == Constants::DeviceTypeRelay)
             {
                 Show(_providerRelay);
-                Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureText, _providerTemperature, _providerTemperatureLower);
+                Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureThermostat, _providerTemperatureText, _providerTemperature, _providerTemperatureDeltaText, _providerTemperatureDelta, _providerTemperatureLower);
             }    
         }
     }
@@ -504,9 +558,10 @@ void EventsWidget::UpdateEnableState()
         (size_t)_providers->currentIndex() < _devices.size() + 1 &&
         ((_providerHour->isVisible() && _providerHour->validate() == ValidationState::Valid) || _providerHour->isHidden()) &&
         ((_providerMinute->isVisible() && _providerMinute->validate() == ValidationState::Valid) || _providerMinute->isHidden()) &&
-        ((_providerTemperature->isVisible() && _providerTemperature->validate() == ValidationState::Valid) || _providerTemperature->isHidden()) &&
+        ((_providerTemperature->isVisible() && _providerTemperature->validate() == ValidationState::Valid && (_providerTemperatureThermostat->isChecked() ? _providerTemperatureDelta->validate() == ValidationState::Valid : true)) || _providerTemperature->isHidden()) &&        
         _receivers->currentIndex() >= 0 &&
         (size_t)_receivers->currentIndex() < _devices.size() &&
+        (_providerTemperatureThermostat->isChecked() ? _providers->currentIndex() > 0 &&_devices[_providers->currentIndex() - 1]._type == Constants::DeviceTypeThermometer && _receivers->currentIndex() >= 0 && _devices[_receivers->currentIndex()]._type == Constants::DeviceTypeRelay : true) &&
         ((_receiverBrightness->isVisible() && _receiverBrightness->validate() == ValidationState::Valid) || _receiverBrightness->isHidden());
     _addButton->setEnabled(addUpdate);
     _updateButton->setEnabled(addUpdate);
