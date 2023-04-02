@@ -143,7 +143,8 @@ void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEv
         relayState._state = false;
         command = relayState.ToJson().dump();
     }
-    SendCommand(thermostatEvent._receiver._id, command);
+    if (command.size())
+        SendCommand(thermostatEvent._receiver._id, command);
 }
 
 void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString)
