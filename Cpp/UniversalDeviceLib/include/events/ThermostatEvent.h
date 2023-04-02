@@ -8,7 +8,7 @@
 struct ThermostatEvent : public Event, public IJson<ThermostatEvent>
 {
     float   _temperature = std::numeric_limits<float>::min();
-    float   _delta = std::numeric_limits<float>::min();
+    float   _delta = 0.5f;
     
     ThermostatEvent() :
         Event(Constants::EventTypeThermostat)
@@ -28,7 +28,7 @@ struct ThermostatEvent : public Event, public IJson<ThermostatEvent>
     {
         Event::FromJson(json);
         _temperature = json.value("temperature", std::numeric_limits<float>::min());
-        _delta = json.value("delta", std::numeric_limits<float>::min());
+        _delta = json.value("delta", 0.5f);
     }
 };
 
