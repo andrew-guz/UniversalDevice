@@ -158,6 +158,8 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
             _providerTemperatureDeltaText->show();
             _providerTemperatureDelta->setValue(0.5f);
             _providerTemperatureDelta->show();
+            _receiverRelay->setChecked(false);
+            _receiverRelay->hide();
         }
         else
         {
@@ -166,6 +168,8 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
             _providerTemperatureDeltaText->hide();
             _providerTemperatureDelta->setValue(0.5f);
             _providerTemperatureDelta->hide();
+            _receiverRelay->setChecked(false);
+            _receiverRelay->show();
         }
         UpdateEnableState();
     });
@@ -238,6 +242,7 @@ void EventsWidget::Clear()
     _receivers->clear();
     _receiverBrightness->setValue(0);
     _receiverRelay->setChecked(false);
+    _receiverRelay->show();
 }
 
 void EventsWidget::Refresh()
@@ -499,29 +504,33 @@ void EventsWidget::OnSelectionChanged()
 void EventsWidget::OnProviderIndexChanged(int index)
 {
     if (index == -1) //nothing
-        Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureText, _providerTemperature, _providerTemperatureLower, _providerRelay);
+        Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureText, _providerTemperature, _providerTemperatureLower, _providerTemperatureDeltaText, _providerTemperatureDelta, _providerRelay);
     else if (index == 0) //timer
     {
         Show(_providerHourText, _providerHour, _providerMinuteText, _providerMinute);
-        Hide(_providerTemperatureThermostat, _providerTemperatureText, _providerTemperature, _providerTemperatureDeltaText, _providerTemperatureDelta, _providerTemperatureLower, _providerRelay);
+        Hide(_providerTemperatureThermostat, _providerTemperatureText, _providerTemperature, _providerTemperatureLower, _providerTemperatureDeltaText, _providerTemperatureDelta, _providerRelay);
     }
     else
     {
         if (_devices.empty() ||
             (size_t)(index - 1) >= _devices.size())
-            Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureThermostat, _providerTemperatureText, _providerTemperature, _providerTemperatureDeltaText, _providerTemperatureDelta, _providerTemperatureLower, _providerRelay);
+            Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureText, _providerTemperature,_providerTemperatureThermostat, _providerTemperatureLower, _providerTemperatureDeltaText, _providerTemperatureDelta, _providerRelay);
         else
         {
             auto device = _devices[index - 1];
             if (device._type == Constants::DeviceTypeThermometer)
             {
-                Show(_providerTemperatureThermostat, _providerTemperatureText, _providerTemperature,  _providerTemperatureDeltaText, _providerTemperatureDelta, _providerTemperatureLower);
+                Show(_providerTemperatureText, _providerTemperature, _providerTemperatureThermostat);
+                if (_providerTemperatureThermostat->isChecked())
+                    Show(_providerTemperatureDeltaText, _providerTemperatureDelta);
+                else
+                    Show(_providerTemperatureLower);
                 Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerRelay);
             }
             else if (device._type == Constants::DeviceTypeRelay)
             {
                 Show(_providerRelay);
-                Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureThermostat, _providerTemperatureText, _providerTemperature, _providerTemperatureDeltaText, _providerTemperatureDelta, _providerTemperatureLower);
+                Hide(_providerHourText, _providerHour, _providerMinuteText, _providerMinute, _providerTemperatureText, _providerTemperature, _providerTemperatureThermostat, _providerTemperatureLower, _providerTemperatureDeltaText, _providerTemperatureDelta);
             }    
         }
     }
@@ -544,7 +553,11 @@ void EventsWidget::OnReceiverIndexChanged(int index)
         }
         else if (device._type == Constants::DeviceTypeRelay)
         {
-            Show(_receiverRelay);
+            if (_providerTemperatureThermostat->isVisible() &&
+                _providerTemperatureThermostat->isChecked())
+                Hide(_receiverRelay);
+            else
+                Show(_receiverRelay);
             Hide(_receiverBrightnessText, _receiverBrightness);
         }    
     }
