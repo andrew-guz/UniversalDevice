@@ -12,7 +12,7 @@ DeviceComboBox::DeviceComboBox(const std::vector<ComponentDescription>& devices)
 
 }
 
-bool DeviceComboBox::IsDeviceSelected() const
+bool DeviceComboBox::IsValid() const
 {
     size_t index = currentIndex();
     return index >= 0 &&
@@ -21,7 +21,7 @@ bool DeviceComboBox::IsDeviceSelected() const
 
 ComponentDescription DeviceComboBox::GetSelectedDevice() const
 {
-    if (!IsDeviceSelected())
+    if (!IsValid())
         return {};
     return _devices[currentIndex()];
 }

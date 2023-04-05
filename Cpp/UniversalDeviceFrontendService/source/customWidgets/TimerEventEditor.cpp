@@ -16,7 +16,7 @@ TimerEventEditor::TimerEventEditor(const std::vector<ComponentDescription>& devi
     _minute = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 3, 1);
     _minute->setMinimum(0);
     _minute->setMaximum(59);
-    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(devices), 4, 1, 1, 2);
+    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(devices), 4, 0, 1, 2);
 }
 
 void TimerEventEditor::Cleanup()
@@ -46,9 +46,8 @@ bool TimerEventEditor::IsValid() const
 
 void TimerEventEditor::FillFromUi(Event& event) const
 {
-    TimerEvent& timerEvent = dynamic_cast<TimerEvent&>(event);
-    //TODO - id?
     BaseEventEditor::FillFromUi(event);
+    TimerEvent& timerEvent = dynamic_cast<TimerEvent&>(event);    
     timerEvent._provider._id = Constants::PredefinedIdTimer;
     timerEvent._provider._type = Constants::EventTypeTimer;
     timerEvent._hour = _hour->value();

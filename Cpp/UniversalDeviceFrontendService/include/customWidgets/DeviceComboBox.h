@@ -12,7 +12,7 @@ public:
 
     virtual ~DeviceComboBox() = default;
 
-    bool IsDeviceSelected() const;
+    bool IsValid() const;
 
     ComponentDescription GetSelectedDevice() const;
 

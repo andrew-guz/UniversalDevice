@@ -40,3 +40,16 @@ void BaseEventEditor::FillFromUi(Event& event) const
     event._name = _name->text().toUTF8();
     event._active = _active->isChecked();
 }
+
+std::vector<ComponentDescription> BaseEventEditor::FilteredDevices(const std::string& type)
+{
+    return FilteredDevices({ type });
+}
+
+std::vector<ComponentDescription> BaseEventEditor::FilteredDevices(const std::set<std::string>& types)
+{
+    auto devices = _devices;
+    auto newEnd = std::remove_if(devices.begin(), devices.end(), [&](const auto& d){ return types.count(d._type) == 0; });
+    devices.erase(newEnd, devices.end());
+    return devices;
+}

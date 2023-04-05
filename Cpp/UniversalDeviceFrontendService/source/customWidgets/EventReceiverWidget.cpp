@@ -17,7 +17,7 @@ EventReceiverWidget::EventReceiverWidget(const std::vector<ComponentDescription>
     _receivers = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(devices), 1, 0, 1, 2);
     _receivers->changed().connect([&]()
     {
-        if (!_receivers->IsDeviceSelected())
+        if (!_receivers->IsValid())
             EventWidgetHelper::Hide(_brightnessText, _brightness, _relayState);
         else
         {
@@ -66,7 +66,7 @@ void EventReceiverWidget::FillUi(const Event& event)
 
 bool EventReceiverWidget::IsValid() const
 {
-    return _receivers->IsDeviceSelected();
+    return _receivers->IsValid();
 }
 
 void EventReceiverWidget::FillFromUi(Event& event) const

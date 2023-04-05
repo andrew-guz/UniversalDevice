@@ -31,6 +31,11 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 protected:
+    std::vector<ComponentDescription> FilteredDevices(const std::string& type);
+
+    std::vector<ComponentDescription> FilteredDevices(const std::set<std::string>& types);
+
+protected:
     std::vector<ComponentDescription>   _devices;
     Wt::WGridLayout*                    _mainLayout;
     Wt::WLineEdit*                      _name;
