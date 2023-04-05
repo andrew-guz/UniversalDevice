@@ -14,6 +14,11 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
     std::string                             _name;
     std::chrono::system_clock::time_point   _timestamp;
 
+    std::string GetDisplayString() const
+    {
+        return _name.size() ? _name : _id.data();
+    }
+
     virtual nlohmann::json ToJson() const override
     {
         auto componentDescription = ComponentDescription::ToJson();

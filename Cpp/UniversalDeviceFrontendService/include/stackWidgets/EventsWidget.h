@@ -35,7 +35,7 @@ private:
 
     std::vector<nlohmann::json> GetEvents();
 
-    std::vector<ExtendedComponentDescription> GetDevices();    
+    std::vector<ExtendedComponentDescription> GetDevices();
     
     void GetEventFromUi(Event& event, const Uuid& id, int providerIndex, int receiverIndex);
 

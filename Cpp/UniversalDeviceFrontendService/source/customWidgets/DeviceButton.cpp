@@ -14,7 +14,7 @@ DeviceButton::DeviceButton(int port, const ExtendedComponentDescription& descrip
     _port(port),
     _deviceType(description._type),
     _deviceId(description._id),
-    _text(description._name.size() ? description._name : description._id.data())
+    _text(description.GetDisplayString())
 {
     setText(_text);
     setMinimumSize(200, 150);
