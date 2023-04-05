@@ -15,7 +15,7 @@
 class BaseEventEditor : Wt::WContainerWidget, public IEventEditorWidget
 {
 public:
-    BaseEventEditor(int servicePort);
+    BaseEventEditor(const std::vector<ComponentDescription>& devices);
 
     virtual ~BaseEventEditor() = default;
 
@@ -31,13 +31,10 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 protected:
-    std::vector<ComponentDescription> GetDevices() const;
-
-protected:
-    const int           _servicePort;
-    Wt::WGridLayout*    _mainLayout;
-    Wt::WLineEdit*      _name;
-    Wt::WCheckBox*      _active;
+    std::vector<ComponentDescription>   _devices;
+    Wt::WGridLayout*                    _mainLayout;
+    Wt::WLineEdit*                      _name;
+    Wt::WCheckBox*                      _active;
 };
 
 #endif //_BASE_EVENT_EDITOR_H_

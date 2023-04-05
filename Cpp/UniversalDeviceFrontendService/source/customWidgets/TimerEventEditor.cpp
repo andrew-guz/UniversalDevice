@@ -5,8 +5,8 @@
 
 using namespace Wt;
 
-TimerEventEditor::TimerEventEditor(int servicePort) :
-    BaseEventEditor(servicePort)
+TimerEventEditor::TimerEventEditor(const std::vector<ComponentDescription>& devices) :
+    BaseEventEditor(devices)
 {
     _mainLayout->addWidget(std::make_unique<WText>("Час:"), 2, 0);
     _hour = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
@@ -16,6 +16,7 @@ TimerEventEditor::TimerEventEditor(int servicePort) :
     _minute = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 3, 1);
     _minute->setMinimum(0);
     _minute->setMaximum(59);
+    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(devices), 4, 1, 1, 2);
 }
 
 void TimerEventEditor::Cleanup()
@@ -23,6 +24,7 @@ void TimerEventEditor::Cleanup()
     BaseEventEditor::Cleanup();
     _hour->setValue(0);
     _minute->setValue(0);
+    _receiver->Cleanup();
 }
 
 void TimerEventEditor::FillUi(const Event& event)
@@ -31,13 +33,15 @@ void TimerEventEditor::FillUi(const Event& event)
     const TimerEvent& timerEvent = dynamic_cast<const TimerEvent&>(event);
     _hour->setValue(timerEvent._hour);
     _minute->setValue(timerEvent._minute);
+    _receiver->FillUi(event);
 }
 
 bool TimerEventEditor::IsValid() const
 {
     return BaseEventEditor::IsValid() &&
-        (_hour->validate() == ValidationState::Valid) &&
-        (_minute->validate() == ValidationState::Valid);
+        _hour->validate() == ValidationState::Valid &&
+        _minute->validate() == ValidationState::Valid &&
+        _receiver->IsValid();
 }
 
 void TimerEventEditor::FillFromUi(Event& event) const
@@ -49,5 +53,5 @@ void TimerEventEditor::FillFromUi(Event& event) const
     timerEvent._provider._type = Constants::EventTypeTimer;
     timerEvent._hour = _hour->value();
     timerEvent._minute = _minute->value();
-    //TODO receiver?    
+    _receiver->FillFromUi(event);
 }

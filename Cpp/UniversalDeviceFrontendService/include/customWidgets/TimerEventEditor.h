@@ -4,11 +4,12 @@
 #include <Wt/WSpinBox.h>
 
 #include "BaseEventEditor.h"
+#include "EventReceiverWidget.h"
 
 class TimerEventEditor : public BaseEventEditor
 {
 public:
-    TimerEventEditor(int servicePort);
+    TimerEventEditor(const std::vector<ComponentDescription>& devices);
 
     virtual ~TimerEventEditor() = default;
 
@@ -21,8 +22,9 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 private:
-    Wt::WSpinBox* _hour;
-    Wt::WSpinBox* _minute;
+    Wt::WSpinBox*           _hour;
+    Wt::WSpinBox*           _minute;
+    EventReceiverWidget*    _receiver;
 };
 
 #endif //_TIMER_EVENT_EDITOR_H_
