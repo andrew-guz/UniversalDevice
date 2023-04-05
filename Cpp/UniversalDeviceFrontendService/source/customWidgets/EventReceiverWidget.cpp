@@ -2,6 +2,8 @@
 
 #include "Defines.h"
 #include "EventWidgetHelper.h"
+#include "ThermometerLedBrightness.h"
+#include "RelayState.h"
 
 using namespace Wt;
 
@@ -49,7 +51,17 @@ void EventReceiverWidget::Cleanup()
 void EventReceiverWidget::FillUi(const Event& event)
 {
     _receivers->SetSelectedDevice(event._receiver._id);
-    //parse command to gent what is going on
+    if (event._receiver._type == Constants::DeviceTypeThermometer)
+    {
+        auto thermometerLedBrightness = JsonExtension::CreateFromJson<ThermometerLedBrightness>(event._command);
+        _brightness->setValue(thermometerLedBrightness._brightness);
+    }
+    else if (event._receiver._type == Constants::DeviceTypeRelay ||
+        event._receiver._type == Constants::DeviceTypeMotionRelay)
+    {
+        auto relayState = JsonExtension::CreateFromJson<RelayState>(event._command);
+        _relayState->setChecked(relayState._state);
+    }
 }
 
 bool EventReceiverWidget::IsValid() const
@@ -60,5 +72,17 @@ bool EventReceiverWidget::IsValid() const
 void EventReceiverWidget::FillFromUi(Event& event) const
 {
     event._receiver = _receivers->GetSelectedDevice();
-    //create command
+    if (event._receiver._type == Constants::DeviceTypeThermometer)
+    {
+        ThermometerLedBrightness thermometerLedBrightness;
+        thermometerLedBrightness._brightness = _brightness->value();
+        event._command = thermometerLedBrightness.ToJson();
+    }
+    else if (event._receiver._type == Constants::DeviceTypeRelay ||
+        event._receiver._type == Constants::DeviceTypeMotionRelay)
+    {
+        RelayState relayState;
+        relayState._state = _relayState->isChecked();
+        event._command = relayState.ToJson();
+    }
 }
