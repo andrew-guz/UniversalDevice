@@ -5,17 +5,24 @@
 
 using namespace Wt;
 
-ThermometerEventEditor::ThermometerEventEditor(const std::vector<ComponentDescription>& devices) :
-    BaseEventEditor(devices)
+ThermometerEventEditor::ThermometerEventEditor() :
+    BaseEventEditor()
 {
     _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
-    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(FilteredDevices(Constants::DeviceTypeThermometer)), 3, 0, 1, 2);
+    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
     _mainLayout->addWidget(std::make_unique<WText>("Температура:"), 4, 0);
     _temperature = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 4, 1);
     _temperature->setMinimum(-40);
     _temperature->setMaximum(40);
     _lower = _mainLayout->addWidget(std::make_unique<WCheckBox>("Ниже заданной"), 5, 0, 1, 2);
-    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(devices), 6, 0, 1, 2);
+    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 6, 0, 1, 2);
+}
+
+void ThermometerEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices)
+{
+    BaseEventEditor::SetDevices(devices);
+    _provider->SetDevices(FilteredDevices(Constants::DeviceTypeThermometer));
+    _receiver->SetDevices(devices);
 }
 
 void ThermometerEventEditor::Cleanup()

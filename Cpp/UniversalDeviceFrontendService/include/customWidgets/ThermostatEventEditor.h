@@ -8,12 +8,14 @@
 #include "DeviceComboBox.h"
 #include "EventReceiverWidget.h"
 
-class ThermostatEventEditor : public BaseEventEditor
+class ThermostatEventEditor final : public BaseEventEditor
 {
 public:
-    ThermostatEventEditor(const std::vector<ComponentDescription>& devices);
+    ThermostatEventEditor();
 
     virtual ~ThermostatEventEditor() = default;
+
+    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
 
     virtual void Cleanup() override;
 

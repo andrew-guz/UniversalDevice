@@ -5,11 +5,11 @@
 
 using namespace Wt;
 
-ThermostatEventEditor::ThermostatEventEditor(const std::vector<ComponentDescription>& devices) :
-    BaseEventEditor(devices)
+ThermostatEventEditor::ThermostatEventEditor() :
+    BaseEventEditor()
 {
     _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
-    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(FilteredDevices(Constants::DeviceTypeThermometer)), 3, 0, 1, 2);
+    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
     _mainLayout->addWidget(std::make_unique<WText>("Температура:"), 4, 0);
     _temperature = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 4, 1);
     _temperature->setMinimum(-40);
@@ -18,7 +18,14 @@ ThermostatEventEditor::ThermostatEventEditor(const std::vector<ComponentDescript
     _delta = _mainLayout->addWidget(std::make_unique<WDoubleSpinBox>(), 5, 1);
     _delta->setMinimum(0.0f);
     _delta->setMaximum(5.0f);
-    _receiver = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(FilteredDevices(Constants::DeviceTypeRelay)), 6, 0, 1, 2);
+    _receiver = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 6, 0, 1, 2);
+}
+
+void ThermostatEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices)
+{
+    BaseEventEditor::SetDevices(devices);
+    _provider->SetDevices(FilteredDevices(Constants::DeviceTypeThermometer));
+    _receiver->SetDevices(FilteredDevices(Constants::DeviceTypeRelay));
 }
 
 void ThermostatEventEditor::Cleanup()

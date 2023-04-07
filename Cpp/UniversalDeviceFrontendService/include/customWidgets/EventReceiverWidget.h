@@ -10,12 +10,14 @@
 #include "IEventEditorWidget.h"
 #include "DeviceComboBox.h"
 
-class EventReceiverWidget : public Wt::WContainerWidget, public IEventEditorWidget
+class EventReceiverWidget final : public Wt::WContainerWidget, public IEventEditorWidget
 {
 public:
-    EventReceiverWidget(const std::vector<ComponentDescription>& devices);
+    EventReceiverWidget();
 
     virtual ~EventReceiverWidget() = default;
+
+    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
 
     virtual void Cleanup() override;
 

@@ -5,8 +5,8 @@
 
 using namespace Wt;
 
-TimerEventEditor::TimerEventEditor(const std::vector<ComponentDescription>& devices) :
-    BaseEventEditor(devices)
+TimerEventEditor::TimerEventEditor() :
+    BaseEventEditor()
 {
     _mainLayout->addWidget(std::make_unique<WText>("Час:"), 2, 0);
     _hour = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
@@ -16,7 +16,13 @@ TimerEventEditor::TimerEventEditor(const std::vector<ComponentDescription>& devi
     _minute = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 3, 1);
     _minute->setMinimum(0);
     _minute->setMaximum(59);
-    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(devices), 4, 0, 1, 2);
+    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 4, 0, 1, 2);
+}
+
+void TimerEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices)
+{
+    BaseEventEditor::SetDevices(devices);
+    _receiver->SetDevices(devices);
 }
 
 void TimerEventEditor::Cleanup()

@@ -9,7 +9,7 @@
 #include "Uuid.h"
 #include "ExtendedComponentDescription.h"
 
-class DeviceButton : public Wt::WPushButton
+class DeviceButton final : public Wt::WPushButton
 {
 public:
     DeviceButton(int port, const ExtendedComponentDescription& description);

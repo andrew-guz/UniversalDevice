@@ -6,16 +6,21 @@
 
 using namespace Wt;
 
-BaseEventEditor::BaseEventEditor(const std::vector<ComponentDescription>& devices) :
+BaseEventEditor::BaseEventEditor() :
     WContainerWidget(),
-    IEventEditorWidget(),
-    _devices(devices)
+    IEventEditorWidget()
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
+    _mainLayout->setContentsMargins(0, 0, 0, 0);
 
     _mainLayout->addWidget(std::make_unique<WText>("Имя:"), 0, 0);
     _name = _mainLayout->addWidget(std::make_unique<WLineEdit>(), 0, 1);
     _active = _mainLayout->addWidget(std::make_unique<WCheckBox>("Активно"), 1, 0, 1, 2);
+}
+
+void BaseEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices)
+{
+    _devices = devices;
 }
 
 void BaseEventEditor::Cleanup()
@@ -41,12 +46,12 @@ void BaseEventEditor::FillFromUi(Event& event) const
     event._active = _active->isChecked();
 }
 
-std::vector<ComponentDescription> BaseEventEditor::FilteredDevices(const std::string& type)
+std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::string& type)
 {
     return FilteredDevices({ type });
 }
 
-std::vector<ComponentDescription> BaseEventEditor::FilteredDevices(const std::set<std::string>& types)
+std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::set<std::string>& types)
 {
     auto devices = _devices;
     auto newEnd = std::remove_if(devices.begin(), devices.end(), [&](const auto& d){ return types.count(d._type) == 0; });

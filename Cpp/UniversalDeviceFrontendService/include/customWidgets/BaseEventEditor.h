@@ -12,12 +12,14 @@
 #include "Event.h"
 #include "DeviceComboBox.h"
 
-class BaseEventEditor : Wt::WContainerWidget, public IEventEditorWidget
+class BaseEventEditor : public Wt::WContainerWidget, public IEventEditorWidget
 {
 public:
-    BaseEventEditor(const std::vector<ComponentDescription>& devices);
+    BaseEventEditor();
 
     virtual ~BaseEventEditor() = default;
+
+    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
 
     virtual void Cleanup() override;
 
@@ -31,15 +33,15 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 protected:
-    std::vector<ComponentDescription> FilteredDevices(const std::string& type);
+    std::vector<ExtendedComponentDescription> FilteredDevices(const std::string& type);
 
-    std::vector<ComponentDescription> FilteredDevices(const std::set<std::string>& types);
+    std::vector<ExtendedComponentDescription> FilteredDevices(const std::set<std::string>& types);
 
 protected:
-    std::vector<ComponentDescription>   _devices;
-    Wt::WGridLayout*                    _mainLayout;
-    Wt::WLineEdit*                      _name;
-    Wt::WCheckBox*                      _active;
+    std::vector<ExtendedComponentDescription>   _devices;
+    Wt::WGridLayout*                            _mainLayout;
+    Wt::WLineEdit*                              _name;
+    Wt::WCheckBox*                              _active;
 };
 
 #endif //_BASE_EVENT_EDITOR_H_

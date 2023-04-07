@@ -5,11 +5,18 @@
 
 using namespace std;
 
-DeviceComboBox::DeviceComboBox(const std::vector<ComponentDescription>& devices) :
-    WComboBox(),
-    _devices(devices)
+DeviceComboBox::DeviceComboBox() :
+    WComboBox()
 {
 
+}
+
+void DeviceComboBox::SetDevices(const std::vector<ExtendedComponentDescription>& devices)
+{
+    clear();
+    _devices = devices;
+    for (auto& device : _devices)
+        addItem(device.GetDisplayString());
 }
 
 bool DeviceComboBox::IsValid() const

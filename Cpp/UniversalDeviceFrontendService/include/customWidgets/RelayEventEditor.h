@@ -7,12 +7,14 @@
 #include "DeviceComboBox.h"
 #include "EventReceiverWidget.h"
 
-class RelayEventEditor : public BaseEventEditor
+class RelayEventEditor final : public BaseEventEditor
 {
 public:
-    RelayEventEditor(const std::vector<ComponentDescription>& devices);
+    RelayEventEditor();
 
     virtual ~RelayEventEditor() = default;
+
+    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
 
     virtual void Cleanup() override;
 

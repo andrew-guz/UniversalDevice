@@ -6,12 +6,14 @@
 #include "BaseEventEditor.h"
 #include "EventReceiverWidget.h"
 
-class TimerEventEditor : public BaseEventEditor
+class TimerEventEditor final : public BaseEventEditor
 {
 public:
-    TimerEventEditor(const std::vector<ComponentDescription>& devices);
+    TimerEventEditor();
 
     virtual ~TimerEventEditor() = default;
+
+    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
 
     virtual void Cleanup() override;
 

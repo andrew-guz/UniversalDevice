@@ -7,14 +7,15 @@
 
 using namespace Wt;
 
-EventReceiverWidget::EventReceiverWidget(const std::vector<ComponentDescription>& devices) :
+EventReceiverWidget::EventReceiverWidget() :
     WContainerWidget(),
     IEventEditorWidget()    
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
+    _mainLayout->setContentsMargins(0, 0, 0, 0);
     
     _mainLayout->addWidget(std::make_unique<WText>("Получатель события:"), 0, 0, 1, 2);
-    _receivers = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(devices), 1, 0, 1, 2);
+    _receivers = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 1, 0, 1, 2);
     _receivers->changed().connect([&]()
     {
         if (!_receivers->IsValid())
@@ -39,6 +40,11 @@ EventReceiverWidget::EventReceiverWidget(const std::vector<ComponentDescription>
     _brightness->setMinimum(MIN_BRIGHTNESS);
     _brightness->setMaximum(MAX_BRIGHTNESS);
     _relayState = _mainLayout->addWidget(std::make_unique<WCheckBox>("Включить"), 3, 0, 1, 2);
+}
+
+void EventReceiverWidget::SetDevices(const std::vector<ExtendedComponentDescription>& devices)
+{
+    _receivers->SetDevices(devices);
 }
 
 void EventReceiverWidget::Cleanup()

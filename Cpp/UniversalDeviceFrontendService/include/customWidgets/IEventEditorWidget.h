@@ -2,6 +2,7 @@
 #define _I_EVENT_EDITOR_WIDGET_H_
 
 #include "Event.h"
+#include "ExtendedComponentDescription.h"
 
 class IEventEditorWidget
 {
@@ -9,6 +10,8 @@ public:
     IEventEditorWidget() = default;
 
     virtual ~IEventEditorWidget() = default;
+
+    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) = 0;
 
     virtual void Cleanup() = 0;
 
