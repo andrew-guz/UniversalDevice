@@ -82,7 +82,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     auto eventGroup = editLayout->addWidget(std::make_unique<WGroupBox>("Событие"), 1, 0, 1, 2);
     auto eventLayout = eventGroup->setLayout(std::make_unique<WGridLayout>());
 
-    eventLayout->addWidget(std::make_unique<WText>("Тип события"), 0, 0, 1, 2);
+    eventLayout->addWidget(std::make_unique<WText>("Тип события:"), 0, 0, 1, 2);
     _eventType = eventLayout->addWidget(std::make_unique<WComboBox>(), 1, 0, 1, 2);
     _eventType->addItem("Таймер");      //Constants::EventTypeTimer
     _eventType->addItem("Термометр");   //Constants::EventTypeThermometer
@@ -113,10 +113,9 @@ void EventsWidget::Clear()
     _devices.clear();
     _eventsTableModel->UpdateData({});
     _eventType->setCurrentIndex(0);
-    _eventEditorsStack->setCurrentIndex(0);
     for (auto i = 0; i < _eventEditorsStack->count(); ++i)
     {
-        auto editor = dynamic_cast<IEventEditorWidget*>(_eventEditorsStack->widget(0));
+        auto editor = dynamic_cast<IEventEditorWidget*>(_eventEditorsStack->widget(i));
         editor->SetDevices(_devices);
         editor->Cleanup();
     }
@@ -132,7 +131,7 @@ void EventsWidget::Refresh()
     _eventsTable->setModel(_eventsTableModel);
     for (auto i = 0; i < _eventEditorsStack->count(); ++i)
     {
-        auto editor = dynamic_cast<IEventEditorWidget*>(_eventEditorsStack->widget(0));
+        auto editor = dynamic_cast<IEventEditorWidget*>(_eventEditorsStack->widget(i));
         editor->SetDevices(_devices);
     }
 }
