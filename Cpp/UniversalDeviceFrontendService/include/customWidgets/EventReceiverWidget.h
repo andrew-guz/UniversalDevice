@@ -28,6 +28,9 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 private:
+    void OnReceiverChanged();
+
+private:
     Wt::WGridLayout*    _mainLayout;
     DeviceComboBox*     _receivers;
     Wt::WText*          _brightnessText;

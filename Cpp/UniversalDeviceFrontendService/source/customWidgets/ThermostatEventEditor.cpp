@@ -18,7 +18,8 @@ ThermostatEventEditor::ThermostatEventEditor() :
     _delta = _mainLayout->addWidget(std::make_unique<WDoubleSpinBox>(), 5, 1);
     _delta->setMinimum(0.0f);
     _delta->setMaximum(5.0f);
-    _receiver = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 6, 0, 1, 2);
+    _mainLayout->addWidget(std::make_unique<WText>("Получатель события:"), 6, 0, 1, 2);
+    _receiver = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 7, 0, 1, 2);
 }
 
 void ThermostatEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices)

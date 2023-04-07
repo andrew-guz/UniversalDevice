@@ -18,22 +18,7 @@ EventReceiverWidget::EventReceiverWidget() :
     _receivers = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 1, 0, 1, 2);
     _receivers->changed().connect([&]()
     {
-        if (!_receivers->IsValid())
-            EventWidgetHelper::Hide(_brightnessText, _brightness, _relayState);
-        else
-        {
-            if (_receivers->GetSelectedDevice()._type == Constants::DeviceTypeThermometer)
-            {
-                EventWidgetHelper::Hide(_relayState);
-                EventWidgetHelper::Show(_brightnessText, _brightness);
-            }
-            else if (_receivers->GetSelectedDevice()._type == Constants::DeviceTypeRelay ||
-                _receivers->GetSelectedDevice()._type == Constants::DeviceTypeMotionRelay)
-            {
-                EventWidgetHelper::Hide(_brightnessText, _brightness);
-                EventWidgetHelper::Show(_relayState);
-            }
-        }
+        OnReceiverChanged();
     });
     _brightnessText = _mainLayout->addWidget(std::make_unique<WText>("Яркость:"), 2, 0);
     _brightness = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
@@ -90,5 +75,25 @@ void EventReceiverWidget::FillFromUi(Event& event) const
         RelayState relayState;
         relayState._state = _relayState->isChecked();
         event._command = relayState.ToJson();
+    }
+}
+
+void EventReceiverWidget::OnReceiverChanged()
+{
+    if (!_receivers->IsValid())
+        EventWidgetHelper::Hide(_brightnessText, _brightness, _relayState);
+    else
+    {
+        if (_receivers->GetSelectedDevice()._type == Constants::DeviceTypeThermometer)
+        {
+            EventWidgetHelper::Hide(_relayState);
+            EventWidgetHelper::Show(_brightnessText, _brightness);
+        }
+        else if (_receivers->GetSelectedDevice()._type == Constants::DeviceTypeRelay ||
+            _receivers->GetSelectedDevice()._type == Constants::DeviceTypeMotionRelay)
+        {
+            EventWidgetHelper::Hide(_brightnessText, _brightness);
+            EventWidgetHelper::Show(_relayState);
+        }
     }
 }

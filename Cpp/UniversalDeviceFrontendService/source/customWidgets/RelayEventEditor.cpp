@@ -10,7 +10,6 @@ RelayEventEditor::RelayEventEditor() :
 {
     _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
     _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
-    _mainLayout->addWidget(std::make_unique<WText>("Включено:"), 4, 0);
     _state = _mainLayout->addWidget(std::make_unique<WCheckBox>("Включено"), 5, 0, 1, 2);
     _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 6, 0, 1, 2);
 }
