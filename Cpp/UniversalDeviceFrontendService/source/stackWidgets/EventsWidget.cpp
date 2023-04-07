@@ -113,6 +113,7 @@ void EventsWidget::Clear()
     _devices.clear();
     _eventsTableModel->UpdateData({});
     _eventType->setCurrentIndex(0);
+    OnEventTypeChanged();
     for (auto i = 0; i < _eventEditorsStack->count(); ++i)
     {
         auto editor = dynamic_cast<IEventEditorWidget*>(_eventEditorsStack->widget(i));

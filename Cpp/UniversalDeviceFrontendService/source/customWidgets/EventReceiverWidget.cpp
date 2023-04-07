@@ -30,6 +30,7 @@ EventReceiverWidget::EventReceiverWidget() :
 void EventReceiverWidget::SetDevices(const std::vector<ExtendedComponentDescription>& devices)
 {
     _receivers->SetDevices(devices);
+    OnReceiverChanged();
 }
 
 void EventReceiverWidget::Cleanup()
@@ -37,6 +38,7 @@ void EventReceiverWidget::Cleanup()
     _receivers->setCurrentIndex(-1);
     _brightness->setValue(MIN_BRIGHTNESS);
     _relayState->setChecked(false);
+    OnReceiverChanged();
 }
 
 void EventReceiverWidget::FillUi(const Event& event)
