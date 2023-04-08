@@ -36,7 +36,7 @@ public:
     ~BaseServiceExtension() = default;
 
     template<typename T>
-    static BaseService* Create(crow::SimpleApp& app, IQueryExecutor* queryExecutor)
+    static T* Create(crow::SimpleApp& app, IQueryExecutor* queryExecutor)
     {
         auto t = new T(queryExecutor);
         t->Initialize(app);

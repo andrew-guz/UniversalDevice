@@ -5,6 +5,8 @@
 #include "TimeHelper.h"
 #include "CurrentTime.h"
 #include "MessageHelper.h"
+#include "StorageCacheFactory.h"
+#include "StorageCacheSharedData.h"
 
 void TimerThreadFunction(std::function<void(void)> timerFunction)
 { 
@@ -49,32 +51,26 @@ crow::response DeviceService::GetSettings(const crow::request& request, const st
         return crow::response(crow::UNAUTHORIZED);
     try
     {
-        std::stringstream queryStream;
-        queryStream << "SELECT settings FROM Settings WHERE id = '"
-            << idString
-            << "'";
-        queryStream.flush();
-        std::vector<std::vector<std::string>> data;
-        if (_queryExecutor->Select(queryStream.str(), data))
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache(_queryExecutor, "Settings", "settings");
+        auto[result, problem] = storageCache->Select(idString);
+        switch(problem._type)
         {
-            if (data.size() == 1)
-            {
-                auto settingsString = data[0][1];
-                if (!settingsString.empty())
-                    return crow::response(crow::OK, settingsString);
-                else
-                    LOG_INFO << "Empty settings for device " << idString << "." << std::endl;
-            }
-            else
-            {
-                if (data.size() == 0)
-                    LOG_DEBUG << "No settings for device " << idString << "." << std::endl;
-                else
-                    LOG_ERROR << "Too many settings for device " << idString << "." << std::endl;
-            }
+        case StorageCacheSharedData::ProblemType::NoProblems:
+            return crow::response(crow::OK, result);
+            break;
+        case StorageCacheSharedData::ProblemType::Empty:
+            LOG_INFO << "Empty settings for device " << idString << "." << std::endl;
+            break;
+        case StorageCacheSharedData::ProblemType::NotExists:
+            LOG_DEBUG << "No settings for device " << idString << "." << std::endl;
+            break;
+        case StorageCacheSharedData::ProblemType::TooMany:
+            LOG_ERROR << "Too many settings for device " << idString << "." << std::endl;
+            break;
+        case StorageCacheSharedData::ProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
         }
-        else
-            LOG_SQL_ERROR(queryStream.str());
     }
     catch(...)
     {
@@ -91,22 +87,24 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
     try
     {
         auto settingsString = request.body;
-        if (!settingsString.empty())
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache(_queryExecutor, "Settings", "settings");
+        auto problem = storageCache->InsertOrReplace(idString, settingsString);
+        switch(problem._type)
         {
-            std::stringstream queryStream;
-            queryStream << "INSERT OR REPLACE INTO Settings (id, settings) VALUES ('"
-                << idString
-                << "', '"
-                << settingsString
-                << "')";
-            queryStream.flush();
-            if (_queryExecutor->Execute(queryStream.str()))
-                return crow::response(crow::OK);
-            else
-                LOG_SQL_ERROR(queryStream.str());
-        }
-        else
-            LOG_ERROR << "Invalid settings " << settingsString << "." << std::endl;    
+        case StorageCacheSharedData::ProblemType::NoProblems:
+            return crow::response(crow::OK);
+            break;
+        case StorageCacheSharedData::ProblemType::Empty:
+            LOG_ERROR << "Invalid settings " << settingsString << "." << std::endl;
+            break;
+        case StorageCacheSharedData::ProblemType::NotExists:
+            break;
+        case StorageCacheSharedData::ProblemType::TooMany:
+            break;
+        case StorageCacheSharedData::ProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
+        }        
     }
     catch(...)
     {
@@ -121,32 +119,26 @@ crow::response DeviceService::GetCommands(const crow::request& request, const st
         return crow::response(crow::UNAUTHORIZED);
     try
     {
-        std::stringstream queryStream;
-        queryStream << "SELECT commands FROM Commands WHERE id = '"
-            << idString
-            << "'";
-        queryStream.flush();
-        std::vector<std::vector<std::string>> data;
-        if (_queryExecutor->Select(queryStream.str(), data))
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache(_queryExecutor, "Commands", "commands");
+        auto[result, problem] = storageCache->Select(idString);
+        switch(problem._type)
         {
-            if (data.size() == 1)
-            {
-                auto commandsString = data[0][1];
-                if (!commandsString.empty())
-                    return crow::response(crow::OK, commandsString);
-                else
-                    LOG_INFO << "Empty commands for device " << idString << "." << std::endl;
-            }
-            else
-            {
-                if (data.size() == 0)
-                    LOG_DEBUG << "No commands for device " << idString << "." << std::endl;
-                else
-                    LOG_ERROR << "Too many commands for device " << idString << "." << std::endl;
-            }
+        case StorageCacheSharedData::ProblemType::NoProblems:
+            return crow::response(crow::OK, result);
+            break;
+        case StorageCacheSharedData::ProblemType::Empty:
+            LOG_INFO << "Empty commands for device " << idString << "." << std::endl;
+            break;
+        case StorageCacheSharedData::ProblemType::NotExists:
+            LOG_DEBUG << "No commands for device " << idString << "." << std::endl;
+            break;
+        case StorageCacheSharedData::ProblemType::TooMany:
+            LOG_ERROR << "Too many commands for device " << idString << "." << std::endl;
+            break;
+        case StorageCacheSharedData::ProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
         }
-        else
-            LOG_SQL_ERROR(queryStream.str());
     }
     catch(...)
     {
@@ -163,22 +155,24 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
     try
     {
         auto commandsString = request.body;
-        if (!commandsString.empty())
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache(_queryExecutor, "Commands", "commands");
+        auto problem = storageCache->InsertOrReplace(idString, commandsString);
+        switch(problem._type)
         {
-            std::stringstream queryStream;
-            queryStream << "INSERT OR REPLACE INTO Commands (id, commands) VALUES ('"
-                << idString
-                << "', '"
-                << commandsString
-                << "')";
-            queryStream.flush();
-            if (_queryExecutor->Execute(queryStream.str()))
-                return crow::response(crow::OK);
-            else
-                LOG_SQL_ERROR(queryStream.str());
+        case StorageCacheSharedData::ProblemType::NoProblems:
+            return crow::response(crow::OK);
+            break;
+        case StorageCacheSharedData::ProblemType::Empty:
+            LOG_ERROR << "Invalid commands " << commandsString << "." << std::endl;
+            break;
+        case StorageCacheSharedData::ProblemType::NotExists:
+            break;
+        case StorageCacheSharedData::ProblemType::TooMany:
+            break;
+        case StorageCacheSharedData::ProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
         }
-        else
-            LOG_ERROR << "Invalid commands " << commandsString << "." << std::endl;    
     }
     catch(...)
     {

@@ -9,6 +9,8 @@
 #include "ThermometerCurrentValue.h"
 #include "RelayCurrentState.h"
 #include "RelayState.h"
+#include "StorageCacheFactory.h"
+#include "StorageCacheSharedData.h"
 
 EventsProcessor::EventsProcessor(IQueryExecutor* queryExecutor) :
     BaseProcessorWithQueryExecutor(queryExecutor)
@@ -149,13 +151,28 @@ void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEv
 
 void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString)
 {
-    std::stringstream queryStream;
-    queryStream << "INSERT OR REPLACE INTO Commands (id, commands) VALUES ('"
-        << id.data()
-        << "', '"
-        << commandString
-        << "')";
-    queryStream.flush();
-    if (!_queryExecutor->Execute(queryStream.str()))
-        LOG_SQL_ERROR(queryStream.str());
+    try
+    {
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache(_queryExecutor, "Commands", "commands");
+        auto problem = storageCache->InsertOrReplace(id.data(), commandString);
+        switch(problem._type)
+        {
+        case StorageCacheSharedData::ProblemType::NoProblems:
+            break;
+        case StorageCacheSharedData::ProblemType::Empty:
+            LOG_ERROR << "Invalid command " << commandString << "." << std::endl;
+            break;
+        case StorageCacheSharedData::ProblemType::NotExists:
+            break;
+        case StorageCacheSharedData::ProblemType::TooMany:
+            break;
+        case StorageCacheSharedData::ProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
+        }
+    }
+    catch(...)
+    {
+        LOG_ERROR << "EventsProcessor::SendCommand." << std::endl;
+    } 
 }
