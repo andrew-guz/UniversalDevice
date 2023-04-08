@@ -7,6 +7,7 @@
 #include "Parameters.h"
 #include "Constants.h"
 #include "Defines.h"
+#include "JsonExtension.h"
 #include "ThermometerCurrentValue.h"
 #include "PeriodSettings.h"
 #include "MessageHelper.h"

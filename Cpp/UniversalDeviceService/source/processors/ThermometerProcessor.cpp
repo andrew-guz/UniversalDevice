@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include "JsonExtension.h"
 #include "Logger.h"
 #include "Constants.h"
 #include "ThermometerCurrentValue.h"

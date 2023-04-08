@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "JsonExtension.h"
 #include "AccountManager.h"
 #include "ProcessorsFactory.h"
 

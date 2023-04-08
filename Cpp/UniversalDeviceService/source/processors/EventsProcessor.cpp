@@ -3,14 +3,17 @@
 #include <sstream>
 
 #include "IDb.h"
+#include "DbExtension.h"
 #include "Logger.h"
 #include "TimeHelper.h"
+#include "JsonExtension.h"
 #include "CurrentTime.h"
 #include "ThermometerCurrentValue.h"
 #include "RelayCurrentState.h"
 #include "RelayState.h"
 #include "StorageCacheFactory.h"
-#include "StorageCacheSharedData.h"
+#include "SimpleTableStorageCache.h"
+#include "EventTableStorageCache.h"
 
 EventsProcessor::EventsProcessor(IQueryExecutor* queryExecutor) :
     BaseProcessorWithQueryExecutor(queryExecutor)
@@ -53,36 +56,41 @@ nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::
 std::vector<nlohmann::json> EventsProcessor::LoadEvents(const ComponentDescription& description)
 {
     std::vector<nlohmann::json> result;
-    std::stringstream queryStream;
-    queryStream
-        << "SELECT event FROM Events WHERE providerId = '"
-        << description._id.data()
-        << "' AND providerType = '"
-        << description._type        
-        << "' AND active = 1";
-    queryStream.flush();   
-    std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(queryStream.str(), data))
+    std::vector<std::string> eventStrings;
+
+    auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+    EventTableSelectInput what;
+    what._id = description._id.data();
+    what._type = description._type;
+    EventTableSelectOutput eventsResult;
+    auto problem = storageCache->Select(what, eventsResult);
+    switch(problem._type)
     {
-        for (auto& row : data)
+    case StorageCacheProblemType::NoProblems:
+        eventStrings = eventsResult._data;
+        break;
+    case StorageCacheProblemType::Empty:
+    case StorageCacheProblemType::NotExists:
+    case StorageCacheProblemType::TooMany:
+        break;
+    case StorageCacheProblemType::SQLError:
+        LOG_SQL_ERROR(problem._message);
+        break;
+    }
+
+    for (auto& eventString : eventStrings)
+    {
+        try
         {
-            auto eventString = DbExtension::FindValueByName(row, "event");
-            if (eventString.size())
-            {
-                try
-                {
-                    auto json = nlohmann::json::parse(eventString);
-                    result.push_back(json);
-                }
-                catch(...)
-                {
-                    LOG_ERROR << "Invalid JSON - " << eventString << "." << std::endl;
-                }
-            }
+            auto json = nlohmann::json::parse(eventString);
+            result.push_back(json);
+        }
+        catch(...)
+        {
+            LOG_ERROR << "Invalid JSON - " << eventString << "." << std::endl;
         }
     }
-    else
-        LOG_SQL_ERROR(queryStream.str());
+
     return result;
 }
 
@@ -153,20 +161,23 @@ void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandStri
 {
     try
     {
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache(_queryExecutor, "Commands", "commands");
-        auto problem = storageCache->InsertOrReplace(id.data(), commandString);
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(_queryExecutor, "Commands", "commands");
+        SimpleTableInsertOrReplaceInput what;
+        what._id = id.data();
+        what._data = commandString;
+        auto problem = storageCache->InsertOrReplace(what);
         switch(problem._type)
         {
-        case StorageCacheSharedData::ProblemType::NoProblems:
+        case StorageCacheProblemType::NoProblems:
             break;
-        case StorageCacheSharedData::ProblemType::Empty:
+        case StorageCacheProblemType::Empty:
             LOG_ERROR << "Invalid command " << commandString << "." << std::endl;
             break;
-        case StorageCacheSharedData::ProblemType::NotExists:
+        case StorageCacheProblemType::NotExists:
             break;
-        case StorageCacheSharedData::ProblemType::TooMany:
+        case StorageCacheProblemType::TooMany:
             break;
-        case StorageCacheSharedData::ProblemType::SQLError:
+        case StorageCacheProblemType::SQLError:
             LOG_SQL_ERROR(problem._message);
             break;
         }

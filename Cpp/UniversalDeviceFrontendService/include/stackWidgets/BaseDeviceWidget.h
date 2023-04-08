@@ -8,6 +8,7 @@
 #include <Wt/WTimer.h>
 
 #include "Uuid.h"
+#include "JsonExtension.h"
 #include "BaseStackWidget.h"
 #include "RequestHelper.h"
 #include "UrlHelper.h"

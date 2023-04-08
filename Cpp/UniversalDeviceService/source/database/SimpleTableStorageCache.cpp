@@ -3,20 +3,26 @@
 #include <sstream>
 
 SimpleTableStorageCache::SimpleTableStorageCache(IQueryExecutor* queryExecutor, const std::string& tableName, const std::string& fieldName) :
-    _queryExecutor(queryExecutor),
+    BaseStorageCache(queryExecutor),
     _tableName(tableName),
     _fieldName(fieldName)
 {
 
 }
 
-std::tuple<std::string, StorageCacheSharedData::Problem> SimpleTableStorageCache::Select(const std::string& id)
+StorageCacheProblem SimpleTableStorageCache::Select(const SelectInput& what, SelectOutput& result)
 {
     std::lock_guard<std::mutex> lock(_mutex);
 
-    auto iter = _dataCache.find(id);
+    const SimpleTableSelectInput& customWhat = dynamic_cast<const SimpleTableSelectInput&>(what);
+    SimpleTableSelectOutput& customResult = dynamic_cast<SimpleTableSelectOutput&>(result);
+
+    auto iter = _dataCache.find(customWhat._id);
     if (iter != _dataCache.end())
-        return std::tuple<std::string, StorageCacheSharedData::Problem>(iter->second, { StorageCacheSharedData::ProblemType::NoProblems, {} });
+    {
+        customResult._data = iter->second;
+        return { StorageCacheProblemType::NoProblems, {} };
+    }
 
     std::stringstream queryStream;
     queryStream << "SELECT "
@@ -24,39 +30,48 @@ std::tuple<std::string, StorageCacheSharedData::Problem> SimpleTableStorageCache
         << " FROM "
         << _tableName
         << " WHERE id = '"
-        << id
+        << customWhat._id
         << "'";
     queryStream.flush();
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(queryStream.str(), data))
     {
         if (data.size() == 0)
-            return std::make_tuple<std::string, StorageCacheSharedData::Problem>(std::string(), { StorageCacheSharedData::ProblemType::NotExists, {} });
+            return { StorageCacheProblemType::NotExists, {} };
         else if (data.size() == 1)
         {
             auto dataString = data[0][1];
             if (!dataString.empty())
             {
-                _dataCache.insert(std::make_pair(id, dataString));
-                return std::tuple<std::string, StorageCacheSharedData::Problem>(dataString, { StorageCacheSharedData::ProblemType::NoProblems, {} });
+                customResult._data = dataString;
+                _dataCache.insert(std::make_pair(customWhat._id, dataString));
+                return { StorageCacheProblemType::NoProblems, {} };
             }
-            return std::make_tuple<std::string, StorageCacheSharedData::Problem>(std::string(), { StorageCacheSharedData::ProblemType::Empty, {} });
+            return { StorageCacheProblemType::Empty, {} };
         }
         else 
-            return std::make_tuple<std::string, StorageCacheSharedData::Problem>(std::string(), { StorageCacheSharedData::ProblemType::TooMany, {} });
+            return { StorageCacheProblemType::TooMany, {} };
     }
-    return std::make_tuple<std::string, StorageCacheSharedData::Problem>({}, { StorageCacheSharedData::ProblemType::SQLError, queryStream.str() });
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
-StorageCacheSharedData::Problem SimpleTableStorageCache::InsertOrReplace(const std::string& id, const std::string& data)
+StorageCacheProblem SimpleTableStorageCache::SelectAll(SelectAllOutput& result)
+{
+    throw std::logic_error("Invalid function call");
+    return { StorageCacheProblemType::Empty, "Invalid function call" };
+}
+
+StorageCacheProblem SimpleTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what)
 {
     std::lock_guard<std::mutex> lock(_mutex);
 
-    auto iter = _dataCache.find(id);
+    const SimpleTableInsertOrReplaceInput& customWhat = dynamic_cast<const SimpleTableInsertOrReplaceInput&>(what);
+
+    auto iter = _dataCache.find(customWhat._id);
     if (iter != _dataCache.end())
         _dataCache.erase(iter);
 
-    if (!data.empty())
+    if (!customWhat._data.empty())
     {
         std::stringstream queryStream;
         queryStream << "INSERT OR REPLACE INTO "
@@ -64,17 +79,29 @@ StorageCacheSharedData::Problem SimpleTableStorageCache::InsertOrReplace(const s
             << " (id, "
             << _fieldName
             << ") VALUES ('"
-            << id
+            << customWhat._id
             << "', '"
-            << data
+            << customWhat._data
             << "')";
         queryStream.flush();
         if (_queryExecutor->Execute(queryStream.str()))
         {
-            _dataCache.insert(std::make_pair(id, data));
-            return { StorageCacheSharedData::ProblemType::NoProblems, {} };
+            _dataCache.insert(std::make_pair(customWhat._id, customWhat._data));
+            return { StorageCacheProblemType::NoProblems, {} };
         }
-        return { StorageCacheSharedData::ProblemType::SQLError, queryStream.str() };
+        return { StorageCacheProblemType::SQLError, queryStream.str() };
     }
-    return { StorageCacheSharedData::ProblemType::Empty, {} };
+    return { StorageCacheProblemType::Empty, {} };
+}
+
+StorageCacheProblem SimpleTableStorageCache::Update(const UpdateInput& what)
+{
+    throw std::logic_error("Invalid function call");
+    return { StorageCacheProblemType::Empty, "Invalid function call" };
+}
+
+StorageCacheProblem SimpleTableStorageCache::Delete(const DeleteInput& what)
+{
+    throw std::logic_error("Invalid function call");
+    return { StorageCacheProblemType::Empty, "Invalid function call" };
 }

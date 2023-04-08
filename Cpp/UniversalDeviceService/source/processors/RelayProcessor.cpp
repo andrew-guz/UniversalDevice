@@ -4,6 +4,7 @@
 
 #include "Logger.h"
 #include "Constants.h"
+#include "JsonExtension.h"
 #include "RelayCurrentState.h"
 #include "ExtendedRelayCurrentState.h"
 #include "TimeHelper.h"

@@ -3,6 +3,7 @@
 #include "Defines.h"
 #include "Constants.h"
 #include "Logger.h"
+#include "JsonExtension.h"
 #include "MessageHelper.h"
 #include "RequestHelper.h"
 #include "ExtendedComponentDescription.h"

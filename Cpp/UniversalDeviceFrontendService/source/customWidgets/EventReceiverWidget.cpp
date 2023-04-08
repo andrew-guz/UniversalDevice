@@ -1,6 +1,7 @@
 #include "EventReceiverWidget.h"
 
 #include "Defines.h"
+#include "JsonExtension.h"
 #include "EventWidgetHelper.h"
 #include "ThermometerLedBrightness.h"
 #include "RelayState.h"

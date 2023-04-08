@@ -1,6 +1,7 @@
 #include "EventsTableModel.h"
 
 #include "IJson.h"
+#include "JsonExtension.h"
 #include "Event.h"
 
 using namespace Wt;

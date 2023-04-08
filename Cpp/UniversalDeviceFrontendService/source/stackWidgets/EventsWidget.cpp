@@ -6,6 +6,7 @@
 #include "Defines.h"
 #include "Constants.h"
 #include "Logger.h"
+#include "JsonExtension.h"
 #include "MessageHelper.h"
 #include "UrlHelper.h"
 #include "RequestHelper.h"

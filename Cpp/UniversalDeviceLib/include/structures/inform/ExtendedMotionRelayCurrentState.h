@@ -5,6 +5,7 @@
 
 #include "MotionRelayCurrentState.h"
 #include "IDb.h"
+#include "DbExtension.h"
 #include "Logger.h"
 #include "TimeHelper.h"
 

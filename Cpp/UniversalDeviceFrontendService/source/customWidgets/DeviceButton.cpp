@@ -1,6 +1,7 @@
 #include "DeviceButton.h"
 
 #include "Defines.h"
+#include "JsonExtension.h"
 #include "MessageHelper.h"
 #include "RequestHelper.h"
 #include "ExtendedThermometerCurrentValue.h"

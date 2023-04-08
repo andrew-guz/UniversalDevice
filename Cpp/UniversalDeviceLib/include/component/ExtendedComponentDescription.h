@@ -7,7 +7,7 @@
 #include "TimeHelper.h"
 #include "ComponentDescription.h"
 #include "Logger.h"
-
+#include "DbExtension.h"
 
 struct ExtendedComponentDescription final : ComponentDescription, public IJson<ExtendedComponentDescription>, public IDb<ExtendedComponentDescription>
 {

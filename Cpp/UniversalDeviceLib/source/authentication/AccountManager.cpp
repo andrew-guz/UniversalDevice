@@ -6,6 +6,7 @@
 #include <b64/decode.h>
 
 #include "Logger.h"
+#include "JsonExtension.h"
 #include "PathHelper.h"
 #include "JsonFileReader.h"
 

@@ -3,11 +3,14 @@
 #include <nlohmann/json.hpp>
 
 #include "Defines.h"
+#include "JsonExtension.h"
 #include "MessageHelper.h"
 #include "ProcessorsFactory.h"
 #include "DeviceName.h"
 #include "ExtendedComponentDescription.h"
 #include "Event.h"
+#include "StorageCacheFactory.h"
+#include "EventTableStorageCache.h"
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor)
@@ -152,34 +155,37 @@ crow::response ClientService::GetEvents(const crow::request& request)
     nlohmann::json result = nlohmann::json::array({});
     try
     {
-        std::vector<std::vector<std::string>> data;
-        std::stringstream queryStream;
-        queryStream
-            << "SELECT event FROM Events";
-        queryStream.flush();
-        if (_queryExecutor->Select(queryStream.str(), data))
+        std::vector<std::string> eventStrings;
+
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+        EventTableSelectAllOutput eventsResult;
+        auto problem = storageCache->SelectAll(eventsResult);
+        switch(problem._type)
         {
-            for (auto& row : data)
-            {
-                auto eventString = DbExtension::FindValueByName(row, "event");
-                if (eventString.empty())
-                {
-                    LOG_ERROR << "Empty event found." << std::endl;
-                    continue;
-                }
-                try
-                {
-                    nlohmann::json eventJson = nlohmann::json::parse(eventString);
-                    result.push_back(eventJson);
-                }
-                catch(...)
-                {
-                    LOG_ERROR << "Invalid event JSON " << eventString << "." << std::endl;
-                }
-            }            
+        case StorageCacheProblemType::NoProblems:
+            eventStrings = eventsResult._data;
+            break;
+        case StorageCacheProblemType::Empty:
+        case StorageCacheProblemType::NotExists:
+        case StorageCacheProblemType::TooMany:
+            break;
+        case StorageCacheProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
         }
-        else
-            LOG_SQL_ERROR(queryStream.str());
+
+        for (auto& eventString : eventStrings)
+        {
+            try
+            {
+                nlohmann::json eventJson = nlohmann::json::parse(eventString);
+                result.push_back(eventJson);
+            }
+            catch(...)
+            {
+                LOG_ERROR << "Invalid event JSON " << eventString << "." << std::endl;
+            }
+        }
     }
     catch(...)
     {
@@ -196,24 +202,28 @@ crow::response ClientService::AddEvent(const crow::request& request)
     {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
-        std::stringstream queryStream;
-        queryStream
-            << "INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('"
-            << event._id.data()
-            << "', "
-            << (event._active ? "1" : "0")
-            << ", '"
-            << event._provider._id.data()
-            << "', '"
-            << event._provider._type
-            << "', '"
-            << request.body
-            << "')";
-        queryStream.flush();
-        if (_queryExecutor->Execute(queryStream.str()))
+
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+        EventTableInsertOrReplaceInput what;
+        what._id = event._id.data();
+        what._active = event._active;
+        what._providerId = event._provider._id.data();
+        what._providerType = event._provider._type;
+        what._event = request.body;
+        auto problem = storageCache->InsertOrReplace(what);
+        switch(problem._type)
+        {
+        case StorageCacheProblemType::NoProblems:
             return crow::response(crow::OK);
-        else
-            LOG_SQL_ERROR(queryStream.str());
+            break;
+        case StorageCacheProblemType::Empty:
+        case StorageCacheProblemType::NotExists:
+        case StorageCacheProblemType::TooMany:
+            break;
+        case StorageCacheProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
+        }
     }
     catch(...)
     {
@@ -230,24 +240,28 @@ crow::response ClientService::UpdateEvent(const crow::request& request)
     {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
-        std::stringstream queryStream;
-        queryStream
-            << "UPDATE Events SET active = "
-            << (event._active ? "1" : "0")
-            << ", providerId = '"
-            << event._provider._id.data()
-            << "', providerType = '"
-            << event._provider._type
-            << "', event = '"
-            << request.body
-            << "' WHERE id = '"
-            << event._id.data()
-            << "'";
-        queryStream.flush();
-        if (_queryExecutor->Execute(queryStream.str()))
+
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+        EventTableUpdateInput what;
+        what._id = event._id.data();
+        what._active = event._active;
+        what._providerId = event._provider._id.data();
+        what._providerType = event._provider._type;
+        what._event = request.body;
+        auto problem = storageCache->Update(what);
+        switch(problem._type)
+        {
+        case StorageCacheProblemType::NoProblems:
             return crow::response(crow::OK);
-        else
-            LOG_SQL_ERROR(queryStream.str());
+            break;
+        case StorageCacheProblemType::Empty:
+        case StorageCacheProblemType::NotExists:
+        case StorageCacheProblemType::TooMany:
+            break;
+        case StorageCacheProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
+        }
     }
     catch(...)
     {
@@ -264,16 +278,24 @@ crow::response ClientService::DeleteEvent(const crow::request& request)
     {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
-        std::stringstream queryStream;
-        queryStream
-            << "DELETE FROM Events WHERE id='"
-            << event._id.data()
-            << "'";
-        queryStream.flush();
-        if (_queryExecutor->Execute(queryStream.str()))
+
+        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+        EventTableDeleteInput what;
+        what._id = event._id.data();
+        auto problem = storageCache->Delete(what);
+        switch(problem._type)
+        {
+        case StorageCacheProblemType::NoProblems:
             return crow::response(crow::OK);
-        else
-            LOG_SQL_ERROR(queryStream.str());
+            break;
+        case StorageCacheProblemType::Empty:
+        case StorageCacheProblemType::NotExists:
+        case StorageCacheProblemType::TooMany:
+            break;
+        case StorageCacheProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
+        }
     }
     catch(...)
     {
