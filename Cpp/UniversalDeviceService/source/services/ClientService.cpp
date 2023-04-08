@@ -60,7 +60,8 @@ crow::response ClientService::GetDeviceName(const crow::request& request, const 
     try
     {
         std::stringstream queryStream;
-        queryStream << "SELECT name FROM Devices WHERE id = '"
+        queryStream
+            << "SELECT name FROM Devices WHERE id = '"
             << idString
             << "'";
         queryStream.flush();
@@ -103,7 +104,8 @@ crow::response ClientService::SetDeviceName(const crow::request& request, const 
         if (!deviceName._name.empty())
         {
             std::stringstream queryStream;
-            queryStream << "UPDATE Devices SET name = '"
+            queryStream
+                << "UPDATE Devices SET name = '"
                 << deviceName._name
                 << "' WHERE id = '"
                 << idString
@@ -152,7 +154,8 @@ crow::response ClientService::GetEvents(const crow::request& request)
     {
         std::vector<std::vector<std::string>> data;
         std::stringstream queryStream;
-        queryStream << "SELECT event FROM Events";
+        queryStream
+            << "SELECT event FROM Events";
         queryStream.flush();
         if (_queryExecutor->Select(queryStream.str(), data))
         {
@@ -194,7 +197,8 @@ crow::response ClientService::AddEvent(const crow::request& request)
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
         std::stringstream queryStream;
-        queryStream << "INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('"
+        queryStream
+            << "INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('"
             << event._id.data()
             << "', "
             << (event._active ? "1" : "0")
@@ -227,7 +231,8 @@ crow::response ClientService::UpdateEvent(const crow::request& request)
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
         std::stringstream queryStream;
-        queryStream << "UPDATE Events SET active = "
+        queryStream
+            << "UPDATE Events SET active = "
             << (event._active ? "1" : "0")
             << ", providerId = '"
             << event._provider._id.data()
@@ -260,7 +265,8 @@ crow::response ClientService::DeleteEvent(const crow::request& request)
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
         std::stringstream queryStream;
-        queryStream << "DELETE FROM Events WHERE id='"
+        queryStream
+            << "DELETE FROM Events WHERE id='"
             << event._id.data()
             << "'";
         queryStream.flush();
