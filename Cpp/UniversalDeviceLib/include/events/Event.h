@@ -23,6 +23,8 @@ struct Event : public IJson<Event>
     {
         
     }
+
+    virtual ~Event() = default;
     
     virtual nlohmann::json ToJson() const override
     {

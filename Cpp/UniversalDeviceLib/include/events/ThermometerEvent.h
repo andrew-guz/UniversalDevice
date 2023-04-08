@@ -5,7 +5,7 @@
 
 #include "Event.h"
 
-struct ThermometerEvent : public Event, public IJson<ThermometerEvent>
+struct ThermometerEvent final : public Event, public IJson<ThermometerEvent>
 {
     float   _temperature = std::numeric_limits<float>::min();
     bool    _lower = true;
@@ -15,6 +15,8 @@ struct ThermometerEvent : public Event, public IJson<ThermometerEvent>
     {
         
     }
+    
+    virtual ~ThermometerEvent() = default;
 
     virtual nlohmann::json ToJson() const override
     {

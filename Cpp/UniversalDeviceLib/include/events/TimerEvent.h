@@ -3,7 +3,7 @@
 
 #include "Event.h"
 
-struct TimerEvent : public Event, public IJson<TimerEvent>
+struct TimerEvent final : public Event, public IJson<TimerEvent>
 {
     int _hour = 0;
     int _minute = 0;
@@ -13,6 +13,8 @@ struct TimerEvent : public Event, public IJson<TimerEvent>
     {
         
     }
+
+    virtual ~TimerEvent() = default;
 
     virtual nlohmann::json ToJson() const override
     {

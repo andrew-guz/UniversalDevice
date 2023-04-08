@@ -3,7 +3,7 @@
 
 #include "Event.h"
 
-struct RelayEvent : public Event, public IJson<RelayEvent>
+struct RelayEvent final : public Event, public IJson<RelayEvent>
 {
     int _state = 0;
     
@@ -12,6 +12,8 @@ struct RelayEvent : public Event, public IJson<RelayEvent>
     {
         
     }
+
+    virtual ~RelayEvent() = default;
 
     virtual nlohmann::json ToJson() const override
     {
