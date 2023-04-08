@@ -54,3 +54,18 @@ std::tuple<WDialog*, WGridLayout*, WLineEdit*, WSpinBox*, Wt::WPushButton*> Widg
     }
     return std::make_tuple(dialog, layout, nameEdit, periodEdit, ok);
 }
+
+void WidgetHelper::ShowSimpleErrorMessage(Wt::WWidget* parent, const std::string& header, const std::string& message)
+{
+    auto dialog = parent->addChild(std::make_unique<WDialog>(header));
+    auto layout = dialog->contents()->setLayout(std::make_unique<WGridLayout>());
+    dialog->setMinimumSize(200, 100);
+    dialog->setClosable(true);
+    dialog->setResizable(false);
+    dialog->rejectWhenEscapePressed(true);
+    dialog->enterPressed().connect([&](){
+        dialog->accept();
+    });
+    layout->addWidget(std::make_unique<WText>(message), 0, 0, AlignmentFlag::Center);
+    dialog->exec();
+}

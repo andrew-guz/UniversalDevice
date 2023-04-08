@@ -44,6 +44,8 @@ public:
     }
 
     static std::tuple<Wt::WDialog*, Wt::WGridLayout*, Wt::WLineEdit*, Wt::WSpinBox*, Wt::WPushButton*> CreateNamePeriodSettingsDialog(Wt::WContainerWidget* parent, int height, const Wt::WString& name, float period, bool useDefaultValidation);
+
+    static void ShowSimpleErrorMessage(Wt::WWidget* parent, const std::string& header, const std::string& message);
 };
 
 #endif //WIDGET_HELPER_H_

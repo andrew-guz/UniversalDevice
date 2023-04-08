@@ -6,6 +6,7 @@
 #include <Wt/WDialog.h>
 
 #include "AccountManager.h"
+#include "WidgetHelper.h"
 
 using namespace Wt;
 
@@ -51,15 +52,5 @@ void LoginWidget::Login()
         _stackHolder->SetWidget(StackWidgetType::Devices, {});
         return;
     }
-    auto dialog = addChild(std::make_unique<WDialog>("Ошибка"));
-    auto layout = dialog->contents()->setLayout(std::make_unique<WGridLayout>());
-    dialog->setMinimumSize(200, 100);
-    dialog->setClosable(true);
-    dialog->setResizable(false);
-    dialog->rejectWhenEscapePressed(true);
-    dialog->enterPressed().connect([&](){
-        dialog->accept();
-    });
-    layout->addWidget(std::make_unique<WText>("Неизвестный пользователь!"), 0, 0, AlignmentFlag::Center);
-    dialog->exec();
+    WidgetHelper::ShowSimpleErrorMessage(this, "Ошибка", "Неизвестный пользователь!");
 }

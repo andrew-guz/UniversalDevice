@@ -150,97 +150,160 @@ std::vector<ExtendedComponentDescription> EventsWidget::GetDevices()
 
 void EventsWidget::AddEvent()
 {
-    /*if (_devices.empty())
-        return;
-    size_t providerIndex = _providers->currentIndex();
-    size_t receiverIndex = _receivers->currentIndex();
-    if (providerIndex < 0 ||
-        providerIndex >= _devices.size() + 1 ||
-        receiverIndex < 0 ||
-        receiverIndex >= _devices.size())
-        return;
-    if (_name->text().empty())
-        return;
-    nlohmann::json eventJson;
-    if (providerIndex == 0)
-        eventJson = GetTimerEventFromUi({}, providerIndex, receiverIndex);
-    else
+    if (_eventType->currentIndex() < 0 ||
+        GetCurrentEventEditor() == nullptr ||
+        !GetCurrentEventEditor()->IsValid())
     {
-        auto providerDevice = _devices[providerIndex - 1];
-        if (providerDevice._type == Constants::DeviceTypeThermometer)
-            eventJson = GetThermometerEventFromUi({}, providerIndex, receiverIndex);
-        if (providerDevice._type == Constants::DeviceTypeRelay)
-            eventJson = GetRelayEventFromUi({}, providerIndex, receiverIndex);
+        ShowIncorrectEventMsgBox();
+        return;
     }
+    auto eventEditor = GetCurrentEventEditor();
+    Event* event = CreateNewEventFromEditor(eventEditor);
+    eventEditor->FillFromUi(*event);
+    auto eventJson = event->ToJson();
+    delete event;
     if (!eventJson.is_null())
     {
         auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
         if (result != 200)
             LOG_ERROR << "Error while adding new Event " << eventJson.dump() << "." << std::endl;
     }
-    Refresh();*/
+    Refresh();
 }
 
 void EventsWidget::DeleteEvent()
 {
-    /*auto selectedIndexes = _eventsTable->selectedIndexes();
+    auto selectedIndexes = _eventsTable->selectedIndexes();
     if (selectedIndexes.empty())
         return;
     auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
     auto result = RequestHelper::DoDeleteRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
     if (result != 200)
             LOG_ERROR << "Error while deleting Event " << eventJson.dump() << "." << std::endl;
-    Refresh();*/
+    Refresh();
 }
 
 void EventsWidget::UpdateEvent()
 {
-    /*auto selectedIndexes = _eventsTable->selectedIndexes();
-    if (selectedIndexes.empty())
-        return;
-    if (_devices.empty())
-        return;
-    size_t providerIndex = _providers->currentIndex();
-    size_t receiverIndex = _receivers->currentIndex();
-    if (providerIndex < 0 ||
-        providerIndex >= _devices.size() + 1 ||
-        receiverIndex < 0 ||
-        receiverIndex >= _devices.size())
-        return;
-    if (_name->text().empty())
-        return;
-    auto selectedEventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
-    auto selectedEventId = JsonExtension::CreateFromJson<Event>(selectedEventJson)._id;
-    nlohmann::json eventJson;
-    if (providerIndex == 0)
-        eventJson = GetTimerEventFromUi(selectedEventId, providerIndex, receiverIndex);
-    else
+    if (GetSelectedEventIdFromTable().isEmpty() ||
+        _eventType->currentIndex() < 0 ||
+        GetCurrentEventEditor() == nullptr ||
+        !GetCurrentEventEditor()->IsValid())
     {
-        auto providerDevice = _devices[providerIndex - 1];
-        if (providerDevice._type == Constants::DeviceTypeThermometer)
-            eventJson = GetThermometerEventFromUi(selectedEventId, providerIndex, receiverIndex);
-        if (providerDevice._type == Constants::DeviceTypeRelay)
-            eventJson = GetRelayEventFromUi(selectedEventId, providerIndex, receiverIndex);
+        ShowIncorrectEventMsgBox();
+        return;
     }
+    auto eventEditor = GetCurrentEventEditor();
+    Event* event = CreateNewEventFromEditor(eventEditor);
+    event->_id = GetSelectedEventIdFromTable();
+    eventEditor->FillFromUi(*event);
+    auto eventJson = event->ToJson();
+    delete event;
     if (!eventJson.is_null())
     {
         auto result = RequestHelper::DoPutRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
         if (result != 200)
             LOG_ERROR << "Error while updating Event " << eventJson.dump() << "." << std::endl;
     }
-    Refresh();*/
+    Refresh();
 }
 
 void EventsWidget::OnTableSelectionChanged()
 {
-    /*auto selectedIndexes = _eventsTable->selectedIndexes();
+    auto selectedIndexes = _eventsTable->selectedIndexes();
     if (selectedIndexes.empty())
         return;
     auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
-    FillUiWithEvent(eventJson);*/
+    auto event = CreateNewEventFromJson(eventJson);
+    if (event->_type == Constants::EventTypeTimer)
+        _eventType->setCurrentIndex(0);
+    else if (event->_type == Constants::EventTypeThermometer)
+        _eventType->setCurrentIndex(1);
+    else if (event->_type == Constants::EventTypeRelay)
+        _eventType->setCurrentIndex(2);
+    else if (event->_type == Constants::EventTypeThermostat)
+        _eventType->setCurrentIndex(3);
+    OnEventTypeChanged();
+    GetCurrentEventEditor()->FillUi(*event);
+    delete event;
 }
 
 void EventsWidget::OnEventTypeChanged()
 {
     _eventEditorsStack->setCurrentIndex(_eventType->currentIndex());
+    for(auto i = 0; i < 4; ++i)
+    {
+        if (i == _eventEditorsStack->currentIndex())
+            continue;
+        dynamic_cast<BaseEventEditor*>(_eventEditorsStack->widget(i))->Cleanup();
+    }
+}
+
+BaseEventEditor* EventsWidget::GetCurrentEventEditor() const
+{
+    if (_eventEditorsStack->currentIndex() < 0)
+        return nullptr;
+    return dynamic_cast<BaseEventEditor*>(_eventEditorsStack->currentWidget());
+}
+
+Event* EventsWidget::CreateNewEventFromEditor(BaseEventEditor* eventEditor) const
+{
+    if (!eventEditor)
+        return nullptr;
+    Event* event = nullptr;
+    switch (_eventType->currentIndex())
+    {
+    case 0:
+        event = eventEditor->GetEvent<TimerEvent>();
+        break;
+    case 1:
+        event = eventEditor->GetEvent<ThermometerEvent>();
+        break;
+    case 2:
+        event = eventEditor->GetEvent<RelayEvent>();
+        break;
+    case 3:
+        event = eventEditor->GetEvent<ThermostatEvent>();
+        break;
+    }
+    return event;
+}
+
+Event* EventsWidget::CreateNewEventFromJson(const nlohmann::json& eventJson) const
+{
+    Event* event = nullptr;
+    auto simpleEvent = JsonExtension::CreateFromJson<Event>(eventJson);
+    if (simpleEvent._type == Constants::EventTypeTimer)
+        event = new TimerEvent();
+    else if (simpleEvent._type == Constants::EventTypeThermometer)
+        event = new ThermometerEvent();
+    else if (simpleEvent._type == Constants::EventTypeRelay)
+        event = new RelayEvent();
+    else if (simpleEvent._type == Constants::EventTypeThermostat)
+        event = new ThermostatEvent();
+    if (event)
+        event->FromJson(eventJson);
+    return event;
+}
+
+nlohmann::json EventsWidget::GetSelectedEventJsonFromTable() const
+{
+    auto selectedIndexes = _eventsTable->selectedIndexes();
+    if (selectedIndexes.empty())
+        return {};
+    return cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
+}
+
+Uuid EventsWidget::GetSelectedEventIdFromTable() const
+{
+    auto selectedIndexes = _eventsTable->selectedIndexes();
+    if (selectedIndexes.empty())
+        return Uuid::Empty();
+    auto selectedEventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
+    return JsonExtension::CreateFromJson<Event>(selectedEventJson)._id;
+}
+
+void EventsWidget::ShowIncorrectEventMsgBox()
+{
+    WidgetHelper::ShowSimpleErrorMessage(this, "Ошибка", "Неверно заполнены поля редактора событий!");
 }

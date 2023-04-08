@@ -36,8 +36,8 @@ void BaseEventEditor::FillUi(const Event& event)
 }
 
 bool BaseEventEditor::IsValid() const
-{
-    return _name->textSize() > 0;
+{    
+    return _name->text().toUTF8().size();
 }
 
 void BaseEventEditor::FillFromUi(Event& event) const

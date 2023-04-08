@@ -1,6 +1,8 @@
 #ifndef _I_EVENT_EDITOR_WIDGET_H_
 #define _I_EVENT_EDITOR_WIDGET_H_
 
+#include <nlohmann/json.hpp>
+
 #include "Event.h"
 #include "ExtendedComponentDescription.h"
 

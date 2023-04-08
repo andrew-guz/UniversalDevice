@@ -28,7 +28,7 @@ public:
     virtual bool IsValid() const override;
 
     template <typename T>
-    T GetEvent() const { return T(); }
+    T* GetEvent() const { return new T(); }
 
     virtual void FillFromUi(Event& event) const override;
 

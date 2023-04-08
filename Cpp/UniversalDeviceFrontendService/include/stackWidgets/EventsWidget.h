@@ -15,6 +15,7 @@
 #include "EventsTableModel.h"
 #include "ExtendedComponentDescription.h"
 #include "Event.h"
+#include "BaseEventEditor.h"
 
 class EventsWidget final : public Wt::WContainerWidget, public BaseStackWidget
 {
@@ -43,6 +44,18 @@ private:
     void OnTableSelectionChanged();
 
     void OnEventTypeChanged();
+
+    BaseEventEditor* GetCurrentEventEditor() const;
+
+    Event* CreateNewEventFromEditor(BaseEventEditor* eventEditor) const;
+
+    Event* CreateNewEventFromJson(const nlohmann::json& eventJson) const;
+
+    nlohmann::json GetSelectedEventJsonFromTable() const;
+
+    Uuid GetSelectedEventIdFromTable() const;
+
+    void ShowIncorrectEventMsgBox();
 
 private:
     std::vector<ExtendedComponentDescription>   _devices;
