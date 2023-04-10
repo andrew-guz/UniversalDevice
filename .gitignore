@@ -53,3 +53,7 @@ TODO
 
 #Install specific
 **/install_manifest.txt
+
+#test specific
+Testing
+**/CTestTestfile.cmake

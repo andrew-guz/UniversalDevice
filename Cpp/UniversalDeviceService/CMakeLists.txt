@@ -55,6 +55,7 @@ add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 #executable needs libraries - so link to installed lisbs
 target_link_libraries(${PROJECT_NAME} -lpthread -lsqlite3 -lssl -lcrypto UniversalDeviceLib)
 
+#install section
 set(CMAKE_INSTALL_PREFIX /usr/local/bin/UniversalDevice)
 install(TARGETS ${PROJECT_NAME} DESTINATION /usr/local/bin/UniversalDevice)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../bin/${PROJECT_NAME}.json DESTINATION /usr/local/bin/UniversalDevice)

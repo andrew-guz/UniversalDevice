@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.15)
 #name of a project
 project("UniversalDevice")
 
+#allow unit tests
+enable_testing()
+
 #subprojects
 add_subdirectory(./UniversalDeviceLib)
 add_subdirectory(./UniversalDeviceService)
