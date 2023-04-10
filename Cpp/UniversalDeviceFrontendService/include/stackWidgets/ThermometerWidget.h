@@ -18,6 +18,8 @@ public:
     virtual ~ThermometerWidget() = default;
 
 protected:
+    virtual void OnBack() override;
+
     virtual void Initialize() override;
 
     virtual void ClearData() override;

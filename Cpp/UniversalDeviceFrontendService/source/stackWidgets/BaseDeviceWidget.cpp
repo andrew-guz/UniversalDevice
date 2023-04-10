@@ -27,6 +27,7 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
     auto backButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([&](){
+        OnBack();
         _stackHolder->SetWidget(StackWidgetType::Devices, "");
         _deviceId = Uuid::Empty();
     });

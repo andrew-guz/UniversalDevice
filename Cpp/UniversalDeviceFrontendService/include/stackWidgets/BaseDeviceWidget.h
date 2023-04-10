@@ -25,6 +25,8 @@ public:
     virtual void Initialize(const std::string& data) override final;
 
 protected:
+    virtual void OnBack() {}
+
     virtual void Initialize() = 0;
 
     enum ClearType

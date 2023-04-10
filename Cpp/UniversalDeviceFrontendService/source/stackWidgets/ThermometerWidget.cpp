@@ -42,6 +42,11 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
     });
 }
 
+void ThermometerWidget::OnBack()
+{
+    _seconds->setCurrentIndex(1);
+}
+
 void ThermometerWidget::Initialize()
 {
     uint64_t seconds = 7200;
