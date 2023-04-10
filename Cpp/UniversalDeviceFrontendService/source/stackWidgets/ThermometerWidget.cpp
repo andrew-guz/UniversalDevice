@@ -38,6 +38,7 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
     _seconds->addItem("1 неделя");
     _seconds->setCurrentIndex(1);
     _seconds->changed().connect([&](){
+        _cachedValues.clear();
         BaseDeviceWidget::Initialize(_deviceId.data());
     });
 }
@@ -45,6 +46,7 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
 void ThermometerWidget::OnBack()
 {
     _seconds->setCurrentIndex(1);
+    _cachedValues.clear();
 }
 
 void ThermometerWidget::Initialize()
@@ -68,18 +70,26 @@ void ThermometerWidget::Initialize()
         seconds = 604800;
         break;
     }
-    auto thermometerValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, seconds);
-    if (thermometerValues.size())
+    if (_cachedValues.empty())
+        _cachedValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, seconds);
+    else
     {
-        auto value = thermometerValues.begin()->_value;
+        auto lastValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, 0);
+        if (lastValues.empty() ||
+            lastValues[0]._timestamp != std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b){ return a._timestamp > b._timestamp;})->_timestamp)
+            _cachedValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, seconds);
+    }
+    if (_cachedValues.size())
+    {
+        auto value = _cachedValues.begin()->_value;
         _temperatureText->setText(WidgetHelper::TextWithFontSize(value, "°C", 80));
-        auto min = std::min_element(thermometerValues.begin(), thermometerValues.end(), [](const auto& a, const auto& b){ return a._value < b._value;})->_value;
-        auto max = std::max_element(thermometerValues.begin(), thermometerValues.end(), [](const auto& a, const auto& b){ return a._value < b._value;})->_value;
-        _chart->axis(Chart::Axis::Y).setMinimum(min - 2);
-        _chart->axis(Chart::Axis::Y).setMaximum(max + 2);
-        auto timestamp = thermometerValues.begin()->_timestamp;
+        auto min = std::min_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b){ return a._value < b._value;})->_value;
+        auto max = std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b){ return a._value > b._value;})->_value;
+        _chart->axis(Chart::Axis::Y).setMinimum(min - 1);
+        _chart->axis(Chart::Axis::Y).setMaximum(max + 1);
+        auto timestamp = _cachedValues.begin()->_timestamp;
         _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
-        _model->UpdateData(thermometerValues);
+        _model->UpdateData(_cachedValues);
     }
     else
         Clear(BaseDeviceWidget::ClearType::Data);

@@ -29,10 +29,11 @@ protected:
     virtual void OnSettingsButton() override;
 
 private:
-    Wt::WText*                              _temperatureText;
-    Wt::Chart::WCartesianChart*             _chart;
-    std::shared_ptr<TemperatureChartModel>  _model;
-    Wt::WComboBox*                          _seconds;
+    Wt::WText*                                      _temperatureText;
+    Wt::Chart::WCartesianChart*                     _chart;
+    std::shared_ptr<TemperatureChartModel>          _model;
+    Wt::WComboBox*                                  _seconds;
+    std::vector<ExtendedThermometerCurrentValue>    _cachedValues;
 };
 
 #endif //_THERMOMETER_WIDGET_H_
