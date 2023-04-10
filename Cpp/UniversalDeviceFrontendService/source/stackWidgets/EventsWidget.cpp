@@ -85,10 +85,10 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
 
     eventLayout->addWidget(std::make_unique<WText>("Тип события:"), 0, 0, 1, 2);
     _eventType = eventLayout->addWidget(std::make_unique<WComboBox>(), 1, 0, 1, 2);
-    _eventType->addItem("Таймер");      //Constants::EventTypeTimer
-    _eventType->addItem("Термометр");   //Constants::EventTypeThermometer
-    _eventType->addItem("Рэле");        //Constants::EventTypeRelay
-    _eventType->addItem("Термостат");   //Constants::EventTypeThermostat
+    _eventType->addItem(EventsTableModel::EventTypeDisplayName(Constants::EventTypeTimer));
+    _eventType->addItem(EventsTableModel::EventTypeDisplayName(Constants::EventTypeThermometer));
+    _eventType->addItem(EventsTableModel::EventTypeDisplayName(Constants::EventTypeRelay));
+    _eventType->addItem(EventsTableModel::EventTypeDisplayName(Constants::EventTypeThermostat));
     _eventType->changed().connect([&](){
         OnEventTypeChanged();
     });

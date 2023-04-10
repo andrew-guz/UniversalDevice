@@ -14,13 +14,13 @@ EventsTableModel::EventsTableModel(const std::vector<nlohmann::json>& data) :
 void EventsTableModel::UpdateData(const std::vector<nlohmann::json>& data)
 {
     _data = data;
-    dataChanged().emit(index(0, 0), index(_data.size() - 1, 1));
+    dataChanged().emit(index(0, 0), index(_data.size() - 1, 2));
 }
 
 int EventsTableModel::columnCount(const WModelIndex& parent) const
 {
     if (!parent.isValid())
-        return 2;
+        return 3;
     return 0;
 }
 
@@ -36,7 +36,7 @@ WModelIndex EventsTableModel::index(int row, int column, const WModelIndex& pare
     if (row >= 0 &&
         (size_t)row < _data.size() &&
         column >= 0 &&
-        column < 2 &&
+        column < 3 &&
         !parent.isValid())
         return createIndex(row, column, nullptr);
     return WModelIndex();
@@ -53,7 +53,7 @@ cpp17::any EventsTableModel::data(const WModelIndex& index, ItemDataRole role) c
         index.row()>= 0 &&
         (size_t)index.row() < _data.size() &&
         index.column() >= 0 &&
-        index.column() < 2)
+        index.column() < 3)
     {
         auto event = JsonExtension::CreateFromJson<Event>(_data[index.row()]);
         if (role == ItemDataRole::Display)
@@ -61,6 +61,8 @@ cpp17::any EventsTableModel::data(const WModelIndex& index, ItemDataRole role) c
             if (index.column() == 0)
                 return event._name;
             if (index.column() == 1)
+                return EventTypeDisplayName(event._type);
+            if (index.column() == 2)
                 return event._active ? "Активно" : "Неактивно";
         }
         if (role == ItemDataRole::User)
@@ -72,14 +74,29 @@ cpp17::any EventsTableModel::data(const WModelIndex& index, ItemDataRole role) c
 cpp17::any EventsTableModel::headerData(int section, Orientation orientation, ItemDataRole role) const
 {
     if (section >= 0 &&
-        section < 2 &&
+        section < 3 &&
         orientation == Orientation::Horizontal &&
         role == ItemDataRole::Display)
     {
         if (section == 0)
             return "Имя";
         if (section == 1)
+            return "Тип";
+        if (section == 2)
             return "Активно";
     }
+    return {};
+}
+
+std::string EventsTableModel::EventTypeDisplayName(const std::string& eventType)
+{
+    if (eventType == Constants::EventTypeTimer)
+        return "Таймер";
+    else if (eventType == Constants::EventTypeThermometer)
+        return "Термометр";
+    else if (eventType == Constants::EventTypeRelay)
+        return "Рэле";
+    else if (eventType == Constants::EventTypeThermostat)
+        return "Термостат";
     return {};
 }

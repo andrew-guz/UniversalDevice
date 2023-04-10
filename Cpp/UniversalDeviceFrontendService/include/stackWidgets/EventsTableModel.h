@@ -27,6 +27,8 @@ public:
 
     virtual Wt::cpp17::any headerData(int section, Wt::Orientation orientation = Wt::Orientation::Horizontal, Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
+    static std::string EventTypeDisplayName(const std::string& eventType);
+
 private:
     std::vector<nlohmann::json> _data;
 };
