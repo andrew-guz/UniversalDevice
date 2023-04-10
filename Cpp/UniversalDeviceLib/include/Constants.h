@@ -20,8 +20,7 @@ public:
     //subjects - depends on type
     static const std::string SubjectUndefined;
     static const std::string SubjectTimerEvent;
-    static const std::string SubjectGetDeviceInformationSingle;
-    static const std::string SubjectGetDeviceInformationMultiple;
+    static const std::string SubjectGetDeviceInformation;
     static const std::string SubjectThermometerCurrentValue;
     static const std::string SubjectRelayCurrentState;
     static const std::string SubjectMotionRelayCurrentState;

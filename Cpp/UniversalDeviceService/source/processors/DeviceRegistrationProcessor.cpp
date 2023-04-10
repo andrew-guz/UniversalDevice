@@ -26,9 +26,9 @@ nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::sy
         if (data.size())
         {
             updateInsertQueryStream
-                << "UPDATE Devices SET timestamp = '"
-                << TimeHelper::TimeToString(timestamp)
-                << "' WHERE id = '"
+                << "UPDATE Devices SET timestamp = "
+                << TimeHelper::TimeToInt(timestamp)
+                << " WHERE id = '"
                 << description._id.data()
                 << "'";
         }
@@ -39,9 +39,9 @@ nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::sy
                 << description._id.data()
                 << "', '"
                 << description._type
-                << "', '"
-                << TimeHelper::TimeToString(timestamp)
-                << "')";
+                << "', "
+                << TimeHelper::TimeToInt(timestamp)
+                << ")";
         }
         updateInsertQueryStream.flush();
         if (!_queryExecutor->Execute(updateInsertQueryStream.str()))        

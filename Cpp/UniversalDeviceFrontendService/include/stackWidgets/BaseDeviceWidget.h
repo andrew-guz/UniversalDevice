@@ -9,6 +9,7 @@
 
 #include "Uuid.h"
 #include "JsonExtension.h"
+#include "DeviceInformationDescription.h"
 #include "BaseStackWidget.h"
 #include "RequestHelper.h"
 #include "UrlHelper.h"
@@ -44,13 +45,23 @@ protected:
         return JsonExtension::CreateFromJson<TSettings>(replyJson);
     }
 
+    //return 1 last point
     template<typename TValues>
-    std::vector<TValues> GetValues(const std::string& type, bool single)
+    std::vector<TValues> GetValues(const std::string& type)
     {
-        ComponentDescription messageData;
+        return GetValues<TValues>(type, (uint64_t)0);
+    }
+
+
+    //return data from last N seconds or at least one last known point
+    template<typename TValues>
+    std::vector<TValues> GetValues(const std::string& type, uint64_t seconds)
+    {
+        DeviceInformationDescription messageData;
         messageData._type = type;
         messageData._id = _deviceId;
-        auto postMessage = MessageHelper::Create({}, Uuid::Empty(), single ? Constants::SubjectGetDeviceInformationSingle : Constants::SubjectGetDeviceInformationMultiple, messageData.ToJson());
+        messageData._seconds = seconds;
+        auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
         auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
         return JsonExtension::CreateVectorFromJson<TValues>(replyJson);
     }

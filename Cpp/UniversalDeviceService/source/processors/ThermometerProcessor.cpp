@@ -2,9 +2,10 @@
 
 #include <sstream>
 
-#include "JsonExtension.h"
 #include "Logger.h"
 #include "Constants.h"
+#include "JsonExtension.h"
+#include "DeviceInformationDescription.h"
 #include "ThermometerCurrentValue.h"
 #include "ExtendedThermometerCurrentValue.h"
 #include "TimeHelper.h"
@@ -30,9 +31,9 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
         queryStream
             << "INSERT INTO Thermometers (id, timestamp, value) VALUES ('"
             << description._id.data()
-            << "', '" 
-            << TimeHelper::TimeToString(timestamp)
-            << "', '" 
+            << "', " 
+            << TimeHelper::TimeToInt(timestamp)
+            << ", '" 
             << currentValue._value
             << "')";
         queryStream.flush();
@@ -40,34 +41,56 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             LOG_SQL_ERROR(queryStream.str());
         return {};
     }
-    else if (message._header._subject == Constants::SubjectGetDeviceInformationSingle ||
-             message._header._subject == Constants::SubjectGetDeviceInformationMultiple)
+    else if (message._header._subject == Constants::SubjectGetDeviceInformation)
     {
-        auto description = JsonExtension::CreateFromJson<ComponentDescription>(message._data);
+        auto description = JsonExtension::CreateFromJson<DeviceInformationDescription>(message._data);
         if (description._type == Constants::DeviceTypeThermometer &&
             !description._id.isEmpty())
         {
-            std::stringstream queryStream;
-            queryStream
-                << "SELECT timestamp, value FROM Thermometers WHERE id = '"
-                << description._id.data()
-                << "' ORDER BY idx DESC LIMIT "
-                << (message._header._subject == Constants::SubjectGetDeviceInformationSingle ? "1" : "120");
-            queryStream.flush();
-            nlohmann::json result;
-            std::vector<std::vector<std::string>> data;
-            if (_queryExecutor->Select(queryStream.str(), data))
+            std::vector<ExtendedThermometerCurrentValue> extendedThermometerCurrentValues;
+            if (description._seconds != 0)
             {
-                auto extendedThermometerCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedThermometerCurrentValue>(data);
+                auto now = std::chrono::system_clock::now();
+                now -= std::chrono::seconds(description._seconds);
+                std::stringstream queryStream;
+                queryStream
+                    << "SELECT timestamp, value FROM Thermometers WHERE id = '"
+                    << description._id.data()
+                    << "' AND timestamp >= "
+                    << TimeHelper::TimeToInt(now)
+                    << " ORDER BY idx DESC";
+                queryStream.flush();
+                std::vector<std::vector<std::string>> data;
+                if (_queryExecutor->Select(queryStream.str(), data))
+                    extendedThermometerCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedThermometerCurrentValue>(data);
+                else
+                    LOG_SQL_ERROR(queryStream.str());
+            }
+            if (extendedThermometerCurrentValues.size() == 0)
+            {
+                std::stringstream queryStream;
+                queryStream
+                    << "SELECT timestamp, value FROM Thermometers WHERE id = '"
+                    << description._id.data()
+                    << "' ORDER BY idx DESC LIMIT 1";
+                    queryStream.flush();
+                    std::vector<std::vector<std::string>> data;
+                if (_queryExecutor->Select(queryStream.str(), data))
+                    extendedThermometerCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedThermometerCurrentValue>(data);
+                else
+                    LOG_SQL_ERROR(queryStream.str());
+            }
+            if (extendedThermometerCurrentValues.size())
+            {
+                nlohmann::json result;
                 for (auto& extendedThermometerCurrentValue : extendedThermometerCurrentValues)
                     result.push_back(extendedThermometerCurrentValue.ToJson());
                 return result;
             }
             else
-                LOG_SQL_ERROR(queryStream.str());
+                LOG_INFO << "No data for device " << description._id.data() << "found." << std::endl;
         }
         return {};
-    }
-    
+    }    
     return {};
 }

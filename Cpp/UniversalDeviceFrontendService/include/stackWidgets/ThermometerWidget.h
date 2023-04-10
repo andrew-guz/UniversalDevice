@@ -2,6 +2,7 @@
 #define _THERMOMETER_WIDGET_H_
 
 #include <Wt/Chart/WCartesianChart.h>
+#include <Wt/WComboBox.h>
 
 #include "BaseDeviceWidget.h"
 #include "TemperatureChartModel.h"
@@ -29,6 +30,7 @@ private:
     Wt::WText*                              _temperatureText;
     Wt::Chart::WCartesianChart*             _chart;
     std::shared_ptr<TemperatureChartModel>  _model;
+    Wt::WComboBox*                          _seconds;
 };
 
 #endif //_THERMOMETER_WIDGET_H_

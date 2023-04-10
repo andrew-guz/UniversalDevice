@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "Constants.h"
 #include "JsonExtension.h"
+#include "DeviceInformationDescription.h"
 #include "RelayCurrentState.h"
 #include "ExtendedRelayCurrentState.h"
 #include "TimeHelper.h"
@@ -30,9 +31,9 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
         queryStream
             << "INSERT INTO Relays (id, timestamp, state) VALUES ('"
             << description._id.data()
-            << "', '" 
-            << TimeHelper::TimeToString(timestamp)
-            << "', '" 
+            << "', " 
+            << TimeHelper::TimeToInt(timestamp)
+            << ", '" 
             << currentState._state
             << "')";
         queryStream.flush();
@@ -40,31 +41,54 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
             LOG_SQL_ERROR(queryStream.str());
         return {};
     }
-    else if (message._header._subject == Constants::SubjectGetDeviceInformationSingle ||
-             message._header._subject == Constants::SubjectGetDeviceInformationMultiple)
+    else if (message._header._subject == Constants::SubjectGetDeviceInformation)
     {
-        auto description = JsonExtension::CreateFromJson<ComponentDescription>(message._data);
+        auto description = JsonExtension::CreateFromJson<DeviceInformationDescription>(message._data);
         if (description._type == Constants::DeviceTypeRelay &&
             !description._id.isEmpty())
         {
-            std::stringstream queryStream;
-            queryStream
-                << "SELECT timestamp, state FROM Relays WHERE id = '"
-                << description._id.data()
-                << "' ORDER BY idx DESC LIMIT "
-                << (message._header._subject == Constants::SubjectGetDeviceInformationSingle ? "1" : "120");
-            queryStream.flush();
-            nlohmann::json result;
-            std::vector<std::vector<std::string>> data;
-            if (_queryExecutor->Select(queryStream.str(), data))
+            std::vector<ExtendedRelayCurrentState> extendedRelayCurrentStates;
+            if (description._seconds != 0)
             {
-                auto extendedRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedRelayCurrentState>(data);
+                auto now = std::chrono::system_clock::now();
+                now -= std::chrono::seconds(description._seconds);
+                std::stringstream queryStream;
+                queryStream
+                    << "SELECT timestamp, state FROM Relays WHERE id = '"
+                    << description._id.data()
+                    << "' AND timestamp >= "
+                    << TimeHelper::TimeToInt(now)
+                    << " ORDER BY idx DESC";
+                queryStream.flush();
+                std::vector<std::vector<std::string>> data;
+                if (_queryExecutor->Select(queryStream.str(), data))
+                    extendedRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedRelayCurrentState>(data);
+                else
+                    LOG_SQL_ERROR(queryStream.str());
+            }
+            if (extendedRelayCurrentStates.size() == 0)
+            {
+                std::stringstream queryStream;
+                queryStream
+                    << "SELECT timestamp, state FROM Relays WHERE id = '"
+                    << description._id.data()
+                    << "' ORDER BY idx DESC LIMIT 1";
+                    queryStream.flush();
+                    std::vector<std::vector<std::string>> data;
+                if (_queryExecutor->Select(queryStream.str(), data))
+                    extendedRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedRelayCurrentState>(data);
+                else
+                    LOG_SQL_ERROR(queryStream.str());
+            }
+            if (extendedRelayCurrentStates.size())
+            {
+                nlohmann::json result;
                 for (auto& extendedRelayCurrentState : extendedRelayCurrentStates)
                     result.push_back(extendedRelayCurrentState.ToJson());
                 return result;
             }
             else
-                LOG_SQL_ERROR(queryStream.str());
+                LOG_INFO << "No data for device " << description._id.data() << "found." << std::endl;
         }
         return {};
     }

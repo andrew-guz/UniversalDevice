@@ -16,14 +16,14 @@ struct ExtendedMotionRelayCurrentState final : public MotionRelayCurrentState, p
     virtual nlohmann::json ToJson() const override
     {
         auto motionRelayCurrentState = MotionRelayCurrentState::ToJson();
-        motionRelayCurrentState += { "timestamp", TimeHelper::TimeToString(_timestamp) };
+        motionRelayCurrentState += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
         return motionRelayCurrentState;
     }
 
     virtual void FromJson(const nlohmann::json& json) override
     {
         MotionRelayCurrentState::FromJson(json);
-        _timestamp = TimeHelper::TimeFromString(json.value("timestamp", ""));
+        _timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
     }
 
     virtual std::vector<std::string> ToDbStrings() const override
@@ -43,7 +43,7 @@ struct ExtendedMotionRelayCurrentState final : public MotionRelayCurrentState, p
                 motion.size() &&
                 state.size())
             {
-                _timestamp = TimeHelper::TimeFromString(timestamp);
+                _timestamp = TimeHelper::TimeFromInt((int64_t)std::stoll(timestamp));
                 _motion = atoi(motion.c_str());
                 _state = atoi(state.c_str());
             }

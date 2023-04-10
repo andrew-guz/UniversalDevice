@@ -2,9 +2,11 @@
 
 ./UniversalDeviceService
 
+./UniversalDeviceFrontendService --docroot . --https-listen 0.0.0.0:7316 --ssl-certificate ./ssl/frontend.crt --ssl-private-key ./ssl/frontend.key --ssl-tmp-dh ./ssl/dhparam.pem
+
 ./ThermometerSimulator
 
-./UniversalDeviceFrontendService --docroot . --https-listen 0.0.0.0:7316 --ssl-certificate ./ssl/frontend.crt --ssl-private-key ./ssl/frontend.key --ssl-tmp-dh ./ssl/dhparam.pem
+./RealySimulator
 
 ## To generate certificates:
 

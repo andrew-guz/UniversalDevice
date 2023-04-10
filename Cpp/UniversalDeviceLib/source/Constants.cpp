@@ -21,9 +21,7 @@ const std::string Constants::SubjectUndefined = "undefined_subject";
 
 const std::string Constants::SubjectTimerEvent = "timer_timeout";
 
-const std::string Constants::SubjectGetDeviceInformationSingle = "get_device_information_single";
-
-const std::string Constants::SubjectGetDeviceInformationMultiple = "get_device_information_multiple";
+const std::string Constants::SubjectGetDeviceInformation = "get_device_information";
 
 const std::string Constants::SubjectThermometerCurrentValue = "thermometer_current_value";
 

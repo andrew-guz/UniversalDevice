@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "Constants.h"
 #include "JsonExtension.h"
+#include "DeviceInformationDescription.h"
 #include "MotionRelayCurrentState.h"
 #include "ExtendedMotionRelayCurrentState.h"
 #include "TimeHelper.h"
@@ -30,9 +31,9 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
         queryStream
             << "INSERT INTO MotionRelays (id, timestamp, motion, state) VALUES ('"
             << description._id.data()
-            << "', '" 
-            << TimeHelper::TimeToString(timestamp)
-            << "', '" 
+            << "', " 
+            << TimeHelper::TimeToInt(timestamp)
+            << ", '" 
             << currentState._motion
             << "', '" 
             << currentState._state
@@ -42,31 +43,54 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
             LOG_SQL_ERROR(queryStream.str());
         return {};
     }
-    else if (message._header._subject == Constants::SubjectGetDeviceInformationSingle ||
-             message._header._subject == Constants::SubjectGetDeviceInformationMultiple)
+    else if (message._header._subject == Constants::SubjectGetDeviceInformation)
     {
-        auto description = JsonExtension::CreateFromJson<ComponentDescription>(message._data);
+        auto description = JsonExtension::CreateFromJson<DeviceInformationDescription>(message._data);
         if (description._type == Constants::DeviceTypeMotionRelay &&
             !description._id.isEmpty())
         {
-            std::stringstream queryStream;
-            queryStream
-                << "SELECT timestamp, motion, state FROM MotionRelays WHERE id = '"
-                << description._id.data()
-                << "' ORDER BY idx DESC LIMIT "
-                << (message._header._subject == Constants::SubjectGetDeviceInformationSingle ? "1" : "120");
-            queryStream.flush();
-            nlohmann::json result;
-            std::vector<std::vector<std::string>> data;
-            if (_queryExecutor->Select(queryStream.str(), data))
+            std::vector<ExtendedMotionRelayCurrentState> extendedMotionRelayCurrentStates;
+            if (description._seconds != 0)
             {
-                auto extendedMotionRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedMotionRelayCurrentState>(data);
+                auto now = std::chrono::system_clock::now();
+                now -= std::chrono::seconds(description._seconds);
+                std::stringstream queryStream;
+                queryStream
+                    << "SELECT timestamp, motion, state FROM MotionRelays WHERE id = '"
+                    << description._id.data()
+                    << "' AND timestamp >= "
+                    << TimeHelper::TimeToInt(now)
+                    << " ORDER BY idx DESC";
+                queryStream.flush();
+                std::vector<std::vector<std::string>> data;
+                if (_queryExecutor->Select(queryStream.str(), data))
+                    extendedMotionRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedMotionRelayCurrentState>(data);
+                else
+                    LOG_SQL_ERROR(queryStream.str());
+            }
+            if (extendedMotionRelayCurrentStates.size() == 0)
+            {
+                std::stringstream queryStream;
+                queryStream
+                    << "SELECT timestamp, motion, state FROM MotionRelays WHERE id = '"
+                    << description._id.data()
+                    << "' ORDER BY idx DESC LIMIT 1";
+                    queryStream.flush();
+                    std::vector<std::vector<std::string>> data;
+                if (_queryExecutor->Select(queryStream.str(), data))
+                    extendedMotionRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedMotionRelayCurrentState>(data);
+                else
+                    LOG_SQL_ERROR(queryStream.str());
+            }
+            if (extendedMotionRelayCurrentStates.size())
+            {
+                nlohmann::json result;
                 for (auto& extendedMotionRelayCurrentState : extendedMotionRelayCurrentStates)
                     result.push_back(extendedMotionRelayCurrentState.ToJson());
                 return result;
             }
             else
-                LOG_SQL_ERROR(queryStream.str());
+                LOG_INFO << "No data for device " << description._id.data() << "found." << std::endl;
         }
         return {};
     }

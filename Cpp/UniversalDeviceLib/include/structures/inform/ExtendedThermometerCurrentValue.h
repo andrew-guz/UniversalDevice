@@ -16,14 +16,14 @@ struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue, p
     virtual nlohmann::json ToJson() const override
     {
         auto thermometerCurrentValue = ThermometerCurrentValue::ToJson();
-        thermometerCurrentValue += { "timestamp", TimeHelper::TimeToString(_timestamp) };
+        thermometerCurrentValue += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
         return thermometerCurrentValue;
     }
 
     virtual void FromJson(const nlohmann::json& json) override
     {
         ThermometerCurrentValue::FromJson(json);
-        _timestamp = TimeHelper::TimeFromString(json.value("timestamp", ""));
+        _timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
     }
 
     virtual std::vector<std::string> ToDbStrings() const override
@@ -41,7 +41,7 @@ struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue, p
             if (timestamp.size() &&
                 value.size())
             {
-                _timestamp = TimeHelper::TimeFromString(timestamp);
+                _timestamp = TimeHelper::TimeFromInt((int64_t)std::stoll(timestamp));
                 _value = atof(value.c_str());
             }
         }

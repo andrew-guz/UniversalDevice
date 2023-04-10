@@ -2,6 +2,7 @@
 
 #include "Defines.h"
 #include "JsonExtension.h"
+#include "DeviceInformationDescription.h"
 #include "MessageHelper.h"
 #include "RequestHelper.h"
 #include "ExtendedThermometerCurrentValue.h"
@@ -39,10 +40,11 @@ DeviceButton::~DeviceButton()
 void DeviceButton::Refresh()
 {
     auto text = _text;
-    ComponentDescription messageData;
+    DeviceInformationDescription messageData;
     messageData._type = _deviceType;
     messageData._id = _deviceId;
-    auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformationSingle, messageData.ToJson());
+    messageData._seconds = 0;
+    auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
     auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _port, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
     if (!replyJson.is_null())
     {

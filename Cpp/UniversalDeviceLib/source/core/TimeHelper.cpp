@@ -3,6 +3,19 @@
 #include <iomanip>
 #include <time.h>
 
+int64_t TimeHelper::TimeToInt(const std::chrono::system_clock::time_point& time)
+{
+    auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(time);
+    auto secondsFromEpoch = seconds.time_since_epoch();
+    return secondsFromEpoch.count();
+}
+
+std::chrono::system_clock::time_point TimeHelper::TimeFromInt(int64_t value)
+{
+    auto seconds = std::chrono::seconds(value);
+    return std::chrono::system_clock::time_point(seconds);
+}
+
 std::string TimeHelper::TimeToString(const std::chrono::system_clock::time_point& time)
 {
     auto time_t = std::chrono::system_clock::to_time_t(time);
@@ -12,6 +25,11 @@ std::string TimeHelper::TimeToString(const std::chrono::system_clock::time_point
     sstream.flush();
     return sstream.str();
 
+}
+
+std::string TimeHelper::TimeToString(int64_t value)
+{
+    return TimeToString(TimeFromInt(value));
 }
 
 std::string TimeHelper::TimeToShortString(const std::chrono::system_clock::time_point& time)

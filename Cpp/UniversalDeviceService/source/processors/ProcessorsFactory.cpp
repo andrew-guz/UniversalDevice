@@ -19,8 +19,7 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         //process events due to timer
         processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor)));
     }
-    else if (messageHeader._subject == Constants::SubjectGetDeviceInformationSingle ||
-             messageHeader._subject == Constants::SubjectGetDeviceInformationMultiple)
+    else if (messageHeader._subject == Constants::SubjectGetDeviceInformation)
     {
         //we need information about device - here we should call all device processors maybe some one will return data
         processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor)));

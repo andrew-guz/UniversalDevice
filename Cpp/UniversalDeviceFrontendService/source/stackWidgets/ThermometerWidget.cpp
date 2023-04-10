@@ -28,11 +28,42 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
     series->setPen(WPen(WColor(0, 0, 255, 255)));
     series->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     _chart->addSeries(std::move(series));
+    _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 5, 1, AlignmentFlag::Center);
+    _seconds = _mainLayout->addWidget(std::make_unique<WComboBox>(), 6, 1, AlignmentFlag::Center);
+    _seconds->setMinimumSize(200, 50);
+    _seconds->addItem("1 час");
+    _seconds->addItem("2 часа");
+    _seconds->addItem("12 часов");
+    _seconds->addItem("1 день");
+    _seconds->addItem("1 неделя");
+    _seconds->setCurrentIndex(1);
+    _seconds->changed().connect([&](){
+        BaseDeviceWidget::Initialize(_deviceId.data());
+    });
 }
 
 void ThermometerWidget::Initialize()
 {
-    auto thermometerValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, false);
+    uint64_t seconds = 7200;
+    switch (_seconds->currentIndex())
+    {
+    case 0:
+        seconds = 3600;
+        break;
+    case 1:
+        seconds = 7200;
+        break;
+    case 2:
+        seconds = 43200;
+        break;
+    case 3:
+        seconds = 86400;
+        break;
+    case 4:
+        seconds = 604800;
+        break;
+    }
+    auto thermometerValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, seconds);
     if (thermometerValues.size())
     {
         auto value = thermometerValues.begin()->_value;

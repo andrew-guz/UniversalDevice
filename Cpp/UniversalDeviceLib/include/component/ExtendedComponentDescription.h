@@ -23,7 +23,7 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
     {
         auto componentDescription = ComponentDescription::ToJson();
         componentDescription += { "name", _name };
-        componentDescription += { "timestamp", TimeHelper::TimeToString(_timestamp) };
+        componentDescription += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
         return componentDescription;
     }
 
@@ -31,7 +31,7 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
     {
         ComponentDescription::FromJson(json);
         _name = json.value("name", "");
-        _timestamp = TimeHelper::TimeFromString(json.value("timestamp", ""));
+        _timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
     }
 
     virtual std::vector<std::string> ToDbStrings() const override
@@ -41,7 +41,7 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
             _id.data(),
             _type,            
             _name,
-            TimeHelper::TimeToString(_timestamp)
+            std::to_string(TimeHelper::TimeToInt(_timestamp))
         };
     }
 
@@ -60,7 +60,7 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
                 _type = type;
                 _id = id;
                 _name = name;
-                _timestamp = TimeHelper::TimeFromString(timestamp);
+                _timestamp = TimeHelper::TimeFromInt((int64_t)std::stoll(timestamp));
             }
         }
         else
