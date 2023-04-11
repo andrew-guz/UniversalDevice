@@ -1,6 +1,7 @@
 #ifndef _BASE_STACK_WIDGET_H_
 #define _BASE_STACK_WIDGET_H_
 
+#include "FrontendDefines.h"
 #include "IStackWidget.h"
 #include "IStackHolder.h"
 #include "Settings.h"

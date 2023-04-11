@@ -1,6 +1,7 @@
 #include "DeviceButton.h"
 
 #include "Defines.h"
+#include "FrontendDefines.h"
 #include "JsonExtension.h"
 #include "DeviceInformationDescription.h"
 #include "MessageHelper.h"
@@ -44,7 +45,7 @@ void DeviceButton::Refresh()
     messageData._id = _deviceId;
     messageData._seconds = 0;
     auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
-    auto replyJson = RequestHelper::DoPostRequestWithAnswer({ "127.0.0.1", _port, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
+    auto replyJson = RequestHelper::DoPostRequestWithAnswer({ BACKEND_IP, _port, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
     if (!replyJson.is_null())
     {
         std::string additionalData;

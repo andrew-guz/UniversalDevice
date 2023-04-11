@@ -140,12 +140,12 @@ void EventsWidget::Refresh()
 
 std::vector<nlohmann::json> EventsWidget::GetEvents()
 {
-    return RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService);
+    return RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService);
 }
 
 std::vector<ExtendedComponentDescription> EventsWidget::GetDevices()
 {
-    auto resultJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
+    auto resultJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
     return JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(resultJson);
 }
 
@@ -165,7 +165,7 @@ void EventsWidget::AddEvent()
     delete event;
     if (!eventJson.is_null())
     {
-        auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
+        auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
         if (result != 200)
             LOG_ERROR << "Error while adding new Event " << eventJson.dump() << "." << std::endl;
     }
@@ -178,7 +178,7 @@ void EventsWidget::DeleteEvent()
     if (selectedIndexes.empty())
         return;
     auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
-    auto result = RequestHelper::DoDeleteRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
+    auto result = RequestHelper::DoDeleteRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
     if (result != 200)
             LOG_ERROR << "Error while deleting Event " << eventJson.dump() << "." << std::endl;
     Refresh();
@@ -202,7 +202,7 @@ void EventsWidget::UpdateEvent()
     delete event;
     if (!eventJson.is_null())
     {
-        auto result = RequestHelper::DoPutRequest({ "127.0.0.1", _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
+        auto result = RequestHelper::DoPutRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
         if (result != 200)
             LOG_ERROR << "Error while updating Event " << eventJson.dump() << "." << std::endl;
     }

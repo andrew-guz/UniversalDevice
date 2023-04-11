@@ -88,7 +88,7 @@ void BaseDeviceWidget::Clear(ClearType type)
     
 void BaseDeviceWidget::UpdateName()
 {
-    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService);
+    auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService);
     _deviceName = JsonExtension::CreateFromJson<DeviceName>(replyJson)._name;
     _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
 }

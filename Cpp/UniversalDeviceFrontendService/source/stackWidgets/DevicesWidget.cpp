@@ -62,7 +62,7 @@ void DevicesWidget::Clear()
 void DevicesWidget::Refresh()
 {
     Clear();
-    auto replyJson = RequestHelper::DoGetRequest({"127.0.0.1", _settings._servicePort, API_CLIENT_DEVICES}, Constants::LoginService);
+    auto replyJson = RequestHelper::DoGetRequest({BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES}, Constants::LoginService);
     auto descriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
     if (descriptions.empty())
         return;

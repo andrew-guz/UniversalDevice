@@ -1,0 +1,6 @@
+#ifndef _FRONTEND_DEFINES_H_
+#define _FRONTEND_DEFINES_H_
+
+#define BACKEND_IP "127.0.0.1"
+
+#endif // _FRONTEND_DEFINES_H_

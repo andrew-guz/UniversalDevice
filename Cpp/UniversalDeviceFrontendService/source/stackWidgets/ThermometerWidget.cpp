@@ -105,7 +105,7 @@ void ThermometerWidget::ClearData()
 
 ThermometerLedBrightness ThermometerWidget::GetBrightness()
 {
-    auto replyJson = RequestHelper::DoGetRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService);
+    auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService);
     return JsonExtension::CreateFromJson<ThermometerLedBrightness>(replyJson);
 }
 
@@ -142,7 +142,7 @@ void ThermometerWidget::OnSettingsButton()
     {
         DeviceName deviceName;
         deviceName._name = newName;
-        auto result = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService, deviceName.ToJson());
+        auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService, deviceName.ToJson());
         if (result == 200)
         {
             _deviceName = newName;
@@ -154,13 +154,13 @@ void ThermometerWidget::OnSettingsButton()
     //update settings
     PeriodSettings  newSettings;
     newSettings._period = periodEdit->value() * 1000;
-    auto settingsResult = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
+    auto settingsResult = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService, newSettings.ToJson());
     if (settingsResult != 200)
         LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
     //set brightness command
     ThermometerLedBrightness newCommand;
     newCommand._brightness = brightnessEdit->value();
-    auto commandResult = RequestHelper::DoPostRequest({ "127.0.0.1", _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newCommand.ToJson());
+    auto commandResult = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService, newCommand.ToJson());
     if (commandResult != 200)
         LOG_ERROR << "Failed to update settings to " << newCommand.ToJson().dump() << "." << std::endl;
 }
