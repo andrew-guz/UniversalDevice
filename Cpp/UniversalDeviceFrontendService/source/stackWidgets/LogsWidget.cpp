@@ -28,6 +28,7 @@ LogsWidget::LogsWidget(IStackHolder* stackHolder, const Settings& settings) :
 
     _logFiles = mainLayout->addWidget(std::make_unique<WComboBox>(), 1, 0, 1, 2);
     _logFiles->setMinimumSize(_logFiles->minimumWidth(), 50);
+    _logFiles->setMaximumSize(_logFiles->maximumWidth(), 50);
     _logFiles->changed().connect([&](){
         OnLogSelected();
     });

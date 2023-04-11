@@ -31,6 +31,7 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
     _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 5, 1, AlignmentFlag::Center);
     _seconds = _mainLayout->addWidget(std::make_unique<WComboBox>(), 6, 1, AlignmentFlag::Center);
     _seconds->setMinimumSize(200, 50);
+    _seconds->setMaximumSize(200, 50);
     _seconds->addItem("1 час");
     _seconds->addItem("2 часа");
     _seconds->addItem("12 часов");
