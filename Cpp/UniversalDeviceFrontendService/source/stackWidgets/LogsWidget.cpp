@@ -36,6 +36,10 @@ LogsWidget::LogsWidget(IStackHolder* stackHolder, const Settings& settings) :
     _logContent = mainLayout->addWidget(std::make_unique<WTextArea>(), 2, 0, 1, 2);
     _logContent->setReadOnly(true);    
 
+    mainLayout->setRowStretch(0, 0);
+    mainLayout->setRowStretch(1, 0);
+    mainLayout->setRowStretch(2, 1);
+
     Refresh();
 }
 

@@ -31,6 +31,10 @@ MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& 
     _stateButton->clicked().connect([&](){
         OnStateButton();
     });
+
+    _mainLayout->setRowStretch(3, 1);
+    _mainLayout->setRowStretch(4, 1);
+    _mainLayout->setRowStretch(5, 1);
 }
 
 void MotionRelayWidget::Initialize()

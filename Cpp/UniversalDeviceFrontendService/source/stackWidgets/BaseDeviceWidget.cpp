@@ -44,10 +44,10 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
         Initialize(_deviceId.data());
     });
 
-    _nameText = _mainLayout->addWidget(std::make_unique<WText>(), 1, 1, AlignmentFlag::Center);
+    _nameText = _mainLayout->addWidget(std::make_unique<WText>(), 1, 0, 1, 3, AlignmentFlag::Center);
     _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
 
-    _timeText = _mainLayout->addWidget(std::make_unique<WText>(), 2, 1, AlignmentFlag::Center);
+    _timeText = _mainLayout->addWidget(std::make_unique<WText>(), 2, 0, 1, 3, AlignmentFlag::Center);
     _timeText->setText(WidgetHelper::TextWithFontSize("", 20));
     
     _refreshTimer = addChild(std::make_unique<WTimer>());
@@ -56,6 +56,10 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
         Initialize(_deviceId.data());
     });
     _refreshTimer->start();
+
+    _mainLayout->setRowStretch(0, 0);
+    _mainLayout->setRowStretch(1, 0);
+    _mainLayout->setRowStretch(2, 0);
 }
 
 void BaseDeviceWidget::Initialize(const std::string& data)

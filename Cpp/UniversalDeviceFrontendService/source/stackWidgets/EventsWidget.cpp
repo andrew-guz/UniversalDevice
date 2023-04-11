@@ -52,7 +52,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
 
     _eventsTableModel = std::make_shared<EventsTableModel>();
 
-    _eventsTable = tableLayout->addWidget(std::make_unique<WTableView>(), 1, 0);
+    _eventsTable = tableLayout->addWidget(std::make_unique<WTableView>(), 1, 0, AlignmentFlag::Top);
     _eventsTable->setColumnResizeEnabled(false);
     _eventsTable->setColumnAlignment(0, AlignmentFlag::Center);
     _eventsTable->setColumnAlignment(1, AlignmentFlag::Center);
@@ -64,6 +64,9 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventsTable->selectionChanged().connect([&]() {
         OnTableSelectionChanged();
     });
+
+    tableLayout->setRowStretch(0, 0);
+    tableLayout->setRowStretch(1, 1);
 
     auto editorCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 1);
     auto editLayout = editorCanvas->setLayout(std::make_unique<WGridLayout>());
@@ -80,7 +83,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
         UpdateEvent();
     });
 
-    auto eventGroup = editLayout->addWidget(std::make_unique<WGroupBox>("Событие"), 1, 0, 1, 2);
+    auto eventGroup = editLayout->addWidget(std::make_unique<WGroupBox>("Событие"), 1, 0, 1, 2, AlignmentFlag::Top);
     auto eventLayout = eventGroup->setLayout(std::make_unique<WGridLayout>());
 
     eventLayout->addWidget(std::make_unique<WText>("Тип события:"), 0, 0, 1, 2);
@@ -99,7 +102,11 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventEditorsStack->addWidget(std::make_unique<RelayEventEditor>());
     _eventEditorsStack->addWidget(std::make_unique<ThermostatEventEditor>());
 
-    _eventsTable->setMinimumSize(200, 500);
+    editLayout->setRowStretch(0, 0);
+    editLayout->setRowStretch(1, 1);
+
+    _mainLayout->setRowStretch(0, 0);
+    _mainLayout->setRowStretch(1, 1);
 
     Refresh();
 }

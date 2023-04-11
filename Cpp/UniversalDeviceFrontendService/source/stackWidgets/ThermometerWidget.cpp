@@ -13,12 +13,12 @@ using namespace Wt;
 ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseDeviceWidget(stackHolder, settings)
 {
-    _temperatureText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 1, AlignmentFlag::Center);
+    _temperatureText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 0, 1, 3, AlignmentFlag::Center);
     _temperatureText->setText(WidgetHelper::TextWithFontSize(0.0f, "°C", 80));
+    _temperatureText->setMaximumSize(400, 200);
     
     _model = std::make_shared<TemperatureChartModel>();
-    _chart = _mainLayout->addWidget(std::make_unique<Chart::WCartesianChart>(), 4, 1, AlignmentFlag::Center);
-    _chart->resize(800, 600);
+    _chart = _mainLayout->addWidget(std::make_unique<Chart::WCartesianChart>(), 4, 0, 1, 3);
     _chart->setModel(_model);
     _chart->setXSeriesColumn(0);
     _chart->setType(Chart::ChartType::Scatter);
@@ -42,6 +42,11 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
         _cachedValues.clear();
         BaseDeviceWidget::Initialize(_deviceId.data());
     });
+
+    _mainLayout->setRowStretch(3, 0);
+    _mainLayout->setRowStretch(4, 1);
+    _mainLayout->setRowStretch(5, 0);
+    _mainLayout->setRowStretch(6, 0);
 }
 
 void ThermometerWidget::OnBack()

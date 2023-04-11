@@ -28,6 +28,9 @@ RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
     _stateButton->clicked().connect([&](){
         OnStateButton();
     });
+
+    _mainLayout->setRowStretch(3, 1);
+    _mainLayout->setRowStretch(4, 1);
 }
 
 void RelayWidget::Initialize()
