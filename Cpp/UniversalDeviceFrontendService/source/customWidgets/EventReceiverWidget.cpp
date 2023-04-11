@@ -17,8 +17,7 @@ EventReceiverWidget::EventReceiverWidget() :
     
     _mainLayout->addWidget(std::make_unique<WText>("Получатель события:"), 0, 0, 1, 2);
     _receivers = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 1, 0, 1, 2);
-    _receivers->changed().connect([&]()
-    {
+    _receivers->changed().connect([&](){
         OnReceiverChanged();
     });
     _brightnessText = _mainLayout->addWidget(std::make_unique<WText>("Яркость:"), 2, 0);

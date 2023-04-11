@@ -24,8 +24,7 @@ DeviceButton::DeviceButton(int port, const ExtendedComponentDescription& descrip
 
     _refreshTimer = addChild(std::make_unique<WTimer>());
     _refreshTimer->setInterval(std::chrono::seconds(5));
-    _refreshTimer->timeout().connect([&]()
-    {
+    _refreshTimer->timeout().connect([&](){
         Refresh();
     });
     _refreshTimer->start();

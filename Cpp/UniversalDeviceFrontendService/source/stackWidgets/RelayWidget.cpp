@@ -25,8 +25,7 @@ RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
     _stateButton->setMinimumSize(200, 200);
     _stateButton->setMaximumSize(200, 200);
-    _stateButton->clicked().connect([&]()
-    {
+    _stateButton->clicked().connect([&](){
         OnStateButton();
     });
 }

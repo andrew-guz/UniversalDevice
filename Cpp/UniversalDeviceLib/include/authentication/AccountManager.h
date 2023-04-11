@@ -20,10 +20,6 @@ public:
 private:
     void Initialize();
 
-    std::string ToBase64(const std::string& str);
-
-    std::string FromBase64(const std::string& str);
-
 private:
     std::vector<Account> _accounts;
 };

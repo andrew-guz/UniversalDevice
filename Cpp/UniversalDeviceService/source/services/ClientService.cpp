@@ -1,5 +1,6 @@
 #include "ClientService.h"
 
+#include <filesystem>
 #include <nlohmann/json.hpp>
 
 #include "Defines.h"
@@ -11,6 +12,7 @@
 #include "Event.h"
 #include "StorageCacheFactory.h"
 #include "EventTableStorageCache.h"
+#include "LogInformation.h"
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor)
@@ -27,7 +29,7 @@ void ClientService::Initialize(crow::SimpleApp& app)
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return GetEvents(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return AddEvent(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)([&](const crow::request& request){ return UpdateEvent(request); });
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)([&](const crow::request& request){ return DeleteEvent(request); });
+    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return ListLogs(request); });
 }
 
 crow::response ClientService::ListDevices(const crow::request& request)
@@ -302,4 +304,26 @@ crow::response ClientService::DeleteEvent(const crow::request& request)
         LOG_ERROR << "Something went wrong in ClientService::DeleteEvent." << std::endl;
     } 
     return crow::response(crow::BAD_REQUEST);
+}
+
+crow::response ClientService::ListLogs(const crow::request& request)
+{
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
+    nlohmann::json result = nlohmann::json::array({});
+    auto logDir = PathHelper::AppDirPath();
+    for (auto entry : std::filesystem::directory_iterator(logDir))
+    {
+        if (entry.path().extension() == ".log")
+        {
+            LogInformation logInformation;
+            logInformation._fileName = entry.path().filename().string();
+            std::ifstream logStream(entry.path().string());
+            std::ostringstream logBuffer;
+            logBuffer << logStream.rdbuf();
+            logInformation._fileContent = logBuffer.str();
+            result.push_back(logInformation.ToJson());
+        }
+    }
+    return crow::response(crow::OK, result.dump());
 }

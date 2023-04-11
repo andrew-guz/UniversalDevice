@@ -4,6 +4,7 @@
 #include "LoginWidget.h"
 #include "DevicesWidget.h"
 #include "EventsWidget.h"
+#include "LogsWidget.h"
 #include "ThermometerWidget.h"
 #include "RelayWidget.h"
 #include "MotionRelayWidget.h"
@@ -19,6 +20,7 @@ Application::Application(const Settings& settings, const WEnvironment& env) :
     _mainStack->addWidget(std::make_unique<LoginWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<DevicesWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<EventsWidget>(this, settings));
+    _mainStack->addWidget(std::make_unique<LogsWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<ThermometerWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<RelayWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<MotionRelayWidget>(this, settings));
@@ -43,17 +45,21 @@ void Application::SetWidget(StackWidgetType type, const std::string& data)
         _mainStack->setCurrentIndex(2);
         stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(2));
         break;
-    case StackWidgetType::Thermometer:
+    case StackWidgetType::Logs:
         _mainStack->setCurrentIndex(3);
         stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(3));
         break;
-    case StackWidgetType::Relay:
+    case StackWidgetType::Thermometer:
         _mainStack->setCurrentIndex(4);
         stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(4));
         break;
-    case StackWidgetType::MotionRelay:
+    case StackWidgetType::Relay:
         _mainStack->setCurrentIndex(5);
         stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(5));
+        break;
+    case StackWidgetType::MotionRelay:
+        _mainStack->setCurrentIndex(6);
+        stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(6));
         break;
     default:
         LOG_ERROR << "Unknown widget type " << (int)type << "." << std::endl;

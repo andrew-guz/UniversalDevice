@@ -28,7 +28,7 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([&](){
         OnBack();
-        _stackHolder->SetWidget(StackWidgetType::Devices, "");
+        _stackHolder->SetWidget(StackWidgetType::Devices, {});
         _deviceId = Uuid::Empty();
     });
 
@@ -52,8 +52,7 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
     
     _refreshTimer = addChild(std::make_unique<WTimer>());
     _refreshTimer->setInterval(std::chrono::seconds(5));
-    _refreshTimer->timeout().connect([&]()
-    {
+    _refreshTimer->timeout().connect([&](){
         Initialize(_deviceId.data());
     });
     _refreshTimer->start();

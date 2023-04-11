@@ -28,8 +28,7 @@ MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& 
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));    
     _stateButton->setMinimumSize(200, 200);
     _stateButton->setMaximumSize(200, 200);
-    _stateButton->clicked().connect([&]()
-    {
+    _stateButton->clicked().connect([&](){
         OnStateButton();
     });
 }

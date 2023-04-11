@@ -32,7 +32,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     auto backButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([&](){
-        _stackHolder->SetWidget(StackWidgetType::Devices, "");
+        _stackHolder->SetWidget(StackWidgetType::Devices, {});
     });
 
     auto refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 1, AlignmentFlag::Right);

@@ -30,6 +30,8 @@ protected:
 
     crow::response DeleteEvent(const crow::request& request);
 
+    crow::response ListLogs(const crow::request& request);
+
 private:
     friend class BaseServiceExtension;
 };

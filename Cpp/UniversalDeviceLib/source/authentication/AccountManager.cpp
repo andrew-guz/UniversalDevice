@@ -1,14 +1,12 @@
 #include "AccountManager.h"
 
-#include <sstream>
 #include <nlohmann/json.hpp>
-#include <b64/encode.h>
-#include <b64/decode.h>
 
 #include "Logger.h"
 #include "JsonExtension.h"
 #include "PathHelper.h"
 #include "JsonFileReader.h"
+#include "Base64Helper.h"
 
 bool AccountManager::IsValidUser(const std::string& login, const std::string& password)
 {
@@ -29,7 +27,7 @@ bool AccountManager::IsValidUser(const std::string& authorizationString)
     if (authorizationString.find("Basic") == std::string::npos)
         return false;
     auto base64 = authorizationString.substr(6);
-    auto loginPassword = FromBase64(base64);
+    auto loginPassword = Base64Helper::FromBase64(base64);
     std::size_t delimeterIndex = loginPassword.find(":");
     if (delimeterIndex == std::string::npos)
         return false;
@@ -65,24 +63,4 @@ void AccountManager::Initialize()
         auto userAccount = JsonExtension::CreateFromJson<Account>(userJson);
         _accounts.push_back(userAccount);
     }
-}
-
-std::string AccountManager::ToBase64(const std::string& str)
-{
-    std::istringstream incoming(str);
-    std::stringstream outgoing;
-    base64::encoder encoder;
-    encoder.encode(incoming, outgoing);
-    outgoing.flush();
-    return outgoing.str();
-}
-
-std::string AccountManager::FromBase64(const std::string& str)
-{
-    std::istringstream incoming(str);
-    std::stringstream outgoing;
-    base64::decoder decoder;
-    decoder.decode(incoming, outgoing);
-    outgoing.flush();
-    return outgoing.str();
 }

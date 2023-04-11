@@ -16,19 +16,29 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
 
-    auto exitButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, 0, AlignmentFlag::Left);
+    auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, 0, 1, 5);
+    auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<WGridLayout>());
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto exitButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(exitButton);
     exitButton->clicked().connect([&](){
         _stackHolder->SetWidget(StackWidgetType::Login, {});
     });
 
-    auto eventsButton = _mainLayout->addWidget(std::make_unique<WPushButton>("События"), 0, 1, 1, 3, AlignmentFlag::Center);
+    auto eventsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("События"), 0, 1, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(eventsButton);
     eventsButton->clicked().connect([&](){
         _stackHolder->SetWidget(StackWidgetType::Events, {});
     });
+
+    auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, 2, AlignmentFlag::Center);
+    WidgetHelper::SetUsualButtonSize(logsButton);
+    logsButton->clicked().connect([&](){
+        _stackHolder->SetWidget(StackWidgetType::Logs, {});
+    });
     
-    auto refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 4, AlignmentFlag::Right);
+    auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 3, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
     refreshButton->clicked().connect([&](){
         Refresh();
