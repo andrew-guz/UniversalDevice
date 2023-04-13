@@ -26,6 +26,11 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             LOG_ERROR << "ThermometerProcessor - invalid message." << std::endl;
             return {};
         }
+        if (std::abs(currentValue._value - -127.0f) < 0.1f)
+        {
+            LOG_INFO << "-127.0 found - no sensor connected." << std::endl;
+            return {};
+        }
         auto& description = message._header._description;
         std::stringstream queryStream;
         queryStream
@@ -58,7 +63,7 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
                     << description._id.data()
                     << "' AND timestamp >= "
                     << TimeHelper::TimeToInt(now)
-                    << " ORDER BY idx DESC";
+                    << " AND value > -126.9 ORDER BY idx DESC";
                 queryStream.flush();
                 std::vector<std::vector<std::string>> data;
                 if (_queryExecutor->Select(queryStream.str(), data))
@@ -72,7 +77,7 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
                 queryStream
                     << "SELECT timestamp, value FROM Thermometers WHERE id = '"
                     << description._id.data()
-                    << "' ORDER BY idx DESC LIMIT 1";
+                    << "' AND value > -126.9 ORDER BY idx DESC LIMIT 1";
                     queryStream.flush();
                     std::vector<std::vector<std::string>> data;
                 if (_queryExecutor->Select(queryStream.str(), data))
