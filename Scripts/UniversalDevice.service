@@ -1,0 +1,13 @@
+[Unit]
+Description=Universal Device
+After=network.target
+
+[Service]
+StandardOutput=null
+Type=simple
+Restart=always
+ExecStart=/usr/local/bin/UniversalDevice/UniversalDeviceService
+
+[Install]
+WantedBy=multi-user.target
+

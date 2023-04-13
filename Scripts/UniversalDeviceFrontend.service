@@ -1,0 +1,30 @@
+[Unit]
+Description=Universal Device
+After=network.target
+
+[Service]
+StandardOutput=null
+Type=simple
+Restart=always
+ExecStart=/usr/local/bin/UniversalDevice/UniversalDeviceService
+
+[Install]
+WantedBy=multi-user.target
+root@STORAGE:/home/andrew# cat /etc/systemd/system/UniversalDeviceFrontend.service 
+[Unit]
+Description=Universal Device Frontend
+After=network.target
+
+[Service]
+StandardOutput=null
+Type=simple
+Restart=always
+ExecStartPre=/usr/bin/chmod -fR o-rwx /usr/local/bin/UniversalDevice/ssl
+ExecStartPre=/usr/bin/chmod -fR g-rwx /usr/local/bin/UniversalDevice/ssl
+ExecStartPre=/usr/bin/chmod -fR u-rwx /usr/local/bin/UniversalDevice/ssl
+ExecStartPre=/usr/bin/chmod -fR u+r /usr/local/bin/UniversalDevice/ssl
+ExecStart=/usr/local/bin/UniversalDevice/UniversalDeviceFrontendService --docroot /usr/local/bin/UniversalDevice --https-listen 0.0.0.0:7316 --ssl-certificate /usr/local/bin/UniversalDevice/ssl/frontend.crt --ssl-private-key /usr/local/bin/UniversalDevice/ssl/frontend.key --ssl-tmp-dh /usr/local/bin/UniversalDevice/ssl/dhparam.pem
+
+[Install]
+WantedBy=multi-user.target
+
