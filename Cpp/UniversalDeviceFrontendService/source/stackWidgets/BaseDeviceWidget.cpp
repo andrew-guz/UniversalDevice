@@ -57,6 +57,7 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
     });
     _refreshTimer->start();
 
+    _mainLayout->setVerticalSpacing(20);
     _mainLayout->setRowStretch(0, 0);
     _mainLayout->setRowStretch(1, 0);
     _mainLayout->setRowStretch(2, 0);
