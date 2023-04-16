@@ -6,6 +6,7 @@
 #include "DeviceInformationDescription.h"
 #include "MessageHelper.h"
 #include "RequestHelper.h"
+#include "WidgetHelper.h"
 #include "ExtendedThermometerCurrentValue.h"
 #include "ExtendedRelayCurrentState.h"
 #include "ExtendedMotionRelayCurrentState.h"
@@ -57,6 +58,7 @@ void DeviceButton::Refresh()
             {
                 const auto& value = values[0];
                 std::stringstream ss;
+                ss << WidgetHelper::TextWithFontSize("🌡", 40);
                 ss.precision(1);
                 ss << std::fixed << value._value << "°C";
                 ss.flush();
@@ -70,7 +72,7 @@ void DeviceButton::Refresh()
             if (values.size())
             {
                 const auto& value = values[0];
-                additionalData = value._state == 1 ? "ON" : "OFF";
+                additionalData = WidgetHelper::TextWithFontSize("⏼", 40) + (value._state == 1 ? "ON" : "OFF");
                 timestamp = value._timestamp;
             }
         }
@@ -87,7 +89,8 @@ void DeviceButton::Refresh()
         else
             LOG_ERROR << "Unknown device type" << std::endl;
         if (additionalData.size())
-            text += std::string("\n\n") + additionalData + std::string("\n\n") + TimeHelper::TimeToShortString(timestamp);
+            text += std::string("<br/><br/>") + additionalData + std::string("<br/><br/>") + TimeHelper::TimeToShortString(timestamp);
     }
+    setTextFormat(TextFormat::XHTML);
     setText(text);
 }

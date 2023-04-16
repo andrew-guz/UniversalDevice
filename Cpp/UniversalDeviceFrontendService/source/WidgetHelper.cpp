@@ -7,6 +7,14 @@
 
 using namespace Wt;
 
+std::string WidgetHelper::TextWithFontSize(const std::string& txt, int size)
+{
+    std::stringstream ss;
+    ss << "<div style='font-size:" << size << "px'>" << txt << "</div>";
+    ss.flush();
+    return ss.str();
+}
+
 void WidgetHelper::SetUsualButtonSize(WPushButton* button)
 {
     button->setMinimumSize(100, 50);

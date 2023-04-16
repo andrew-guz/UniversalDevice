@@ -17,6 +17,8 @@ class WidgetHelper final
 public:
     static void SetUsualButtonSize(Wt::WPushButton* button);
 
+    static std::string TextWithFontSize(const std::string& txt, int size);
+
     template<typename T>
     static std::string TextWithFontSize(T value, int size)
     {
@@ -25,7 +27,7 @@ public:
         if constexpr (std::is_same<T, float>::value ||
             std::is_same<T, double>::value)
             ss << std::fixed;
-        ss << "<p style='font-size:" << size << "px'>" << value << "</p>";
+        ss << "<div style='font-size:" << size << "px'>" << value << "</div>";
         ss.flush();
         return ss.str();
     }
@@ -38,7 +40,7 @@ public:
         if constexpr (std::is_same<T, float>::value ||
             std::is_same<T, double>::value)
             ss << std::fixed;
-        ss << "<p style='font-size:" << size << "px'>" << value << type <<"</p>";
+        ss << "<div style='font-size:" << size << "px'>" << value << type <<"</div>";
         ss.flush();
         return ss.str();
     }
