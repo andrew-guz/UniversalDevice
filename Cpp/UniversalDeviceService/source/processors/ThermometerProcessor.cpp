@@ -26,12 +26,12 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             LOG_ERROR << "ThermometerProcessor - invalid message." << std::endl;
             return {};
         }
+        auto& description = message._header._description;
         if (std::abs(currentValue._value - -127.0f) < 0.1f)
         {
-            LOG_INFO << "-127.0 found - no sensor connected." << std::endl;
+            LOG_INFO << "-127.0 found - no sensor connected to " << description._id.data() << "." << std::endl;
             return {};
         }
-        auto& description = message._header._description;
         std::stringstream queryStream;
         queryStream
             << "INSERT INTO Thermometers (id, timestamp, value) VALUES ('"
