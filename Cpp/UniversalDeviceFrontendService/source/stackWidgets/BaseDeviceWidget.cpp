@@ -75,8 +75,9 @@ void BaseDeviceWidget::Initialize(const std::string& data)
     }
 
     GetDeviceProperty(API_CLIENT_DEVICE_NAME, _deviceName);
-    _nameText->setText(WidgetHelper::TextWithFontSize(_deviceGroup, 20));
+    _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
     GetDeviceProperty(API_CLIENT_DEVICE_GROUP, _deviceGroup);
+
     Initialize();
 }
 
