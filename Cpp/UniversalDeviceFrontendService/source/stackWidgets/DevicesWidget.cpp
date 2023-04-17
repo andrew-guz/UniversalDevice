@@ -96,6 +96,7 @@ void DevicesWidget::Refresh()
                 continue;
             AddButtonToLayout(groupLayout, description, buttonRow, buttonColumn);
         }
+        _deviceWidgets.insert(std::make_pair(groupGroupBox, _mainLayout));
     }
     buttonRow = groupRow;
     buttonColumn = 0;
@@ -106,11 +107,12 @@ void DevicesWidget::Refresh()
     {
         if (description._group.size())
             continue;
-        AddButtonToLayout(_mainLayout, description, buttonRow, buttonColumn);
+        auto button = AddButtonToLayout(_mainLayout, description, buttonRow, buttonColumn);
+        _deviceWidgets.insert(std::make_pair(button, _mainLayout));
     }
 }
 
-void DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column)
+DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column)
 {
     auto button = layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Center);
     button->clicked().connect([description, this](){
@@ -121,11 +123,11 @@ void DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedCompone
         if (description._type == Constants::DeviceTypeMotionRelay)
             _stackHolder->SetWidget(StackWidgetType::MotionRelay, description._id.data());
     });
-    _deviceWidgets.insert(std::make_pair(button, layout));
     ++column;
     if (column == 5)
     {
         ++row;
         column = 0;
     }
+    return button;
 }

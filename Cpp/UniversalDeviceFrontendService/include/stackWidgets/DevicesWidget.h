@@ -8,6 +8,8 @@
 #include "Settings.h"
 #include "ExtendedComponentDescription.h"
 
+class DeviceButton;
+
 class DevicesWidget final : public Wt::WContainerWidget, public BaseStackWidget
 {
 public:
@@ -22,7 +24,7 @@ private:
 
     void Refresh();
 
-    void AddButtonToLayout(Wt::WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column);
+    DeviceButton* AddButtonToLayout(Wt::WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column);
 
 private:
     Wt::WGridLayout*                        _mainLayout;
