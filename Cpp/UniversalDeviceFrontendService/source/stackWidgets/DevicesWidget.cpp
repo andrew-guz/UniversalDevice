@@ -17,7 +17,6 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     BaseStackWidget(stackHolder, settings)
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
-    //_mainLayout->setVerticalSpacing(20);
 
     auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, 0, 1, 5);
     auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<WGridLayout>());
