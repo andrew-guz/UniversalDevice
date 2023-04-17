@@ -24,9 +24,9 @@ void ClientService::Initialize(crow::SimpleApp& app)
 {
     CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return ListDevices(request); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetDeviceProperty(request, idString, "name"); });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceProperty(request, idString, "name"); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceProperty(request, idString, "name", false); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetDeviceProperty(request, idString, "grp"); });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceProperty(request, idString, "grp"); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceProperty(request, idString, "grp", true); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return GetDeviceInfo(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return GetEvents(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return AddEvent(request); });
@@ -102,7 +102,7 @@ crow::response ClientService::GetDeviceProperty(const crow::request& request, co
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field)
+crow::response ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty)
 {
     if (!IsValidUser(request))
         return crow::response(crow::UNAUTHORIZED);
@@ -110,7 +110,8 @@ crow::response ClientService::SetDeviceProperty(const crow::request& request, co
     {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto deviceProperty = JsonExtension::CreateFromJson<DeviceProperty>(bodyJson);
-        if (!deviceProperty._value.empty())
+        if (canBeEmpty ||
+            !deviceProperty._value.empty())
         {
             std::stringstream queryStream;
             queryStream
