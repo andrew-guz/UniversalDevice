@@ -29,19 +29,19 @@ std::tuple<WDialog*, WGridLayout*, WLineEdit*, Wt::WLineEdit*, WSpinBox*, Wt::WP
     dialog->setClosable(true);
     dialog->setResizable(false);
     dialog->rejectWhenEscapePressed(true);
-    //name group validator
-    auto validator = std::make_shared<WRegExpValidator>("[\\w\\s\u0401\u0451\u0400-\u04ff]{0,50}");
-    validator->setMandatory(true);
     //name
     layout->addWidget(std::make_unique<WText>("Имя:"), 0, 0);   
     auto nameEdit = layout->addWidget(std::make_unique<WLineEdit>(), 0, 1);
-    nameEdit->setValidator(validator);
+    auto nameValidator = std::make_shared<WRegExpValidator>("[\\w\\s\u0401\u0451\u0400-\u04ff]{0,50}");
+    nameValidator->setMandatory(true);
+    nameEdit->setValidator(nameValidator);
     nameEdit->setText(name);
     nameEdit->setFocus();
     //group
     layout->addWidget(std::make_unique<WText>("Группа:"), 1, 0);
     auto groupEdit = layout->addWidget(std::make_unique<WLineEdit>(), 1, 1);
-    groupEdit->setValidator(validator);
+    auto groupValidator = std::make_shared<WRegExpValidator>("[\\w\\s\u0401\u0451\u0400-\u04ff]{0,50}");
+    groupEdit->setValidator(groupValidator);
     groupEdit->setText(group);
     //period
     layout->addWidget(std::make_unique<WText>("Период обновления (сек):"), 2, 0);
