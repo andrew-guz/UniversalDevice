@@ -68,7 +68,13 @@ protected:
         return JsonExtension::CreateVectorFromJson<TValues>(replyJson);
     }
 
-    void UpdateName();
+    void GetDeviceProperty(const std::string& path, std::string& value);
+
+    bool SetDeviceProperty(const std::string& path, const std::string& newValue, std::string& value);
+
+    void SetNewName(const std::string& newName);
+
+    void SetNewGroup(const std::string& newGroup);
 
     virtual void OnSettingsButton() = 0;
 
@@ -79,6 +85,7 @@ protected:
     Wt::WText*          _timeText;
     Uuid                _deviceId;
     std::string         _deviceName;
+    std::string         _deviceGroup;
     Wt::WTimer*         _refreshTimer;
 };
 

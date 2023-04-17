@@ -21,7 +21,7 @@ void WidgetHelper::SetUsualButtonSize(WPushButton* button)
     button->setMaximumSize(100, 50);
 }
 
-std::tuple<WDialog*, WGridLayout*, WLineEdit*, WSpinBox*, Wt::WPushButton*> WidgetHelper::CreateNamePeriodSettingsDialog(WContainerWidget* parent, int height, const WString& name, float period, bool useDefaultValidation)
+std::tuple<WDialog*, WGridLayout*, WLineEdit*, Wt::WLineEdit*, WSpinBox*, Wt::WPushButton*> WidgetHelper::CreateBaseSettingsDialog(WContainerWidget* parent, int height, const WString& name, const Wt::WString& group, float period, bool useDefaultValidation)
 {
     auto dialog = parent->addChild(std::make_unique<WDialog>("Настройки"));
     auto layout = dialog->contents()->setLayout(std::make_unique<WGridLayout>());
@@ -29,17 +29,23 @@ std::tuple<WDialog*, WGridLayout*, WLineEdit*, WSpinBox*, Wt::WPushButton*> Widg
     dialog->setClosable(true);
     dialog->setResizable(false);
     dialog->rejectWhenEscapePressed(true);
-    //name
-    layout->addWidget(std::make_unique<WText>("Имя:"), 0, 0);
+    //name group validator
     auto validator = std::make_shared<WRegExpValidator>("[\\w\\s\u0401\u0451\u0400-\u04ff]{0,50}");
     validator->setMandatory(true);
+    //name
+    layout->addWidget(std::make_unique<WText>("Имя:"), 0, 0);   
     auto nameEdit = layout->addWidget(std::make_unique<WLineEdit>(), 0, 1);
     nameEdit->setValidator(validator);
     nameEdit->setText(name);
     nameEdit->setFocus();
+    //group
+    layout->addWidget(std::make_unique<WText>("Группа:"), 1, 0);
+    auto groupEdit = layout->addWidget(std::make_unique<WLineEdit>(), 1, 1);
+    groupEdit->setValidator(validator);
+    groupEdit->setText(group);
     //period
-    layout->addWidget(std::make_unique<WText>("Период обновления (сек):"), 1, 0);
-    auto periodEdit = layout->addWidget(std::make_unique<WSpinBox>(), 1, 1);
+    layout->addWidget(std::make_unique<WText>("Период обновления (сек):"), 2, 0);
+    auto periodEdit = layout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
     periodEdit->setMinimum(1);
     periodEdit->setMaximum(600);
     periodEdit->setValue(period / 1000);
@@ -56,11 +62,12 @@ std::tuple<WDialog*, WGridLayout*, WLineEdit*, WSpinBox*, Wt::WPushButton*> Widg
                             periodEdit->validate() != Wt::ValidationState::Valid);
         };
         nameEdit->keyWentUp().connect(okValidation);
+        groupEdit->keyWentUp().connect(okValidation);
         periodEdit->valueChanged().connect(okValidation);
         periodEdit->keyWentUp().connect(okValidation);
         okValidation();
     }
-    return std::make_tuple(dialog, layout, nameEdit, periodEdit, ok);
+    return std::make_tuple(dialog, layout, nameEdit, groupEdit, periodEdit, ok);
 }
 
 void WidgetHelper::ShowSimpleErrorMessage(Wt::WWidget* parent, const std::string& header, const std::string& message)

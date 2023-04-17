@@ -7,7 +7,7 @@
 #include "JsonExtension.h"
 #include "MessageHelper.h"
 #include "ProcessorsFactory.h"
-#include "DeviceName.h"
+#include "DeviceProperty.h"
 #include "ExtendedComponentDescription.h"
 #include "Event.h"
 #include "StorageCacheFactory.h"
@@ -23,8 +23,10 @@ ClientService::ClientService(IQueryExecutor* queryExecutor) :
 void ClientService::Initialize(crow::SimpleApp& app)
 {
     CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return ListDevices(request); });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetDeviceName(request, idString); });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceName(request, idString); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetDeviceProperty(request, idString, "name"); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceProperty(request, idString, "name"); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetDeviceProperty(request, idString, "grp"); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetDeviceProperty(request, idString, "grp"); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return GetDeviceInfo(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)([&](const crow::request& request){ return GetEvents(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return AddEvent(request); });
@@ -57,7 +59,7 @@ crow::response ClientService::ListDevices(const crow::request& request)
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::GetDeviceName(const crow::request& request, const std::string& idString)
+crow::response ClientService::GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field)
 {
     if (!IsValidUser(request))
         return crow::response(crow::UNAUTHORIZED);
@@ -66,7 +68,9 @@ crow::response ClientService::GetDeviceName(const crow::request& request, const 
     {
         std::stringstream queryStream;
         queryStream
-            << "SELECT name FROM Devices WHERE id = '"
+            << "SELECT "
+            << field
+            << " FROM Devices WHERE id = '"
             << idString
             << "'";
         queryStream.flush();
@@ -75,9 +79,9 @@ crow::response ClientService::GetDeviceName(const crow::request& request, const 
         {
             if (data.size() == 1)
             {
-                DeviceName deviceName;
-                deviceName._name = data[0][1];
-                result = deviceName.ToJson();
+                DeviceProperty deviceProperty;
+                deviceProperty._value = data[0][1];
+                result = deviceProperty.ToJson();
             }
             else
             {
@@ -92,26 +96,28 @@ crow::response ClientService::GetDeviceName(const crow::request& request, const 
     }
     catch(...)
     {
-        LOG_ERROR << "Something went wrong in ClientService::GetDeviceName." << std::endl;
+        LOG_ERROR << "Something went wrong in ClientService::GetDeviceProperty." << std::endl;
         return crow::response(crow::BAD_REQUEST);
     } 
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::SetDeviceName(const crow::request& request, const std::string& idString)
+crow::response ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field)
 {
     if (!IsValidUser(request))
         return crow::response(crow::UNAUTHORIZED);
     try
     {
         auto bodyJson = nlohmann::json::parse(request.body);
-        auto deviceName = JsonExtension::CreateFromJson<DeviceName>(bodyJson);
-        if (!deviceName._name.empty())
+        auto deviceProperty = JsonExtension::CreateFromJson<DeviceProperty>(bodyJson);
+        if (!deviceProperty._value.empty())
         {
             std::stringstream queryStream;
             queryStream
-                << "UPDATE Devices SET name = '"
-                << deviceName._name
+                << "UPDATE Devices SET "
+                << field
+                << " = '"
+                << deviceProperty._value
                 << "' WHERE id = '"
                 << idString
                 << "'";
@@ -122,11 +128,11 @@ crow::response ClientService::SetDeviceName(const crow::request& request, const 
                 LOG_SQL_ERROR(queryStream.str());
         }
         else
-            LOG_ERROR << "Invalid device name " << request.body << "." << std::endl;    
+            LOG_ERROR << "Invalid device " << field << " " << request.body << "." << std::endl;    
     }
     catch(...)
     {
-        LOG_ERROR << "Something went wrong in ClientService::GetDeviceName." << std::endl;
+        LOG_ERROR << "Something went wrong in ClientService::SetDeviceProperty." << std::endl;
         return crow::response(crow::BAD_REQUEST);
     } 
     return crow::response(crow::BAD_REQUEST);

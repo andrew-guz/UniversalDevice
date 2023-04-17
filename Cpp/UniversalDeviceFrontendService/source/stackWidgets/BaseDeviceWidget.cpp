@@ -13,7 +13,7 @@
 #include "MessageHelper.h"
 #include "RequestHelper.h"
 #include "UrlHelper.h"
-#include "DeviceName.h"
+#include "DeviceProperty.h"
 #include "WidgetHelper.h"
 
 using namespace Wt;
@@ -74,7 +74,9 @@ void BaseDeviceWidget::Initialize(const std::string& data)
         return;
     }
 
-    UpdateName();
+    GetDeviceProperty(API_CLIENT_DEVICE_NAME, _deviceName);
+    _nameText->setText(WidgetHelper::TextWithFontSize(_deviceGroup, 20));
+    GetDeviceProperty(API_CLIENT_DEVICE_GROUP, _deviceGroup);
     Initialize();
 }
 
@@ -84,6 +86,7 @@ void BaseDeviceWidget::Clear(ClearType type)
     {
         _deviceName = {};
         _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
+        _deviceGroup = {};
     }
     if (type & BaseDeviceWidget::ClearType::Data)
     {
@@ -91,9 +94,33 @@ void BaseDeviceWidget::Clear(ClearType type)
     }
 }
     
-void BaseDeviceWidget::UpdateName()
+void BaseDeviceWidget::GetDeviceProperty(const std::string& path, std::string& value)
 {
-    auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService);
-    _deviceName = JsonExtension::CreateFromJson<DeviceName>(replyJson)._name;
-    _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
+    auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) }, Constants::LoginService);
+    value = JsonExtension::CreateFromJson<DeviceProperty>(replyJson)._value;
+}
+
+bool BaseDeviceWidget::SetDeviceProperty(const std::string& path, const std::string& newValue, std::string& value)
+{
+    DeviceProperty deviceProperty;
+    deviceProperty._value = newValue;
+    auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) }, Constants::LoginService, deviceProperty.ToJson());
+    if (result == 200)
+    {
+        value = newValue;
+        return true;
+    }
+    LOG_ERROR << "Failed to update property " << path << " to " << newValue << "." << std::endl;
+    return false;
+}
+
+void BaseDeviceWidget::SetNewName(const std::string& newName)
+{
+    if (SetDeviceProperty(API_CLIENT_DEVICE_NAME, newName, _deviceName))
+        _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
+}
+
+void BaseDeviceWidget::SetNewGroup(const std::string& newGroup)
+{
+    SetDeviceProperty(API_CLIENT_DEVICE_GROUP, newGroup, _deviceGroup);
 }

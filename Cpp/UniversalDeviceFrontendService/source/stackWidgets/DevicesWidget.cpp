@@ -1,13 +1,15 @@
 #include "DevicesWidget.h"
 
+#include <Wt/WGroupBox.h>
+
 #include "Defines.h"
 #include "Constants.h"
 #include "Logger.h"
 #include "JsonExtension.h"
 #include "MessageHelper.h"
 #include "RequestHelper.h"
-#include "ExtendedComponentDescription.h"
 #include "WidgetHelper.h"
+#include "DeviceButton.h"
 
 using namespace Wt;
 
@@ -15,7 +17,7 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     BaseStackWidget(stackHolder, settings)
 {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
-    _mainLayout->setVerticalSpacing(50);
+    //_mainLayout->setVerticalSpacing(20);
 
     auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, 0, 1, 5);
     auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<WGridLayout>());
@@ -55,39 +57,76 @@ void DevicesWidget::Initialize(const std::string& data)
 
 void DevicesWidget::Clear()
 {
-    for(auto& button : _deviceButtons)
-        _mainLayout->removeWidget(button);
-    _deviceButtons.clear();
+    for (auto iter = _deviceWidgets.begin(); iter != _deviceWidgets.end(); ++iter)
+    {
+        iter->second->removeWidget(iter->first);
+    }
+    _deviceWidgets.clear();
 }
 
 void DevicesWidget::Refresh()
 {
     Clear();
     auto replyJson = RequestHelper::DoGetRequest({BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES}, Constants::LoginService);
-    auto descriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
-    if (descriptions.empty())
+    auto allDescriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
+    if (allDescriptions.empty())
         return;
-    LOG_DEBUG << descriptions.size() << " descriptions found." << std::endl;
-    std::sort(descriptions.begin(), descriptions.end(), [](const auto& a, const auto& b){ return a._name.compare(b._name) < 0; });
-    int row = 2;
-    int column = 0;
-    for (auto& description : descriptions)
+    LOG_DEBUG << allDescriptions.size() << " allDescriptions found." << std::endl;
+    std::set<std::string> groups;
+    std::for_each(allDescriptions.begin(), allDescriptions.end(), [&groups](const auto& d) {
+        if (d._group.size())
+            groups.insert(d._group);
+    });
+    auto groupRow = 2;
+    auto buttonRow = 0;
+    auto buttonColumn = 0;
+    std::vector<ExtendedComponentDescription> currentDescriptions;
+    for (auto& group : groups)
     {
-        auto button = _mainLayout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Center);
-        button->clicked().connect([description, this](){
-            if (description._type == Constants::DeviceTypeThermometer)
-                _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
-            if (description._type == Constants::DeviceTypeRelay)
-                _stackHolder->SetWidget(StackWidgetType::Relay, description._id.data());
-            if (description._type == Constants::DeviceTypeMotionRelay)
-                _stackHolder->SetWidget(StackWidgetType::MotionRelay, description._id.data());
-        });
-        _deviceButtons.push_back(button);
-        ++column;
-        if (column == 5)
+        auto groupGroupBox = _mainLayout->addWidget(std::make_unique<WGroupBox>(group), groupRow++, 0, 1, 5);
+        auto groupLayout = groupGroupBox->setLayout(std::make_unique<WGridLayout>());
+        groupLayout->setVerticalSpacing(30);
+        buttonRow = 0;
+        buttonColumn = 0;
+        currentDescriptions.clear();
+        std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions), [](const auto& d){ return d._group.size(); });
+        std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b){ return a._name.compare(b._name) < 0; });
+        for (auto& description : currentDescriptions)
         {
-            ++row;
-            column = 0;
+            if (description._group != group)
+                continue;
+            AddButtonToLayout(groupLayout, description, buttonRow, buttonColumn);
         }
+    }
+    buttonRow = groupRow;
+    buttonColumn = 0;
+    currentDescriptions.clear();
+    std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions), [](const auto& d){ return d._group.size() == 0; });
+    std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b){ return a._name.compare(b._name) < 0; });
+    for (auto& description : allDescriptions)
+    {
+        if (description._group.size())
+            continue;
+        AddButtonToLayout(_mainLayout, description, buttonRow, buttonColumn);
+    }
+}
+
+void DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column)
+{
+    auto button = layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Center);
+    button->clicked().connect([description, this](){
+        if (description._type == Constants::DeviceTypeThermometer)
+            _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
+        if (description._type == Constants::DeviceTypeRelay)
+            _stackHolder->SetWidget(StackWidgetType::Relay, description._id.data());
+        if (description._type == Constants::DeviceTypeMotionRelay)
+            _stackHolder->SetWidget(StackWidgetType::MotionRelay, description._id.data());
+    });
+    _deviceWidgets.insert(std::make_pair(button, layout));
+    ++column;
+    if (column == 5)
+    {
+        ++row;
+        column = 0;
     }
 }

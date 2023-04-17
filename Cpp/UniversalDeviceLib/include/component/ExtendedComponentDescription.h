@@ -12,6 +12,7 @@
 struct ExtendedComponentDescription final : ComponentDescription, public IJson<ExtendedComponentDescription>, public IDb<ExtendedComponentDescription>
 {
     std::string                             _name;
+    std::string                             _group;
     std::chrono::system_clock::time_point   _timestamp;
 
     std::string GetDisplayString() const
@@ -23,6 +24,7 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
     {
         auto componentDescription = ComponentDescription::ToJson();
         componentDescription += { "name", _name };
+        componentDescription += { "grp", _group };
         componentDescription += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
         return componentDescription;
     }
@@ -31,16 +33,18 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
     {
         ComponentDescription::FromJson(json);
         _name = json.value("name", "");
+        _group = json.value("grp", "");
         _timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
     }
 
     virtual std::vector<std::string> ToDbStrings() const override
     {
-        //id, type, name, timestamp
+        //id, type, name, group, timestamp
         return {
             _id.data(),
             _type,            
             _name,
+            _group,
             std::to_string(TimeHelper::TimeToInt(_timestamp))
         };
     }
@@ -52,6 +56,7 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
             auto type = DbExtension::FindValueByName(dbStrings, "type");
             auto id = DbExtension::FindValueByName(dbStrings, "id");           
             auto name = DbExtension::FindValueByName(dbStrings, "name");
+            auto group = DbExtension::FindValueByName(dbStrings, "grp");
             auto timestamp = DbExtension::FindValueByName(dbStrings, "timestamp");
             if (type.size() &&
                 id.size() &&
@@ -60,6 +65,7 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
                 _type = type;
                 _id = id;
                 _name = name;
+                _group = group;
                 _timestamp = TimeHelper::TimeFromInt((int64_t)std::stoll(timestamp));
             }
         }

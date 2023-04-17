@@ -27,6 +27,7 @@
 //for client
 #define API_CLIENT_DEVICES                  "/api/client/list"
 #define API_CLIENT_DEVICE_NAME              "/api/client/device/name/<string>"
+#define API_CLIENT_DEVICE_GROUP             "/api/client/device/group/<string>"
 #define API_CLIENT_DEVICE_GET_INFO          "/api/client/device"
 #define API_CLIENT_EVENTS                   "/api/client/events"
 #define API_CLIENT_LOGS                     "/api/client/logs"

@@ -80,6 +80,7 @@
         "WCartesianChart.C": "cpp",
         "WStandardChartProxyModel.C": "cpp",
         "WWebWidget.C": "cpp",
-        "WWidget.C": "cpp"
+        "WWidget.C": "cpp",
+        "WString.C": "cpp"
     }
 }

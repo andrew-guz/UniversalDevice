@@ -5,7 +5,7 @@
 #include "Logger.h"
 #include "ComponentDescription.h"
 #include "ExtendedComponentDescription.h"
-#include "DeviceName.h"
+#include "DeviceProperty.h"
 #include "WidgetHelper.h"
 
 using namespace Wt;
@@ -118,10 +118,10 @@ void ThermometerWidget::OnSettingsButton()
 {
     if (_deviceId.isEmpty())
         return;
-    auto [dialog, layout, nameEdit, periodEdit, ok] = WidgetHelper::CreateNamePeriodSettingsDialog(this, 180, _deviceName, GetSettings<PeriodSettings>()._period, false);
+    auto [dialog, layout, nameEdit, groupEdit, periodEdit, ok] = WidgetHelper::CreateBaseSettingsDialog(this, 210, _deviceName, _deviceGroup, GetSettings<PeriodSettings>()._period, false);
     //brightness
-    layout->addWidget(std::make_unique<WText>("Яркость:"), 2, 0);
-    auto brightnessEdit = layout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
+    layout->addWidget(std::make_unique<WText>("Яркость:"), 3, 0);
+    auto brightnessEdit = layout->addWidget(std::make_unique<WSpinBox>(), 3, 1);
     brightnessEdit->setMinimum(MIN_BRIGHTNESS);
     brightnessEdit->setMaximum(MAX_BRIGHTNESS);
     brightnessEdit->setValue(GetBrightness()._brightness);
@@ -133,6 +133,7 @@ void ThermometerWidget::OnSettingsButton()
                         brightnessEdit->validate() != Wt::ValidationState::Valid);
     };
     nameEdit->keyWentUp().connect(okValidation);
+    groupEdit->keyWentUp().connect(okValidation);
     periodEdit->valueChanged().connect(okValidation);
     periodEdit->keyWentUp().connect(okValidation);
     brightnessEdit->valueChanged().connect(okValidation);
@@ -144,18 +145,9 @@ void ThermometerWidget::OnSettingsButton()
     //update name
     auto newName = nameEdit->text().toUTF8();
     if (newName.size())
-    {
-        DeviceName deviceName;
-        deviceName._name = newName;
-        auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_DEVICE_NAME, "<string>", _deviceId.data()) }, Constants::LoginService, deviceName.ToJson());
-        if (result == 200)
-        {
-            _deviceName = newName;
-            _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
-        }
-        else
-            LOG_ERROR << "Failed to update name to " << newName << "." << std::endl;
-    }    
+        SetNewName(newName);
+    //update group
+    SetNewGroup(groupEdit->text().toUTF8()); 
     //update settings
     PeriodSettings  newSettings;
     newSettings._period = periodEdit->value() * 1000;

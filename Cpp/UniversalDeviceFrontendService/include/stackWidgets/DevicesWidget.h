@@ -3,11 +3,10 @@
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WGridLayout.h>
-#include <Wt/WPushButton.h>
 
 #include "BaseStackWidget.h"
 #include "Settings.h"
-#include "DeviceButton.h"
+#include "ExtendedComponentDescription.h"
 
 class DevicesWidget final : public Wt::WContainerWidget, public BaseStackWidget
 {
@@ -23,9 +22,11 @@ private:
 
     void Refresh();
 
+    void AddButtonToLayout(Wt::WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column);
+
 private:
-    Wt::WGridLayout*            _mainLayout;
-    std::vector<DeviceButton*>  _deviceButtons;
+    Wt::WGridLayout*                        _mainLayout;
+    std::map<Wt::WWidget*, Wt::WLayout*>    _deviceWidgets;
 };
 
 #endif //_DEVICES_WIDGET_H_
