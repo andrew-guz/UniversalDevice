@@ -16,6 +16,11 @@
 
 #define DEFAULT_ACTIVITY_TIME 60000
 
+#define NIGHT_MODE_START_HOUR 22
+#define NIGHT_MODE_START_MINUTES 0
+#define NIGHT_MODE_END_HOUR 8
+#define NIGHT_MODE_END_MINUTES 0
+
 //api addresses
 //common
 #define API_VERSION                         "/api/version"
