@@ -40,7 +40,7 @@ void DeviceService::Initialize(crow::SimpleApp& app)
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
-    CROW_WEBSOCKET_ROUTE(app, API_WEBSOCKETS)
+    CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
         .onmessage([&](crow::websocket::connection& conn, const std::string& data, bool is_binary){ return OnWebSocketMessage(conn, data, is_binary); })
         .onclose([&](crow::websocket::connection& conn, const std::string& reason){ return OnWebSocketClose(conn, reason); });
 
