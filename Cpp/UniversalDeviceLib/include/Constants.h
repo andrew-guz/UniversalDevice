@@ -24,6 +24,7 @@ public:
     static const std::string SubjectThermometerCurrentValue;
     static const std::string SubjectRelayCurrentState;
     static const std::string SubjectMotionRelayCurrentState;
+    static const std::string SubjectWebSocketAuthorization;
 
     //predefined ids for devices
     static const Uuid PredefinedIdTimer;

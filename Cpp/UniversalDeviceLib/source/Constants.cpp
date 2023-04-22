@@ -29,6 +29,8 @@ const std::string Constants::SubjectRelayCurrentState = "relay_current_state";
 
 const std::string Constants::SubjectMotionRelayCurrentState = "motion_relay_current_state";
 
+const std::string Constants::SubjectWebSocketAuthorization = "websocket_authorization";
+
 //predefined ids
 const Uuid Constants::PredefinedIdTimer = Uuid("00000000-0000-0000-0000-000000000001");
 

@@ -7,6 +7,8 @@
 #include "MessageHelper.h"
 #include "StorageCacheFactory.h"
 #include "SimpleTableStorageCache.h"
+#include "JsonExtension.h"
+#include "WebSocketAuthentication.h"
 
 void TimerThreadFunction(std::function<void(void)> timerFunction)
 { 
@@ -38,6 +40,9 @@ void DeviceService::Initialize(crow::SimpleApp& app)
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
+    CROW_WEBSOCKET_ROUTE(app, API_WEBSOCKETS)
+        .onmessage([&](crow::websocket::connection& conn, const std::string& data, bool is_binary){ return OnWebSocketMessage(conn, data, is_binary); })
+        .onclose([&](crow::websocket::connection& conn, const std::string& reason){ return OnWebSocketClose(conn, reason); });
 
     //also start thread for timer events
     auto timerFunction = std::bind(&DeviceService::TimerFunction, this);
@@ -209,6 +214,67 @@ crow::response DeviceService::Inform(const crow::request& request)
         LOG_ERROR << "Something went wrong in DeviceService::Inform." << std::endl;
     }
     return crow::response(crow::BAD_REQUEST);
+}
+
+void DeviceService::AddWebSocketConnection(const Uuid& id, crow::websocket::connection& conn)
+{
+    std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
+    auto iter = std::find_if(_webSocketConnections.begin(), _webSocketConnections.end(), [&id](const auto& p){ return p.first == id; });
+    if (iter != _webSocketConnections.end())
+        _webSocketConnections.erase(iter);
+    _webSocketConnections.insert(std::make_pair(id, &conn));
+}
+
+crow::websocket::connection* DeviceService::GetWebSocketConnection(const Uuid& id)
+{
+    std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
+    auto iter = std::find_if(_webSocketConnections.begin(), _webSocketConnections.end(), [&id](const auto& p){ return p.first == id; });
+    if (iter != _webSocketConnections.end())
+        return iter->second;
+    return nullptr;
+}
+
+void DeviceService::DeleteWebSocketConnection(crow::websocket::connection& conn)
+{
+    std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
+    for (auto iter = _webSocketConnections.begin(); iter != _webSocketConnections.end(); )
+    {
+        if (iter->second == &conn)
+            iter = _webSocketConnections.erase(iter);
+        else
+            ++iter;
+    }
+}
+
+void DeviceService::OnWebSocketMessage(crow::websocket::connection& conn, const std::string& data, bool is_binary)
+{
+    if (is_binary)
+        return;
+    try
+    {
+        auto timestamp = std::chrono::system_clock::now();
+        auto message = BaseServiceExtension::GetMessageFromWebSocketData(data);
+        if (message._header._subject == Constants::SubjectWebSocketAuthorization)
+        {
+            auto webSocketAuthentication = JsonExtension::CreateFromJson<WebSocketAuthentication>(message._data);
+            if (IsValidUser(webSocketAuthentication._authString))
+                AddWebSocketConnection(message._header._description._id, conn);
+        }
+        else
+        {
+            if (GetWebSocketConnection(message._header._description._id))
+                CallProcessorsNoResult(timestamp, message);
+        }
+    }
+    catch(...)
+    {
+        LOG_ERROR << "Something went wrong in DeviceService::Inform." << std::endl;
+    }
+}
+
+void DeviceService::OnWebSocketClose(crow::websocket::connection& conn, const std::string& reason)
+{
+    DeleteWebSocketConnection(conn);
 }
 
 void DeviceService::TimerFunction()

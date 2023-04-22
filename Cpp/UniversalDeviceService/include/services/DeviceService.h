@@ -28,7 +28,21 @@ protected:
 
     crow::response Inform(const crow::request& request);
 
+    void AddWebSocketConnection(const Uuid& id, crow::websocket::connection& conn);
+
+    crow::websocket::connection* GetWebSocketConnection(const Uuid& id);
+
+    void DeleteWebSocketConnection(crow::websocket::connection& conn);
+
+    void OnWebSocketMessage(crow::websocket::connection& conn, const std::string& data, bool is_binary);
+
+    void OnWebSocketClose(crow::websocket::connection& conn, const std::string& reason);
+
     void TimerFunction();
+
+private:
+    std::mutex                                      _webSocketConnectionsMutex;
+    std::map<Uuid, crow::websocket::connection*>    _webSocketConnections;
 
 private:
     friend class BaseServiceExtension;
