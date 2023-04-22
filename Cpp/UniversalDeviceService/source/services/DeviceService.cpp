@@ -103,7 +103,12 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
         switch(problem._type)
         {
         case StorageCacheProblemType::NoProblems:
-            return crow::response(crow::OK);
+            {
+                auto connection = GetWebSocketConnection(Uuid(idString));
+                if (connection)
+                    connection->send_text(settingsString);
+                return crow::response(crow::OK);
+            }
             break;
         case StorageCacheProblemType::Empty:
             LOG_ERROR << "Invalid settings " << settingsString << "." << std::endl;
@@ -177,7 +182,12 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
         switch(problem._type)
         {
         case StorageCacheProblemType::NoProblems:
-            return crow::response(crow::OK);
+            {
+                auto connection = GetWebSocketConnection(Uuid(idString));
+                if (connection)
+                    connection->send_text(commandsString);
+                return crow::response(crow::OK);
+            }
             break;
         case StorageCacheProblemType::Empty:
             LOG_ERROR << "Invalid commands " << commandsString << "." << std::endl;
