@@ -7,6 +7,7 @@
 #include "ThermometerProcessor.h"
 #include "RelayProcessor.h"
 #include "MotionRelayProcessor.h"
+#include "WebsocketProcessor.h"
 
 Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExecutor* queryExecutor)
 {
@@ -52,6 +53,22 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         processors.push_back(std::shared_ptr<IProcessor>(new MotionRelayProcessor(queryExecutor)));
         //process events due to motion relay state
         processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor)));            
+    }
+
+    return processors;
+}
+
+Processors ProcessorsFactory::CreateProcessors(const Message& message, crow::websocket::connection* connection)
+{
+    auto& messageHeader = message._header;
+
+    Processors processors;
+
+    if (messageHeader._subject == Constants::SubjectWebSocketGetSettings ||
+        messageHeader._subject == Constants::SubjectWebSocketGetCommands)
+    {
+        //answer on get settings or command from websocket request
+        processors.push_back(std::shared_ptr<IProcessor>(new WebSocketProcessor(connection)));
     }
 
     return processors;
