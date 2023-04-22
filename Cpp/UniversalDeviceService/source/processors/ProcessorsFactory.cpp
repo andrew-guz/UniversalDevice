@@ -54,21 +54,11 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         //process events due to motion relay state
         processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor)));            
     }
-
-    return processors;
-}
-
-Processors ProcessorsFactory::CreateProcessors(const Message& message, crow::websocket::connection* connection)
-{
-    auto& messageHeader = message._header;
-
-    Processors processors;
-
-    if (messageHeader._subject == Constants::SubjectWebSocketGetSettings ||
+    else if (messageHeader._subject == Constants::SubjectWebSocketGetSettings ||
         messageHeader._subject == Constants::SubjectWebSocketGetCommands)
     {
         //answer on get settings or command from websocket request
-        processors.push_back(std::shared_ptr<IProcessor>(new WebSocketProcessor(connection)));
+        processors.push_back(std::shared_ptr<IProcessor>(new WebSocketProcessor(queryExecutor)));
     }
 
     return processors;

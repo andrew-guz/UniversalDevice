@@ -262,13 +262,22 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& conn, const 
         }
         else
         {
-            if (GetWebSocketConnection(message._header._description._id))
-                CallProcessorsNoResult(timestamp, message);
+            auto connection = GetWebSocketConnection(message._header._description._id);
+            if (connection)
+            {
+                auto result = CallProcessorsJsonResult(timestamp, message);
+                if (!result.is_null())
+                    connection->send_text(result.dump());
+                else
+                    LOG_ERROR << "No result for message " << message._header._subject << " for device " << message._header._description._id.data() << "." << std::endl;
+            }
+            else
+                LOG_ERROR << "No connection for device " << message._header._description._id.data() << "." << std::endl;
         }
     }
     catch(...)
     {
-        LOG_ERROR << "Something went wrong in DeviceService::Inform." << std::endl;
+        LOG_ERROR << "Something went wrong in DeviceService::OnWebSocketMessage." << std::endl;
     }
 }
 

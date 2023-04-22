@@ -3,19 +3,16 @@
 
 #include <crow.h>
 
-#include "IProcessor.h"
+#include "BaseProcessorWithQueryExecutor.h"
 
-class WebSocketProcessor final : public IProcessor
+class WebSocketProcessor final : public BaseProcessorWithQueryExecutor
 {
 public:
-    WebSocketProcessor(crow::websocket::connection* connection);
+    WebSocketProcessor(IQueryExecutor* queryExecutor);
 
     virtual ~WebSocketProcessor() = default;
 
     virtual nlohmann::json ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) override;
-
-private:
-    crow::websocket::connection* _connection;
 };
 
 #endif //_WEBSOCKET_PROCESSOR_H_
