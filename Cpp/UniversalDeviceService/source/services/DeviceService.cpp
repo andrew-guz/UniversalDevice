@@ -41,8 +41,8 @@ void DeviceService::Initialize(crow::SimpleApp& app)
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
     CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
-        .onmessage([&](crow::websocket::connection& conn, const std::string& data, bool is_binary){ return OnWebSocketMessage(conn, data, is_binary); })
-        .onclose([&](crow::websocket::connection& conn, const std::string& reason){ return OnWebSocketClose(conn, reason); });
+        .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary){ return OnWebSocketMessage(connection, data, is_binary); })
+        .onclose([&](crow::websocket::connection& connection, const std::string& reason){ return OnWebSocketClose(connection, reason); });
 
     //also start thread for timer events
     auto timerFunction = std::bind(&DeviceService::TimerFunction, this);
@@ -226,13 +226,14 @@ crow::response DeviceService::Inform(const crow::request& request)
     return crow::response(crow::BAD_REQUEST);
 }
 
-void DeviceService::AddWebSocketConnection(const Uuid& id, crow::websocket::connection& conn)
+void DeviceService::AddWebSocketConnection(const Uuid& id, crow::websocket::connection& connection)
 {
     std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
     auto iter = std::find_if(_webSocketConnections.begin(), _webSocketConnections.end(), [&id](const auto& p){ return p.first == id; });
-    if (iter != _webSocketConnections.end())
+    if (iter != _webSocketConnections.end() &&
+        iter->second != &connection)
         _webSocketConnections.erase(iter);
-    _webSocketConnections.insert(std::make_pair(id, &conn));
+    _webSocketConnections.insert(std::make_pair(id, &connection));
 }
 
 crow::websocket::connection* DeviceService::GetWebSocketConnection(const Uuid& id)
@@ -244,19 +245,19 @@ crow::websocket::connection* DeviceService::GetWebSocketConnection(const Uuid& i
     return nullptr;
 }
 
-void DeviceService::DeleteWebSocketConnection(crow::websocket::connection& conn)
+void DeviceService::DeleteWebSocketConnection(crow::websocket::connection& connection)
 {
     std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
     for (auto iter = _webSocketConnections.begin(); iter != _webSocketConnections.end(); )
     {
-        if (iter->second == &conn)
+        if (iter->second == &connection)
             iter = _webSocketConnections.erase(iter);
         else
             ++iter;
     }
 }
 
-void DeviceService::OnWebSocketMessage(crow::websocket::connection& conn, const std::string& data, bool is_binary)
+void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary)
 {
     if (is_binary)
         return;
@@ -268,21 +269,21 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& conn, const 
         {
             auto webSocketAuthentication = JsonExtension::CreateFromJson<WebSocketAuthentication>(message._data);
             if (IsValidUser(webSocketAuthentication._authString))
-                AddWebSocketConnection(message._header._description._id, conn);
+                AddWebSocketConnection(message._header._description._id, connection);
         }
         else
         {
-            auto connection = GetWebSocketConnection(message._header._description._id);
-            if (connection)
+            auto knownConnection = GetWebSocketConnection(message._header._description._id);
+            if (knownConnection)
             {
                 auto result = CallProcessorsJsonResult(timestamp, message);
                 if (!result.is_null())
-                    connection->send_text(result.dump());
+                    connection.send_text(result.dump());
                 else
                     LOG_ERROR << "No result for message " << message._header._subject << " for device " << message._header._description._id.data() << "." << std::endl;
             }
             else
-                LOG_ERROR << "No connection for device " << message._header._description._id.data() << "." << std::endl;
+                LOG_ERROR << "Not authorized connection." << std::endl;
         }
     }
     catch(...)
@@ -291,9 +292,9 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& conn, const 
     }
 }
 
-void DeviceService::OnWebSocketClose(crow::websocket::connection& conn, const std::string& reason)
+void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason)
 {
-    DeleteWebSocketConnection(conn);
+    DeleteWebSocketConnection(connection);
 }
 
 void DeviceService::TimerFunction()

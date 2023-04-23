@@ -28,15 +28,15 @@ protected:
 
     crow::response Inform(const crow::request& request);
 
-    void AddWebSocketConnection(const Uuid& id, crow::websocket::connection& conn);
+    void AddWebSocketConnection(const Uuid& id, crow::websocket::connection& connection);
 
     crow::websocket::connection* GetWebSocketConnection(const Uuid& id);
 
-    void DeleteWebSocketConnection(crow::websocket::connection& conn);
+    void DeleteWebSocketConnection(crow::websocket::connection& connection);
 
-    void OnWebSocketMessage(crow::websocket::connection& conn, const std::string& data, bool is_binary);
+    void OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary);
 
-    void OnWebSocketClose(crow::websocket::connection& conn, const std::string& reason);
+    void OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason);
 
     void TimerFunction();
 
