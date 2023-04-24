@@ -1,8 +1,6 @@
 #ifndef _WEBSOCKET_PROCESSOR_H_
 #define _WEBSOCKET_PROCESSOR_H_
 
-#include <crow.h>
-
 #include "BaseProcessorWithQueryExecutor.h"
 
 class WebSocketProcessor final : public BaseProcessorWithQueryExecutor

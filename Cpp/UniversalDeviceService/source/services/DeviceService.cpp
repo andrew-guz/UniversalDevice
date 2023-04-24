@@ -276,11 +276,10 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
             auto knownConnection = GetWebSocketConnection(message._header._description._id);
             if (knownConnection)
             {
+                //not all messages need answers
                 auto result = CallProcessorsJsonResult(timestamp, message);
                 if (!result.is_null())
                     connection.send_text(result.dump());
-                else
-                    LOG_ERROR << "No result for message " << message._header._subject << " for device " << message._header._description._id.data() << "." << std::endl;
             }
             else
                 LOG_ERROR << "Not authorized connection." << std::endl;

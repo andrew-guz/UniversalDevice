@@ -1,8 +1,6 @@
 #ifndef _PROCESSORS_FACTORY_H_
 #define _PROCESSORS_FACTORY_H_
 
-#include <crow.h>
-
 #include "IProcessor.h"
 #include "IQueryExecutor.h"
 
