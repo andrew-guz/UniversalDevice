@@ -57,35 +57,35 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
   switch(type)
   {
   case WStype_DISCONNECTED:
-    WebSocketHelper::Connect();
-    break;
+      WebSocketHelper::Connect();
+      break;
   case WStype_CONNECTED:
-    {
-      auto authMessage = CreateSimpleMessage("thermometer", UUID, "websocket_authorization", "authString", AUTHORIZATION_STR);
-      webSocket.sendTXT(authMessage);
-      auto settingsMessage = CreateSimpleMessage("thermometer", UUID, "websocket_get_settings");
-      webSocket.sendTXT(settingsMessage);
-      auto commandsMessage = CreateSimpleMessage("thermometer", UUID, "websocket_get_commands");
-      webSocket.sendTXT(commandsMessage);
-    }
-    break;
-  case WStype_TEXT:
-    {
-      memset(websocketBuffer, 1, 256);
-      sprintf(websocketBuffer, "%s", payload);
-      StaticJsonDocument<256> doc;
-      deserializeJson(doc, websocketBuffer);
-      if (doc.containsKey("period"))
-        measurementDelay = doc["period"].as<int>();
-      else if (doc.containsKey("brightness"))
       {
-        ledBrightness = doc["brightness"].as<int>();
-        ledSetBrightness(ledBrightness);
+          auto authMessage = CreateSimpleMessage("thermometer", UUID, "websocket_authorization", "authString", AUTHORIZATION_STR);
+          webSocket.sendTXT(authMessage);
+          auto settingsMessage = CreateSimpleMessage("thermometer", UUID, "websocket_get_settings");
+          webSocket.sendTXT(settingsMessage);
+          auto commandsMessage = CreateSimpleMessage("thermometer", UUID, "websocket_get_commands");
+          webSocket.sendTXT(commandsMessage);
       }
-    }
-    break;
+      break;
+  case WStype_TEXT:
+      {
+          memset(websocketBuffer, 1, 256);
+          sprintf(websocketBuffer, "%s", payload);
+          StaticJsonDocument<256> doc;
+          deserializeJson(doc, websocketBuffer);
+          if (doc.containsKey("period"))
+              measurementDelay = doc["period"].as<int>();
+          else if (doc.containsKey("brightness"))
+          {
+              ledBrightness = doc["brightness"].as<int>();
+              ledSetBrightness(ledBrightness);
+          }
+        }
+      break;
   case WStype_BIN:
-    break;
+      break;
   }
 }
 
