@@ -1,8 +1,6 @@
 #ifndef _DEVICE_SERVICE_H_
 #define _DEVICE_SERVICE_H_
 
-#include <mutex>
-#include <map>
 #include <string>
 
 #include "BaseService.h"
@@ -27,6 +25,10 @@ protected:
     crow::response SetCommands(const crow::request& request, const std::string& idString);
 
     crow::response Inform(const crow::request& request);
+
+    void OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary);
+
+    void OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason);
 
     void TimerFunction();
 

@@ -15,6 +15,11 @@ BaseService::BaseService(IQueryExecutor* queryExecutor) :
 bool BaseService::IsValidUser(const crow::request& request)
 {
     auto authorization = request.get_header_value("Authorization");
+    return IsValidUser(authorization);
+}
+
+bool BaseService::IsValidUser(const std::string& authorization)
+{
     if (authorization.empty())
         return false;
     return AccountManager::Instance()->IsValidUser(authorization);
@@ -70,5 +75,20 @@ Message BaseServiceExtension::GetMessageFromRequest(const crow::request& request
     {
         LOG_ERROR << "Can't get message from request - " << body << std::endl;
     }
-    return Message();        
+    return Message();
+}
+
+Message BaseServiceExtension::GetMessageFromWebSocketData(const std::string& data)
+{
+    try
+    {           
+        auto dataJson = nlohmann::json::parse(data);
+        LOG_DEBUG << dataJson.dump() << std::endl;
+        return JsonExtension::CreateFromJson<Message>(dataJson);
+    }
+    catch(...)
+    {
+        LOG_ERROR << "Can't get message from data - " << data << std::endl;
+    }
+    return Message();
 }
