@@ -47,6 +47,7 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
           {
               stateFromCommand = doc["state"].as<int>();
               stateFromCommand ? relayHelper.On() : relayHelper.Off();
+              sendState();
           }
         }
       break;
