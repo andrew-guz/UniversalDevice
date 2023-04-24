@@ -14,6 +14,7 @@
 #include "StorageCacheFactory.h"
 #include "SimpleTableStorageCache.h"
 #include "EventTableStorageCache.h"
+#include "WebsocketsCache.h"
 
 EventsProcessor::EventsProcessor(IQueryExecutor* queryExecutor) :
     BaseProcessorWithQueryExecutor(queryExecutor)
@@ -169,6 +170,11 @@ void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandStri
         switch(problem._type)
         {
         case StorageCacheProblemType::NoProblems:
+            {
+                auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(id);
+                if (connection)
+                    connection->send_text(commandString);
+            }
             break;
         case StorageCacheProblemType::Empty:
             LOG_ERROR << "Invalid command " << commandString << "." << std::endl;

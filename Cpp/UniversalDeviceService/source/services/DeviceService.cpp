@@ -9,6 +9,7 @@
 #include "SimpleTableStorageCache.h"
 #include "JsonExtension.h"
 #include "WebSocketAuthentication.h"
+#include "WebsocketsCache.h"
 
 void TimerThreadFunction(std::function<void(void)> timerFunction)
 { 
@@ -104,7 +105,7 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
         {
         case StorageCacheProblemType::NoProblems:
             {
-                auto connection = GetWebSocketConnection(Uuid(idString));
+                auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid(idString));
                 if (connection)
                     connection->send_text(settingsString);
                 return crow::response(crow::OK);
@@ -183,7 +184,7 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
         {
         case StorageCacheProblemType::NoProblems:
             {
-                auto connection = GetWebSocketConnection(Uuid(idString));
+                auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid(idString));
                 if (connection)
                     connection->send_text(commandsString);
                 return crow::response(crow::OK);
@@ -226,37 +227,6 @@ crow::response DeviceService::Inform(const crow::request& request)
     return crow::response(crow::BAD_REQUEST);
 }
 
-void DeviceService::AddWebSocketConnection(const Uuid& id, crow::websocket::connection& connection)
-{
-    std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
-    auto iter = std::find_if(_webSocketConnections.begin(), _webSocketConnections.end(), [&id](const auto& p){ return p.first == id; });
-    if (iter != _webSocketConnections.end() &&
-        iter->second != &connection)
-        _webSocketConnections.erase(iter);
-    _webSocketConnections.insert(std::make_pair(id, &connection));
-}
-
-crow::websocket::connection* DeviceService::GetWebSocketConnection(const Uuid& id)
-{
-    std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
-    auto iter = std::find_if(_webSocketConnections.begin(), _webSocketConnections.end(), [&id](const auto& p){ return p.first == id; });
-    if (iter != _webSocketConnections.end())
-        return iter->second;
-    return nullptr;
-}
-
-void DeviceService::DeleteWebSocketConnection(crow::websocket::connection& connection)
-{
-    std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
-    for (auto iter = _webSocketConnections.begin(); iter != _webSocketConnections.end(); )
-    {
-        if (iter->second == &connection)
-            iter = _webSocketConnections.erase(iter);
-        else
-            ++iter;
-    }
-}
-
 void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary)
 {
     if (is_binary)
@@ -269,11 +239,11 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
         {
             auto webSocketAuthentication = JsonExtension::CreateFromJson<WebSocketAuthentication>(message._data);
             if (IsValidUser(webSocketAuthentication._authString))
-                AddWebSocketConnection(message._header._description._id, connection);
+                WebsocketsCache::Instance()->AddWebSocketConnection(message._header._description._id, connection);
         }
         else
         {
-            auto knownConnection = GetWebSocketConnection(message._header._description._id);
+            auto knownConnection = WebsocketsCache::Instance()->GetWebSocketConnection(message._header._description._id);
             if (knownConnection)
             {
                 //not all messages need answers
@@ -293,7 +263,7 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
 
 void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason)
 {
-    DeleteWebSocketConnection(connection);
+    WebsocketsCache::Instance()->DeleteWebSocketConnection(connection);
 }
 
 void DeviceService::TimerFunction()

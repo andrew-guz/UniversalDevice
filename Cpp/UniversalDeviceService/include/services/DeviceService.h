@@ -1,8 +1,6 @@
 #ifndef _DEVICE_SERVICE_H_
 #define _DEVICE_SERVICE_H_
 
-#include <mutex>
-#include <map>
 #include <string>
 
 #include "BaseService.h"
@@ -28,21 +26,11 @@ protected:
 
     crow::response Inform(const crow::request& request);
 
-    void AddWebSocketConnection(const Uuid& id, crow::websocket::connection& connection);
-
-    crow::websocket::connection* GetWebSocketConnection(const Uuid& id);
-
-    void DeleteWebSocketConnection(crow::websocket::connection& connection);
-
     void OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary);
 
     void OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason);
 
     void TimerFunction();
-
-private:
-    std::mutex                                      _webSocketConnectionsMutex;
-    std::map<Uuid, crow::websocket::connection*>    _webSocketConnections;
 
 private:
     friend class BaseServiceExtension;
