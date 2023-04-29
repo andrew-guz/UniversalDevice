@@ -7,6 +7,10 @@
 //#define WIFI_ESP32
 //#define WIFI_ESP8266
 
+//#define USE_LED
+
+//#define ON_LOW
+
 //wifi networks and passwords - specify before upload
 #define SSID_MAIN "xxx"
 #define SSID_ADDITIONAL "xxx"

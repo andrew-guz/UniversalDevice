@@ -12,17 +12,29 @@ public:
 
     void On()
     {
-        digitalWrite(_pin, HIGH);
+        #ifndef ON_LOW
+            digitalWrite(_pin, HIGH);
+        #else
+            digitalWrite(_pin, LOW);
+        #endif
     }
 
     void Off()
     {
-        digitalWrite(_pin, LOW);
+        #ifndef ON_LOW
+            digitalWrite(_pin, LOW);
+        #else
+            digitalWrite(_pin, HIGH);
+        #endif
     }
 
     int State()
     {
-        return digitalRead(_pin);
+        #ifndef ON_LOW
+            return digitalRead(_pin);
+        #else
+            return !digitalRead(_pin);
+        #endif
     }
 
 private:
