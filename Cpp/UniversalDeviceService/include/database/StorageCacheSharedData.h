@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "ComponentDescription.h"
 
 enum StorageCacheProblemType
 {
@@ -75,8 +76,7 @@ struct EventTableSelectInput final : public SelectInput
 {
     virtual ~EventTableSelectInput() = default;
 
-    std::string _id;
-    std::string _type;
+    ComponentDescription _description;
 };
 
 struct EventTableSelectOutput final : public SelectOutput
@@ -97,22 +97,20 @@ struct EventTableInsertOrReplaceInput final : public InsertOrReplaceInput
 {
     virtual ~EventTableInsertOrReplaceInput() = default;
 
-    std::string _id;
-    bool        _active;
-    std::string _providerId;
-    std::string _providerType;
-    std::string _event;
+    std::string             _id;
+    bool                    _active;
+    ComponentDescription    _providerDescription;
+    std::string             _event;
 };
 
 struct EventTableUpdateInput final : public UpdateInput
 {
     virtual ~EventTableUpdateInput() = default;
 
-    std::string _id;
-    bool        _active;
-    std::string _providerId;
-    std::string _providerType;
-    std::string _event;
+    std::string             _id;
+    bool                    _active;
+    ComponentDescription    _providerDescription;
+    std::string             _event;
 };
 
 struct EventTableDeleteInput final : public DeleteInput
@@ -120,6 +118,21 @@ struct EventTableDeleteInput final : public DeleteInput
     virtual ~EventTableDeleteInput() = default;
 
     std::string _id;
+};
+
+struct NightModeTableSelectInput final : public SelectInput
+{
+    virtual ~NightModeTableSelectInput() = default;
+
+    ComponentDescription _description;
+};
+
+struct NightModeTableSelectOuput final : public SelectOutput
+{
+    virtual ~NightModeTableSelectOuput() = default;
+
+    std::chrono::system_clock::time_point _start;
+    std::chrono::system_clock::time_point _end;
 };
 
 #endif //_STORAGE_CACHE_SHARED_DATA_H_

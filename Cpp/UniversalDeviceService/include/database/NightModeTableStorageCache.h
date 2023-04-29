@@ -1,17 +1,17 @@
-#ifndef _EVENT_TABLE_STORAGE_CACHE_H_
-#define _EVENT_TABLE_STORAGE_CACHE_H_
+#ifndef _NIGHT_MODE_TABLE_STORAGE_CACHE_H_
+#define _NIGHT_MODE_TABLE_STORAGE_CACHE_H_
 
-#include <tuple>
 #include <map>
 
 #include "BaseStorageCache.h"
+#include "ComponentDescription.h"
 
-class EventTableStorageCache final : public BaseStorageCache
+class NightModeTableStorageCache final : public BaseStorageCache
 {
 public:
-    EventTableStorageCache(IQueryExecutor* queryExecutor);
+    NightModeTableStorageCache(IQueryExecutor* queryExecutor);
 
-    virtual ~EventTableStorageCache() = default;
+    virtual ~NightModeTableStorageCache() = default;
 
     virtual StorageCacheProblem Select(const SelectInput& what, SelectOutput& result) override;
 
@@ -24,7 +24,7 @@ public:
     virtual StorageCacheProblem Delete(const DeleteInput& what) override;
 
 private:
-    std::map<ComponentDescription, std::vector<std::string>> _dataCache;
+    std::map<ComponentDescription, std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point>> _dataCache;
 };
 
-#endif // _EVENT_TABLE_STORAGE_CACHE_H_
+#endif // _NIGHT_MODE_TABLE_STORAGE_CACHE_H_

@@ -25,6 +25,11 @@ struct ComponentDescription : public IJson<ComponentDescription>
         _type = json.value("type", "");
         _id = Uuid(json.value("id", ""));
     }
+
+    bool operator<(const ComponentDescription& other) const
+    {
+        return make_tuple(_id, _type) < std::make_tuple(other._id, other._type);
+    }
 };
 
 #endif //_COMPONENT_DESCRIPTION_H_

@@ -216,8 +216,7 @@ crow::response ClientService::AddEvent(const crow::request& request)
         EventTableInsertOrReplaceInput what;
         what._id = event._id.data();
         what._active = event._active;
-        what._providerId = event._provider._id.data();
-        what._providerType = event._provider._type;
+        what._providerDescription = event._provider;
         what._event = request.body;
         auto problem = storageCache->InsertOrReplace(what);
         switch(problem._type)
@@ -254,8 +253,7 @@ crow::response ClientService::UpdateEvent(const crow::request& request)
         EventTableUpdateInput what;
         what._id = event._id.data();
         what._active = event._active;
-        what._providerId = event._provider._id.data();
-        what._providerType = event._provider._type;
+        what._providerDescription = event._provider;
         what._event = request.body;
         auto problem = storageCache->Update(what);
         switch(problem._type)

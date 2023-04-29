@@ -71,7 +71,7 @@ void Storage::InitializeDb()
         "CREATE TABLE IF NOT EXISTS Settings (id TEXT, settings TEXT, PRIMARY KEY(id))",
         "CREATE TABLE IF NOT EXISTS Commands (id TEXT, commands TEXT, PRIMARY KEY(id))",
         "CREATE TABLE IF NOT EXISTS Events (id TEXT UNIQUE, active INTEGER, providerId TEXT, providerType TEXT, event TEXT, PRIMARY KEY(id))",
-        "CREATE TABLE IF NOT EXISTS NightModeDevices (id TEXT UNIQUE, start INTEGER, end INTEGER, PRIMARY KEY(id))",
+        "CREATE TABLE IF NOT EXISTS NightModeDevices (id TEXT UNIQUE, type TEXT, start INTEGER, end INTEGER, PRIMARY KEY(id, type))",
         "CREATE TABLE IF NOT EXISTS Thermometers (idx INTEGER, id TEXT, timestamp INTEGER, value REAL, PRIMARY KEY(idx AUTOINCREMENT))",
         "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp INTEGER, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))",
         "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))"

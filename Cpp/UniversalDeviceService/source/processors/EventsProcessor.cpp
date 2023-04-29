@@ -61,8 +61,7 @@ std::vector<nlohmann::json> EventsProcessor::LoadEvents(const ComponentDescripti
 
     auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
     EventTableSelectInput what;
-    what._id = description._id.data();
-    what._type = description._type;
+    what._description = description;
     EventTableSelectOutput eventsResult;
     auto problem = storageCache->Select(what, eventsResult);
     switch(problem._type)
