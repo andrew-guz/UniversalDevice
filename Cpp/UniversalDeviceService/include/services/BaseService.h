@@ -20,6 +20,8 @@ protected:
 
     bool IsValidUser(const crow::request& request);
 
+    bool IsValidUser(const std::string& authorization);
+
     void CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
 
     nlohmann::json CallProcessorsJsonResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
@@ -44,6 +46,8 @@ public:
     }
 
     static Message GetMessageFromRequest(const crow::request& request);
+
+    static Message GetMessageFromWebSocketData(const std::string& data);
 };
 
 #endif //_BASE_SERVICE_H_

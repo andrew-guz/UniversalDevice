@@ -82,6 +82,8 @@
         "WWebWidget.C": "cpp",
         "WWidget.C": "cpp",
         "WString.C": "cpp",
-        "WLayout.C": "cpp"
+        "WLayout.C": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp"
     }
 }

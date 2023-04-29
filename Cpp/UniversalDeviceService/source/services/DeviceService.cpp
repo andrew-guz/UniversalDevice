@@ -7,6 +7,9 @@
 #include "MessageHelper.h"
 #include "StorageCacheFactory.h"
 #include "SimpleTableStorageCache.h"
+#include "JsonExtension.h"
+#include "WebSocketAuthentication.h"
+#include "WebsocketsCache.h"
 
 void TimerThreadFunction(std::function<void(void)> timerFunction)
 { 
@@ -38,6 +41,9 @@ void DeviceService::Initialize(crow::SimpleApp& app)
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString){ return GetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
+    CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
+        .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary){ return OnWebSocketMessage(connection, data, is_binary); })
+        .onclose([&](crow::websocket::connection& connection, const std::string& reason){ return OnWebSocketClose(connection, reason); });
 
     //also start thread for timer events
     auto timerFunction = std::bind(&DeviceService::TimerFunction, this);
@@ -98,7 +104,12 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
         switch(problem._type)
         {
         case StorageCacheProblemType::NoProblems:
-            return crow::response(crow::OK);
+            {
+                auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid(idString));
+                if (connection)
+                    connection->send_text(settingsString);
+                return crow::response(crow::OK);
+            }
             break;
         case StorageCacheProblemType::Empty:
             LOG_ERROR << "Invalid settings " << settingsString << "." << std::endl;
@@ -172,7 +183,12 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
         switch(problem._type)
         {
         case StorageCacheProblemType::NoProblems:
-            return crow::response(crow::OK);
+            {
+                auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid(idString));
+                if (connection)
+                    connection->send_text(commandsString);
+                return crow::response(crow::OK);
+            }
             break;
         case StorageCacheProblemType::Empty:
             LOG_ERROR << "Invalid commands " << commandsString << "." << std::endl;
@@ -209,6 +225,45 @@ crow::response DeviceService::Inform(const crow::request& request)
         LOG_ERROR << "Something went wrong in DeviceService::Inform." << std::endl;
     }
     return crow::response(crow::BAD_REQUEST);
+}
+
+void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary)
+{
+    if (is_binary)
+        return;
+    try
+    {
+        auto timestamp = std::chrono::system_clock::now();
+        auto message = BaseServiceExtension::GetMessageFromWebSocketData(data);
+        if (message._header._subject == Constants::SubjectWebSocketAuthorization)
+        {
+            auto webSocketAuthentication = JsonExtension::CreateFromJson<WebSocketAuthentication>(message._data);
+            if (IsValidUser(webSocketAuthentication._authString))
+                WebsocketsCache::Instance()->AddWebSocketConnection(message._header._description._id, connection);
+        }
+        else
+        {
+            auto knownConnection = WebsocketsCache::Instance()->GetWebSocketConnection(message._header._description._id);
+            if (knownConnection)
+            {
+                //not all messages need answers
+                auto result = CallProcessorsJsonResult(timestamp, message);
+                if (!result.is_null())
+                    connection.send_text(result.dump());
+            }
+            else
+                LOG_ERROR << "Not authorized connection." << std::endl;
+        }
+    }
+    catch(...)
+    {
+        LOG_ERROR << "Something went wrong in DeviceService::OnWebSocketMessage." << std::endl;
+    }
+}
+
+void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason)
+{
+    WebsocketsCache::Instance()->DeleteWebSocketConnection(connection);
 }
 
 void DeviceService::TimerFunction()
