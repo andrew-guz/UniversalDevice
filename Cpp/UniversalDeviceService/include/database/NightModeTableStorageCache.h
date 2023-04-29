@@ -4,7 +4,7 @@
 #include <map>
 
 #include "BaseStorageCache.h"
-#include "ComponentDescription.h"
+#include "NightModeDevice.h"
 
 class NightModeTableStorageCache final : public BaseStorageCache
 {

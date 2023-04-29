@@ -3,7 +3,9 @@
 
 #include <string>
 #include <vector>
-#include "ComponentDescription.h"
+#include "NightModeDevice.h"
+
+//TODO - refactoring - more structures in cache! like in Night mode
 
 enum StorageCacheProblemType
 {
@@ -131,8 +133,14 @@ struct NightModeTableSelectOuput final : public SelectOutput
 {
     virtual ~NightModeTableSelectOuput() = default;
 
-    std::chrono::system_clock::time_point _start;
-    std::chrono::system_clock::time_point _end;
+    NightModeTiming _timing;
+};
+
+struct NightModeTableSelectAllOuput final : public SelectAllOutput
+{
+    virtual ~NightModeTableSelectAllOuput() = default;
+
+    std::vector<NightModeDevice> _devices;
 };
 
 #endif //_STORAGE_CACHE_SHARED_DATA_H_

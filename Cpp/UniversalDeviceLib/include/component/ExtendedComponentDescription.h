@@ -42,7 +42,7 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
         //id, type, name, group, timestamp
         return {
             _id.data(),
-            _type,            
+            _type,
             _name,
             _group,
             std::to_string(TimeHelper::TimeToInt(_timestamp))
@@ -54,7 +54,7 @@ struct ExtendedComponentDescription final : ComponentDescription, public IJson<E
         if (dbStrings.size() % 2 == 0)
         {
             auto type = DbExtension::FindValueByName(dbStrings, "type");
-            auto id = DbExtension::FindValueByName(dbStrings, "id");           
+            auto id = DbExtension::FindValueByName(dbStrings, "id");
             auto name = DbExtension::FindValueByName(dbStrings, "name");
             auto group = DbExtension::FindValueByName(dbStrings, "grp");
             auto timestamp = DbExtension::FindValueByName(dbStrings, "timestamp");

@@ -2,8 +2,6 @@
 
 #include <sstream>
 
-#include "DbExtension.h"
-
 NightModeTableStorageCache::NightModeTableStorageCache(IQueryExecutor* queryExecutor) :
     BaseStorageCache(queryExecutor)
 {
@@ -20,8 +18,8 @@ StorageCacheProblem NightModeTableStorageCache::Select(const SelectInput& what, 
     auto iter = _dataCache.find(customWhat._description);
     if (iter != _dataCache.end())
     {
-        customResult._start = iter->second.first;
-        customResult._end = iter->second.second;
+        customResult._timing._start = iter->second.first;
+        customResult._timing._end = iter->second.second;
         return { StorageCacheProblemType::NoProblems, {} };
     }
 
@@ -41,8 +39,8 @@ StorageCacheProblem NightModeTableStorageCache::Select(const SelectInput& what, 
         auto start = TimeHelper::TimeFromInt((int64_t)std::stoll(data[0][0]));
         auto end = TimeHelper::TimeFromInt((int64_t)std::stoll(data[0][1]));
         _dataCache.insert(std::make_pair(customWhat._description, std::make_pair(start, end)));
-        customResult._start = start;
-        customResult._end = end;
+        customResult._timing._start = start;
+        customResult._timing._end = end;
         return { StorageCacheProblemType::NoProblems, {} };
     }
     return { StorageCacheProblemType::SQLError, queryStream.str() };
@@ -52,26 +50,19 @@ StorageCacheProblem NightModeTableStorageCache::SelectAll(SelectAllOutput& resul
 {
     std::lock_guard<std::mutex> lock(_mutex);
 
-    /*EventTableSelectAllOutput& customResult = dynamic_cast<EventTableSelectAllOutput&>(result);
+    NightModeTableSelectAllOuput& customResult = dynamic_cast<NightModeTableSelectAllOuput&>(result);
 
     std::stringstream queryStream;
     queryStream
-        << "SELECT event FROM Events";
+        << "SELECT * FROM NightModeDevices";
     queryStream.flush();   
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(queryStream.str(), data))
     {
-        std::vector<std::string> eventStrings;
-        for (auto& row : data)
-        {
-            auto eventString = DbExtension::FindValueByName(row, "event");
-            if (eventString.size())
-                eventStrings.push_back(eventString);
-        }
-        customResult._data = eventStrings;
+        customResult._devices = DbExtension::CreateVectorFromDbStrings<NightModeDevice>(data);
         return { StorageCacheProblemType::NoProblems, {} };
     }
-    return { StorageCacheProblemType::SQLError, queryStream.str() };*/
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
 StorageCacheProblem NightModeTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what)
