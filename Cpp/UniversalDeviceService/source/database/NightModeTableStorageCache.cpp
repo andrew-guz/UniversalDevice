@@ -18,8 +18,7 @@ StorageCacheProblem NightModeTableStorageCache::Select(const SelectInput& what, 
     auto iter = _dataCache.find(customWhat._description);
     if (iter != _dataCache.end())
     {
-        customResult._timing._start = iter->second.first;
-        customResult._timing._end = iter->second.second;
+        customResult._timing = iter->second;
         return { StorageCacheProblemType::NoProblems, {} };
     }
 
@@ -36,11 +35,11 @@ StorageCacheProblem NightModeTableStorageCache::Select(const SelectInput& what, 
         data.size() > 0 &&
         data[0].size() == 2)
     {
-        auto start = TimeHelper::TimeFromInt((int64_t)std::stoll(data[0][0]));
-        auto end = TimeHelper::TimeFromInt((int64_t)std::stoll(data[0][1]));
-        _dataCache.insert(std::make_pair(customWhat._description, std::make_pair(start, end)));
-        customResult._timing._start = start;
-        customResult._timing._end = end;
+        NightModeTiming timing;
+        timing._start = TimeHelper::TimeFromInt((int64_t)std::stoll(data[0][0]));
+        timing._end = TimeHelper::TimeFromInt((int64_t)std::stoll(data[0][1]));
+        _dataCache.insert(std::make_pair(customWhat._description, timing));
+        customResult._timing = timing;
         return { StorageCacheProblemType::NoProblems, {} };
     }
     return { StorageCacheProblemType::SQLError, queryStream.str() };
@@ -59,7 +58,11 @@ StorageCacheProblem NightModeTableStorageCache::SelectAll(SelectAllOutput& resul
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(queryStream.str(), data))
     {
-        customResult._devices = DbExtension::CreateVectorFromDbStrings<NightModeDevice>(data);
+        auto devices = DbExtension::CreateVectorFromDbStrings<NightModeDevice>(data);
+        _dataCache.clear();
+        for (auto& device : devices)
+            _dataCache.insert(std::make_pair(device._description, device._timing));
+        customResult._devices = devices;
         return { StorageCacheProblemType::NoProblems, {} };
     }
     return { StorageCacheProblemType::SQLError, queryStream.str() };

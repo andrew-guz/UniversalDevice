@@ -24,7 +24,7 @@ public:
     virtual StorageCacheProblem Delete(const DeleteInput& what) override;
 
 private:
-    std::map<ComponentDescription, std::pair<std::chrono::system_clock::time_point, std::chrono::system_clock::time_point>> _dataCache;
+    std::map<ComponentDescription, NightModeTiming> _dataCache;
 };
 
 #endif // _NIGHT_MODE_TABLE_STORAGE_CACHE_H_

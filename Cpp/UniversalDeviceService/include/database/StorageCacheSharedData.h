@@ -5,8 +5,6 @@
 #include <vector>
 #include "NightModeDevice.h"
 
-//TODO - refactoring - more structures in cache! like in Night mode
-
 enum StorageCacheProblemType
 {
     NoProblems,
