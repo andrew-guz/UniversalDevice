@@ -17,6 +17,7 @@ public:
         #else
             digitalWrite(_pin, LOW);
         #endif
+        _state = 1;
     }
 
     void Off()
@@ -26,19 +27,17 @@ public:
         #else
             digitalWrite(_pin, HIGH);
         #endif
+        _state = 0;
     }
 
     int State()
     {
-        #ifndef ON_LOW
-            return digitalRead(_pin);
-        #else
-            return !digitalRead(_pin);
-        #endif
+        return _state;
     }
 
 private:
     int _pin;
+    int _state = 0;
 };
 
 #endif //_RELAY_HELPER_H_
