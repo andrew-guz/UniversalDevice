@@ -213,12 +213,12 @@ crow::response ClientService::AddEvent(const crow::request& request)
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
 
         auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
-        EventTableInsertOrReplaceInput what;
+        EventTableAddInput what;
         what._id = event._id.data();
         what._active = event._active;
         what._providerDescription = event._provider;
         what._event = request.body;
-        auto problem = storageCache->InsertOrReplace(what);
+        auto problem = storageCache->Add(what);
         switch(problem._type)
         {
         case StorageCacheProblemType::NoProblems:

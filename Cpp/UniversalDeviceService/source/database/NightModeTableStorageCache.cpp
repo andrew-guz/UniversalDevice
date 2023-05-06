@@ -68,6 +68,11 @@ StorageCacheProblem NightModeTableStorageCache::SelectAll(SelectAllOutput& resul
     return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
+StorageCacheProblem NightModeTableStorageCache::Add(AddInput& what)
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+}
+
 StorageCacheProblem NightModeTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what)
 {
     std::lock_guard<std::mutex> lock(_mutex);

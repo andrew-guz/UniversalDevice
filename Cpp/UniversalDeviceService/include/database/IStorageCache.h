@@ -12,6 +12,8 @@ public:
 
     virtual StorageCacheProblem SelectAll(SelectAllOutput& result) = 0;
 
+    virtual StorageCacheProblem Add(AddInput& what) = 0;
+
     virtual StorageCacheProblem InsertOrReplace(const InsertOrReplaceInput& what) = 0;
 
     virtual StorageCacheProblem Update(const UpdateInput& what) = 0;

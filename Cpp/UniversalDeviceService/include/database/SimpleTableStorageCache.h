@@ -16,6 +16,8 @@ public:
 
     virtual StorageCacheProblem SelectAll(SelectAllOutput& result) override;
 
+    virtual StorageCacheProblem Add(AddInput& what) override;
+
     virtual StorageCacheProblem InsertOrReplace(const InsertOrReplaceInput& what) override;
 
     virtual StorageCacheProblem Update(const UpdateInput& what) override;

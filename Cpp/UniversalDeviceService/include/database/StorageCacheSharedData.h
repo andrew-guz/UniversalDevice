@@ -35,6 +35,11 @@ struct SelectAllOutput
     virtual ~SelectAllOutput() = default;
 };
 
+struct AddInput
+{
+    virtual ~AddInput() = default;
+};
+
 struct InsertOrReplaceInput
 {
     virtual ~InsertOrReplaceInput() = default;
@@ -61,6 +66,14 @@ struct SimpleTableSelectOutput final : public SelectOutput
 {
     virtual ~SimpleTableSelectOutput() = default;
 
+    std::string _data;
+};
+
+struct SimpleTableAddInput final : public AddInput
+{
+    virtual ~SimpleTableAddInput() = default;
+
+    std::string _id;
     std::string _data;
 };
 
@@ -93,9 +106,9 @@ struct EventTableSelectAllOutput final : public SelectAllOutput
     std::vector<std::string> _data;
 };
 
-struct EventTableInsertOrReplaceInput final : public InsertOrReplaceInput
+struct EventTableAddInput final : public AddInput
 {
-    virtual ~EventTableInsertOrReplaceInput() = default;
+    virtual ~EventTableAddInput() = default;
 
     std::string             _id;
     bool                    _active;

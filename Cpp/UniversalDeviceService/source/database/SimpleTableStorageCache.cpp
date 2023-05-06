@@ -61,6 +61,12 @@ StorageCacheProblem SimpleTableStorageCache::SelectAll(SelectAllOutput& result)
     return { StorageCacheProblemType::Empty, "Invalid function call" };
 }
 
+StorageCacheProblem SimpleTableStorageCache::Add(AddInput& what)
+{
+    throw std::logic_error("Invalid function call");
+    return { StorageCacheProblemType::Empty, "Invalid function call" };
+}
+
 StorageCacheProblem SimpleTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what)
 {
     std::lock_guard<std::mutex> lock(_mutex);
