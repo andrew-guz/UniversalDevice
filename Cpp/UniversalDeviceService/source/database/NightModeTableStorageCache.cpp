@@ -139,17 +139,22 @@ StorageCacheProblem NightModeTableStorageCache::Delete(const DeleteInput& what)
 {
     std::lock_guard<std::mutex> lock(_mutex);
 
-    /*_dataCache.clear();
-
-    const EventTableDeleteInput& customWhat = dynamic_cast<const EventTableDeleteInput&>(what);
+    const NightModeTableDeleteInput& customWhat = dynamic_cast<const NightModeTableDeleteInput&>(what);
 
     std::stringstream queryStream;
     queryStream
         << "DELETE FROM Events WHERE id='"
-        << customWhat._id
+        << customWhat._description._id.data()
+        << "' AND type = '"
+        << customWhat._description._type
         << "'";
     queryStream.flush();
     if (_queryExecutor->Execute(queryStream.str()))
+    {
+        auto iter = _dataCache.find(customWhat._description);
+        if (iter != _dataCache.end())
+            _dataCache.erase(iter);
         return { StorageCacheProblemType::NoProblems, {} };
-    return { StorageCacheProblemType::SQLError, queryStream.str() };*/
+    }
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }

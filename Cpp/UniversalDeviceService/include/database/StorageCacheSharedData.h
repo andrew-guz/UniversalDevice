@@ -168,4 +168,11 @@ struct NightModeTableUpdateInput final : public UpdateInput
     NightModeDevice _device;
 };
 
+struct NightModeTableDeleteInput final : public DeleteInput
+{
+    virtual ~NightModeTableDeleteInput() = default;
+
+    ComponentDescription _description;
+};
+
 #endif //_STORAGE_CACHE_SHARED_DATA_H_
