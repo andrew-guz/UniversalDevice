@@ -161,4 +161,11 @@ struct NightModeTableInsertOrReplaceInput final : public InsertOrReplaceInput
     NightModeDevice _device;
 };
 
+struct NightModeTableUpdateInput final : public UpdateInput
+{
+    virtual ~NightModeTableUpdateInput() = default;
+
+    NightModeDevice _device;
+};
+
 #endif //_STORAGE_CACHE_SHARED_DATA_H_

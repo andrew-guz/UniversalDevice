@@ -109,27 +109,30 @@ StorageCacheProblem NightModeTableStorageCache::Update(const UpdateInput& what)
 {
     std::lock_guard<std::mutex> lock(_mutex);
 
-    /*_dataCache.clear();
+    const NightModeTableUpdateInput& customWhat = dynamic_cast<const NightModeTableUpdateInput&>(what);
 
-    const EventTableUpdateInput& customWhat = dynamic_cast<const EventTableUpdateInput&>(what);
+    auto iter = _dataCache.find(customWhat._device._description);
+    if (iter != _dataCache.end())
+        _dataCache.erase(iter);
 
     std::stringstream queryStream;
     queryStream
-        << "UPDATE Events SET active = "
-        << (customWhat._active ? "1" : "0")
-        << ", providerId = '"
-        << customWhat._providerId
-        << "', providerType = '"
-        << customWhat._providerType
-        << "', event = '"
-        << customWhat._event
-        << "' WHERE id = '"
-        << customWhat._id
+        << "UPDATE NightModeDevices SET start = "
+        << TimeHelper::TimeToInt(customWhat._device._timing._start)
+        << ", end = "
+        << TimeHelper::TimeToInt(customWhat._device._timing._end)
+        << " WHERE id = '"
+        << customWhat._device._description._id.data()
+        << "' AND type = '"
+        << customWhat._device._description._type
         << "'";
     queryStream.flush();
     if (_queryExecutor->Execute(queryStream.str()))
+    {
+        _dataCache.insert(std::make_pair(customWhat._device._description, customWhat._device._timing));
         return { StorageCacheProblemType::NoProblems, {} };
-    return { StorageCacheProblemType::SQLError, queryStream.str() };*/
+    }
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
 StorageCacheProblem NightModeTableStorageCache::Delete(const DeleteInput& what)
