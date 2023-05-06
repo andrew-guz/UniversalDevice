@@ -50,6 +50,8 @@ StorageCacheProblem NightModeTableStorageCache::SelectAll(SelectAllOutput& resul
     std::lock_guard<std::mutex> lock(_mutex);
 
     NightModeTableSelectAllOuput& customResult = dynamic_cast<NightModeTableSelectAllOuput&>(result);
+    
+    _dataCache.clear();
 
     std::stringstream queryStream;
     queryStream
@@ -59,7 +61,6 @@ StorageCacheProblem NightModeTableStorageCache::SelectAll(SelectAllOutput& resul
     if (_queryExecutor->Select(queryStream.str(), data))
     {
         auto devices = DbExtension::CreateVectorFromDbStrings<NightModeDevice>(data);
-        _dataCache.clear();
         for (auto& device : devices)
             _dataCache.insert(std::make_pair(device._description, device._timing));
         customResult._devices = devices;
@@ -70,34 +71,38 @@ StorageCacheProblem NightModeTableStorageCache::SelectAll(SelectAllOutput& resul
 
 StorageCacheProblem NightModeTableStorageCache::Add(AddInput& what)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    throw std::logic_error("Invalid function call");
+    return { StorageCacheProblemType::Empty, "Invalid function call" };
 }
 
 StorageCacheProblem NightModeTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what)
 {
     std::lock_guard<std::mutex> lock(_mutex);
 
-    /*_dataCache.clear();
+    const NightModeTableInsertOrReplaceInput& customWhat = dynamic_cast<const NightModeTableInsertOrReplaceInput&>(what);
 
-    const EventTableInsertOrReplaceInput& customWhat = dynamic_cast<const EventTableInsertOrReplaceInput&>(what);
+    auto iter = _dataCache.find(customWhat._device._description);
+    if (iter != _dataCache.end())
+        _dataCache.erase(iter);
 
     std::stringstream queryStream;
     queryStream
-        << "INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('"
-        << customWhat._id
+        << "INSERT OR REPLACE INTO NightModeDevices (id, type, start, end) VALUES ('"
+        << customWhat._device._description._id.data()
         << "', "
-        << (customWhat._active ? "1" : "0")
-        << ", '"
-        << customWhat._providerId.data()
-        << "', '"
-        << customWhat._providerType
-        << "', '"
-        << customWhat._event
-        << "')";
+        << customWhat._device._description._type
+        << ", "
+        << TimeHelper::TimeToInt(customWhat._device._timing._start)
+        << ", "
+        << TimeHelper::TimeToInt(customWhat._device._timing._end)
+        << ")";
     queryStream.flush();
     if (_queryExecutor->Execute(queryStream.str()))
+    {
+        _dataCache.insert(std::make_pair(customWhat._device._description, customWhat._device._timing));
         return { StorageCacheProblemType::NoProblems, {} };
-    return { StorageCacheProblemType::SQLError, queryStream.str() };*/
+    }
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
 StorageCacheProblem NightModeTableStorageCache::Update(const UpdateInput& what)

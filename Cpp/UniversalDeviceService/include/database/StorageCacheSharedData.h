@@ -154,4 +154,11 @@ struct NightModeTableSelectAllOuput final : public SelectAllOutput
     std::vector<NightModeDevice> _devices;
 };
 
+struct NightModeTableInsertOrReplaceInput final : public InsertOrReplaceInput
+{
+    virtual ~NightModeTableInsertOrReplaceInput() = default;
+
+    NightModeDevice _device;
+};
+
 #endif //_STORAGE_CACHE_SHARED_DATA_H_
