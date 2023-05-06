@@ -55,6 +55,17 @@ add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 #executable needs libraries - so link to installed lisbs
 target_link_libraries(${PROJECT_NAME} -lpthread -lsqlite3 -lssl -lcrypto UniversalDeviceLib)
 
+#unit tests section
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/tests)
+
+file(GLOB TEST_SOURCES ./tests/*.cpp)
+foreach(TEST_TARGET ${TEST_SOURCES})
+    get_filename_component(EXECUTABLE_NAME ${TEST_TARGET} NAME_WE)
+    add_executable(${EXECUTABLE_NAME} ${TEST_TARGET})
+    target_link_libraries(${EXECUTABLE_NAME} Catch2WithMain UniversalDeviceLib)
+    add_test(NAME ${EXECUTABLE_NAME} COMMAND ${EXECUTABLE_NAME})
+endforeach()
+
 #install section
 set(CMAKE_INSTALL_PREFIX /usr/local/bin/UniversalDevice)
 install(TARGETS ${PROJECT_NAME} DESTINATION /usr/local/bin/UniversalDevice)
