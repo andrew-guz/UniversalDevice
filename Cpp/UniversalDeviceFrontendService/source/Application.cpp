@@ -14,6 +14,8 @@ using namespace Wt;
 Application::Application(const Settings& settings, const WEnvironment& env) :
     Wt::WApplication(env)
 {
+    setCssTheme("polished");
+
     _mainLayout = root()->setLayout(std::make_unique<WHBoxLayout>());
     _mainStack = _mainLayout->addWidget(std::make_unique<WStackedWidget>());
 
