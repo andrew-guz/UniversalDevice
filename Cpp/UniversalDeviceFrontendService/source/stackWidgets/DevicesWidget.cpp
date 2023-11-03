@@ -25,6 +25,7 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     auto exitButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(exitButton);
     exitButton->clicked().connect([&](){
+        WApplication::instance()->removeCookie("authorization");
         _stackHolder->SetWidget(StackWidgetType::Login, {});
     });
 

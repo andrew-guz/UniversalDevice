@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include <Wt/WEnvironment.h>
+
 #include "Logger.h"
 #include "LoginWidget.h"
 #include "DevicesWidget.h"
@@ -27,7 +29,8 @@ Application::Application(const Settings& settings, const WEnvironment& env) :
     _mainStack->addWidget(std::make_unique<RelayWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<MotionRelayWidget>(this, settings));
 
-    _mainStack->setCurrentIndex(0);
+    auto authorization = env.getCookie("authorization");
+    SetWidget(StackWidgetType::Login, authorization ? *authorization : std::string{});
 }
 
 void Application::SetWidget(StackWidgetType type, const std::string& data)

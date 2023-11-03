@@ -1,5 +1,7 @@
 #include "LoginWidget.h"
 
+#include <Wt/WApplication.h>
+#include <Wt/Http/Cookie.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WPushButton.h>
@@ -7,6 +9,7 @@
 
 #include "AccountManager.h"
 #include "WidgetHelper.h"
+#include "Base64Helper.h"
 
 using namespace Wt;
 
@@ -41,6 +44,17 @@ void LoginWidget::Initialize(const std::string& data)
 {
     _login->setText({});
     _password->setText({});
+    if (data.size())
+    {
+        auto decoded = Base64Helper::FromBase64(data);
+        auto delimeter = decoded.find(":");
+        if (delimeter != std::string::npos)
+        {
+            _login->setText(decoded.substr(0, delimeter));
+            _password->setText(decoded.substr(delimeter + 1));
+            Login();
+        }
+    }
 }
 
 void LoginWidget::Login()
@@ -49,6 +63,13 @@ void LoginWidget::Login()
     auto password = _password->text().toUTF8();
     if (AccountManager::Instance()->IsValidUser(login, password))
     {
+        auto data = login + ":" + password;
+        auto encoded = Base64Helper::ToBase64(data);
+        Http::Cookie authorizationCookie("authorization");
+        authorizationCookie.setMaxAge(std::chrono::seconds(30 * 60));
+        authorizationCookie.setSecure(true);
+        authorizationCookie.setValue(encoded);
+        WApplication::instance()->setCookie(authorizationCookie);
         _stackHolder->SetWidget(StackWidgetType::Devices, {});
         return;
     }
