@@ -66,7 +66,7 @@ void LoginWidget::Login()
         auto data = login + ":" + password;
         auto encoded = Base64Helper::ToBase64(data);
         Http::Cookie authorizationCookie("authorization");
-        authorizationCookie.setMaxAge(std::chrono::seconds(30 * 60));
+        authorizationCookie.setMaxAge(std::chrono::seconds(60 * 60 * 24 * 10));
         authorizationCookie.setSecure(true);
         authorizationCookie.setValue(encoded);
         WApplication::instance()->setCookie(authorizationCookie);
