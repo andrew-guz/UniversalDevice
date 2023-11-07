@@ -47,6 +47,8 @@ TODO
 
 #Arduino specific
 **/RealDefines.h
+**/c_cpp_properties.json
+**/build/
 
 #Service specific
 **/authentication.json

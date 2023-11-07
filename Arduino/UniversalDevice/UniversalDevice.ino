@@ -14,16 +14,16 @@
 #endif
 
 #ifdef HAS_THERMOMETER
-  SingleTemperatureSensor temperatureSensor(0); //put pin number here
+  SingleTemperatureSensor temperatureSensor(THERMOMETER_PIN);
   unsigned long temperatureStartTime;
   int temperatureMeasurementDelay = 5000;
 #endif 
 #ifdef HAS_LED
-  TM1637TinyDisplay ledDisplay(0, 0); //put pin here
+  TM1637TinyDisplay ledDisplay(LED_CLK_PIN, LED_DIO_PIN);
   int ledBrightness = BRIGHT_7;
 #endif
 #ifdef HAS_RELAY
-  RelayHelper relayHelper(0); //put pin here
+  RelayHelper relayHelper(RELAY_PIN);
   unsigned long relayStartTime;
   int relayCheckStateDelay = 5000;
   int relayStateFromCommand = 0;

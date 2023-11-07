@@ -9,8 +9,12 @@
 
 //currently device can be either  termoter with/without led or relay
 //#define HAS_THERMOMETER
+//#define THERMOMETER_PIN
 //#define HAS_LED
+//#define LED_CLK_PIN
+//#define LED_DIO_PIN
 //#define HAS_RELAY
+//#define RELAY_PIN
 //#define RELAY_SWITCH_ON_BY_LOW_LEVEL
 
 //wifi networks and passwords - specify before upload
