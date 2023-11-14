@@ -72,7 +72,7 @@ void DeviceButton::Refresh()
             if (values.size())
             {
                 const auto& value = values[0];
-                additionalData = WidgetHelper::TextWithFontSize("⏼", 40) + (value._state == 1 ? "ON" : "OFF");
+                additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._state == 1 ? "ON" : "OFF");
                 timestamp = value._timestamp;
             }
         }
@@ -82,7 +82,7 @@ void DeviceButton::Refresh()
             if (values.size())
             {
                 const auto& value = values[0];
-                additionalData = value._motion == 1 ? "Движение" : "...";
+                additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._motion == 1 ? "Движение" : "...");
                 timestamp = value._timestamp;
             }
         }
