@@ -7,7 +7,7 @@
 //#define WIFI_ESP32
 //#define WIFI_ESP8266
 
-//currently device can be either  termoter with/without led or relay
+//currently device can be either thermometer with/without led, relay or motion relay
 //#define HAS_THERMOMETER
 //#define THERMOMETER_PIN
 //#define HAS_LED
@@ -16,6 +16,9 @@
 //#define HAS_RELAY
 //#define RELAY_PIN
 //#define RELAY_SWITCH_ON_BY_LOW_LEVEL
+//#define HAS_MOTION_RELAY
+//#define MOTION_RELAY_DETECTOR_PIN
+//#define MOTION_RELAY_RELAY_PIN
 
 //wifi networks and passwords - specify before upload
 #define SSID_MAIN           "xxx"

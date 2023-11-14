@@ -12,6 +12,10 @@
 #ifdef HAS_RELAY
   #include "RelayHelper.h"
 #endif
+#ifdef HAS_MOTION_RELAY
+  #include "MotionHelper.h"
+  #include "RelayHelper.h"
+#endif
 
 #ifdef HAS_THERMOMETER
   SingleTemperatureSensor temperatureSensor(THERMOMETER_PIN);
@@ -27,6 +31,16 @@
   unsigned long relayStartTime;
   int relayCheckStateDelay = 5000;
   int relayStateFromCommand = 0;
+#endif
+#ifdef HAS_MOTION_RELAY
+  MotionHelper motionHelper(MOTION_RELAY_DETECTOR_PIN);
+  RelayHelper relayHelper(MOTION_RELAY_RELAY_PIN);
+  unsigned long relayStartTime;
+  int relayCheckStateDelay = 5000;
+  int motionActivityDelay = 60000;
+  int relayStateFromCommand = 0;
+  bool motionState = false;
+  unsigned long motionTime;
 #endif
 
 #ifdef HAS_THERMOMETER
@@ -65,6 +79,28 @@
   }
 #endif
 
+#ifdef HAS_MOTION_RELAY
+  void sendMotionRelayState()
+  {
+    auto func = [](DynamicJsonDocument& doc)
+    {        
+      doc["data"]["motion"] = motionState;
+      doc["data"]["state"] = relayHelper.State();        
+    };
+    auto message = CreateMessage("motion_relay", UUID, "motion_relay_current_state", func);
+    webSocket.sendTXT(message);
+  }
+
+  void setRelayState()
+  {
+    if (relayStateFromCommand == 1 ||
+        motionState == true)
+      relayHelper.On();
+    else
+      relayHelper.Off();
+  }
+#endif
+
 char websocketBuffer[256];
 
 void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
@@ -82,6 +118,9 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
       #endif
       #ifdef HAS_RELAY
         type = "relay";
+      #endif
+      #ifdef HAS_MOTION_RELAY
+        type = "motion_relay";
       #endif
       auto authMessage = CreateSimpleMessage(type, UUID, "websocket_authorization", "authString", AUTHORIZATION_STR);
       webSocket.sendTXT(authMessage);
@@ -118,6 +157,17 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
           sendRelayState();
         }
       #endif
+      #ifdef HAS_MOTION_RELAY
+        if (doc.containsKey("period"))
+          relayCheckStateDelay = doc["period"].as<int>();
+        if (doc.containsKey("activityTime"))
+          motionActivityDelay = doc["activityTime"].as<int>();
+        if (doc.containsKey("state"))
+        {
+          relayStateFromCommand = doc["state"].as<int>();
+          setRelayState();
+        }
+      #endif
     }
     break;
   case WStype_BIN:
@@ -142,6 +192,14 @@ void setup()
 
   #ifdef HAS_RELAY
     relayHelper.Off();
+  #endif
+
+  #ifdef HAS_MOTION_RELAY
+    relayHelper.Off();
+    //sleep for 1 minute to be sure that motion sensor initialized
+    Serial.println("Initializing motion sensor...");
+    delay(60000);
+    Serial.println("Motion sensor initializes...");
   #endif
 
   WebSocketHelper::Configure(WebSocketEvent);
@@ -171,6 +229,12 @@ void loop()
     #ifdef HAS_THERMOMETER
       temperatureStartTime = millis();
     #endif
+    #ifdef HAS_RELAY
+      relayStartTime = millis();
+    #endif
+    #ifdef HAS_MOTION_RELAY
+      motionTime = relayStartTime = millis();
+    #endif
   }
 
   webSocket.loop();
@@ -191,6 +255,14 @@ void loop()
     {
         relayStartTime = millis();
         return;
+    }
+  #endif
+
+  #ifdef HAS_MOTION_RELAY
+    if (currentTime <= relayStartTime)
+    {      
+      relayStartTime = millis();
+      return;
     }
   #endif
 
@@ -215,5 +287,34 @@ void loop()
     sendRelayState();
     relayStartTime = currentTime;
   }
+  #endif
+
+  #ifdef HAS_MOTION_RELAY
+    if (currentTime - relayStartTime >= relayCheckStateDelay)
+    {
+      sendMotionRelayState();
+      relayStartTime = currentTime;
+    }
+
+    if (motionHelper.IsMotion())
+    {
+      if (motionState == false)
+      {
+        motionState = true;
+        setRelayState();
+        sendMotionRelayState();                    
+      }
+      motionTime = currentTime;
+    }
+    else
+    {
+      if (motionState &&
+          currentTime - motionTime >= motionActivityDelay)
+      {
+        motionState = false;
+        setRelayState();
+        sendMotionRelayState();
+      }
+    }    
   #endif
 }
