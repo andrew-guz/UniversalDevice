@@ -25,7 +25,7 @@
   //#define RELAY_THERMOSTAT_DELTA 0.5f
 #endif
 //pins
-#if defined HAS_THERMOMETER || defined RELAY_AS_THERMOSTAT
+#ifdef HAS_THERMOMETER
   //#define THERMOMETER_PIN
 #endif
 #ifdef HAS_LED
