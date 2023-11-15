@@ -31,6 +31,9 @@
   unsigned long relayStartTime;
   int relayCheckStateDelay = 5000;
   int relayStateFromCommand = 0;
+  #ifdef RELAY_AS_THERMOSTAT
+    SingleTemperatureSensor temperatureSensor(RELAY_THERMOSTAT_PIN);
+  #endif
 #endif
 #ifdef HAS_MOTION_RELAY
   MotionHelper motionHelper(MOTION_RELAY_DETECTOR_PIN);
@@ -102,16 +105,19 @@
 #endif
 
 char websocketBuffer[256];
+bool websocketConnected = false;
 
 void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
 {
   switch(type)
   {
   case WStype_DISCONNECTED:
+    websocketConnected = false;
     WebSocketHelper::Connect();
     break;
   case WStype_CONNECTED:
     {
+      websocketConnected = true;
       String type;
       #ifdef HAS_THERMOMETER
         type = "thermometer";
@@ -192,6 +198,9 @@ void setup()
 
   #ifdef HAS_RELAY
     relayHelper.Off();
+    #ifdef RELAY_AS_THERMOSTAT
+      temperatureSensor.Setup();
+    #endif
   #endif
 
   #ifdef HAS_MOTION_RELAY
@@ -287,6 +296,22 @@ void loop()
     sendRelayState();
     relayStartTime = currentTime;
   }
+    #ifdef RELAY_AS_THERMOSTAT
+    if (websocketConnected == false)
+    {
+      auto currentTemperature = temperatureSensor.GetTemperature();
+      if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA)
+      {
+        relayHelper.On();
+        sendRelayState();
+      }
+      if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA)
+      {
+        relayHelper.Off();
+        sendRelayState();
+      }
+    }
+    #endif
   #endif
 
   #ifdef HAS_MOTION_RELAY
