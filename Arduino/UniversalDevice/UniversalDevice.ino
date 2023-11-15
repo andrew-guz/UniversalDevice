@@ -302,13 +302,19 @@ void loop()
       auto currentTemperature = temperatureSensor.GetTemperature();
       if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA)
       {
-        relayHelper.On();
-        sendRelayState();
+        if (relayHelper.State() == 0)
+        {
+          relayHelper.On();
+          sendRelayState();
+        }
       }
       if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA)
       {
-        relayHelper.Off();
-        sendRelayState();
+        if (relayHelper.State() == 1)
+        {
+          relayHelper.Off();
+          sendRelayState();
+        }
       }
     }
     #endif
