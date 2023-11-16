@@ -303,33 +303,33 @@ void loop()
   #endif
 
   #ifdef HAS_RELAY
-    if (currentTime - relayStartTime >= relayCheckStateDelay - 530)
-    {
-      //last for 500 ms
-      sendRelayState();
-      relayStartTime = currentTime;
-    }
+  if (currentTime - relayStartTime >= relayCheckStateDelay - 530)
+  {
+    //last for 500 ms
+    sendRelayState();
+    relayStartTime = currentTime;
+  }
     #ifdef RELAY_AS_THERMOSTAT
-      if (websocketConnected == false)
+    if (websocketConnected == false)
+    {
+      auto currentTemperature = temperatureSensor.GetTemperature();
+      if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA)
       {
-        auto currentTemperature = temperatureSensor.GetTemperature();
-        if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA)
+        if (relayHelper.State() == 0)
         {
-          if (relayHelper.State() == 0)
-          {
-            relayHelper.On();
-            sendRelayState();
-          }
-        }
-        if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA)
-        {
-          if (relayHelper.State() == 1)
-          {
-            relayHelper.Off();
-            sendRelayState();
-          }
+          relayHelper.On();
+          sendRelayState();
         }
       }
+      if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA)
+      {
+        if (relayHelper.State() == 1)
+        {
+          relayHelper.Off();
+          sendRelayState();
+        }
+      }
+    }
     #endif
   #endif
 
@@ -339,6 +339,7 @@ void loop()
       sendMotionRelayState();
       relayStartTime = currentTime;
     }
+
     if (motionHelper.IsMotion())
     {
       if (motionState == false)
