@@ -303,12 +303,12 @@ void loop()
   #endif
 
   #ifdef HAS_RELAY
-  if (currentTime - relayStartTime >= relayCheckStateDelay - 530)
-  {
-    //last for 500 ms
-    sendRelayState();
-    relayStartTime = currentTime;
-  }
+    if (currentTime - relayStartTime >= relayCheckStateDelay - 530)
+    {
+      //last for 500 ms
+      sendRelayState();
+      relayStartTime = currentTime;
+    }
     #ifdef RELAY_AS_THERMOSTAT
     if (websocketConnected == false)
     {
