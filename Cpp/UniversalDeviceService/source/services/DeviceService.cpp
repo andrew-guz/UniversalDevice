@@ -42,6 +42,10 @@ void DeviceService::Initialize(crow::SimpleApp& app)
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString){ return SetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request){ return Inform(request); });
     CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
+        .onopen([&](crow::websocket::connection& connection)
+        {
+            LOG_INFO << "Incoming ip - " << connection.get_remote_ip() << "." << std::endl;
+        })
         .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary){ return OnWebSocketMessage(connection, data, is_binary); })
         .onclose([&](crow::websocket::connection& connection, const std::string& reason){ return OnWebSocketClose(connection, reason); });
 
