@@ -92,9 +92,9 @@ void DeviceButton::Refresh()
             text += std::string("<br/><br/>") + additionalData + std::string("<br/><br/>") + TimeHelper::TimeToShortString(timestamp);
         auto currentTime = std::chrono::system_clock::now();
         if (currentTime - timestamp > std::chrono::minutes(5))
-            decorationStyle().setBorder(WBorder(Wt::BorderStyle::Solid, 3, Wt::StandardColor::Red));
+            decorationStyle().setBorder(WBorder(Wt::BorderStyle::Solid, 2, Wt::StandardColor::Red));
         else if (currentTime - timestamp > std::chrono::hours(1))
-            decorationStyle().setBorder(WBorder(Wt::BorderStyle::Solid, 3, Wt::StandardColor::DarkRed));
+            decorationStyle().setBorder(WBorder(Wt::BorderStyle::Solid, 2, Wt::StandardColor::DarkRed));
         else
             decorationStyle().setBorder(WBorder(Wt::BorderStyle::Solid, 1, Wt::StandardColor::DarkGray));
     }
