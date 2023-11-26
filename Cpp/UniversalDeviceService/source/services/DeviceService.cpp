@@ -256,7 +256,11 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
                     connection.send_text(result.dump());
             }
             else
+            {
                 LOG_ERROR << "Not authorized connection." << std::endl;
+                //ask for authorization again
+                knownConnection->send_text("{ \"reauthorize\" : true }");
+            }
         }
     }
     catch(...)

@@ -148,6 +148,26 @@ bool checkWiFi()
   return true;
 }
 
+void authorizeAndGetSettings()
+{
+  String type;
+  #ifdef HAS_THERMOMETER
+    type = "thermometer";
+  #endif
+  #ifdef HAS_RELAY
+    type = "relay";
+  #endif
+  #ifdef HAS_MOTION_RELAY
+    type = "motion_relay";
+  #endif
+  auto authMessage = CreateSimpleMessage(type, UUID, "websocket_authorization", "authString", AUTHORIZATION_STR);
+  websocketClient.sendTXT(authMessage);
+  auto settingsMessage = CreateSimpleMessage(type, UUID, "websocket_get_settings");
+  websocketClient.sendTXT(settingsMessage);
+  auto commandsMessage = CreateSimpleMessage(type, UUID, "websocket_get_commands");
+  websocketClient.sendTXT(commandsMessage);
+}
+
 char websocketBuffer[256];
 bool websocketConnected = false;
 
@@ -167,22 +187,7 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
     {
       Serial.println("Connected");
       websocketConnected = true;
-      String type;
-      #ifdef HAS_THERMOMETER
-        type = "thermometer";
-      #endif
-      #ifdef HAS_RELAY
-        type = "relay";
-      #endif
-      #ifdef HAS_MOTION_RELAY
-        type = "motion_relay";
-      #endif
-      auto authMessage = CreateSimpleMessage(type, UUID, "websocket_authorization", "authString", AUTHORIZATION_STR);
-      websocketClient.sendTXT(authMessage);
-      auto settingsMessage = CreateSimpleMessage(type, UUID, "websocket_get_settings");
-      websocketClient.sendTXT(settingsMessage);
-      auto commandsMessage = CreateSimpleMessage(type, UUID, "websocket_get_commands");
-      websocketClient.sendTXT(commandsMessage);
+      authorizeAndGetSettings();
     }
     break;
   case WStype_TEXT:
@@ -192,6 +197,8 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
       sprintf(websocketBuffer, "%s", payload);
       StaticJsonDocument<256> doc;
       deserializeJson(doc, websocketBuffer);
+      if (doc.containsKey("reauthorize"))
+        authorizeAndGetSettings();
       #ifdef HAS_THERMOMETER
         if (doc.containsKey("period"))
           temperatureMeasurementDelay = doc["period"].as<int>();
