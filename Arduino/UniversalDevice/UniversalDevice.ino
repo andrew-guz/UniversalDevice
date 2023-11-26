@@ -1,7 +1,14 @@
 #include <Arduino.h>
 #include "SetupHelper.h"
-#include "WiFiHelper.h"
-#include "WebSocketHelper.h"
+#ifdef WIFI_ESP32
+  #include <WiFi.h>
+  #include <HTTPClient.h>
+#endif
+#ifdef WIFI_ESP8266
+  #include <ESP8266WiFi.h>
+  #include <ESP8266HTTPClient.h>
+#endif
+#include <WebSocketsClient.h>
 #include "MessageHelper.h"
 #ifdef HAS_THERMOMETER
   #include "TemperatureHelper.h"
@@ -17,6 +24,7 @@
   #include "RelayHelper.h"
 #endif
 
+WebSocketsClient websocketClient;
 #ifdef HAS_THERMOMETER
   SingleTemperatureSensor temperatureSensor(THERMOMETER_PIN);
   unsigned long temperatureStartTime;
@@ -43,14 +51,14 @@
   int motionActivityDelay = 60000;
   int relayStateFromCommand = 0;
   bool motionState = false;
-  unsigned long motionTime;
+  unsigned long motionStartTime;
 #endif
 
 #ifdef HAS_THERMOMETER
   void sendTemperature(float temperature)
   {
     auto message = CreateSimpleMessage("thermometer", UUID, "thermometer_current_value", "value", temperature);
-    webSocket.sendTXT(message);
+    websocketClient.sendTXT(message);
   }
 #endif
 
@@ -78,7 +86,7 @@
   void sendRelayState()
   {
     auto message = CreateSimpleMessage("relay", UUID, "relay_current_state", "state", relayHelper.State());
-    webSocket.sendTXT(message);
+    websocketClient.sendTXT(message);
   }
 #endif
 
@@ -91,7 +99,7 @@
       doc["data"]["state"] = relayHelper.State();        
     };
     auto message = CreateMessage("motion_relay", UUID, "motion_relay_current_state", func);
-    webSocket.sendTXT(message);
+    websocketClient.sendTXT(message);
   }
 
   void setRelayState()
@@ -104,6 +112,42 @@
   }
 #endif
 
+bool connectToWiFi(const String& ssid, const String& password)
+{
+  Serial.print("Connecting " + ssid + " ");
+  #ifdef HAS_LED
+      ledShowString("CON-");
+  #endif
+  WiFi.begin(ssid, password);
+  for (auto i = 0; i < 30; ++i)
+  {
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      Serial.println(" Connected");
+      #ifdef HAS_LED
+        ledShowString("CONN");
+      #endif
+      return true;
+    }
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println(" Failed");
+  #ifdef HAS_LED
+    ledShowString("EROR");
+  #endif
+  return false;
+}
+
+bool checkWiFi()
+{
+  if (WiFi.status() != WL_CONNECTED)
+    if (!connectToWiFi(SSID_MAIN, PASSWORD_MAIN))
+      if (!connectToWiFi(SSID_ADDITIONAL, PASSWORD_ADDITIONAL))
+        return false;
+  return true;
+}
+
 char websocketBuffer[256];
 bool websocketConnected = false;
 
@@ -111,12 +155,17 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
 {
   switch(type)
   {
-  case WStype_DISCONNECTED:
+  case WStype_ERROR:
+    Serial.println("Error");
     websocketConnected = false;
-    WebSocketHelper::Connect();
+    break;
+  case WStype_DISCONNECTED:
+    Serial.println("Disconnected");
+    websocketConnected = false;
     break;
   case WStype_CONNECTED:
     {
+      Serial.println("Connected");
       websocketConnected = true;
       String type;
       #ifdef HAS_THERMOMETER
@@ -129,15 +178,16 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
         type = "motion_relay";
       #endif
       auto authMessage = CreateSimpleMessage(type, UUID, "websocket_authorization", "authString", AUTHORIZATION_STR);
-      webSocket.sendTXT(authMessage);
+      websocketClient.sendTXT(authMessage);
       auto settingsMessage = CreateSimpleMessage(type, UUID, "websocket_get_settings");
-      webSocket.sendTXT(settingsMessage);
+      websocketClient.sendTXT(settingsMessage);
       auto commandsMessage = CreateSimpleMessage(type, UUID, "websocket_get_commands");
-      webSocket.sendTXT(commandsMessage);
+      websocketClient.sendTXT(commandsMessage);
     }
     break;
   case WStype_TEXT:
     {
+      Serial.println("Incoming text");
       memset(websocketBuffer, 1, 256);
       sprintf(websocketBuffer, "%s", payload);
       StaticJsonDocument<256> doc;
@@ -177,6 +227,13 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length)
     }
     break;
   case WStype_BIN:
+    Serial.println("Incoming binary");
+    break;
+  case WStype_PING:
+    Serial.println("Ping");
+    break;
+  case WStype_PONG:
+    Serial.println("Pong");
     break;
   }
 }
@@ -211,55 +268,35 @@ void setup()
     Serial.println("Motion sensor initializes...");
   #endif
 
-  WebSocketHelper::Configure(WebSocketEvent);
+  websocketClient.beginSSL(API_IP, API_PORT, API_WS);
+  websocketClient.enableHeartbeat(5000, 5000, 3);
+  websocketClient.setReconnectInterval(1000);
+  websocketClient.onEvent(WebSocketEvent);
 }
 
 void loop()
 {
   //check the connection
-  if (WiFi.status() != WL_CONNECTED)
+  if (!checkWiFi())
   {
-    #ifdef HAS_LED
-      ledShowString("CON-");
+    #if defined HAS_RELAY && defined RELAY_AS_THERMOSTAT
+      auto currentTemperature = temperatureSensor.GetTemperature();
+      if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA)
+      {
+        if (relayHelper.State() == 0)
+          relayHelper.On();
+      }
+      if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA)
+      {
+        if (relayHelper.State() == 1)
+          relayHelper.Off();
+      }
     #endif
-    bool connected = wifiHelper.WiFiConnect();
-    if (!connected)
-    {
-      #ifdef HAS_LED
-        ledShowString("EROR");
-      #endif
-      #if defined HAS_RELAY && defined RELAY_AS_THERMOSTAT
-        auto currentTemperature = temperatureSensor.GetTemperature();
-        if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA)
-        {
-          if (relayHelper.State() == 0)
-            relayHelper.On();
-        }
-        if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA)
-        {
-          if (relayHelper.State() == 1)
-            relayHelper.Off();
-        }
-      #endif
-      delay(1000);
-      return;
-    }
-    #ifdef HAS_LED
-      ledShowString("CONN");
-    #endif
-    WebSocketHelper::Connect();
-    #ifdef HAS_THERMOMETER
-      temperatureStartTime = millis();
-    #endif
-    #ifdef HAS_RELAY
-      relayStartTime = millis();
-    #endif
-    #ifdef HAS_MOTION_RELAY
-      motionTime = relayStartTime = millis();
-    #endif
+    delay(1000);
+    return;
   }
 
-  webSocket.loop();
+  websocketClient.loop();
 
   auto currentTime = millis();
 
@@ -347,12 +384,12 @@ void loop()
         setRelayState();
         sendMotionRelayState();                    
       }
-      motionTime = currentTime;
+      motionStartTime = currentTime;
     }
     else
     {
       if (motionState &&
-          currentTime - motionTime >= motionActivityDelay)
+          currentTime - motionStartTime >= motionActivityDelay)
       {
         motionState = false;
         setRelayState();
