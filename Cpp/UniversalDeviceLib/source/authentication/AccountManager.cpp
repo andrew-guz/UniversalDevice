@@ -3,10 +3,12 @@
 #include <nlohmann/json.hpp>
 
 #include "Logger.h"
-#include "JsonExtension.h"
-#include "PathHelper.h"
-#include "JsonFileReader.h"
 #include "Base64Helper.h"
+
+AccountManager::AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer) :
+    _initializer(initializer)
+{
+}
 
 bool AccountManager::IsValidUser(const std::string& login, const std::string& password)
 {
@@ -47,20 +49,5 @@ std::string AccountManager::GetAuthString(const std::string& login)
 
 void AccountManager::Initialize()
 {
-    if (_accounts.size())
-        return;
-    auto fileName = PathHelper::FullFilePath("authentication.json");
-    auto authenticationJson = JsonFileReader::ReadJson(fileName);
-    if (authenticationJson.is_null())
-        return;
-    auto serviceAccount = JsonExtension::CreateFromJson<Account>(authenticationJson.value("serviceAccount", nlohmann::json()));
-    _accounts.push_back(serviceAccount);
-    auto deviceAccount = JsonExtension::CreateFromJson<Account>(authenticationJson.value("deviceAccount", nlohmann::json()));
-    _accounts.push_back(deviceAccount);
-    auto usersJson = authenticationJson.value("users", nlohmann::json::array());
-    for (auto& userJson : usersJson)
-    {
-        auto userAccount = JsonExtension::CreateFromJson<Account>(userJson);
-        _accounts.push_back(userAccount);
-    }
+    _initializer->Initialize(_accounts);
 }

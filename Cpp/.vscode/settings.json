@@ -84,6 +84,9 @@
         "WString.C": "cpp",
         "WLayout.C": "cpp",
         "strstream": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "span": "cpp"
     }
 }
