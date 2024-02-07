@@ -19,7 +19,7 @@ bool AccountManager::IsValidUser(const std::string& login, const std::string& pa
 bool AccountManager::IsValidUser(const Account& account)
 {
     Initialize();
-    return std::find(_accounts.begin(), _accounts.end(), account) != _accounts.end();
+    return std::any_of(_accounts.begin(), _accounts.end(), [&account](const auto& a){ return a == account; });
 }
 
 bool AccountManager::IsValidUser(const std::string& authorizationString)
@@ -38,11 +38,11 @@ bool AccountManager::IsValidUser(const std::string& authorizationString)
 
 std::string AccountManager::GetAuthString(const std::string& login)
 {
-    Initialize();
-    auto iter = std::find_if(_accounts.begin(), _accounts.end(), [login](const auto& account){ return account._login == login; });
-    if(iter == _accounts.end())
-        return {};
-    return iter->_login + std::string(":") + iter->_password;
+    Initialize();    
+    if (auto iter = std::find_if(_accounts.begin(), _accounts.end(), [&login](const auto& account){ return account._login == login; }); 
+        iter != _accounts.end())
+        return iter->_login + std::string(":") + iter->_password;
+    return {};
 }
 
 void AccountManager::Initialize()
