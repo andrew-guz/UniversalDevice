@@ -6,7 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "cmake . && cmake --build . -j 12 && ctest",
+            "command": "cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 . && cmake --build . -j 12 && ctest",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
