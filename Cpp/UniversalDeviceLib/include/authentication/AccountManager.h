@@ -2,13 +2,17 @@
 #define _ACCOUNT_MANAGER_H_
 
 #include <vector>
+#include <memory>
 
 #include "Singleton.h"
 #include "Account.h"
+#include "AccountManagerInitializer.h"
 
 class AccountManager final : public Singleton<AccountManager>
 {
 public:
+    AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer = std::make_shared<AccountManagerInitializer>());
+
     bool IsValidUser(const std::string& login, const std::string& password);
 
     bool IsValidUser(const Account& account);
@@ -21,7 +25,8 @@ private:
     void Initialize();
 
 private:
-    std::vector<Account> _accounts;
+    std::shared_ptr<IAccountManagerInitializer> _initializer;
+    std::vector<Account>                        _accounts;
 };
 
 #endif //_ACCOUNT_MANAGER_H_

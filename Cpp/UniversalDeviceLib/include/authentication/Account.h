@@ -8,6 +8,13 @@ struct Account final : public IJson<Account>
     std::string _login;
     std::string _password;
 
+    Account(const std::string& login = {}, const std::string& password = {}) :
+        _login(login),
+        _password(password)
+    {
+
+    }
+
     virtual nlohmann::json ToJson() const override
     {
         return {
