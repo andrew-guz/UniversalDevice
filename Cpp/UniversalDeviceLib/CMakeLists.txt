@@ -57,6 +57,9 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 #create shared library from source
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
+#alternative way to set compiler flags
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+
 #executable needs libraries - so link to installed libs
 target_link_libraries(${PROJECT_NAME} -luuid -lcurlpp -lb64)
 
