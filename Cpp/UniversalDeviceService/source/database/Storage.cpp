@@ -65,7 +65,7 @@ bool Storage::InternalExecute(const std::string& query, int(*callback)(void*, in
 
 void Storage::InitializeDb()
 {
-    std::vector<std::string> queries
+    static std::vector<std::string> queries
     {
         "CREATE TABLE IF NOT EXISTS Devices (id TEXT UNIQUE, type TEXT, name TEXT, grp TEXT, timestamp INTEGER, PRIMARY KEY(id, type))",
         "CREATE TABLE IF NOT EXISTS Settings (id TEXT, settings TEXT, PRIMARY KEY(id))",
@@ -75,6 +75,6 @@ void Storage::InitializeDb()
         "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp INTEGER, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))",
         "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))"
     };
-    for(auto& query : queries)
+    for (auto& query : queries)
         Execute(query);
 }
