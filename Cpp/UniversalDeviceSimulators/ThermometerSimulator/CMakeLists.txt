@@ -4,6 +4,15 @@ cmake_minimum_required(VERSION 3.15)
 # common variable for project name and executable name
 set(PROJECT_NAME "ThermometerSimulator")
 
+#check that all needed librarties are preinstalled
+function (check_library lib_name)
+    find_library(${lib_name}_LIB ${lib_name})
+    if(NOT ${lib_name}_LIB)
+        message(FATAL_ERROR "${lib_name} library was not found")
+    endif()
+endfunction()
+check_library(pthread)
+
 #build in Debug mode
 set(CMAKE_BUILD_TYPE Debug)
 
