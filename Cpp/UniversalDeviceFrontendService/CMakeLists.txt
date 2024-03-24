@@ -61,7 +61,7 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 #create executable from source
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
-#executable needs libraries - so link to installed lisbs
+#executable needs libraries - so link to installed libs
 target_link_libraries(${PROJECT_NAME} -lwt -lwthttp  UniversalDeviceLib)
 
 #install section
