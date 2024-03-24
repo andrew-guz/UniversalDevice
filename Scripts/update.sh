@@ -14,11 +14,11 @@ cd Cpp
 
 make clean
 
-cmake .
+cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 --fresh . 
 
-make -j 4
+cmake --build . -j 12 
 
-make test
+ctest
 
 make install
 
@@ -27,4 +27,3 @@ systemctl start UniversalDevice
 systemctl start UniversalDeviceFrontend
 
 cd ../Scripts
-
