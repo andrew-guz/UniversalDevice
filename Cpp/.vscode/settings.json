@@ -88,5 +88,6 @@
         "numbers": "cpp",
         "semaphore": "cpp",
         "span": "cpp"
-    }
+    },
+    "testMate.cpp.test.executables": "bin/tests/*"
 }
