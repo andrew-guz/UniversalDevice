@@ -32,7 +32,7 @@ Logger::Logger(LogLevel logLevel, const std::string& path) :
 Logger& Logger::Instance(LogLevel logLevel, const std::string& path)
 {    
     if (_instanceMap.count(logLevel) == 0)
-        _instanceMap.insert(std::make_pair(logLevel, new Logger(logLevel,path)));
+        _instanceMap.insert(std::make_pair(logLevel, new Logger(logLevel, path)));
     return *_instanceMap[logLevel];
 }
 

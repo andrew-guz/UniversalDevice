@@ -24,7 +24,7 @@ bool AccountManager::IsValidUser(const Account& account)
     return std::any_of(_accounts.begin(), _accounts.end(), [&account](const auto& a){ return a == account; });
 }
 
-bool AccountManager::IsValidUser(const std::string& authorizationString)
+bool AccountManager::IsValidUser(const std::string_view authorizationString)
 {
     if (authorizationString.find("Basic") == std::string::npos)
         return false;
@@ -38,7 +38,7 @@ bool AccountManager::IsValidUser(const std::string& authorizationString)
     return IsValidUser(login, password);
 }
 
-std::string AccountManager::GetAuthString(const std::string& login)
+std::string AccountManager::GetAuthString(const std::string_view login)
 {
     Initialize();    
     if (auto iter = std::find_if(_accounts.begin(), _accounts.end(), [&login](const auto& account){ return account._login == login; }); 

@@ -17,9 +17,9 @@ public:
 
     bool IsValidUser(const Account& account);
 
-    bool IsValidUser(const std::string& authorizationString);
+    bool IsValidUser(std::string_view authorizationString);
 
-    std::string GetAuthString(const std::string& login);
+    std::string GetAuthString(std::string_view login);
 
 private:
     void Initialize();
