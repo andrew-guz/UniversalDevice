@@ -66,12 +66,18 @@ target_link_libraries(${PROJECT_NAME} -luuid -lcurlpp -lb64)
 #unit tests section
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/tests)
 
-file(GLOB TEST_SOURCES tests/*.cpp)
+file(GLOB_RECURSE TEST_SOURCES tests/*.cpp)
 foreach(TEST_TARGET ${TEST_SOURCES})
     get_filename_component(EXECUTABLE_NAME ${TEST_TARGET} NAME_WE)
     add_executable(${EXECUTABLE_NAME} ${TEST_TARGET})
     target_link_libraries(${EXECUTABLE_NAME} Catch2WithMain UniversalDeviceLib)
     add_test(NAME ${EXECUTABLE_NAME} COMMAND ${EXECUTABLE_NAME})
+endforeach()
+
+#copy files needed by tests
+file(GLOB_RECURSE TEST_JSONS tests/*.json)
+foreach(TEST_TARGET ${TEST_JSONS})
+    configure_file(${TEST_TARGET} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COPYONLY)
 endforeach()
 
 #install section
