@@ -3,6 +3,7 @@
 
 #include <uuid/uuid.h>
 #include <string>
+#include <string_view>
 
 class Uuid final
 {
@@ -11,11 +12,13 @@ public:
 
     Uuid(const Uuid& other);
 
-    Uuid(const std::string& str);
+    Uuid(std::string_view str);
 
     ~Uuid() = default;
 
     Uuid& operator=(const Uuid& other);
+
+    Uuid& operator=(std::string_view other);
 
     bool operator==(const Uuid& other) const;
 
