@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
- std::string DbExtension::FindValueByName(const std::vector<std::string>& dbStrings, const std::string& name)
+ std::string DbExtension::FindValueByName(const std::vector<std::string>& dbStrings, const std::string_view name)
 {
     auto iter = std::find(dbStrings.begin(), dbStrings.end(), name);
     if (iter != dbStrings.end())
