@@ -2,6 +2,7 @@
 #define _DB_EXTENSION_H_
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 class DbExtension final
@@ -28,7 +29,7 @@ public:
         return result;
     }
 
-    static std::string FindValueByName(const std::vector<std::string>& dbStrings, const std::string& name);
+    static std::string FindValueByName(const std::vector<std::string>& dbStrings, std::string_view name);
 };
 
 #endif //_DB_EXTENSION_H_

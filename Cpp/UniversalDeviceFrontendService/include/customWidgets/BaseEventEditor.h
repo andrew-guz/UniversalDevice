@@ -33,9 +33,9 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 protected:
-    std::vector<ExtendedComponentDescription> FilteredDevices(const std::string& type);
+    std::vector<ExtendedComponentDescription> FilteredDevices(std::string_view type);
 
-    std::vector<ExtendedComponentDescription> FilteredDevices(const std::set<std::string>& types);
+    std::vector<ExtendedComponentDescription> FilteredDevices(const std::set<std::string_view>& types);
 
 protected:
     std::vector<ExtendedComponentDescription>   _devices;

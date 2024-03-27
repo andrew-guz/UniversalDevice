@@ -34,26 +34,26 @@ Storage::~Storage()
     sqlite3_close(_connection);
 }
 
-bool Storage::Execute(const std::string& query)
+bool Storage::Execute(const std::string_view query)
 {
     return Execute(query, NoActionCallback);
 }
 
-bool Storage::Execute(const std::string& query, int(*callback)(void*, int, char**, char**))
+bool Storage::Execute(const std::string_view query, int(*callback)(void*, int, char**, char**))
 {
     return InternalExecute(query, callback, this);
 }
 
-bool Storage::Select(const std::string& query, std::vector<std::vector<std::string>>& data)
+bool Storage::Select(const std::string_view query, std::vector<std::vector<std::string>>& data)
 {
     return InternalExecute(query, SelectCallback, &data);
 }
 
-bool Storage::InternalExecute(const std::string& query, int(*callback)(void*, int, char**, char**), void* data)
+bool Storage::InternalExecute(const std::string_view query, int(*callback)(void*, int, char**, char**), void* data)
 {
     std::lock_guard<std::mutex> lockGuard(_mutex);
     char* error = nullptr;
-    int result = sqlite3_exec(_connection, query.c_str(), callback, data, &error);
+    int result = sqlite3_exec(_connection, query.data(), callback, data, &error);
     if (result != SQLITE_OK)
     {   
         LOG_ERROR << "SQL error: " << error << " for query " << query << "." << std::endl;

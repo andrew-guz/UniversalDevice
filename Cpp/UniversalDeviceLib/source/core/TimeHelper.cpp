@@ -43,10 +43,10 @@ std::string TimeHelper::TimeToShortString(const std::chrono::system_clock::time_
 
 }
 
-std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::string& string)
+std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::string_view string)
 {
     std::tm tm = {};
-    std::stringstream sstream(string);
+    std::stringstream sstream(string.data());
     sstream >> std::get_time(&tm, "%d-%m-%Y %T");
     auto time_t = std::mktime(&tm);
     return std::chrono::system_clock::from_time_t(time_t);

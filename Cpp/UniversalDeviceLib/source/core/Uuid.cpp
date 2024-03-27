@@ -12,7 +12,7 @@ Uuid::Uuid(const Uuid& other)
     uuid_copy(_uuid, other._uuid);
 }
 
-Uuid::Uuid(const std::string& str)
+Uuid::Uuid(const std::string_view str)
 {
     uuid_parse(str.data(), _uuid);
 }
@@ -20,6 +20,12 @@ Uuid::Uuid(const std::string& str)
 Uuid& Uuid::operator=(const Uuid& other)
 {
     uuid_copy(_uuid, other._uuid);
+    return *this;
+}
+
+Uuid& Uuid::operator=(std::string_view other)
+{
+    uuid_parse(other.data(), _uuid);
     return *this;
 }
 

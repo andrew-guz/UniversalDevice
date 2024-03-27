@@ -7,36 +7,36 @@ class Constants final
 {
 public:
     //login
-    static const std::string LoginService;
-    static const std::string LoginDevice;
+    static constexpr std::string_view LoginService = "service";
+    static constexpr std::string_view LoginDevice = "device";
 
     // device types   
-    static const std::string DeviceTypeUndefined;
-    static const std::string DeviceTypeTimer;
-    static const std::string DeviceTypeThermometer;
-    static const std::string DeviceTypeRelay;
-    static const std::string DeviceTypeMotionRelay;
+    static constexpr std::string_view DeviceTypeUndefined = "undefined_type";
+    static constexpr std::string_view DeviceTypeTimer = "timer";
+    static constexpr std::string_view DeviceTypeThermometer = "thermometer";
+    static constexpr std::string_view DeviceTypeRelay = "relay";
+    static constexpr std::string_view DeviceTypeMotionRelay = "motion_relay";
 
     //subjects - depends on type
-    static const std::string SubjectUndefined;
-    static const std::string SubjectTimerEvent;
-    static const std::string SubjectGetDeviceInformation;
-    static const std::string SubjectThermometerCurrentValue;
-    static const std::string SubjectRelayCurrentState;
-    static const std::string SubjectMotionRelayCurrentState;
-    static const std::string SubjectWebSocketAuthorization;
-    static const std::string SubjectWebSocketGetSettings;
-    static const std::string SubjectWebSocketGetCommands;
+    static constexpr std::string_view SubjectUndefined = "undefined_subject";
+    static constexpr std::string_view SubjectTimerEvent = "timer_timeout";
+    static constexpr std::string_view SubjectGetDeviceInformation = "get_device_information";
+    static constexpr std::string_view SubjectThermometerCurrentValue = "thermometer_current_value";
+    static constexpr std::string_view SubjectRelayCurrentState = "relay_current_state";
+    static constexpr std::string_view SubjectMotionRelayCurrentState = "motion_relay_current_state";
+    static constexpr std::string_view SubjectWebSocketAuthorization = "websocket_authorization";
+    static constexpr std::string_view SubjectWebSocketGetSettings = "websocket_get_settings";
+    static constexpr std::string_view SubjectWebSocketGetCommands = "websocket_get_commands";
 
     //predefined ids for devices
     static const Uuid PredefinedIdTimer;
 
     //event types
-    static const std::string EventTypeUndefined;
-    static const std::string EventTypeTimer;
-    static const std::string EventTypeThermometer;
-    static const std::string EventTypeRelay;
-    static const std::string EventTypeThermostat;
+    static constexpr std::string_view EventTypeUndefined = "undefined _event";
+    static constexpr std::string_view EventTypeTimer = "timer_event";
+    static constexpr std::string_view EventTypeThermometer = "thermometer_event";
+    static constexpr std::string_view EventTypeRelay = "relay_event";
+    static constexpr std::string_view EventTypeThermostat = "thermostat_event";
 };
 
 #endif //_CONSTANTS_H_

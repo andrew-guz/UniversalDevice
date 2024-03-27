@@ -89,5 +89,14 @@
         "semaphore": "cpp",
         "span": "cpp"
     },
-    "testMate.cpp.test.executables": "bin/tests/*"
+    "testMate.cpp.test.executables": "bin/tests/*",
+    "spellright.language": [
+        "en-US-10-1."
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext",
+        "cpp"
+    ]
 }

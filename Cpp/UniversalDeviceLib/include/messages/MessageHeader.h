@@ -6,7 +6,7 @@
 struct MessageHeader final : public IJson<MessageHeader>
 {
     ComponentDescription    _description;
-    std::string             _subject = Constants::SubjectUndefined;
+    std::string             _subject = std::string { Constants::SubjectUndefined };
 
     virtual nlohmann::json ToJson() const override
     {

@@ -88,7 +88,7 @@ cpp17::any EventsTableModel::headerData(int section, Orientation orientation, It
     return {};
 }
 
-std::string EventsTableModel::EventTypeDisplayName(const std::string& eventType)
+std::string EventsTableModel::EventTypeDisplayName(const std::string_view eventType)
 {
     if (eventType == Constants::EventTypeTimer)
         return "Таймер";

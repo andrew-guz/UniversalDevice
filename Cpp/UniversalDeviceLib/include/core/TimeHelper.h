@@ -2,6 +2,7 @@
 #define _TIME_HELPER_H_
 
 #include <string>
+#include <string_view>
 #include <chrono>
 #include <tuple>
 
@@ -21,7 +22,7 @@ public:
     //returns 25-11 12:34 from time_point
     static std::string TimeToShortString(const std::chrono::system_clock::time_point& time);
 
-    static std::chrono::system_clock::time_point TimeFromString(const std::string& string);    
+    static std::chrono::system_clock::time_point TimeFromString(std::string_view string);    
 
     static std::tuple<int, int> GetHourMinute(const std::chrono::system_clock::time_point& time);
 };
