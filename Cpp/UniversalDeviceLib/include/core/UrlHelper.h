@@ -1,6 +1,7 @@
 #ifndef _URL_HELPER_H_
 #define _URL_HELPER_H_
 
+#include <string>
 #include <regex>
 
 #include "Uuid.h"
