@@ -7,8 +7,8 @@ class Constants final
 {
 public:
     //login
-    static const std::string LoginService;
-    static const std::string LoginDevice;
+    static constexpr std::string_view LoginService = "service";
+    static constexpr std::string_view LoginDevice = "device";
 
     // device types   
     static const std::string DeviceTypeUndefined;

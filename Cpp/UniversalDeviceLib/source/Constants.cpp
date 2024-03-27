@@ -1,10 +1,5 @@
 #include "Constants.h"
 
-//login
-const std::string Constants::LoginService = "service";
-
-const std::string Constants::LoginDevice = "device";
-
 // device types
 const std::string Constants::DeviceTypeUndefined = "undefined_type";
 

@@ -9,7 +9,7 @@
 #include "Logger.h"
 #include "AccountManager.h"
 
-nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress, const std::string& login)
+nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress, const std::string_view login)
 {
     try
     {
@@ -57,12 +57,12 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress,
     return {};
 }
 
-int RequestHelper::DoPostRequest(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
+int RequestHelper::DoPostRequest(const RequestAddress& requestAddress, const std::string_view login, const nlohmann::json& json)
 {
     return DoRequest("POST", requestAddress, login, json, nullptr);
 }
 
-nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
+nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const std::string_view login, const nlohmann::json& json)
 {
     std::ostringstream response;
     if (DoRequest("POST", requestAddress, login, json, &response) == 200)
@@ -82,17 +82,17 @@ nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requ
     return {};
 }
 
-int RequestHelper::DoPutRequest(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
+int RequestHelper::DoPutRequest(const RequestAddress& requestAddress, const std::string_view login, const nlohmann::json& json)
 {
     return DoRequest("PUT", requestAddress, login, json, nullptr);
 }
 
-int RequestHelper::DoDeleteRequest(const RequestAddress& requestAddress, const std::string& login, const nlohmann::json& json)
+int RequestHelper::DoDeleteRequest(const RequestAddress& requestAddress, const std::string_view login, const nlohmann::json& json)
 {
     return DoRequest("DELETE", requestAddress, login, json, nullptr);
 }
 
-int RequestHelper::DoRequest(const std::string& method, const RequestAddress &requestAddress, const std::string& login, const nlohmann::json& json, std::ostream* response)
+int RequestHelper::DoRequest(const std::string& method, const RequestAddress &requestAddress, const std::string_view login, const nlohmann::json& json, std::ostream* response)
 {
     if (method != "POST" &&
         method != "PUT" &&
