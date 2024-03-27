@@ -2,6 +2,7 @@
 #define _EVENT_H_
 
 #include <string>
+#include <string_view>
 
 #include "Constants.h"
 #include "Uuid.h"
@@ -18,7 +19,7 @@ struct Event : public IJson<Event>
     ComponentDescription    _receiver;
     nlohmann::json          _command;
 
-    Event(const std::string& type = Constants::EventTypeUndefined) :
+    Event(const std::string_view type = Constants::EventTypeUndefined) :
         _type(type)
     {
         

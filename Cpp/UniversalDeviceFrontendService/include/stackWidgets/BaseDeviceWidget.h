@@ -49,7 +49,7 @@ protected:
 
     //return 1 last point
     template<typename TValues>
-    std::vector<TValues> GetValues(const std::string& type)
+    std::vector<TValues> GetValues(const std::string_view type)
     {
         return GetValues<TValues>(type, (uint64_t)0);
     }
@@ -57,7 +57,7 @@ protected:
 
     //return data from last N seconds or at least one last known point
     template<typename TValues>
-    std::vector<TValues> GetValues(const std::string& type, uint64_t seconds)
+    std::vector<TValues> GetValues(const std::string_view type, uint64_t seconds)
     {
         DeviceInformationDescription messageData;
         messageData._type = type;

@@ -2,6 +2,7 @@
 #define _EVENTS_TABLE_MODEL_H_
 
 #include <vector>
+#include <string_view>
 #include <nlohmann/json.hpp>
 
 #include <Wt/WAbstractItemModel.h>
@@ -27,7 +28,7 @@ public:
 
     virtual Wt::cpp17::any headerData(int section, Wt::Orientation orientation = Wt::Orientation::Horizontal, Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
-    static std::string EventTypeDisplayName(const std::string& eventType);
+    static std::string EventTypeDisplayName(std::string_view eventType);
 
 private:
     std::vector<nlohmann::json> _data;

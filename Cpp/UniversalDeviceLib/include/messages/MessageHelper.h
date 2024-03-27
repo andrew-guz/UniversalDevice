@@ -9,9 +9,9 @@
 class MessageHelper final
 {
 public:
-    static Message Create(const std::string& type, const Uuid& id, const std::string subject, const nlohmann::json& data);
+    static Message Create(std::string_view type, const Uuid& id, std::string_view subject, const nlohmann::json& data);
 
-    static Message Create(const ComponentDescription& description, const std::string subject, const nlohmann::json& data);
+    static Message Create(const ComponentDescription& description, std::string_view subject, const nlohmann::json& data);
 };
 
 #endif //_MESSAGE_HELPER_H_
