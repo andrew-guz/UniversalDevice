@@ -4,8 +4,7 @@
 #include "IProcessor.h"
 #include "IQueryExecutor.h"
 
-class ProcessorsFactory final
-{
+class ProcessorsFactory final {
 public:
     static Processors CreateProcessors(const Message& message, IQueryExecutor* queryExecutor);
 };

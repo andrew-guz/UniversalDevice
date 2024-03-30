@@ -3,8 +3,7 @@
 #include "Defines.h"
 #include "ProcessSettingsReader.h"
 
-Settings Settings::ReadSettings()
-{
+Settings Settings::ReadSettings() {
     nlohmann::json settingsJson = ProcessSettingsReader::ReadProcessSettings();
     if (settingsJson.is_null())
         return Settings();

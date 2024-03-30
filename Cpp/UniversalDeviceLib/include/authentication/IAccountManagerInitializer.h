@@ -1,11 +1,10 @@
 #ifndef _I_ACCOUNT_MANAGE_INITIALIZER_H_
 #define _I_ACCOUNT_MANAGE_INITIALIZER_H_
 
-#include <vector>
 #include "Account.h"
+#include <vector>
 
-class IAccountManagerInitializer
-{
+class IAccountManagerInitializer {
 public:
     virtual ~IAccountManagerInitializer() = default;
 

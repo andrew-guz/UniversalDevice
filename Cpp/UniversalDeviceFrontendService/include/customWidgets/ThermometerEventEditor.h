@@ -1,15 +1,14 @@
 #ifndef _THERMOMETER_EVENT_EDITOR_H_
 #define _THERMOMETER_EVENT_EDITOR_H_
 
-#include <Wt/WSpinBox.h>
 #include <Wt/WCheckBox.h>
+#include <Wt/WSpinBox.h>
 
 #include "BaseEventEditor.h"
 #include "DeviceComboBox.h"
 #include "EventReceiverWidget.h"
 
-class ThermometerEventEditor final : public BaseEventEditor
-{
+class ThermometerEventEditor final : public BaseEventEditor {
 public:
     ThermometerEventEditor();
 
@@ -26,10 +25,10 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 private:
-    DeviceComboBox*         _provider;
-    Wt::WSpinBox*           _temperature;
-    Wt::WCheckBox*          _lower;
-    EventReceiverWidget*    _receiver;
+    DeviceComboBox* _provider;
+    Wt::WSpinBox* _temperature;
+    Wt::WCheckBox* _lower;
+    EventReceiverWidget* _receiver;
 };
 
 #endif //_THERMOMETER_EVENT_EDITOR_H_

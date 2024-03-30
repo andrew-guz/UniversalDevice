@@ -1,16 +1,15 @@
 #ifndef _LOGS_WIDGET_H_
 #define _LOGS_WIDGET_H_
 
-#include <Wt/WContainerWidget.h>
 #include <Wt/WComboBox.h>
+#include <Wt/WContainerWidget.h>
 #include <Wt/WTextArea.h>
 
 #include "BaseStackWidget.h"
-#include "Settings.h"
 #include "LogInformation.h"
+#include "Settings.h"
 
-class LogsWidget final : public Wt::WContainerWidget, public BaseStackWidget
-{
+class LogsWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
     LogsWidget(IStackHolder* stackHolder, const Settings& settings);
 
@@ -28,8 +27,8 @@ private:
     void OnLogSelected();
 
 private:
-    Wt::WComboBox*              _logFiles;
-    Wt::WTextArea*              _logContent;
+    Wt::WComboBox* _logFiles;
+    Wt::WTextArea* _logContent;
     std::vector<LogInformation> _logs;
 };
 

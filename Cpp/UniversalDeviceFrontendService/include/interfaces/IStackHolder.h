@@ -3,8 +3,7 @@
 
 #include "Enums.h"
 
-class IStackHolder
-{
+class IStackHolder {
 public:
     IStackHolder() = default;
 

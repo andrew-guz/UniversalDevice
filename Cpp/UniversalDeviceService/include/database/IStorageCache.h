@@ -3,8 +3,7 @@
 
 #include "StorageCacheSharedData.h"
 
-class IStorageCache
-{
+class IStorageCache {
 public:
     virtual ~IStorageCache() = default;
 

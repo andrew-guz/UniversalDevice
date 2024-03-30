@@ -1,15 +1,14 @@
 #ifndef _ACCOUNT_MANAGER_H_
 #define _ACCOUNT_MANAGER_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 
-#include "Singleton.h"
 #include "Account.h"
 #include "AccountManagerInitializer.h"
+#include "Singleton.h"
 
-class AccountManager final : public Singleton<AccountManager>
-{
+class AccountManager final : public Singleton<AccountManager> {
 public:
     AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer = std::make_shared<AccountManagerInitializer>());
 
@@ -26,7 +25,7 @@ private:
 
 private:
     std::shared_ptr<IAccountManagerInitializer> _initializer;
-    std::vector<Account>                        _accounts;
+    std::vector<Account> _accounts;
 };
 
 #endif //_ACCOUNT_MANAGER_H_

@@ -2,43 +2,34 @@
 
 #include <vector>
 
-#include "JsonExtension.h"
 #include "AccountManager.h"
+#include "JsonExtension.h"
 #include "ProcessorsFactory.h"
 
-BaseService::BaseService(IQueryExecutor* queryExecutor) :
-    _queryExecutor(queryExecutor)
-{
-    
-}
+BaseService::BaseService(IQueryExecutor* queryExecutor) : _queryExecutor(queryExecutor) {}
 
-bool BaseService::IsValidUser(const crow::request& request)
-{
+bool BaseService::IsValidUser(const crow::request& request) {
     auto authorization = request.get_header_value("Authorization");
     return IsValidUser(authorization);
 }
 
-bool BaseService::IsValidUser(const std::string& authorization)
-{
+bool BaseService::IsValidUser(const std::string& authorization) {
     if (authorization.empty())
         return false;
     return AccountManager::Instance()->IsValidUser(authorization);
 }
 
-void BaseService::CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message)
-{
+void BaseService::CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);
     for (auto& processor : processors)
         processor->ProcessMessage(timestamp, message);
 }
 
-nlohmann::json BaseService::CallProcessorsJsonResult(const std::chrono::system_clock::time_point& timestamp, const Message& message)
-{
+nlohmann::json BaseService::CallProcessorsJsonResult(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     nlohmann::json result;
     std::vector<nlohmann::json> processorJsonResults;
     auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);
-    for (auto& processor : processors)
-    {
+    for (auto& processor : processors) {
         auto processorResultJson = processor->ProcessMessage(timestamp, message);
         if (processorResultJson.is_null())
             continue;
@@ -46,48 +37,36 @@ nlohmann::json BaseService::CallProcessorsJsonResult(const std::chrono::system_c
     }
     if (processorJsonResults.size() == 1)
         result = processorJsonResults[0];
-    else if (processorJsonResults.size() > 1)
-    {
-        for (auto& processorResultJson : processorJsonResults)
-        {
-            if (processorResultJson.is_array())
-            {
+    else if (processorJsonResults.size() > 1) {
+        for (auto& processorResultJson : processorJsonResults) {
+            if (processorResultJson.is_array()) {
                 for (auto& subResult : processorResultJson)
                     result.push_back(subResult);
-            }
-            else
+            } else
                 result.push_back(processorResultJson);
         }
     }
     return result;
 }
 
-Message BaseServiceExtension::GetMessageFromRequest(const crow::request& request)
-{
+Message BaseServiceExtension::GetMessageFromRequest(const crow::request& request) {
     auto body = request.body;
-    try
-    {           
+    try {
         auto bodyJson = nlohmann::json::parse(body);
         LOG_DEBUG << bodyJson.dump() << std::endl;
         return JsonExtension::CreateFromJson<Message>(bodyJson);
-    }
-    catch(...)
-    {
+    } catch (...) {
         LOG_ERROR << "Can't get message from request - " << body << std::endl;
     }
     return Message();
 }
 
-Message BaseServiceExtension::GetMessageFromWebSocketData(const std::string& data)
-{
-    try
-    {           
+Message BaseServiceExtension::GetMessageFromWebSocketData(const std::string& data) {
+    try {
         auto dataJson = nlohmann::json::parse(data);
         LOG_DEBUG << dataJson.dump() << std::endl;
         return JsonExtension::CreateFromJson<Message>(dataJson);
-    }
-    catch(...)
-    {
+    } catch (...) {
         LOG_ERROR << "Can't get message from data - " << data << std::endl;
     }
     return Message();

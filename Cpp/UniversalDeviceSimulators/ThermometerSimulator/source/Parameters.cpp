@@ -2,8 +2,7 @@
 
 #include "ProcessSettingsReader.h"
 
-Parameters Parameters::ReadFromFile(const std::string fileName)
-{
+Parameters Parameters::ReadFromFile(const std::string fileName) {
     nlohmann::json json = ProcessSettingsReader::ReadProcessSettings();
     if (json.is_null())
         return Parameters();

@@ -7,8 +7,7 @@
 #include "BaseStackWidget.h"
 #include "Settings.h"
 
-class LoginWidget final : public Wt::WContainerWidget, public BaseStackWidget
-{
+class LoginWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
     LoginWidget(IStackHolder* stackHolder, const Settings& settings);
 
@@ -21,7 +20,7 @@ private:
 
 private:
     Wt::WLineEdit* _login;
-    Wt::WLineEdit* _password;   
+    Wt::WLineEdit* _password;
 };
 
 #endif //_LOGIN_WIDGET_H_

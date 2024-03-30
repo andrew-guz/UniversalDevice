@@ -2,30 +2,24 @@
 
 #include <nlohmann/json.hpp>
 
-#include "Logger.h"
 #include "Base64Helper.h"
+#include "Logger.h"
 
-AccountManager::AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer) :
-    _initializer(initializer)
-{
-}
+AccountManager::AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer) : _initializer(initializer) {}
 
-bool AccountManager::IsValidUser(const std::string& login, const std::string& password)
-{
+bool AccountManager::IsValidUser(const std::string& login, const std::string& password) {
     Account account;
     account._login = login;
     account._password = password;
     return IsValidUser(account);
 }
 
-bool AccountManager::IsValidUser(const Account& account)
-{
+bool AccountManager::IsValidUser(const Account& account) {
     Initialize();
-    return std::any_of(_accounts.begin(), _accounts.end(), [&account](const auto& a){ return a == account; });
+    return std::any_of(_accounts.begin(), _accounts.end(), [&account](const auto& a) { return a == account; });
 }
 
-bool AccountManager::IsValidUser(const std::string_view authorizationString)
-{
+bool AccountManager::IsValidUser(const std::string_view authorizationString) {
     if (authorizationString.find("Basic") == std::string::npos)
         return false;
     auto base64 = authorizationString.substr(6);
@@ -38,16 +32,11 @@ bool AccountManager::IsValidUser(const std::string_view authorizationString)
     return IsValidUser(login, password);
 }
 
-std::string AccountManager::GetAuthString(const std::string_view login)
-{
-    Initialize();    
-    if (auto iter = std::find_if(_accounts.begin(), _accounts.end(), [&login](const auto& account){ return account._login == login; }); 
-        iter != _accounts.end())
+std::string AccountManager::GetAuthString(const std::string_view login) {
+    Initialize();
+    if (auto iter = std::find_if(_accounts.begin(), _accounts.end(), [&login](const auto& account) { return account._login == login; }); iter != _accounts.end())
         return iter->_login + std::string(":") + iter->_password;
     return {};
 }
 
-void AccountManager::Initialize()
-{
-    _initializer->Initialize(_accounts);
-}
+void AccountManager::Initialize() { _initializer->Initialize(_accounts); }

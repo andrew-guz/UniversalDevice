@@ -2,20 +2,18 @@
 
 #include <Wt/WGroupBox.h>
 
-#include "Defines.h"
 #include "Constants.h"
-#include "Logger.h"
+#include "Defines.h"
+#include "DeviceButton.h"
 #include "JsonExtension.h"
+#include "Logger.h"
 #include "MessageHelper.h"
 #include "RequestHelper.h"
 #include "WidgetHelper.h"
-#include "DeviceButton.h"
 
 using namespace Wt;
 
-DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) :
-    BaseStackWidget(stackHolder, settings)
-{
+DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) : BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
 
     auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, 0, 1, 5);
@@ -24,48 +22,36 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
 
     auto exitButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(exitButton);
-    exitButton->clicked().connect([&](){
+    exitButton->clicked().connect([&]() {
         WApplication::instance()->removeCookie("authorization");
         _stackHolder->SetWidget(StackWidgetType::Login, {});
     });
 
     auto eventsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("События"), 0, 1, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(eventsButton);
-    eventsButton->clicked().connect([&](){
-        _stackHolder->SetWidget(StackWidgetType::Events, {});
-    });
+    eventsButton->clicked().connect([&]() { _stackHolder->SetWidget(StackWidgetType::Events, {}); });
 
     auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, 2, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(logsButton);
-    logsButton->clicked().connect([&](){
-        _stackHolder->SetWidget(StackWidgetType::Logs, {});
-    });
-    
+    logsButton->clicked().connect([&]() { _stackHolder->SetWidget(StackWidgetType::Logs, {}); });
+
     auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 3, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
-    refreshButton->clicked().connect([&](){
-        Refresh();
-    });
+    refreshButton->clicked().connect([&]() { Refresh(); });
 
     Refresh();
 }
 
-void DevicesWidget::Initialize(const std::string& data)
-{
-    Refresh();
-}
+void DevicesWidget::Initialize(const std::string& data) { Refresh(); }
 
-void DevicesWidget::Clear()
-{
-    for (auto iter = _deviceWidgets.begin(); iter != _deviceWidgets.end(); ++iter)
-    {
+void DevicesWidget::Clear() {
+    for (auto iter = _deviceWidgets.begin(); iter != _deviceWidgets.end(); ++iter) {
         iter->second->removeWidget(iter->first);
     }
     _deviceWidgets.clear();
 }
 
-void DevicesWidget::Refresh()
-{
+void DevicesWidget::Refresh() {
     Clear();
     auto replyJson = RequestHelper::DoGetRequest({BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES}, Constants::LoginService);
     auto allDescriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
@@ -81,18 +67,16 @@ void DevicesWidget::Refresh()
     auto buttonRow = 0;
     auto buttonColumn = 0;
     std::vector<ExtendedComponentDescription> currentDescriptions;
-    for (auto& group : groups)
-    {
+    for (auto& group : groups) {
         auto groupGroupBox = _mainLayout->addWidget(std::make_unique<WGroupBox>(group), groupRow++, 0, 1, 5);
         auto groupLayout = groupGroupBox->setLayout(std::make_unique<WGridLayout>());
         groupLayout->setVerticalSpacing(30);
         buttonRow = 0;
         buttonColumn = 0;
         currentDescriptions.clear();
-        std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions), [](const auto& d){ return d._group.size(); });
-        std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b){ return a._name.compare(b._name) < 0; });
-        for (auto& description : currentDescriptions)
-        {
+        std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions), [](const auto& d) { return d._group.size(); });
+        std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
+        for (auto& description : currentDescriptions) {
             if (description._group != group)
                 continue;
             AddButtonToLayout(groupLayout, description, buttonRow, buttonColumn);
@@ -102,10 +86,9 @@ void DevicesWidget::Refresh()
     buttonRow = groupRow;
     buttonColumn = 0;
     currentDescriptions.clear();
-    std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions), [](const auto& d){ return d._group.size() == 0; });
-    std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b){ return a._name.compare(b._name) < 0; });
-    for (auto& description : allDescriptions)
-    {
+    std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions), [](const auto& d) { return d._group.size() == 0; });
+    std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
+    for (auto& description : allDescriptions) {
         if (description._group.size())
             continue;
         auto button = AddButtonToLayout(_mainLayout, description, buttonRow, buttonColumn);
@@ -113,10 +96,9 @@ void DevicesWidget::Refresh()
     }
 }
 
-DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column)
-{
+DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column) {
     auto button = layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Center);
-    button->clicked().connect([description, this](){
+    button->clicked().connect([description, this]() {
         if (description._type == Constants::DeviceTypeThermometer)
             _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
         if (description._type == Constants::DeviceTypeRelay)
@@ -125,8 +107,7 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
             _stackHolder->SetWidget(StackWidgetType::MotionRelay, description._id.data());
     });
     ++column;
-    if (column == 5)
-    {
+    if (column == 5) {
         ++row;
         column = 0;
     }

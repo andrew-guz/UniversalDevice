@@ -7,8 +7,7 @@
 #include "DeviceComboBox.h"
 #include "EventReceiverWidget.h"
 
-class RelayEventEditor final : public BaseEventEditor
-{
+class RelayEventEditor final : public BaseEventEditor {
 public:
     RelayEventEditor();
 
@@ -25,9 +24,9 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 private:
-    DeviceComboBox*         _provider;
-    Wt::WCheckBox*          _state;
-    EventReceiverWidget*    _receiver;
+    DeviceComboBox* _provider;
+    Wt::WCheckBox* _state;
+    EventReceiverWidget* _receiver;
 };
 
 #endif //_RELAY_EVENT_EDITOR_H_

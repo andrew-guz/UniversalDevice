@@ -6,8 +6,7 @@
 #include "BaseEventEditor.h"
 #include "EventReceiverWidget.h"
 
-class TimerEventEditor final : public BaseEventEditor
-{
+class TimerEventEditor final : public BaseEventEditor {
 public:
     TimerEventEditor();
 
@@ -24,9 +23,9 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 private:
-    Wt::WSpinBox*           _hour;
-    Wt::WSpinBox*           _minute;
-    EventReceiverWidget*    _receiver;
+    Wt::WSpinBox* _hour;
+    Wt::WSpinBox* _minute;
+    EventReceiverWidget* _receiver;
 };
 
 #endif //_TIMER_EVENT_EDITOR_H_

@@ -3,8 +3,7 @@
 
 #include <nlohmann/json.hpp>
 
-class ProcessSettingsReader final
-{
+class ProcessSettingsReader final {
 public:
     static nlohmann::json ReadProcessSettings();
 };

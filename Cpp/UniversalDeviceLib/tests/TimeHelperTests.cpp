@@ -3,8 +3,7 @@
 
 #include "TimeHelper.h"
 
-TEST_CASE()
-{
+TEST_CASE() {
     auto now = std::chrono::system_clock::now();
 
     auto intValue1 = TimeHelper::TimeToInt(now);
@@ -17,11 +16,10 @@ TEST_CASE()
     REQUIRE(intValue1 == intValue2);
 }
 
-TEST_CASE()
-{
+TEST_CASE() {
     auto now = std::chrono::system_clock::now();
 
-    auto stringValue1 = TimeHelper::TimeToString(now);    
+    auto stringValue1 = TimeHelper::TimeToString(now);
     auto timeValue = TimeHelper::TimeFromString(stringValue1);
     auto delta = now - timeValue;
     delta = std::chrono::duration_cast<std::chrono::seconds>(delta);
@@ -31,8 +29,7 @@ TEST_CASE()
     REQUIRE(stringValue1 == stringValue2);
 }
 
-TEST_CASE()
-{
+TEST_CASE() {
     auto now = std::chrono::system_clock::now();
 
     auto intValue = TimeHelper::TimeToInt(now);
@@ -41,10 +38,9 @@ TEST_CASE()
     REQUIRE(stringValue1 == stringValue2);
 }
 
-TEST_CASE()
-{
+TEST_CASE() {
     auto time = TimeHelper::TimeFromString("01-01-2023 01:23:56");
-    auto[hour, minute] = TimeHelper::GetHourMinute(time);
+    auto [hour, minute] = TimeHelper::GetHourMinute(time);
     REQUIRE(hour == 1);
     REQUIRE(minute == 23);
 }

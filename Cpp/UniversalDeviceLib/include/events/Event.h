@@ -4,44 +4,29 @@
 #include <string>
 #include <string_view>
 
-#include "Constants.h"
-#include "Uuid.h"
-#include "IJson.h"
 #include "ComponentDescription.h"
+#include "Constants.h"
+#include "IJson.h"
+#include "Uuid.h"
 
-struct Event : public IJson<Event>
-{
-    Uuid                    _id;
-    std::string             _name;
-    bool                    _active = true;
-    std::string             _type;
-    ComponentDescription    _provider;
-    ComponentDescription    _receiver;
-    nlohmann::json          _command;
+struct Event : public IJson<Event> {
+    Uuid _id;
+    std::string _name;
+    bool _active = true;
+    std::string _type;
+    ComponentDescription _provider;
+    ComponentDescription _receiver;
+    nlohmann::json _command;
 
-    Event(const std::string_view type = Constants::EventTypeUndefined) :
-        _type(type)
-    {
-        
-    }
+    Event(const std::string_view type = Constants::EventTypeUndefined) : _type(type) {}
 
     virtual ~Event() = default;
-    
-    virtual nlohmann::json ToJson() const override
-    {
-        return {
-            { "id", _id.data() },
-            { "name", _name },
-            { "active", _active },
-            { "type", _type },
-            { "provider", _provider.ToJson() },
-            { "receiver", _receiver.ToJson() },
-            { "command", _command }
-        };  
+
+    virtual nlohmann::json ToJson() const override {
+        return {{"id", _id.data()}, {"name", _name}, {"active", _active}, {"type", _type}, {"provider", _provider.ToJson()}, {"receiver", _receiver.ToJson()}, {"command", _command}};
     }
 
-    virtual void FromJson(const nlohmann::json& json) override
-    {
+    virtual void FromJson(const nlohmann::json& json) override {
         _id = Uuid(json.value("id", ""));
         _name = json.value("name", "");
         _active = json.value("active", true);

@@ -4,8 +4,7 @@
 #include "IProcessor.h"
 #include "IQueryExecutor.h"
 
-class BaseProcessorWithQueryExecutor : public IProcessor
-{
+class BaseProcessorWithQueryExecutor : public IProcessor {
 public:
     BaseProcessorWithQueryExecutor(IQueryExecutor* queryExecutor);
 

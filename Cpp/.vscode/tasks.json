@@ -12,6 +12,16 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "format",
+            "type": "shell",
+            "command": "/usr/bin/clang-format-17 -i --verbose **/*.cpp **/*.h",
+            "group": {
+                "kind": "none",
+                "isDefault": false
+            },
+            "problemMatcher": []
         }
     ]
 }

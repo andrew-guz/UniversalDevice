@@ -4,119 +4,96 @@
 #include <string>
 #include <vector>
 
-enum StorageCacheProblemType
-{
-    NoProblems,
-    Empty,
-    NotExists,
-    TooMany,
-    SQLError
-};
+enum StorageCacheProblemType { NoProblems, Empty, NotExists, TooMany, SQLError };
 
-struct StorageCacheProblem
-{
+struct StorageCacheProblem {
     StorageCacheProblemType _type;
-    std::string             _message;
+    std::string _message;
 };
 
-struct SelectInput
-{
+struct SelectInput {
     virtual ~SelectInput() = default;
 };
 
-struct SelectOutput
-{
+struct SelectOutput {
     virtual ~SelectOutput() = default;
 };
 
-struct SelectAllOutput
-{
+struct SelectAllOutput {
     virtual ~SelectAllOutput() = default;
 };
 
-struct InsertOrReplaceInput
-{
+struct InsertOrReplaceInput {
     virtual ~InsertOrReplaceInput() = default;
 };
 
-struct UpdateInput
-{
+struct UpdateInput {
     virtual ~UpdateInput() = default;
 };
 
-struct DeleteInput
-{
+struct DeleteInput {
     virtual ~DeleteInput() = default;
 };
 
-struct SimpleTableSelectInput final : public SelectInput
-{
+struct SimpleTableSelectInput final : public SelectInput {
     virtual ~SimpleTableSelectInput() = default;
 
     std::string _id;
 };
 
-struct SimpleTableSelectOutput final : public SelectOutput
-{
+struct SimpleTableSelectOutput final : public SelectOutput {
     virtual ~SimpleTableSelectOutput() = default;
 
     std::string _data;
 };
 
-struct SimpleTableInsertOrReplaceInput final : public InsertOrReplaceInput
-{
+struct SimpleTableInsertOrReplaceInput final : public InsertOrReplaceInput {
     virtual ~SimpleTableInsertOrReplaceInput() = default;
 
     std::string _id;
     std::string _data;
 };
 
-struct EventTableSelectInput final : public SelectInput
-{
+struct EventTableSelectInput final : public SelectInput {
     virtual ~EventTableSelectInput() = default;
 
     std::string _id;
     std::string _type;
 };
 
-struct EventTableSelectOutput final : public SelectOutput
-{
+struct EventTableSelectOutput final : public SelectOutput {
     virtual ~EventTableSelectOutput() = default;
 
     std::vector<std::string> _data;
 };
 
-struct EventTableSelectAllOutput final : public SelectAllOutput
-{
+struct EventTableSelectAllOutput final : public SelectAllOutput {
     virtual ~EventTableSelectAllOutput() = default;
 
     std::vector<std::string> _data;
 };
 
-struct EventTableInsertOrReplaceInput final : public InsertOrReplaceInput
-{
+struct EventTableInsertOrReplaceInput final : public InsertOrReplaceInput {
     virtual ~EventTableInsertOrReplaceInput() = default;
 
     std::string _id;
-    bool        _active;
+    bool _active;
     std::string _providerId;
     std::string _providerType;
     std::string _event;
 };
 
-struct EventTableUpdateInput final : public UpdateInput
-{
+struct EventTableUpdateInput final : public UpdateInput {
     virtual ~EventTableUpdateInput() = default;
 
     std::string _id;
-    bool        _active;
+    bool _active;
     std::string _providerId;
     std::string _providerType;
     std::string _event;
 };
 
-struct EventTableDeleteInput final : public DeleteInput
-{
+struct EventTableDeleteInput final : public DeleteInput {
     virtual ~EventTableDeleteInput() = default;
 
     std::string _id;

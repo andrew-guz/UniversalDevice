@@ -6,8 +6,7 @@
 
 #include "Logger.h"
 
-class IQueryExecutor
-{
+class IQueryExecutor {
 public:
     IQueryExecutor() = default;
 
@@ -15,7 +14,7 @@ public:
 
     virtual bool Execute(std::string_view query) = 0;
 
-    virtual bool Execute(std::string_view query, int(*callback)(void*, int, char**, char**)) = 0;
+    virtual bool Execute(std::string_view query, int (*callback)(void*, int, char**, char**)) = 0;
 
     virtual bool Select(std::string_view query, std::vector<std::vector<std::string>>& data) = 0;
 };

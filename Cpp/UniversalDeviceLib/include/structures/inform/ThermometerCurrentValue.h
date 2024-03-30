@@ -5,21 +5,12 @@
 
 #include "IJson.h"
 
-struct ThermometerCurrentValue : public IJson<ThermometerCurrentValue>
-{
+struct ThermometerCurrentValue : public IJson<ThermometerCurrentValue> {
     float _value = std::numeric_limits<float>::min();
 
-    virtual nlohmann::json ToJson() const override
-    {
-        return {
-            { "value", _value }
-        };  
-    }
+    virtual nlohmann::json ToJson() const override { return {{"value", _value}}; }
 
-    virtual void FromJson(const nlohmann::json& json) override
-    {
-        _value = json.value("value", std::numeric_limits<float>::min());
-    }
+    virtual void FromJson(const nlohmann::json& json) override { _value = json.value("value", std::numeric_limits<float>::min()); }
 };
 
 #endif //_THERMOMETER_CUSTOM_VALUE_H_

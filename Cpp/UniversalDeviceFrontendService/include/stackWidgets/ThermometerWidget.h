@@ -5,13 +5,12 @@
 #include <Wt/WComboBox.h>
 
 #include "BaseDeviceWidget.h"
-#include "TemperatureChartModel.h"
-#include "PeriodSettings.h"
 #include "ExtendedThermometerCurrentValue.h"
+#include "PeriodSettings.h"
+#include "TemperatureChartModel.h"
 #include "ThermometerLedBrightness.h"
 
-class ThermometerWidget final : public BaseDeviceWidget
-{
+class ThermometerWidget final : public BaseDeviceWidget {
 public:
     ThermometerWidget(IStackHolder* stackHolder, const Settings& settings);
 
@@ -29,11 +28,11 @@ protected:
     virtual void OnSettingsButton() override;
 
 private:
-    Wt::WText*                                      _temperatureText;
-    Wt::Chart::WCartesianChart*                     _chart;
-    std::shared_ptr<TemperatureChartModel>          _model;
-    Wt::WComboBox*                                  _seconds;
-    std::vector<ExtendedThermometerCurrentValue>    _cachedValues;
+    Wt::WText* _temperatureText;
+    Wt::Chart::WCartesianChart* _chart;
+    std::shared_ptr<TemperatureChartModel> _model;
+    Wt::WComboBox* _seconds;
+    std::vector<ExtendedThermometerCurrentValue> _cachedValues;
 };
 
 #endif //_THERMOMETER_WIDGET_H_

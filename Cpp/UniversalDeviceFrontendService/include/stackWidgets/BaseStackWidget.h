@@ -2,22 +2,18 @@
 #define _BASE_STACK_WIDGET_H_
 
 #include "FrontendDefines.h"
-#include "IStackWidget.h"
 #include "IStackHolder.h"
+#include "IStackWidget.h"
 #include "Settings.h"
 
-class BaseStackWidget : public IStackWidget
-{
+class BaseStackWidget : public IStackWidget {
 public:
-    BaseStackWidget(IStackHolder* stackHolder, const Settings& settings) :
-        _stackHolder(stackHolder),
-        _settings(settings)
-    {}
+    BaseStackWidget(IStackHolder* stackHolder, const Settings& settings) : _stackHolder(stackHolder), _settings(settings) {}
 
     virtual ~BaseStackWidget() = default;
 
 protected:
-    IStackHolder*   _stackHolder;
+    IStackHolder* _stackHolder;
     const Settings& _settings;
 };
 

@@ -5,13 +5,12 @@
 #include <Wt/WGridLayout.h>
 
 #include "BaseStackWidget.h"
-#include "Settings.h"
 #include "ExtendedComponentDescription.h"
+#include "Settings.h"
 
 class DeviceButton;
 
-class DevicesWidget final : public Wt::WContainerWidget, public BaseStackWidget
-{
+class DevicesWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
     DevicesWidget(IStackHolder* stackHolder, const Settings& settings);
 
@@ -27,8 +26,8 @@ private:
     DeviceButton* AddButtonToLayout(Wt::WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column);
 
 private:
-    Wt::WGridLayout*                        _mainLayout;
-    std::map<Wt::WWidget*, Wt::WLayout*>    _deviceWidgets;
+    Wt::WGridLayout* _mainLayout;
+    std::map<Wt::WWidget*, Wt::WLayout*> _deviceWidgets;
 };
 
 #endif //_DEVICES_WIDGET_H_

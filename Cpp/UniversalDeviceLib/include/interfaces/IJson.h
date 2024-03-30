@@ -4,8 +4,7 @@
 #include <nlohmann/json.hpp>
 
 template<typename T>
-class IJson
-{
+class IJson {
 public:
     IJson() = default;
 

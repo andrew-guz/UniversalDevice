@@ -5,13 +5,12 @@
 
 #include "BaseProcessorWithQueryExecutor.h"
 #include "Event.h"
-#include "TimerEvent.h"
-#include "ThermometerEvent.h"
 #include "RelayEvent.h"
+#include "ThermometerEvent.h"
 #include "ThermostatEvent.h"
+#include "TimerEvent.h"
 
-class EventsProcessor final : public BaseProcessorWithQueryExecutor
-{
+class EventsProcessor final : public BaseProcessorWithQueryExecutor {
 public:
     EventsProcessor(IQueryExecutor* queryExecutor);
 

@@ -1,12 +1,11 @@
 #include "Base64Helper.h"
 
-#include <sstream>
 #include <array>
-#include <b64/encode.h>
 #include <b64/decode.h>
+#include <b64/encode.h>
+#include <sstream>
 
-std::string Base64Helper::ToBase64(const std::string_view str)
-{
+std::string Base64Helper::ToBase64(const std::string_view str) {
     std::istringstream incoming(str.data());
     std::stringstream outgoing;
     base64::encoder encoder;
@@ -17,8 +16,7 @@ std::string Base64Helper::ToBase64(const std::string_view str)
     return result;
 }
 
-std::string Base64Helper::FromBase64(const std::string_view str)
-{
+std::string Base64Helper::FromBase64(const std::string_view str) {
     std::istringstream incoming(str.data());
     std::stringstream outgoing;
     base64::decoder decoder;

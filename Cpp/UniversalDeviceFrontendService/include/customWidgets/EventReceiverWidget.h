@@ -1,17 +1,16 @@
 #ifndef _EVENT_RECEIVER_WIDGET_H_
 #define _EVENT_RECEIVER_WIDGET_H_
 
+#include <Wt/WCheckBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WGridLayout.h>
-#include <Wt/WText.h>
 #include <Wt/WSpinBox.h>
-#include <Wt/WCheckBox.h>
+#include <Wt/WText.h>
 
-#include "IEventEditorWidget.h"
 #include "DeviceComboBox.h"
+#include "IEventEditorWidget.h"
 
-class EventReceiverWidget final : public Wt::WContainerWidget, public IEventEditorWidget
-{
+class EventReceiverWidget final : public Wt::WContainerWidget, public IEventEditorWidget {
 public:
     EventReceiverWidget();
 
@@ -31,11 +30,11 @@ private:
     void OnReceiverChanged();
 
 private:
-    Wt::WGridLayout*    _mainLayout;
-    DeviceComboBox*     _receivers;
-    Wt::WText*          _brightnessText;
-    Wt::WSpinBox*       _brightness;
-    Wt::WCheckBox*      _relayState;
+    Wt::WGridLayout* _mainLayout;
+    DeviceComboBox* _receivers;
+    Wt::WText* _brightnessText;
+    Wt::WSpinBox* _brightness;
+    Wt::WCheckBox* _relayState;
 };
 
 #endif //_EVENT_RECEIVER_WIDGET_H_

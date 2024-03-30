@@ -5,9 +5,7 @@
 
 using namespace Wt;
 
-ThermostatEventEditor::ThermostatEventEditor() :
-    BaseEventEditor()
-{
+ThermostatEventEditor::ThermostatEventEditor() : BaseEventEditor() {
     _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
     _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
     _mainLayout->addWidget(std::make_unique<WText>("Температура:"), 4, 0);
@@ -22,15 +20,13 @@ ThermostatEventEditor::ThermostatEventEditor() :
     _receiver = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 7, 0, 1, 2);
 }
 
-void ThermostatEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices)
-{
+void ThermostatEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
     BaseEventEditor::SetDevices(devices);
     _provider->SetDevices(FilteredDevices(Constants::DeviceTypeThermometer));
     _receiver->SetDevices(FilteredDevices(Constants::DeviceTypeRelay));
 }
 
-void ThermostatEventEditor::Cleanup()
-{
+void ThermostatEventEditor::Cleanup() {
     BaseEventEditor::Cleanup();
     _provider->SetSelectedDevice(Uuid::Empty());
     _temperature->setValue(0);
@@ -38,8 +34,7 @@ void ThermostatEventEditor::Cleanup()
     _receiver->SetSelectedDevice(Uuid::Empty());
 }
 
-void ThermostatEventEditor::FillUi(const Event& event)
-{
+void ThermostatEventEditor::FillUi(const Event& event) {
     BaseEventEditor::FillUi(event);
     const ThermostatEvent& thermostatEvent = dynamic_cast<const ThermostatEvent&>(event);
     _provider->SetSelectedDevice(event._provider._id);
@@ -48,19 +43,13 @@ void ThermostatEventEditor::FillUi(const Event& event)
     _receiver->SetSelectedDevice(event._receiver._id);
 }
 
-bool ThermostatEventEditor::IsValid() const
-{
-    return BaseEventEditor::IsValid() &&
-        _provider->IsValid() &&
-        _temperature->validate() == ValidationState::Valid &&
-        _delta->validate() == ValidationState::Valid &&
-        _receiver->IsValid();
+bool ThermostatEventEditor::IsValid() const {
+    return BaseEventEditor::IsValid() && _provider->IsValid() && _temperature->validate() == ValidationState::Valid && _delta->validate() == ValidationState::Valid && _receiver->IsValid();
 }
 
-void ThermostatEventEditor::FillFromUi(Event& event) const
-{
+void ThermostatEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);
-    ThermostatEvent& thermostatEvent  = dynamic_cast<ThermostatEvent&>(event);
+    ThermostatEvent& thermostatEvent = dynamic_cast<ThermostatEvent&>(event);
     event._provider = _provider->GetSelectedDevice();
     thermostatEvent._temperature = _temperature->value();
     thermostatEvent._delta = _delta->value();

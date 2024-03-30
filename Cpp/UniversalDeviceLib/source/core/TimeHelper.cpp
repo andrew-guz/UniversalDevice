@@ -3,48 +3,38 @@
 #include <iomanip>
 #include <time.h>
 
-int64_t TimeHelper::TimeToInt(const std::chrono::system_clock::time_point& time)
-{
+int64_t TimeHelper::TimeToInt(const std::chrono::system_clock::time_point& time) {
     auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(time);
     auto secondsFromEpoch = seconds.time_since_epoch();
     return secondsFromEpoch.count();
 }
 
-std::chrono::system_clock::time_point TimeHelper::TimeFromInt(int64_t value)
-{
+std::chrono::system_clock::time_point TimeHelper::TimeFromInt(int64_t value) {
     auto seconds = std::chrono::seconds(value);
     return std::chrono::system_clock::time_point(seconds);
 }
 
-std::string TimeHelper::TimeToString(const std::chrono::system_clock::time_point& time)
-{
+std::string TimeHelper::TimeToString(const std::chrono::system_clock::time_point& time) {
     auto time_t = std::chrono::system_clock::to_time_t(time);
     auto tm = std::localtime(&time_t);
     std::stringstream sstream;
     sstream << std::put_time(tm, "%d-%m-%Y %T");
     sstream.flush();
     return sstream.str();
-
 }
 
-std::string TimeHelper::TimeToString(int64_t value)
-{
-    return TimeToString(TimeFromInt(value));
-}
+std::string TimeHelper::TimeToString(int64_t value) { return TimeToString(TimeFromInt(value)); }
 
-std::string TimeHelper::TimeToShortString(const std::chrono::system_clock::time_point& time)
-{
+std::string TimeHelper::TimeToShortString(const std::chrono::system_clock::time_point& time) {
     auto time_t = std::chrono::system_clock::to_time_t(time);
     auto tm = std::localtime(&time_t);
     std::stringstream sstream;
     sstream << std::put_time(tm, "%H:%M %d-%m");
     sstream.flush();
     return sstream.str();
-
 }
 
-std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::string_view string)
-{
+std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::string_view string) {
     std::tm tm = {};
     std::stringstream sstream(string.data());
     sstream >> std::get_time(&tm, "%d-%m-%Y %T");
@@ -52,8 +42,7 @@ std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::stri
     return std::chrono::system_clock::from_time_t(time_t);
 }
 
-std::tuple<int, int> TimeHelper::GetHourMinute(const std::chrono::system_clock::time_point& time)
-{
+std::tuple<int, int> TimeHelper::GetHourMinute(const std::chrono::system_clock::time_point& time) {
     auto time_t = std::chrono::system_clock::to_time_t(time);
     auto tm = std::localtime(&time_t);
     return std::make_tuple(tm->tm_hour, tm->tm_min);

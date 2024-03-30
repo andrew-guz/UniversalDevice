@@ -4,11 +4,10 @@
 #include <string>
 #include <string_view>
 
-#include "RequestAddress.h"
 #include "Message.h"
+#include "RequestAddress.h"
 
-class RequestHelper final
-{
+class RequestHelper final {
 public:
     static nlohmann::json DoGetRequest(const RequestAddress& requestAddress, std::string_view login);
 

@@ -3,8 +3,7 @@
 
 #include "BaseProcessorWithQueryExecutor.h"
 
-class ThermometerProcessor final : public BaseProcessorWithQueryExecutor
-{
+class ThermometerProcessor final : public BaseProcessorWithQueryExecutor {
 public:
     ThermometerProcessor(IQueryExecutor* queryExecutor);
 

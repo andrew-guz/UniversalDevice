@@ -5,9 +5,7 @@
 
 using namespace Wt;
 
-ThermometerEventEditor::ThermometerEventEditor() :
-    BaseEventEditor()
-{
+ThermometerEventEditor::ThermometerEventEditor() : BaseEventEditor() {
     _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
     _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
     _mainLayout->addWidget(std::make_unique<WText>("Температура:"), 4, 0);
@@ -18,15 +16,13 @@ ThermometerEventEditor::ThermometerEventEditor() :
     _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 6, 0, 1, 2);
 }
 
-void ThermometerEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices)
-{
+void ThermometerEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
     BaseEventEditor::SetDevices(devices);
     _provider->SetDevices(FilteredDevices(Constants::DeviceTypeThermometer));
     _receiver->SetDevices(devices);
 }
 
-void ThermometerEventEditor::Cleanup()
-{
+void ThermometerEventEditor::Cleanup() {
     BaseEventEditor::Cleanup();
     _provider->SetSelectedDevice(Uuid::Empty());
     _temperature->setValue(0);
@@ -34,8 +30,7 @@ void ThermometerEventEditor::Cleanup()
     _receiver->Cleanup();
 }
 
-void ThermometerEventEditor::FillUi(const Event& event)
-{
+void ThermometerEventEditor::FillUi(const Event& event) {
     BaseEventEditor::FillUi(event);
     const ThermometerEvent& thermometerEvent = dynamic_cast<const ThermometerEvent&>(event);
     _provider->SetSelectedDevice(event._provider._id);
@@ -44,16 +39,9 @@ void ThermometerEventEditor::FillUi(const Event& event)
     _receiver->FillUi(event);
 }
 
-bool ThermometerEventEditor::IsValid() const
-{
-    return BaseEventEditor::IsValid() &&
-        _provider->IsValid() &&
-        _temperature->validate() == ValidationState::Valid &&
-        _receiver->IsValid();
-}
+bool ThermometerEventEditor::IsValid() const { return BaseEventEditor::IsValid() && _provider->IsValid() && _temperature->validate() == ValidationState::Valid && _receiver->IsValid(); }
 
-void ThermometerEventEditor::FillFromUi(Event& event) const
-{
+void ThermometerEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);
     ThermometerEvent& thermometerEvent = dynamic_cast<ThermometerEvent&>(event);
     event._provider = _provider->GetSelectedDevice();

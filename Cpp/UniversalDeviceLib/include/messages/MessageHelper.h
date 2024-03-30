@@ -6,8 +6,7 @@
 #include "Logger.h"
 #include "Message.h"
 
-class MessageHelper final
-{
+class MessageHelper final {
 public:
     static Message Create(std::string_view type, const Uuid& id, std::string_view subject, const nlohmann::json& data);
 

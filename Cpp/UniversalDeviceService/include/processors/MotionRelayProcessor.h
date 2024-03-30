@@ -3,8 +3,7 @@
 
 #include "BaseProcessorWithQueryExecutor.h"
 
-class MotionRelayProcessor final : public BaseProcessorWithQueryExecutor
-{
+class MotionRelayProcessor final : public BaseProcessorWithQueryExecutor {
 public:
     MotionRelayProcessor(IQueryExecutor* queryExecutor);
 

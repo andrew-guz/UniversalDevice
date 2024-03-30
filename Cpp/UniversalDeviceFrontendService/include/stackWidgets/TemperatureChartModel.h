@@ -9,8 +9,7 @@
 
 #include "ExtendedThermometerCurrentValue.h"
 
-class TemperatureChartModel : public Wt::WAbstractItemModel
-{
+class TemperatureChartModel : public Wt::WAbstractItemModel {
 public:
     TemperatureChartModel(const std::vector<ExtendedThermometerCurrentValue>& data = {});
 
@@ -18,7 +17,7 @@ public:
 
     virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-    virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const  override;
+    virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
     virtual Wt::WModelIndex index(int row, int column, const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 

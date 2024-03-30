@@ -5,12 +5,11 @@
 
 #include "BaseStorageCache.h"
 
-class SimpleTableStorageCache final : public BaseStorageCache
-{
+class SimpleTableStorageCache final : public BaseStorageCache {
 public:
     SimpleTableStorageCache(IQueryExecutor* queryExecutor, const std::string& tableName, const std::string& fieldName);
 
-    virtual ~SimpleTableStorageCache() = default;    
+    virtual ~SimpleTableStorageCache() = default;
 
     virtual StorageCacheProblem Select(const SelectInput& what, SelectOutput& result) override;
 
@@ -23,9 +22,9 @@ public:
     virtual StorageCacheProblem Delete(const DeleteInput& what) override;
 
 private:
-    std::string                         _tableName;
-    std::string                         _fieldName;
-    std::map<std::string, std::string>  _dataCache; 
+    std::string _tableName;
+    std::string _fieldName;
+    std::map<std::string, std::string> _dataCache;
 };
 
 #endif //_SIMPLE_TABLE_STORAGE_CACHE_H_

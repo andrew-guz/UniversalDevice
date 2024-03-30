@@ -5,11 +5,10 @@
 #include <vector>
 
 template<typename T>
-class IDb
-{
+class IDb {
 public:
     IDb() = default;
-    
+
     virtual ~IDb() = default;
 
     virtual std::vector<std::string> ToDbStrings() const = 0;

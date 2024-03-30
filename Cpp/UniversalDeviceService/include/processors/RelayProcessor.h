@@ -3,8 +3,7 @@
 
 #include "BaseProcessorWithQueryExecutor.h"
 
-class RelayProcessor final : public BaseProcessorWithQueryExecutor
-{
+class RelayProcessor final : public BaseProcessorWithQueryExecutor {
 public:
     RelayProcessor(IQueryExecutor* queryExecutor);
 

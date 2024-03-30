@@ -3,8 +3,7 @@
 
 #include <string>
 
-class PathHelper final
-{
+class PathHelper final {
 public:
     static std::string AppPath();
 

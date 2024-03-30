@@ -3,8 +3,7 @@
 
 #include <string>
 
-class IStackWidget
-{
+class IStackWidget {
 public:
     IStackWidget() = default;
 

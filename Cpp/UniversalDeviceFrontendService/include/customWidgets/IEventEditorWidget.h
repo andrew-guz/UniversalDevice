@@ -6,8 +6,7 @@
 #include "Event.h"
 #include "ExtendedComponentDescription.h"
 
-class IEventEditorWidget
-{
+class IEventEditorWidget {
 public:
     IEventEditorWidget() = default;
 

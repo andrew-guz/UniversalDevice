@@ -5,8 +5,7 @@
 
 #include "ExtendedComponentDescription.h"
 
-class DeviceComboBox final : public Wt::WComboBox
-{
+class DeviceComboBox final : public Wt::WComboBox {
 public:
     DeviceComboBox();
 

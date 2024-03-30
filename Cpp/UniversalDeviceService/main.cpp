@@ -1,15 +1,14 @@
-#include <iostream>
 #include <crow.h>
+#include <iostream>
 
+#include "ClientService.h"
+#include "DeviceService.h"
 #include "Logger.h"
+#include "MainService.h"
 #include "Settings.h"
 #include "Storage.h"
-#include "MainService.h"
-#include "DeviceService.h"
-#include "ClientService.h"
 
-int main()
-{
+int main() {
     Logger::SetLogLevel(LogLevel::INFO);
 
     auto settings = Settings::ReadSettings();
@@ -22,11 +21,7 @@ int main()
     BaseServiceExtension::Create<DeviceService>(app, &storage);
     BaseServiceExtension::Create<ClientService>(app, &storage);
 
-    app
-        .ssl_file(PathHelper::FullFilePath("./ssl/backend.crt"), PathHelper::FullFilePath("./ssl/backend.key"))
-        .port(settings._port)
-        .multithreaded()
-        .run();
+    app.ssl_file(PathHelper::FullFilePath("./ssl/backend.crt"), PathHelper::FullFilePath("./ssl/backend.key")).port(settings._port).multithreaded().run();
 
     return 0;
 }

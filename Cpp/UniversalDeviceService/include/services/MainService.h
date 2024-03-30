@@ -3,8 +3,7 @@
 
 #include "BaseService.h"
 
-class MainService final : public BaseService
-{
+class MainService final : public BaseService {
 protected:
     MainService(IQueryExecutor* queryExecutor);
 
@@ -16,7 +15,7 @@ protected:
 
     crow::response Version(const crow::request& request);
 
-    crow::response Quit(const crow::request& request,crow::SimpleApp& app);
+    crow::response Quit(const crow::request& request, crow::SimpleApp& app);
 
 private:
     friend class BaseServiceExtension;

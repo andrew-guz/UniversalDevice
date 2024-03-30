@@ -3,11 +3,10 @@
 
 #include <mutex>
 
-#include "IStorageCache.h"
 #include "IQueryExecutor.h"
+#include "IStorageCache.h"
 
-class BaseStorageCache : public IStorageCache
-{
+class BaseStorageCache : public IStorageCache {
 public:
     BaseStorageCache(IQueryExecutor* queryExecutor);
 
@@ -15,7 +14,7 @@ public:
 
 protected:
     IQueryExecutor* _queryExecutor;
-    std::mutex      _mutex;
+    std::mutex _mutex;
 };
 
 #endif // _BASE_STORAGE_CACHE_H_

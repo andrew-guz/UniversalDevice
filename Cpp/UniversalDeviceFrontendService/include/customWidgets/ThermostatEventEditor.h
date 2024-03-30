@@ -1,15 +1,14 @@
 #ifndef _THERMOSTAT_EVENT_EDITOR_H_
 #define _THERMOSTAT_EVENT_EDITOR_H_
 
-#include <Wt/WSpinBox.h>
 #include <Wt/WDoubleSpinBox.h>
+#include <Wt/WSpinBox.h>
 
 #include "BaseEventEditor.h"
 #include "DeviceComboBox.h"
 #include "EventReceiverWidget.h"
 
-class ThermostatEventEditor final : public BaseEventEditor
-{
+class ThermostatEventEditor final : public BaseEventEditor {
 public:
     ThermostatEventEditor();
 
@@ -26,10 +25,10 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 private:
-    DeviceComboBox*         _provider;
-    Wt::WSpinBox*           _temperature;
-    Wt::WDoubleSpinBox*     _delta;
-    DeviceComboBox*         _receiver;
+    DeviceComboBox* _provider;
+    Wt::WSpinBox* _temperature;
+    Wt::WDoubleSpinBox* _delta;
+    DeviceComboBox* _receiver;
 };
 
 #endif //_THERMOSTAT_EVENT_EDITOR_H_

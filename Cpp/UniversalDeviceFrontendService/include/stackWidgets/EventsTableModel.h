@@ -1,16 +1,15 @@
 #ifndef _EVENTS_TABLE_MODEL_H_
 #define _EVENTS_TABLE_MODEL_H_
 
-#include <vector>
-#include <string_view>
 #include <nlohmann/json.hpp>
+#include <string_view>
+#include <vector>
 
 #include <Wt/WAbstractItemModel.h>
 #include <Wt/WModelIndex.h>
 #include <Wt/cpp17/any.hpp>
 
-class EventsTableModel : public Wt::WAbstractItemModel
-{
+class EventsTableModel : public Wt::WAbstractItemModel {
 public:
     EventsTableModel(const std::vector<nlohmann::json>& data = {});
 
@@ -18,7 +17,7 @@ public:
 
     virtual int columnCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
-    virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const  override;
+    virtual int rowCount(const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 
     virtual Wt::WModelIndex index(int row, int column, const Wt::WModelIndex& parent = Wt::WModelIndex()) const override;
 

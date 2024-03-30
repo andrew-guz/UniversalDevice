@@ -3,8 +3,7 @@
 
 #include "BaseService.h"
 
-class ClientService final : public BaseService
-{
+class ClientService final : public BaseService {
 protected:
     ClientService(IQueryExecutor* queryExecutor);
 

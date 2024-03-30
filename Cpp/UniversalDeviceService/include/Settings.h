@@ -3,11 +3,10 @@
 
 #include "Defines.h"
 
-struct Settings
-{
+struct Settings {
     int _port = DEFAULT_SERVICE_PORT;
 
     static Settings ReadSettings();
-}; 
+};
 
 #endif //_SETTINGS_H_

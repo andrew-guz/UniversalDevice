@@ -8,8 +8,7 @@
 #include "IStackHolder.h"
 #include "Settings.h"
 
-class Application final: public Wt::WApplication, public IStackHolder
-{
+class Application final : public Wt::WApplication, public IStackHolder {
 public:
     Application(const Settings& settings, const Wt::WEnvironment& env);
 
@@ -18,7 +17,7 @@ public:
     virtual void SetWidget(StackWidgetType type, const std::string& data) override;
 
 private:
-    Wt::WHBoxLayout*    _mainLayout;
+    Wt::WHBoxLayout* _mainLayout;
     Wt::WStackedWidget* _mainStack;
 };
 

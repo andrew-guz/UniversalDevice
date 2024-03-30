@@ -1,6 +1,3 @@
 #include "BaseProcessorWithQueryExecutor.h"
 
-BaseProcessorWithQueryExecutor::BaseProcessorWithQueryExecutor(IQueryExecutor* queryExecutor) :
-    _queryExecutor(queryExecutor)
-{
-}
+BaseProcessorWithQueryExecutor::BaseProcessorWithQueryExecutor(IQueryExecutor* queryExecutor) : _queryExecutor(queryExecutor) {}

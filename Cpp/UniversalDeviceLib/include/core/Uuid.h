@@ -1,12 +1,11 @@
 #ifndef _UUID_H_
 #define _UUID_H_
 
-#include <uuid/uuid.h>
 #include <string>
 #include <string_view>
+#include <uuid/uuid.h>
 
-class Uuid final
-{
+class Uuid final {
 public:
     Uuid();
 
@@ -33,7 +32,7 @@ public:
     static Uuid Empty();
 
 private:
-  uuid_t _uuid;
+    uuid_t _uuid;
 };
 
 #endif //_UUID_H_

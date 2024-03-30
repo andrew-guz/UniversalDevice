@@ -1,19 +1,18 @@
 #ifndef _BASE_EVENT_EDITOR_H_
 #define _BASE_EVENT_EDITOR_H_
 
+#include <Wt/WCheckBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WLineEdit.h>
-#include <Wt/WCheckBox.h>
 
 #include <nlohmann/json.hpp>
 
-#include "IEventEditorWidget.h"
-#include "Event.h"
 #include "DeviceComboBox.h"
+#include "Event.h"
+#include "IEventEditorWidget.h"
 
-class BaseEventEditor : public Wt::WContainerWidget, public IEventEditorWidget
-{
+class BaseEventEditor : public Wt::WContainerWidget, public IEventEditorWidget {
 public:
     BaseEventEditor();
 
@@ -27,8 +26,10 @@ public:
 
     virtual bool IsValid() const override;
 
-    template <typename T>
-    T* GetEvent() const { return new T(); }
+    template<typename T>
+    T* GetEvent() const {
+        return new T();
+    }
 
     virtual void FillFromUi(Event& event) const override;
 
@@ -38,10 +39,10 @@ protected:
     std::vector<ExtendedComponentDescription> FilteredDevices(const std::set<std::string_view>& types);
 
 protected:
-    std::vector<ExtendedComponentDescription>   _devices;
-    Wt::WGridLayout*                            _mainLayout;
-    Wt::WLineEdit*                              _name;
-    Wt::WCheckBox*                              _active;
+    std::vector<ExtendedComponentDescription> _devices;
+    Wt::WGridLayout* _mainLayout;
+    Wt::WLineEdit* _name;
+    Wt::WCheckBox* _active;
 };
 
 #endif //_BASE_EVENT_EDITOR_H_

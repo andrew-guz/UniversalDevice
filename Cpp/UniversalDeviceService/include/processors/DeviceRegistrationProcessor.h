@@ -3,8 +3,7 @@
 
 #include "BaseProcessorWithQueryExecutor.h"
 
-class DeviceRegistrationProcessor final : public BaseProcessorWithQueryExecutor
-{
+class DeviceRegistrationProcessor final : public BaseProcessorWithQueryExecutor {
 public:
     DeviceRegistrationProcessor(IQueryExecutor* queryExecutor);
 

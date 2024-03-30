@@ -1,0 +1,24 @@
+BasedOnStyle: LLVM
+
+#General
+ColumnLimit: 200
+Language: Cpp
+IndentWidth: 4
+MaxEmptyLinesToKeep: 2
+TabWidth: 4
+UseTab: Never
+
+#Indents
+AccessModifierOffset: -4
+IndentAccessModifiers: false
+NamespaceIndentation: All
+
+# * and & position
+PointerAlignment: Left
+
+#templates
+AlwaysBreakTemplateDeclarations: Yes
+IndentRequiresClause: true
+SpaceAfterTemplateKeyword: false
+
+IndentCaseLabels: true

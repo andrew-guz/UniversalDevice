@@ -7,14 +7,13 @@
 #include "Logger.h"
 #include "Message.h"
 
-class BaseService
-{
+class BaseService {
 protected:
     BaseService(IQueryExecutor* queryExecutor);
 
 public:
     virtual ~BaseService() = default;
-    
+
 protected:
     virtual void Initialize(crow::SimpleApp& app) = 0;
 
@@ -30,16 +29,14 @@ protected:
     IQueryExecutor* _queryExecutor = nullptr;
 };
 
-class BaseServiceExtension final
-{
+class BaseServiceExtension final {
 public:
     BaseServiceExtension() = delete;
 
     ~BaseServiceExtension() = default;
 
     template<typename T>
-    static T* Create(crow::SimpleApp& app, IQueryExecutor* queryExecutor)
-    {
+    static T* Create(crow::SimpleApp& app, IQueryExecutor* queryExecutor) {
         auto t = new T(queryExecutor);
         t->Initialize(app);
         return t;

@@ -1,13 +1,12 @@
 #ifndef _EVENT_TABLE_STORAGE_CACHE_H_
 #define _EVENT_TABLE_STORAGE_CACHE_H_
 
-#include <tuple>
 #include <map>
+#include <tuple>
 
 #include "BaseStorageCache.h"
 
-class EventTableStorageCache final : public BaseStorageCache
-{
+class EventTableStorageCache final : public BaseStorageCache {
 public:
     EventTableStorageCache(IQueryExecutor* queryExecutor);
 

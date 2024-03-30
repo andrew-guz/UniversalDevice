@@ -1,11 +1,10 @@
 #include "AccountManagerInitializer.h"
 
-#include "PathHelper.h"
-#include "JsonFileReader.h"
 #include "JsonExtension.h"
+#include "JsonFileReader.h"
+#include "PathHelper.h"
 
-void AccountManagerInitializer::Initialize(std::vector<Account>& accounts)
-{
+void AccountManagerInitializer::Initialize(std::vector<Account>& accounts) {
     if (accounts.size())
         return;
     auto fileName = PathHelper::FullFilePath("authentication.json");
@@ -17,8 +16,7 @@ void AccountManagerInitializer::Initialize(std::vector<Account>& accounts)
     auto deviceAccount = JsonExtension::CreateFromJson<Account>(authenticationJson.value("deviceAccount", nlohmann::json()));
     accounts.push_back(deviceAccount);
     auto usersJson = authenticationJson.value("users", nlohmann::json::array());
-    for (auto& userJson : usersJson)
-    {
+    for (auto& userJson : usersJson) {
         auto userAccount = JsonExtension::CreateFromJson<Account>(userJson);
         accounts.push_back(userAccount);
     }

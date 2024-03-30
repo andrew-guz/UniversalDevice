@@ -3,8 +3,7 @@
 
 #include "BaseProcessorWithQueryExecutor.h"
 
-class WebSocketProcessor final : public BaseProcessorWithQueryExecutor
-{
+class WebSocketProcessor final : public BaseProcessorWithQueryExecutor {
 public:
     WebSocketProcessor(IQueryExecutor* queryExecutor);
 

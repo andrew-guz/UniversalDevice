@@ -5,8 +5,7 @@
 
 #include "BaseService.h"
 
-class DeviceService final : public BaseService
-{
+class DeviceService final : public BaseService {
 protected:
     DeviceService(IQueryExecutor* queryExecutor);
 

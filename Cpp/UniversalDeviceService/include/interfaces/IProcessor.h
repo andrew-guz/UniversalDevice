@@ -7,8 +7,7 @@
 
 #include "Message.h"
 
-class IProcessor
-{
+class IProcessor {
 public:
     IProcessor() = default;
 

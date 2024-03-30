@@ -3,8 +3,7 @@
 
 #include "IAccountManagerInitializer.h"
 
-class AccountManagerInitializer final : public IAccountManagerInitializer
-{
+class AccountManagerInitializer final : public IAccountManagerInitializer {
 public:
     virtual ~AccountManagerInitializer() = default;
 
