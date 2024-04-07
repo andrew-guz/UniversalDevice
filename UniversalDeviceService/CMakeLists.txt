@@ -39,11 +39,11 @@ include_directories(./../UniversalDeviceLib/include/structures/inform)
 include_directories(./../UniversalDeviceLib/include/structures/settings)
 
 #set variable where to put ouput file
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
 
 #where to search for libraries
 link_directories(/usr/local/library)
-link_directories(./../bin/)
+link_directories(./../../bin/)
 
 #set compiler flags
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -DCROW_ENABLE_SSL")
