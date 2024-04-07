@@ -1,16 +1,6 @@
 # common variable for project name and executable name
 set(PROJECT_NAME "UniversalDeviceFrontendService")
 
-#check that all needed librarties are preinstalled
-function (check_library lib_name)
-    find_library(${lib_name}_LIB ${lib_name})
-    if(NOT ${lib_name}_LIB)
-        message(FATAL_ERROR "${lib_name} library was not found")
-    endif()
-endfunction()
-check_library(wt)
-check_library(wthttp)
-
 #build in Debug mode
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -18,6 +8,9 @@ set(CMAKE_BUILD_TYPE Debug)
 project(${PROJECT_NAME})
 
 #where to search headers
+include_directories(${CMAKE_BINARY_DIR}/vendor/wt)
+include_directories(./../vendor/wt)
+include_directories(./../vendor/wt/src)
 include_directories(./include)
 include_directories(./include/interfaces)
 include_directories(./include/customWidgets)
@@ -41,6 +34,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
 #where to search for libraries
 link_directories(/usr/local/library)
 link_directories(./../../bin/)
+link_directories(${CMAKE_BINARY_DIR}/vendor/wt/src/)
+link_directories(${CMAKE_BINARY_DIR}/vendor/wt/src/http)
 
 #set compiler flags
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall")
@@ -59,7 +54,7 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 #make sure that this project will be build after some targets
-add_dependencies(${PROJECT_NAME} UniversalDeviceLib)
+add_dependencies(${PROJECT_NAME} wt wthttp UniversalDeviceLib)
 
 #executable needs libraries - so link to installed libs
 target_link_libraries(${PROJECT_NAME} -lwt -lwthttp UniversalDeviceLib)

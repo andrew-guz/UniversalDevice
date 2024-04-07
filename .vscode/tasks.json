@@ -14,6 +14,16 @@
             }
         },
         {
+            "label": "clear",
+            "type": "shell",
+            "command": "mkdir -p build && cd build && make clean && cd ..",
+            "problemMatcher": [],
+            "group": {
+                "kind": "none",
+                "isDefault": false
+            }
+        },
+        {
             "label": "format",
             "type": "shell",
             "command": "/usr/bin/clang-format-17 -i --verbose Universal*/**/*.cpp Universal*/**/*.h",

@@ -87,7 +87,8 @@
         "cfenv": "cpp",
         "numbers": "cpp",
         "semaphore": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "wconfig.h": "c"
     },
     "testMate.cpp.test.executables": "../bin/tests/*",
     "spellright.language": [
