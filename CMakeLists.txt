@@ -8,6 +8,7 @@ project("UniversalDevice")
 enable_testing()
 
 #subprojects
+add_subdirectory(vendor)
 add_subdirectory(UniversalDeviceLib)
 add_subdirectory(UniversalDeviceService)
 add_subdirectory(UniversalDeviceFrontendService)
