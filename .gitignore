@@ -37,7 +37,7 @@ lib/
 
 #Make and CMake files
 CMakeFiles/
-cmake_install.cmake
+*.cmake
 CMakeCache.txt
 **/Makefile
 
@@ -58,4 +58,3 @@ TODO
 
 #test specific
 Testing
-**/CTestTestfile.cmake

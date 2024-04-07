@@ -1,6 +1,3 @@
-#minimum version
-cmake_minimum_required(VERSION 3.15)
-
 # common variable for project name and executable name
 set(PROJECT_NAME "UniversalDeviceLib")
 
@@ -65,6 +62,9 @@ target_link_libraries(${PROJECT_NAME} -luuid -lcurlpp -lb64)
 
 #unit tests section
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/tests)
+
+#create output dir because it should exist to copy tests files there
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 file(GLOB_RECURSE TEST_SOURCES tests/*.cpp)
 foreach(TEST_TARGET ${TEST_SOURCES})

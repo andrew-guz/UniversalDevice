@@ -1,5 +1,5 @@
 #minimum version
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 
 #name of a project
 project("UniversalDevice")
@@ -8,9 +8,9 @@ project("UniversalDevice")
 enable_testing()
 
 #subprojects
-add_subdirectory(./UniversalDeviceLib)
-add_subdirectory(./UniversalDeviceService)
-add_subdirectory(./UniversalDeviceFrontendService)
-#add_subdirectory(./UniversalDeviceSimulators/SimulatorLib)
-add_subdirectory(./UniversalDeviceSimulators/ThermometerSimulator)
-add_subdirectory(./UniversalDeviceSimulators/RelaySimulator)
+add_subdirectory(UniversalDeviceLib)
+add_subdirectory(UniversalDeviceService)
+add_subdirectory(UniversalDeviceFrontendService)
+#add_subdirectory(UniversalDeviceSimulators/SimulatorLib)
+add_subdirectory(UniversalDeviceSimulators/ThermometerSimulator)
+add_subdirectory(UniversalDeviceSimulators/RelaySimulator)

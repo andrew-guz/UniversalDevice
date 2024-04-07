@@ -1,6 +1,3 @@
-#minimum version
-cmake_minimum_required(VERSION 3.15)
-
 # common variable for project name and executable name
 set(PROJECT_NAME "SimulatorLib")
 
@@ -47,6 +44,9 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 
 #create shared library from source
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
+
+#make sure that this project will be build after some targets
+add_dependencies(${PROJECT_NAME} UniversalDeviceLib)
 
 #executable needs libraries - so link to installed libs
 target_link_libraries(${PROJECT_NAME} UniversalDeviceLib)

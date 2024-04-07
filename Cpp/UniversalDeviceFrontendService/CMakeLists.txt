@@ -1,6 +1,3 @@
-#minimum version
-cmake_minimum_required(VERSION 3.15)
-
 # common variable for project name and executable name
 set(PROJECT_NAME "UniversalDeviceFrontendService")
 
@@ -61,8 +58,11 @@ file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
 #create executable from source
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
+#make sure that this project will be build after some targets
+add_dependencies(${PROJECT_NAME} UniversalDeviceLib)
+
 #executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} -lwt -lwthttp  UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} -lwt -lwthttp UniversalDeviceLib)
 
 #install section
 set(CMAKE_INSTALL_PREFIX /usr/local/bin/UniversalDevice)
