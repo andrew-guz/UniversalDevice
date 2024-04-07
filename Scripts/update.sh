@@ -10,8 +10,6 @@ git fetch --all
 
 git pull
 
-cd Cpp
-
 make clean
 
 cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 --fresh . 
@@ -26,4 +24,4 @@ systemctl start UniversalDevice
 
 systemctl start UniversalDeviceFrontend
 
-cd ../Scripts
+cd Scripts
