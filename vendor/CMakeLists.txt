@@ -8,3 +8,5 @@ set(BUILD_EXAMPLES off)
 set(ENABLE_LIBWTTEST off)
 set(ENABLE_LIBWTDBO off)
 add_subdirectory(wt)
+
+add_subdirectory(ixwebsocket)
