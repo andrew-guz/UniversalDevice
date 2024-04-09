@@ -10,6 +10,10 @@ git fetch --all
 
 git pull
 
+git submodule update --init
+
+rm -rf build
+
 mkdir -p build 
 
 cd build 
