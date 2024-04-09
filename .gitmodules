@@ -4,3 +4,6 @@
 [submodule "/vendor/wt"]
 	path = vendor/wt
 	url = https://github.com/emweb/wt.git
+[submodule "vendor/ixwebsocket"]
+	path = vendor/ixwebsocket
+	url = https://github.com/machinezone/IXWebSocket.git
