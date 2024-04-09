@@ -88,7 +88,9 @@
         "numbers": "cpp",
         "semaphore": "cpp",
         "span": "cpp",
-        "wconfig.h": "c"
+        "wconfig.h": "c",
+        "WInteractWidget.C": "cpp",
+        "WApplication.C": "cpp"
     },
     "testMate.cpp.test.executables": "../bin/tests/*",
     "spellright.language": [

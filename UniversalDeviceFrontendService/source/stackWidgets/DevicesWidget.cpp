@@ -1,6 +1,8 @@
 #include "DevicesWidget.h"
 
+#include <Wt/Http/Cookie.h>
 #include <Wt/WGroupBox.h>
+#include <Wt/WPopupMenu.h>
 
 #include "Constants.h"
 #include "Defines.h"
@@ -23,7 +25,7 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     auto exitButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(exitButton);
     exitButton->clicked().connect([&]() {
-        WApplication::instance()->removeCookie("authorization");
+        WApplication::instance()->removeCookie(Http::Cookie{"authorization"});
         _stackHolder->SetWidget(StackWidgetType::Login, {});
     });
 
@@ -105,6 +107,16 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
             _stackHolder->SetWidget(StackWidgetType::Relay, description._id.data());
         if (description._type == Constants::DeviceTypeMotionRelay)
             _stackHolder->SetWidget(StackWidgetType::MotionRelay, description._id.data());
+    });
+    button->mouseWentUp().connect([](const WMouseEvent& event) {
+        if (event.button() == MouseButton::Right) {
+            auto popup = std::make_unique<Wt::WPopupMenu>();
+            auto deleteItem = popup->addItem("Удалить...");
+            popup->exec(event);
+            deleteItem->clicked().connect([]() {
+                // here we will delete device
+            });
+        }
     });
     ++column;
     if (column == 5) {
