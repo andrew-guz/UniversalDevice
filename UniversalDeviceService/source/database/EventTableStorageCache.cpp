@@ -4,6 +4,8 @@
 
 #include "DbExtension.h"
 
+#include "StorageCacheFactory.h"
+
 EventTableStorageCache::EventTableStorageCache(IQueryExecutor* queryExecutor) : BaseStorageCache(queryExecutor) {}
 
 StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, SelectOutput& result) {
@@ -103,4 +105,8 @@ StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
     if (_queryExecutor->Execute(queryStream.str()))
         return {StorageCacheProblemType::NoProblems, {}};
     return {StorageCacheProblemType::SQLError, queryStream.str()};
+}
+
+IStorageCache* EventTableStorageCache::GetCache(IQueryExecutor* queryExecutor) {
+    return StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(queryExecutor, "Events");
 }

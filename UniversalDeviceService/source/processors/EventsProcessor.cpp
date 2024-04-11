@@ -45,7 +45,7 @@ std::vector<nlohmann::json> EventsProcessor::LoadEvents(const ComponentDescripti
     std::vector<nlohmann::json> result;
     std::vector<std::string> eventStrings;
 
-    auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+    auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
     EventTableSelectInput what;
     what._id = description._id.data();
     what._type = description._type;
@@ -129,7 +129,7 @@ void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEv
 
 void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString) {
     try {
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(_queryExecutor, "Commands", "commands");
+        auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
         SimpleTableInsertOrReplaceInput what;
         what._id = id.data();
         what._data = commandString;

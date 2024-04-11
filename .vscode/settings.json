@@ -90,7 +90,13 @@
         "span": "cpp",
         "wconfig.h": "c",
         "WInteractWidget.C": "cpp",
-        "WApplication.C": "cpp"
+        "WApplication.C": "cpp",
+        "WebRenderer.C": "cpp",
+        "DomElement.C": "cpp",
+        "hello.C": "cpp",
+        "TreeViewDragDrop.C": "cpp",
+        "charconv": "cpp",
+        "shared_mutex": "cpp"
     },
     "testMate.cpp.test.executables": "../bin/tests/*",
     "spellright.language": [

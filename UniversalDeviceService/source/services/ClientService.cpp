@@ -125,7 +125,7 @@ crow::response ClientService::GetEvents(const crow::request& request) {
     try {
         std::vector<std::string> eventStrings;
 
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+        auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
         EventTableSelectAllOutput eventsResult;
         auto problem = storageCache->SelectAll(eventsResult);
         switch (problem._type) {
@@ -162,7 +162,7 @@ crow::response ClientService::AddEvent(const crow::request& request) {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
 
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+        auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
         EventTableInsertOrReplaceInput what;
         what._id = event._id.data();
         what._active = event._active;
@@ -195,7 +195,7 @@ crow::response ClientService::UpdateEvent(const crow::request& request) {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
 
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+        auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
         EventTableUpdateInput what;
         what._id = event._id.data();
         what._active = event._active;
@@ -228,7 +228,7 @@ crow::response ClientService::DeleteEvent(const crow::request& request) {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
 
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(_queryExecutor, "Events");
+        auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
         EventTableDeleteInput what;
         what._id = event._id.data();
         auto problem = storageCache->Delete(what);
