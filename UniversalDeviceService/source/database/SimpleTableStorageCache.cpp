@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include "StorageCacheFactory.h"
+
 SimpleTableStorageCache::SimpleTableStorageCache(IQueryExecutor* queryExecutor, const std::string& tableName, const std::string& fieldName)
     : BaseStorageCache(queryExecutor), _tableName(tableName), _fieldName(fieldName) {}
 
@@ -71,6 +73,24 @@ StorageCacheProblem SimpleTableStorageCache::Update(const UpdateInput& what) {
 }
 
 StorageCacheProblem SimpleTableStorageCache::Delete(const DeleteInput& what) {
-    throw std::logic_error("Invalid function call");
-    return {StorageCacheProblemType::Empty, "Invalid function call"};
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    _dataCache.clear();
+
+    const SimpleTableDeleteInput& customWhat = dynamic_cast<const SimpleTableDeleteInput&>(what);
+
+    std::stringstream queryStream;
+    queryStream << "DELETE FROM " << _tableName << " WHERE id='" << customWhat._id << "'";
+    queryStream.flush();
+    if (_queryExecutor->Execute(queryStream.str()))
+        return {StorageCacheProblemType::NoProblems, {}};
+    return {StorageCacheProblemType::SQLError, queryStream.str()};
+}
+
+IStorageCache* SimpleTableStorageCache::GetSettingsCache(IQueryExecutor* queryExecutor) {
+    return StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(queryExecutor, "Settings", "settings");
+}
+
+IStorageCache* SimpleTableStorageCache::GetCommandsCache(IQueryExecutor* queryExecutor) {
+    return StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(queryExecutor, "Commands", "commands");
 }

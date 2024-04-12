@@ -2,6 +2,7 @@
 
 #include "CurrentTime.h"
 #include "Defines.h"
+#include "EventTableStorageCache.h"
 #include "JsonExtension.h"
 #include "Logger.h"
 #include "MessageHelper.h"
@@ -33,6 +34,7 @@ void DeviceService::Initialize(crow::SimpleApp& app) {
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) { return GetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) { return SetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request) { return Inform(request); });
+    CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)([&](const crow::request& request, const std::string& idString) { return DeleteDevice(request, idString); });
     CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
         .onopen([&](crow::websocket::connection& connection) { LOG_INFO << "Incoming ip - " << connection.get_remote_ip() << "." << std::endl; })
         .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary) { return OnWebSocketMessage(connection, data, is_binary); })
@@ -48,7 +50,7 @@ crow::response DeviceService::GetSettings(const crow::request& request, const st
     if (!IsValidUser(request))
         return crow::response(crow::UNAUTHORIZED);
     try {
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(_queryExecutor, "Settings", "settings");
+        auto storageCache = SimpleTableStorageCache::GetSettingsCache(_queryExecutor);
         SimpleTableSelectInput what;
         what._id = idString;
         SimpleTableSelectOutput result;
@@ -82,7 +84,7 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
         return crow::response(crow::UNAUTHORIZED);
     try {
         auto settingsString = request.body;
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(_queryExecutor, "Settings", "settings");
+        auto storageCache = SimpleTableStorageCache::GetSettingsCache(_queryExecutor);
         SimpleTableInsertOrReplaceInput what;
         what._id = idString;
         what._data = settingsString;
@@ -115,7 +117,7 @@ crow::response DeviceService::GetCommands(const crow::request& request, const st
     if (!IsValidUser(request))
         return crow::response(crow::UNAUTHORIZED);
     try {
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(_queryExecutor, "Commands", "commands");
+        auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
         SimpleTableSelectInput what;
         what._id = idString;
         SimpleTableSelectOutput result;
@@ -149,7 +151,7 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
         return crow::response(crow::UNAUTHORIZED);
     try {
         auto commandsString = request.body;
-        auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(_queryExecutor, "Commands", "commands");
+        auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
         SimpleTableInsertOrReplaceInput what;
         what._id = idString;
         what._data = commandsString;
@@ -188,6 +190,41 @@ crow::response DeviceService::Inform(const crow::request& request) {
         return crow::response(crow::OK);
     } catch (...) {
         LOG_ERROR << "Something went wrong in DeviceService::Inform." << std::endl;
+    }
+    return crow::response(crow::BAD_REQUEST);
+}
+
+crow::response DeviceService::DeleteDevice(const crow::request& request, const std::string& idString) {
+    if (!IsValidUser(request))
+        return crow::response(crow::UNAUTHORIZED);
+    try {
+        // delete device from all tables
+        for (const auto& table : _queryExecutor->GetDeviceRelatedTables()) {
+            std::stringstream queryStream;
+            queryStream << "DELETE FROM " << table << " WHERE id = '" << idString << "'";
+            queryStream.flush();
+            if (!_queryExecutor->Delete(queryStream.str())) {
+                LOG_ERROR << "Failed to delete device " << idString << " from " << table << std::endl;
+                return crow::response(crow::BAD_REQUEST);
+            }
+        }
+        {
+            SimpleTableDeleteInput what;
+            what._id = idString;
+            if (SimpleTableStorageCache::GetSettingsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
+
+                LOG_ERROR << "Failed to delete device " << idString << " from Settings" << std::endl;
+                return crow::response(crow::BAD_REQUEST);
+            }
+            if (SimpleTableStorageCache::GetCommandsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
+                LOG_ERROR << "Failed to delete device " << idString << " from Commands" << std::endl;
+                return crow::response(crow::BAD_REQUEST);
+            }
+        }
+        // TODO: Clean event table. Right now deleted id is not a column of event table...
+        return crow::response{crow::status::OK};
+    } catch (...) {
+        LOG_ERROR << "Something went wrong in DeviceService::DeleteDevice." << std::endl;
     }
     return crow::response(crow::BAD_REQUEST);
 }

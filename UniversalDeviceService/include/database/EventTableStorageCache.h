@@ -22,6 +22,8 @@ public:
 
     virtual StorageCacheProblem Delete(const DeleteInput& what) override;
 
+    static IStorageCache* GetCache(IQueryExecutor* queryExecutor);
+
 private:
     std::map<std::tuple<std::string, std::string>, std::vector<std::string>> _dataCache;
 };

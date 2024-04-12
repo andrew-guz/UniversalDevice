@@ -21,6 +21,7 @@
 #define API_VERSION "/api/version"
 #define API_QUIT "/api/quit"
 // for devices http
+#define API_DEVICE "/api/device/<string>"
 #define API_DEVICE_SETTINGS "/api/device/settings/<string>"
 #define API_DEVICE_COMMANDS "/api/device/commands/<string>"
 #define API_DEVICE_INFORM "/api/device/inform"

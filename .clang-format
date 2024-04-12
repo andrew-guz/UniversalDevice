@@ -4,7 +4,7 @@ BasedOnStyle: LLVM
 ColumnLimit: 200
 Language: Cpp
 IndentWidth: 4
-MaxEmptyLinesToKeep: 2
+MaxEmptyLinesToKeep: 1
 TabWidth: 4
 UseTab: Never
 
