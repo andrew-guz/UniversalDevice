@@ -107,6 +107,4 @@ StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
     return {StorageCacheProblemType::SQLError, queryStream.str()};
 }
 
-IStorageCache* EventTableStorageCache::GetCache(IQueryExecutor* queryExecutor) {
-    return StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(queryExecutor, "Events");
-}
+IStorageCache* EventTableStorageCache::GetCache(IQueryExecutor* queryExecutor) { return StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(queryExecutor, "Events"); }

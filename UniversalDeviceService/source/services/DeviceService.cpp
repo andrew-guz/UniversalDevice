@@ -2,6 +2,7 @@
 
 #include "CurrentTime.h"
 #include "Defines.h"
+#include "EventTableStorageCache.h"
 #include "JsonExtension.h"
 #include "Logger.h"
 #include "MessageHelper.h"
@@ -10,8 +11,6 @@
 #include "TimeHelper.h"
 #include "WebSocketAuthentication.h"
 #include "WebsocketsCache.h"
-#include "EventTableStorageCache.h"
-#include "SimpleTableStorageCache.h"
 
 void TimerThreadFunction(std::function<void(void)> timerFunction) {
     auto [startHour, startMinute] = TimeHelper::GetHourMinute(std::chrono::system_clock::now());
