@@ -21,6 +21,10 @@ public:
 
     virtual StorageCacheProblem Delete(const DeleteInput& what) override;
 
+    static IStorageCache* GetSettingsCache(IQueryExecutor* queryExecutor);
+
+    static IStorageCache* GetCommandsCache(IQueryExecutor* queryExecutor);
+
 private:
     std::string _tableName;
     std::string _fieldName;

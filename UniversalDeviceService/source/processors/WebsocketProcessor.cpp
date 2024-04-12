@@ -8,7 +8,7 @@ WebSocketProcessor::WebSocketProcessor(IQueryExecutor* queryExecutor) : BaseProc
 nlohmann::json WebSocketProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     try {
         if (message._header._subject == Constants::SubjectWebSocketGetSettings) {
-            auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(_queryExecutor, "Settings", "settings");
+            auto storageCache = SimpleTableStorageCache::GetSettingsCache(_queryExecutor);
             SimpleTableSelectInput what;
             what._id = message._header._description._id.data();
             SimpleTableSelectOutput result;
@@ -31,10 +31,9 @@ nlohmann::json WebSocketProcessor::ProcessMessage(const std::chrono::system_cloc
                     break;
             }
         } else if (message._header._subject == Constants::SubjectWebSocketGetCommands) {
-            auto storageCache = StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache>(_queryExecutor, "Commands", "commands");
+            auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
             SimpleTableSelectInput what;
             what._id = message._header._description._id.data();
-            ;
             SimpleTableSelectOutput result;
             auto problem = storageCache->Select(what, result);
             switch (problem._type) {

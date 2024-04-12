@@ -54,6 +54,12 @@ struct SimpleTableInsertOrReplaceInput final : public InsertOrReplaceInput {
     std::string _data;
 };
 
+struct SimpleTableDeleteInput final : public DeleteInput {
+    virtual ~SimpleTableDeleteInput() = default;
+
+    std::string _id;
+};
+
 struct EventTableSelectInput final : public SelectInput {
     virtual ~EventTableSelectInput() = default;
 
