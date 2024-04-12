@@ -90,7 +90,7 @@
         "span": "cpp",
         "wconfig.h": "c"
     },
-    "testMate.cpp.test.executables": "../bin/tests/*",
+    "testMate.cpp.test.executables": "bin/tests/*",
     "spellright.language": [
         "en-US-10-1."
     ],
