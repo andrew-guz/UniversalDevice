@@ -21,5 +21,4 @@ private:
     Wt::WStackedWidget* _mainStack;
 };
 
-
 #endif //_APPLICATION_H_

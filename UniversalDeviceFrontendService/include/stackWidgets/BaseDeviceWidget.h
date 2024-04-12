@@ -46,7 +46,6 @@ protected:
         return GetValues<TValues>(type, (uint64_t)0);
     }
 
-
     // return data from last N seconds or at least one last known point
     template<typename TValues>
     std::vector<TValues> GetValues(const std::string_view type, uint64_t seconds) {
