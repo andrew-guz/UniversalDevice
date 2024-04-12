@@ -201,25 +201,28 @@ crow::response DeviceService::DeleteDevice(const crow::request& request, const s
         // delete device from all tables
         for (const auto& table : _queryExecutor->GetDeviceRelatedTables()) {
             std::stringstream queryStream;
-            queryStream << "DELETE * FROM " << table << " WHERE id = '" << idString << "'";
+            queryStream << "DELETE FROM " << table << " WHERE id = '" << idString << "'";
             queryStream.flush();
-            if (!_queryExecutor->Delete(queryStream.str()))
+            if (!_queryExecutor->Delete(queryStream.str())) {
                 LOG_ERROR << "Failed to delete device " << idString << " from " << table << std::endl;
+                return crow::response(crow::BAD_REQUEST);
+            }
         }
         {
             SimpleTableDeleteInput what;
             what._id = idString;
-            if (SimpleTableStorageCache::GetSettingsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems)
+            if (SimpleTableStorageCache::GetSettingsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
+
                 LOG_ERROR << "Failed to delete device " << idString << " from Settings" << std::endl;
-            if (SimpleTableStorageCache::GetCommandsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems)
+                return crow::response(crow::BAD_REQUEST);
+            }
+            if (SimpleTableStorageCache::GetCommandsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
                 LOG_ERROR << "Failed to delete device " << idString << " from Commands" << std::endl;
+                return crow::response(crow::BAD_REQUEST);
+            }
         }
-        {
-            EventTableDeleteInput what;
-            what._id = idString;
-            if (EventTableStorageCache::GetCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems)
-                LOG_ERROR << "Failed to delete device " << idString << " from Events" << std::endl;
-        }
+        // TODO: Clean event table. Right now deleted id is not a column of event table...
+        return crow::response{crow::status::OK};
     } catch (...) {
         LOG_ERROR << "Something went wrong in DeviceService::DeleteDevice." << std::endl;
     }

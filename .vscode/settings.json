@@ -96,7 +96,8 @@
         "hello.C": "cpp",
         "TreeViewDragDrop.C": "cpp",
         "charconv": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "WMenu.C": "cpp"
     },
     "testMate.cpp.test.executables": "../bin/tests/*",
     "spellright.language": [

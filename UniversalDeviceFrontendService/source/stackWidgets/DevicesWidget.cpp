@@ -11,6 +11,7 @@
 #include "Logger.h"
 #include "MessageHelper.h"
 #include "RequestHelper.h"
+#include "UrlHelper.h"
 #include "WidgetHelper.h"
 
 using namespace Wt;
@@ -100,7 +101,7 @@ void DevicesWidget::Refresh() {
 
 DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column) {
     auto button = layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Center);
-    button->clicked().connect([description, this]() {
+    button->clicked().connect([this, description]() {
         if (description._type == Constants::DeviceTypeThermometer)
             _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
         if (description._type == Constants::DeviceTypeRelay)
@@ -108,14 +109,18 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
         if (description._type == Constants::DeviceTypeMotionRelay)
             _stackHolder->SetWidget(StackWidgetType::MotionRelay, description._id.data());
     });
-    button->mouseWentUp().connect([](const WMouseEvent& event) {
+    button->mouseWentUp().connect([this, description](const WMouseEvent& event) {
         if (event.button() == MouseButton::Right) {
             auto popup = std::make_unique<Wt::WPopupMenu>();
             auto deleteItem = popup->addItem("Удалить...");
-            popup->exec(event);
-            deleteItem->clicked().connect([]() {
-                // here we will delete device
+            deleteItem->triggered().connect([this, description]() {
+                auto result = RequestHelper::DoDeleteRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", description._id.data())}, Constants::LoginService, {});
+                if (result == 200)
+                    Refresh();
+                else
+                    LOG_ERROR << "Failed to delete device " << description._id.data() << "." << std::endl;
             });
+            popup->exec(event);
         }
     });
     ++column;
