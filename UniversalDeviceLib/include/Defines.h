@@ -16,6 +16,8 @@
 
 #define DEFAULT_ACTIVITY_TIME 60000
 
+#define LOG_RECORDS_COUT 300
+
 // api addresses
 // common
 #define API_VERSION "/api/version"

@@ -1,7 +1,10 @@
 #include "ClientService.h"
 
+#include <deque>
 #include <filesystem>
 #include <nlohmann/json.hpp>
+#include <numeric>
+#include <string>
 
 #include "Defines.h"
 #include "DeviceProperty.h"
@@ -250,6 +253,17 @@ crow::response ClientService::DeleteEvent(const crow::request& request) {
     return crow::response(crow::BAD_REQUEST);
 }
 
+std::string readFileContent(const std::string& filename) {
+    std::deque<std::string> lines;
+    std::ifstream fileStream(filename);
+    std::string str;
+    while (std::getline(fileStream, str))
+        lines.push_front(str);
+    if (lines.size() > LOG_RECORDS_COUT)
+        lines.resize(LOG_RECORDS_COUT);
+    return std::accumulate(lines.begin(), lines.end(), std::string{}, [](const auto& a, const auto& b) { return a + b + "\n"; });
+}
+
 crow::response ClientService::ListLogs(const crow::request& request) {
     if (!IsValidUser(request))
         return crow::response(crow::UNAUTHORIZED);
@@ -259,10 +273,7 @@ crow::response ClientService::ListLogs(const crow::request& request) {
         if (entry.path().extension() == ".log") {
             LogInformation logInformation;
             logInformation._fileName = entry.path().filename().string();
-            std::ifstream logStream(entry.path().string());
-            std::ostringstream logBuffer;
-            logBuffer << logStream.rdbuf();
-            logInformation._fileContent = logBuffer.str();
+            logInformation._fileContent = readFileContent(entry.path().string());
             result.push_back(logInformation.ToJson());
         }
     }

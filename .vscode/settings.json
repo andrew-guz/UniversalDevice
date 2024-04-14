@@ -97,7 +97,12 @@
         "TreeViewDragDrop.C": "cpp",
         "charconv": "cpp",
         "shared_mutex": "cpp",
-        "WMenu.C": "cpp"
+        "WMenu.C": "cpp",
+        "WFormWidget.C": "cpp",
+        "WComboBox.C": "cpp",
+        "WModelIndex.C": "cpp",
+        "WAbstractItemModel.C": "cpp",
+        "WStringListModel.C": "cpp"
     },
     "testMate.cpp.test.executables": "bin/tests/*",
     "spellright.language": [

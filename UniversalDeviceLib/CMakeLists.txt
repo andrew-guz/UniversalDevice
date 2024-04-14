@@ -79,6 +79,10 @@ file(GLOB_RECURSE TEST_JSONS tests/*.json)
 foreach(TEST_TARGET ${TEST_JSONS})
     configure_file(${TEST_TARGET} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COPYONLY)
 endforeach()
+file(GLOB_RECURSE TEST_JSONS tests/*.log)
+foreach(TEST_TARGET ${TEST_JSONS})
+    configure_file(${TEST_TARGET} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COPYONLY)
+endforeach()
 
 #install section
 install(TARGETS ${PROJECT_NAME})
