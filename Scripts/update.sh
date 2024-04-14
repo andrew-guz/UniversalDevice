@@ -1,5 +1,7 @@
 #!/bin/bash
 
+clean=${1:-true}
+
 systemctl stop UniversalDeviceFrontend
 
 systemctl stop UniversalDevice
@@ -12,7 +14,9 @@ mkdir -p build
 
 cd build 
 
-make clean
+if $clean; then
+    make clean
+fi
 
 cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 --fresh ..
 
