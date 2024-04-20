@@ -33,6 +33,7 @@ void ClientService::Initialize(crow::SimpleApp& app) {
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)([&](const crow::request& request) { return GetEvents(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)([&](const crow::request& request) { return AddEvent(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)([&](const crow::request& request) { return UpdateEvent(request); });
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)([&](const crow::request& request) { return DeleteEvent(request); });
     CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)([&](const crow::request& request) { return ListLogs(request); });
 }
 
@@ -186,7 +187,7 @@ crow::response ClientService::AddEvent(const crow::request& request) {
                 break;
         }
     } catch (...) {
-        LOG_ERROR << "Something went wrong in ClientService::DeleteEvent." << std::endl;
+        LOG_ERROR << "Something went wrong in ClientService::AddEvent." << std::endl;
     }
     return crow::response(crow::BAD_REQUEST);
 }
