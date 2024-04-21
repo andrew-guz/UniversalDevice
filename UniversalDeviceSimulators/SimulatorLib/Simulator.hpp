@@ -2,6 +2,7 @@
 
 #include <ixwebsocket/IXWebSocket.h>
 
+#include "BaseParameters.hpp"
 #include "Message.h"
 
 class Simulator {
@@ -26,6 +27,6 @@ protected:
 
 private:
     const std::string_view _type;
-    Uuid _id;
+    BaseParameters _parameters;
     ix::WebSocket _websocket;
 };

@@ -1,23 +1,27 @@
 #include "Simulator.hpp"
 
+#include <sstream>
+
 #include <nlohmann/json.hpp>
 
-#include "BaseParameters.hpp"
 #include "Constants.h"
 #include "Defines.h"
 #include "MessageHelper.h"
 #include "WebSocketAuthentication.h"
 
 Simulator::Simulator(const std::string_view type) : _type(std::move(type)) {
-    auto parameters = BaseParameters::ReadFromFile();
-    _id = parameters._id;
+    _parameters = BaseParameters::ReadFromFile();
 
-    _websocket.setUrl(API_DEVICE_WEBSOCKETS);
+    std::stringstream urlStream;
+    urlStream << "wss://localhost:" << _parameters._port << API_DEVICE_WEBSOCKETS;
+    auto url = urlStream.str();
+
+    _websocket.setUrl(url);
     _websocket.setOnMessageCallback([&](const ix::WebSocketMessagePtr& message) {
         if (message->type == ix::WebSocketMessageType::Open) {
             WebSocketAuthentication auth;
             auth._authString = "Basic ZGV2aWNlOmVBITdSPWgmVnU=";
-            auto authMessage = MessageHelper::Create(_type, _id, Constants::SubjectWebSocketAuthorization, auth);
+            auto authMessage = MessageHelper::Create(_type, _parameters._id, Constants::SubjectWebSocketAuthorization, auth);
             _websocket.send(authMessage.ToJson().dump());
         } else if (message->type == ix::WebSocketMessageType::Message)
             OnMessage(message);
@@ -29,15 +33,15 @@ Simulator::~Simulator() { _websocket.close(); }
 
 std::string_view Simulator::GetType() const { return _type; }
 
-const Uuid& Simulator::GetId() const { return _id; }
+const Uuid& Simulator::GetId() const { return _parameters._id; }
 
 void Simulator::AskForSettings() {
-    auto settingsMessage = MessageHelper::Create(_type, _id, Constants::SubjectWebSocketGetSettings, {});
+    auto settingsMessage = MessageHelper::Create(_type, _parameters._id, Constants::SubjectWebSocketGetSettings, {});
     _websocket.send(settingsMessage.ToJson().dump());
 }
 
 void Simulator::AskForCommands() {
-    auto commandsMessage = MessageHelper::Create(_type, _id, Constants::SubjectWebSocketGetCommands, {});
+    auto commandsMessage = MessageHelper::Create(_type, _parameters._id, Constants::SubjectWebSocketGetCommands, {});
     _websocket.send(commandsMessage.ToJson().dump());
 }
 

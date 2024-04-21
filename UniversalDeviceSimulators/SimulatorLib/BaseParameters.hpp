@@ -10,5 +10,6 @@ public:
     static BaseParameters ReadFromFile();
 
 public:
+    int _port = DEFAULT_SERVICE_PORT;
     Uuid _id;
 };

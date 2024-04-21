@@ -8,6 +8,7 @@ BaseParameters BaseParameters::ReadFromFile() {
         return BaseParameters();
 
     BaseParameters parameters;
+    parameters._port = json.value("port", DEFAULT_SERVICE_PORT);
     parameters._id = Uuid(json.value("id", ""));
     return parameters;
 }
