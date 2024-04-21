@@ -22,6 +22,16 @@ protected:
 
     nlohmann::json CallProcessorsJsonResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
 
+    template<typename ServiceType, typename... Args>
+    static auto bind(ServiceType* service, crow::response (ServiceType::*func)(Args...)) {
+        return [service, func](Args... args) { return (service->*func)(std::forward<Args>(args)...); };
+    }
+
+    template<typename ServiceType, typename... Args>
+    static auto bind(ServiceType* service, crow::response (ServiceType::*func)(Args...) const) {
+        return [service, func](Args... args) { return (service->*func)(std::forward<Args>(args)...); };
+    }
+
 protected:
     IQueryExecutor* _queryExecutor = nullptr;
 };
