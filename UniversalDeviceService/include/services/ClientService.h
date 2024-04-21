@@ -22,7 +22,7 @@ private:
 
     crow::response GetDeviceInfo(const crow::request& request);
 
-    crow::response GetEvents(const crow::request& request);
+    crow::response GetEvents();
 
     crow::response AddEvent(const crow::request& request);
 
@@ -30,7 +30,7 @@ private:
 
     crow::response DeleteEvent(const crow::request& request);
 
-    crow::response ListLogs(const crow::request& request);
+    crow::response ListLogs();
 
 private:
     friend class BaseServiceExtension;

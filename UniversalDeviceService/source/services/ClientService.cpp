@@ -30,11 +30,11 @@ void ClientService::Initialize(CrowApp& app) {
         return SetDeviceProperty(request, idString, "grp", true);
     });
     CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)([&](const crow::request& request) { return GetDeviceInfo(request); });
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)([&](const crow::request& request) { return GetEvents(request); });
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetEvents));
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)([&](const crow::request& request) { return AddEvent(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)([&](const crow::request& request) { return UpdateEvent(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)([&](const crow::request& request) { return DeleteEvent(request); });
-    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)([&](const crow::request& request) { return ListLogs(request); });
+    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::ListLogs));
 }
 
 crow::response ClientService::ListDevices() {
@@ -115,7 +115,7 @@ crow::response ClientService::GetDeviceInfo(const crow::request& request) {
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::GetEvents(const crow::request& request) {
+crow::response ClientService::GetEvents() {
     nlohmann::json result = nlohmann::json::array({});
     try {
         std::vector<std::string> eventStrings;
@@ -250,7 +250,7 @@ std::string readFileContent(const std::string& filename) {
     return std::accumulate(lines.begin(), lines.end(), std::string{}, [](const auto& a, const auto& b) { return a + b + "\n"; });
 }
 
-crow::response ClientService::ListLogs(const crow::request& request) {
+crow::response ClientService::ListLogs() {
     nlohmann::json result = nlohmann::json::array({});
     auto logDir = PathHelper::AppDirPath();
     for (auto entry : std::filesystem::directory_iterator(logDir)) {
