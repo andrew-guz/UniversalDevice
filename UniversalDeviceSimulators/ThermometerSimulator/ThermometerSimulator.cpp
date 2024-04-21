@@ -10,7 +10,7 @@
 namespace {
     std::random_device random_device;
     std::mt19937 random_generator(random_device());
-    std::uniform_int_distribution<> distribution(1, 10);
+    std::uniform_int_distribution<> distribution(1, 4);
 } // namespace
 
 ThermometerSimulator::ThermometerSimulator() : Simulator("thermometer") {
