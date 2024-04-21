@@ -30,12 +30,12 @@ void TimerThreadFunction(std::function<void(void)> timerFunction) {
 DeviceService::DeviceService(IQueryExecutor* queryExecutor) : BaseService(queryExecutor) {}
 
 void DeviceService::Initialize(CrowApp& app) {
-    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) { return GetSettings(request, idString); });
+    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DeviceService::GetSettings));
     CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) { return SetSettings(request, idString); });
-    CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) { return GetCommands(request, idString); });
+    CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DeviceService::GetCommands));
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) { return SetCommands(request, idString); });
     CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request) { return Inform(request); });
-    CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)([&](const crow::request& request, const std::string& idString) { return DeleteDevice(request, idString); });
+    CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &DeviceService::DeleteDevice));
     CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
         .onopen([&](crow::websocket::connection& connection) { LOG_INFO << "Incoming ip - " << connection.get_remote_ip() << "." << std::endl; })
         .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary) { return OnWebSocketMessage(connection, data, is_binary); })
@@ -47,7 +47,7 @@ void DeviceService::Initialize(CrowApp& app) {
     timingThread->detach();
 }
 
-crow::response DeviceService::GetSettings(const crow::request& request, const std::string& idString) {
+crow::response DeviceService::GetSettings(const std::string& idString) {
     try {
         auto storageCache = SimpleTableStorageCache::GetSettingsCache(_queryExecutor);
         SimpleTableSelectInput what;
@@ -110,7 +110,7 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
     return crow::response(crow::BAD_REQUEST);
 }
 
-crow::response DeviceService::GetCommands(const crow::request& request, const std::string& idString) {
+crow::response DeviceService::GetCommands(const std::string& idString) {
     try {
         auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
         SimpleTableSelectInput what;
@@ -185,7 +185,7 @@ crow::response DeviceService::Inform(const crow::request& request) {
     return crow::response(crow::BAD_REQUEST);
 }
 
-crow::response DeviceService::DeleteDevice(const crow::request& request, const std::string& idString) {
+crow::response DeviceService::DeleteDevice(const std::string& idString) {
     try {
         // delete device from all tables
         for (const auto& table : _queryExecutor->GetDeviceRelatedTables()) {
