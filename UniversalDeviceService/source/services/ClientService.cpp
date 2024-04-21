@@ -38,8 +38,6 @@ void ClientService::Initialize(CrowApp& app) {
 }
 
 crow::response ClientService::ListDevices(const crow::request& request) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     nlohmann::json result;
     try {
         std::vector<std::vector<std::string>> data;
@@ -57,8 +55,6 @@ crow::response ClientService::ListDevices(const crow::request& request) {
 }
 
 crow::response ClientService::GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     nlohmann::json result;
     try {
         std::stringstream queryStream;
@@ -86,8 +82,6 @@ crow::response ClientService::GetDeviceProperty(const crow::request& request, co
 }
 
 crow::response ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto deviceProperty = JsonExtension::CreateFromJson<DeviceProperty>(bodyJson);
@@ -109,8 +103,7 @@ crow::response ClientService::SetDeviceProperty(const crow::request& request, co
 }
 
 crow::response ClientService::GetDeviceInfo(const crow::request& request) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
+
     nlohmann::json result;
     try {
         auto timestamp = std::chrono::system_clock::now();
@@ -123,8 +116,6 @@ crow::response ClientService::GetDeviceInfo(const crow::request& request) {
 }
 
 crow::response ClientService::GetEvents(const crow::request& request) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     nlohmann::json result = nlohmann::json::array({});
     try {
         std::vector<std::string> eventStrings;
@@ -160,8 +151,6 @@ crow::response ClientService::GetEvents(const crow::request& request) {
 }
 
 crow::response ClientService::AddEvent(const crow::request& request) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
@@ -193,8 +182,6 @@ crow::response ClientService::AddEvent(const crow::request& request) {
 }
 
 crow::response ClientService::UpdateEvent(const crow::request& request) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
@@ -226,8 +213,6 @@ crow::response ClientService::UpdateEvent(const crow::request& request) {
 }
 
 crow::response ClientService::DeleteEvent(const crow::request& request) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
@@ -266,8 +251,6 @@ std::string readFileContent(const std::string& filename) {
 }
 
 crow::response ClientService::ListLogs(const crow::request& request) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     nlohmann::json result = nlohmann::json::array({});
     auto logDir = PathHelper::AppDirPath();
     for (auto entry : std::filesystem::directory_iterator(logDir)) {

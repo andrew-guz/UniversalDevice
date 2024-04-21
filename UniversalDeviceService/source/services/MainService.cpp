@@ -9,15 +9,9 @@ void MainService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_QUIT).methods(crow::HTTPMethod::GET)([&](const crow::request& request) { return Quit(request, app); });
 }
 
-crow::response MainService::Version(const crow::request& request) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
-    return crow::response(crow::OK, VERSION);
-}
+crow::response MainService::Version(const crow::request& request) { return crow::response(crow::OK, VERSION); }
 
 crow::response MainService::Quit(const crow::request& request, CrowApp& app) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     app.stop();
     return crow::response(crow::OK);
 }

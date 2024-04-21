@@ -18,10 +18,6 @@ public:
 protected:
     virtual void Initialize(CrowApp& app) = 0;
 
-    bool IsValidUser(const crow::request& request);
-
-    bool IsValidUser(const std::string& authorization);
-
     void CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
 
     nlohmann::json CallProcessorsJsonResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);

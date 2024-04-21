@@ -1,5 +1,6 @@
 #include "DeviceService.h"
 
+#include "AccountManager.h"
 #include "CurrentTime.h"
 #include "Defines.h"
 #include "EventTableStorageCache.h"
@@ -47,8 +48,6 @@ void DeviceService::Initialize(CrowApp& app) {
 }
 
 crow::response DeviceService::GetSettings(const crow::request& request, const std::string& idString) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         auto storageCache = SimpleTableStorageCache::GetSettingsCache(_queryExecutor);
         SimpleTableSelectInput what;
@@ -80,8 +79,6 @@ crow::response DeviceService::GetSettings(const crow::request& request, const st
 }
 
 crow::response DeviceService::SetSettings(const crow::request& request, const std::string& idString) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         auto settingsString = request.body;
         auto storageCache = SimpleTableStorageCache::GetSettingsCache(_queryExecutor);
@@ -114,8 +111,6 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
 }
 
 crow::response DeviceService::GetCommands(const crow::request& request, const std::string& idString) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
         SimpleTableSelectInput what;
@@ -147,8 +142,6 @@ crow::response DeviceService::GetCommands(const crow::request& request, const st
 }
 
 crow::response DeviceService::SetCommands(const crow::request& request, const std::string& idString) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         auto commandsString = request.body;
         auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
@@ -181,8 +174,6 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
 }
 
 crow::response DeviceService::Inform(const crow::request& request) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         auto timestamp = std::chrono::system_clock::now();
         auto message = BaseServiceExtension::GetMessageFromRequest(request);
@@ -195,8 +186,6 @@ crow::response DeviceService::Inform(const crow::request& request) {
 }
 
 crow::response DeviceService::DeleteDevice(const crow::request& request, const std::string& idString) {
-    if (!IsValidUser(request))
-        return crow::response(crow::UNAUTHORIZED);
     try {
         // delete device from all tables
         for (const auto& table : _queryExecutor->GetDeviceRelatedTables()) {
@@ -237,7 +226,7 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
         auto message = BaseServiceExtension::GetMessageFromWebSocketData(data);
         if (message._header._subject == Constants::SubjectWebSocketAuthorization) {
             auto webSocketAuthentication = JsonExtension::CreateFromJson<WebSocketAuthentication>(message._data);
-            if (IsValidUser(webSocketAuthentication._authString))
+            if (AccountManager::Instance()->IsValidUser(webSocketAuthentication._authString))
                 WebsocketsCache::Instance()->AddWebSocketConnection(message._header._description._id, connection);
         } else {
             auto knownConnection = WebsocketsCache::Instance()->GetWebSocketConnection(message._header._description._id);
