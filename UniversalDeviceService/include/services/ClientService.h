@@ -2,6 +2,7 @@
 #define _CLIENT_SERVICE_H_
 
 #include "BaseService.h"
+#include "Event.h"
 
 class ClientService final : public BaseService {
 protected:
@@ -24,11 +25,11 @@ private:
 
     crow::response GetEvents();
 
-    crow::response AddEvent(const crow::request& request);
+    crow::response AddEvent(const Event& event, const std::string& eventString);
 
-    crow::response UpdateEvent(const crow::request& request);
+    crow::response UpdateEvent(const Event& event, const std::string& eventString);
 
-    crow::response DeleteEvent(const crow::request& request);
+    crow::response DeleteEvent(const Event& event);
 
     crow::response ListLogs();
 

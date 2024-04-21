@@ -1,17 +1,15 @@
 #include "ClientService.h"
 
 #include <deque>
+#include <exception>
 #include <filesystem>
-#include <nlohmann/json.hpp>
 #include <numeric>
 #include <string>
 
 #include "Defines.h"
 #include "DeviceProperty.h"
-#include "Event.h"
 #include "EventTableStorageCache.h"
 #include "ExtendedComponentDescription.h"
-#include "JsonExtension.h"
 #include "LogInformation.h"
 #include "MessageHelper.h"
 #include "ProcessorsFactory.h"
@@ -31,9 +29,9 @@ void ClientService::Initialize(CrowApp& app) {
     });
     CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)([&](const crow::request& request) { return GetDeviceInfo(request); });
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetEvents));
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)([&](const crow::request& request) { return AddEvent(request); });
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)([&](const crow::request& request) { return UpdateEvent(request); });
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)([&](const crow::request& request) { return DeleteEvent(request); });
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &ClientService::AddEvent, "AddEvent"));
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ClientService::UpdateEvent, "UpdateEvent"));
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)(BaseService::bindObject(this, &ClientService::DeleteEvent, "DeleteEvent"));
     CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::ListLogs));
 }
 
@@ -150,91 +148,70 @@ crow::response ClientService::GetEvents() {
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::AddEvent(const crow::request& request) {
-    try {
-        auto bodyJson = nlohmann::json::parse(request.body);
-        auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
-
-        auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-        EventTableInsertOrReplaceInput what;
-        what._id = event._id.data();
-        what._active = event._active;
-        what._providerId = event._provider._id.data();
-        what._providerType = event._provider._type;
-        what._event = request.body;
-        auto problem = storageCache->InsertOrReplace(what);
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems:
-                return crow::response(crow::OK);
-                break;
-            case StorageCacheProblemType::Empty:
-            case StorageCacheProblemType::NotExists:
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
-        }
-    } catch (...) {
-        LOG_ERROR << "Something went wrong in ClientService::AddEvent." << std::endl;
+crow::response ClientService::AddEvent(const Event& event, const std::string& eventString) {
+    auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
+    EventTableInsertOrReplaceInput what;
+    what._id = event._id.data();
+    what._active = event._active;
+    what._providerId = event._provider._id.data();
+    what._providerType = event._provider._type;
+    what._event = eventString;
+    auto problem = storageCache->InsertOrReplace(what);
+    switch (problem._type) {
+        case StorageCacheProblemType::NoProblems:
+            return crow::response(crow::OK);
+            break;
+        case StorageCacheProblemType::Empty:
+        case StorageCacheProblemType::NotExists:
+        case StorageCacheProblemType::TooMany:
+            break;
+        case StorageCacheProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
     }
     return crow::response(crow::BAD_REQUEST);
 }
 
-crow::response ClientService::UpdateEvent(const crow::request& request) {
-    try {
-        auto bodyJson = nlohmann::json::parse(request.body);
-        auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
-
-        auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-        EventTableUpdateInput what;
-        what._id = event._id.data();
-        what._active = event._active;
-        what._providerId = event._provider._id.data();
-        what._providerType = event._provider._type;
-        what._event = request.body;
-        auto problem = storageCache->Update(what);
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems:
-                return crow::response(crow::OK);
-                break;
-            case StorageCacheProblemType::Empty:
-            case StorageCacheProblemType::NotExists:
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
-        }
-    } catch (...) {
-        LOG_ERROR << "Something went wrong in ClientService::UpdateEvent." << std::endl;
+crow::response ClientService::UpdateEvent(const Event& event, const std::string& eventString) {
+    auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
+    EventTableUpdateInput what;
+    what._id = event._id.data();
+    what._active = event._active;
+    what._providerId = event._provider._id.data();
+    what._providerType = event._provider._type;
+    what._event = eventString;
+    auto problem = storageCache->Update(what);
+    switch (problem._type) {
+        case StorageCacheProblemType::NoProblems:
+            return crow::response(crow::OK);
+            break;
+        case StorageCacheProblemType::Empty:
+        case StorageCacheProblemType::NotExists:
+        case StorageCacheProblemType::TooMany:
+            break;
+        case StorageCacheProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
     }
     return crow::response(crow::BAD_REQUEST);
 }
 
-crow::response ClientService::DeleteEvent(const crow::request& request) {
-    try {
-        auto bodyJson = nlohmann::json::parse(request.body);
-        auto event = JsonExtension::CreateFromJson<Event>(bodyJson);
-
-        auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-        EventTableDeleteInput what;
-        what._id = event._id.data();
-        auto problem = storageCache->Delete(what);
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems:
-                return crow::response(crow::OK);
-                break;
-            case StorageCacheProblemType::Empty:
-            case StorageCacheProblemType::NotExists:
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
-        }
-    } catch (...) {
-        LOG_ERROR << "Something went wrong in ClientService::DeleteEvent." << std::endl;
+crow::response ClientService::DeleteEvent(const Event& event) {
+    auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
+    EventTableDeleteInput what;
+    what._id = event._id.data();
+    auto problem = storageCache->Delete(what);
+    switch (problem._type) {
+        case StorageCacheProblemType::NoProblems:
+            return crow::response(crow::OK);
+            break;
+        case StorageCacheProblemType::Empty:
+        case StorageCacheProblemType::NotExists:
+        case StorageCacheProblemType::TooMany:
+            break;
+        case StorageCacheProblemType::SQLError:
+            LOG_SQL_ERROR(problem._message);
+            break;
     }
     return crow::response(crow::BAD_REQUEST);
 }
