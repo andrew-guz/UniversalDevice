@@ -56,7 +56,7 @@ file(GLOB_RECURSE SRC_FILES ./*.cpp)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 #make sure that this project will be build after some targets
-add_dependencies(${PROJECT_NAME} SimulatorLib UniversalDeviceLib)
+add_dependencies(${PROJECT_NAME} UniversalDeviceLib SimulatorLib)
 
 #executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} -lpthread SimulatorLib UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} UniversalDeviceLib SimulatorLib)

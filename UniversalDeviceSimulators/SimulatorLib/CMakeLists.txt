@@ -45,9 +45,6 @@ file(GLOB_RECURSE SRC_FILES ./*.cpp)
 #create shared library from source
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
-#alternative way to set compiler flags
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
-
 #make sure that this project will be build after some targets
 add_dependencies(${PROJECT_NAME} ixwebsocket UniversalDeviceLib)
 

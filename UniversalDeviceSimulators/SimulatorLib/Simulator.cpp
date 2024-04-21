@@ -32,12 +32,12 @@ std::string_view Simulator::GetType() const { return _type; }
 const Uuid& Simulator::GetId() const { return _id; }
 
 void Simulator::AskForSettings() {
-    auto settingsMessage = MessageHelper::Create(_type, _id, Constants::SubjectWebSocketGetSettings);
+    auto settingsMessage = MessageHelper::Create(_type, _id, Constants::SubjectWebSocketGetSettings, {});
     _websocket.send(settingsMessage.ToJson().dump());
 }
 
 void Simulator::AskForCommands() {
-    auto commandsMessage = MessageHelper::Create(_type, _id, Constants::SubjectWebSocketGetCommands);
+    auto commandsMessage = MessageHelper::Create(_type, _id, Constants::SubjectWebSocketGetCommands, {});
     _websocket.send(commandsMessage.ToJson().dump());
 }
 
