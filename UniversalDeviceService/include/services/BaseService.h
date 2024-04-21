@@ -6,6 +6,7 @@
 #include "IQueryExecutor.h"
 #include "Logger.h"
 #include "Message.h"
+#include "Middleware.h"
 
 class BaseService {
 protected:
@@ -15,7 +16,7 @@ public:
     virtual ~BaseService() = default;
 
 protected:
-    virtual void Initialize(crow::SimpleApp& app) = 0;
+    virtual void Initialize(CrowApp& app) = 0;
 
     bool IsValidUser(const crow::request& request);
 
@@ -35,11 +36,11 @@ public:
 
     ~BaseServiceExtension() = default;
 
-    template<typename T>
-    static T* Create(crow::SimpleApp& app, IQueryExecutor* queryExecutor) {
-        auto t = new T(queryExecutor);
-        t->Initialize(app);
-        return t;
+    template<typename ServiceType>
+    static ServiceType* Create(CrowApp& app, IQueryExecutor* queryExecutor) {
+        auto service = new ServiceType(queryExecutor);
+        service->Initialize(app);
+        return service;
     }
 
     static Message GetMessageFromRequest(const crow::request& request);

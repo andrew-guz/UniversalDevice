@@ -11,7 +11,7 @@ public:
     virtual ~ClientService() = default;
 
 protected:
-    virtual void Initialize(crow::SimpleApp& app) override;
+    virtual void Initialize(CrowApp& app) override;
 
 private:
     crow::response ListDevices(const crow::request& request);

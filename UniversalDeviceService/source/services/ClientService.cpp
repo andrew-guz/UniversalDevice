@@ -19,7 +19,7 @@
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) : BaseService(queryExecutor) {}
 
-void ClientService::Initialize(crow::SimpleApp& app) {
+void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)([&](const crow::request& request) { return ListDevices(request); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) { return GetDeviceProperty(request, idString, "name"); });
     CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) {

@@ -13,7 +13,7 @@ public:
     virtual ~DeviceService() = default;
 
 protected:
-    virtual void Initialize(crow::SimpleApp& app) override;
+    virtual void Initialize(CrowApp& app) override;
 
     crow::response GetSettings(const crow::request& request, const std::string& idString);
 

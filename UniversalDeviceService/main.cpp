@@ -1,10 +1,10 @@
 #include <crow.h>
-#include <iostream>
 
 #include "ClientService.h"
 #include "DeviceService.h"
 #include "Logger.h"
 #include "MainService.h"
+#include "Middleware.h"
 #include "Settings.h"
 #include "Storage.h"
 
@@ -15,7 +15,7 @@ int main() {
 
     Storage storage;
 
-    crow::SimpleApp app;
+    CrowApp app;
 
     BaseServiceExtension::Create<MainService>(app, &storage);
     BaseServiceExtension::Create<DeviceService>(app, &storage);
