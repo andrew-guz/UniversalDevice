@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include <ixwebsocket/IXSocketTLSOptions.h>
 #include <nlohmann/json.hpp>
 
 #include "Constants.h"
@@ -17,6 +18,10 @@ Simulator::Simulator(const std::string_view type) : _type(std::move(type)) {
     auto url = urlStream.str();
 
     _websocket.setUrl(url);
+    // The way to ignore certificate
+    ix::SocketTLSOptions tlsOptions;
+    tlsOptions.caFile = "NONE";
+    _websocket.setTLSOptions(tlsOptions);
     _websocket.setOnMessageCallback([&](const ix::WebSocketMessagePtr& message) {
         if (message->type == ix::WebSocketMessageType::Open) {
             WebSocketAuthentication auth;

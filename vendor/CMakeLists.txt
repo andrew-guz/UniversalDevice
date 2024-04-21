@@ -9,4 +9,5 @@ set(ENABLE_LIBWTTEST off)
 set(ENABLE_LIBWTDBO off)
 add_subdirectory(wt)
 
+set(USE_TLS on)
 add_subdirectory(ixwebsocket)
