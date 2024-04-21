@@ -36,7 +36,7 @@ RelayCurrentState GetCommands() {
 void ReportState() {
     RelayCurrentState currentState;
     currentState._state = state;
-    auto message = MessageHelper::Create(Constants::DeviceTypeRelay, parameters._id, Constants::SubjectRelayCurrentState, currentState.ToJson());
+    auto message = MessageHelper::Create(Constants::DeviceTypeRelay, parameters._id, Constants::SubjectRelayCurrentState, currentState);
     RequestHelper::DoPostRequest({"127.0.0.1", parameters._port, API_DEVICE_INFORM}, Constants::LoginDevice, message.ToJson());
 }
 

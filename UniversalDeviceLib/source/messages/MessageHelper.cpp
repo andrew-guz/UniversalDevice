@@ -14,3 +14,7 @@ Message MessageHelper::Create(const ComponentDescription& description, const std
     message._data = data;
     return message;
 }
+
+Message MessageHelper::Create(std::string_view type, const Uuid& id, std::string_view subject) { return Create(type, id, subject, {}); }
+
+Message MessageHelper::Create(const ComponentDescription& description, std::string_view subject) { return Create(description, subject, {}); }

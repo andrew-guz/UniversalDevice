@@ -251,6 +251,6 @@ void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, co
 void DeviceService::TimerFunction() {
     CurrentTime currentTime;
     currentTime._timestamp = std::chrono::system_clock::now();
-    auto message = MessageHelper::Create(Constants::DeviceTypeTimer, Constants::PredefinedIdTimer, Constants::SubjectTimerEvent, currentTime.ToJson());
+    auto message = MessageHelper::Create(Constants::DeviceTypeTimer, Constants::PredefinedIdTimer, Constants::SubjectTimerEvent, currentTime);
     CallProcessorsNoResult(std::chrono::system_clock::now(), message);
 }
