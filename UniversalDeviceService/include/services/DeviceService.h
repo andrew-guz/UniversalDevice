@@ -13,19 +13,19 @@ public:
     virtual ~DeviceService() = default;
 
 protected:
-    virtual void Initialize(crow::SimpleApp& app) override;
+    virtual void Initialize(CrowApp& app) override;
 
-    crow::response GetSettings(const crow::request& request, const std::string& idString);
+    crow::response GetSettings(const std::string& idString);
 
     crow::response SetSettings(const crow::request& request, const std::string& idString);
 
-    crow::response GetCommands(const crow::request& request, const std::string& idString);
+    crow::response GetCommands(const std::string& idString);
 
     crow::response SetCommands(const crow::request& request, const std::string& idString);
 
     crow::response Inform(const crow::request& request);
 
-    crow::response DeleteDevice(const crow::request& request, const std::string& idString);
+    crow::response DeleteDevice(const std::string& idString);
 
     void OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary);
 

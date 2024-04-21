@@ -1,23 +1,9 @@
 #include "BaseService.h"
 
-#include <vector>
-
-#include "AccountManager.h"
 #include "JsonExtension.h"
 #include "ProcessorsFactory.h"
 
 BaseService::BaseService(IQueryExecutor* queryExecutor) : _queryExecutor(queryExecutor) {}
-
-bool BaseService::IsValidUser(const crow::request& request) {
-    auto authorization = request.get_header_value("Authorization");
-    return IsValidUser(authorization);
-}
-
-bool BaseService::IsValidUser(const std::string& authorization) {
-    if (authorization.empty())
-        return false;
-    return AccountManager::Instance()->IsValidUser(authorization);
-}
 
 void BaseService::CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);

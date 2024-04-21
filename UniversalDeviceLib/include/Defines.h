@@ -1,7 +1,7 @@
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
-#define VERSION "1.0"
+#define VERSION "1.1"
 
 #define DEFAULT_SERVICE_PORT 7315
 #define DEFAULT_FRONTEND_PORT 7316

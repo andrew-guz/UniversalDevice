@@ -11,11 +11,7 @@ public:
     virtual ~MainService() = default;
 
 protected:
-    virtual void Initialize(crow::SimpleApp& app) override;
-
-    crow::response Version(const crow::request& request);
-
-    crow::response Quit(const crow::request& request, crow::SimpleApp& app);
+    virtual void Initialize(CrowApp& app) override;
 
 private:
     friend class BaseServiceExtension;
