@@ -8,7 +8,7 @@ set(CMAKE_BUILD_TYPE Debug)
 project(${PROJECT_NAME})
 
 #where to search headers
-include_directories(./include)
+include_directories(./../../vendor/ixwebsocket)
 include_directories(./../../UniversalDeviceLib/include)
 include_directories(./../../UniversalDeviceLib/include/authentication)
 include_directories(./../../UniversalDeviceLib/include/component)
@@ -40,13 +40,17 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #this will search for *.cpp in source recursively
-file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
+file(GLOB_RECURSE SRC_FILES ./*.cpp)
 
 #create shared library from source
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
+#alternative way to set compiler flags
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+
 #make sure that this project will be build after some targets
-add_dependencies(${PROJECT_NAME} UniversalDeviceLib)
+add_dependencies(${PROJECT_NAME} ixwebsocket UniversalDeviceLib)
 
 #executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} ixwebsocket UniversalDeviceLib)
+

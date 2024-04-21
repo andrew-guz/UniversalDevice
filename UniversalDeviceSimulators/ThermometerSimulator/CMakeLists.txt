@@ -17,8 +17,8 @@ set(CMAKE_BUILD_TYPE Debug)
 project(${PROJECT_NAME})
 
 #where to search headers
-include_directories(./include)
-include_directories(./../SimulatorLib/include)
+include_directories(./../SimulatorLib)
+include_directories(./../../vendor/ixwebsocket)
 include_directories(./../../UniversalDeviceLib/include)
 include_directories(./../../UniversalDeviceLib/include/authentication)
 include_directories(./../../UniversalDeviceLib/include/component)
@@ -50,14 +50,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #this will search for *.cpp in source recursively
-file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
+file(GLOB_RECURSE SRC_FILES ./*.cpp)
 
 #create executable from source
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 #make sure that this project will be build after some targets
-add_dependencies(${PROJECT_NAME} UniversalDeviceLib)
+add_dependencies(${PROJECT_NAME} SimulatorLib UniversalDeviceLib)
 
 #executable needs libraries - so link to installed libs
-#target_link_libraries(${PROJECT_NAME} -lpthread UniversalDeviceLib SimulatorLib)
-target_link_libraries(${PROJECT_NAME} -lpthread UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} -lpthread SimulatorLib UniversalDeviceLib)
