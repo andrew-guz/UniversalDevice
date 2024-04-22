@@ -1,4 +1,4 @@
-#include "Logger.h"
+#include "Logger.hpp"
 
 std::map<std::string, std::fstream*> FileStreamWrapper::_fileStreams;
 std::ostream FileStreamWrapper::_nullStream(0);

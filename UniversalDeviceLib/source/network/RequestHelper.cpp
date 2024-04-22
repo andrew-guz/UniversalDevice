@@ -1,4 +1,4 @@
-#include "RequestHelper.h"
+#include "RequestHelper.hpp"
 
 #include <curlpp/Easy.hpp>
 #include <curlpp/Infos.hpp>
@@ -6,8 +6,8 @@
 #include <curlpp/cURLpp.hpp>
 #include <sstream>
 
-#include "AccountManager.h"
-#include "Logger.h"
+#include "AccountManager.hpp"
+#include "Logger.hpp"
 
 nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress, const std::string_view login) {
     try {

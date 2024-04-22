@@ -1,7 +1,7 @@
-#include "ProcessSettingsReader.h"
+#include "ProcessSettingsReader.hpp"
 
-#include "JsonFileReader.h"
-#include "Logger.h"
+#include "JsonFileReader.hpp"
+#include "Logger.hpp"
 
 nlohmann::json ProcessSettingsReader::ReadProcessSettings() {
     try {

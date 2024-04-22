@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "AccountManager.h"
-#include "Base64Helper.h"
+#include "AccountManager.hpp"
+#include "Base64Helper.hpp"
 
 using namespace std::string_literals;
 

@@ -1,6 +1,6 @@
-#include "JsonFileReader.h"
+#include "JsonFileReader.hpp"
 
-#include "Logger.h"
+#include "Logger.hpp"
 
 nlohmann::json JsonFileReader::ReadJson(const std::string_view fullFileName) {
     try {

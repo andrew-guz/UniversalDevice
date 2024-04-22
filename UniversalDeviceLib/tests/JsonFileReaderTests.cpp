@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "JsonFileReader.h"
+#include "JsonFileReader.hpp"
 
 TEST_CASE("Read valid file") {
     auto json = JsonFileReader::ReadJson("valid.json");

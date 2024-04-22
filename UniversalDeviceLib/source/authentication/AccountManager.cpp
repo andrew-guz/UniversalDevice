@@ -1,9 +1,9 @@
-#include "AccountManager.h"
+#include "AccountManager.hpp"
 
 #include <nlohmann/json.hpp>
 
-#include "Base64Helper.h"
-#include "Logger.h"
+#include "Base64Helper.hpp"
+#include "Logger.hpp"
 
 AccountManager::AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer) : _initializer(initializer) {}
 

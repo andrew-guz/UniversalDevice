@@ -1,4 +1,4 @@
-#include "MessageHelper.h"
+#include "MessageHelper.hpp"
 
 Message MessageHelper::Create(const std::string_view type, const Uuid& id, const std::string_view subject, const nlohmann::json& data) {
     ComponentDescription description;

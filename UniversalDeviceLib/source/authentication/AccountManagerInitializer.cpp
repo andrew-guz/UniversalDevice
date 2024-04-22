@@ -1,8 +1,8 @@
-#include "AccountManagerInitializer.h"
+#include "AccountManagerInitializer.hpp"
 
-#include "JsonExtension.h"
-#include "JsonFileReader.h"
-#include "PathHelper.h"
+#include "JsonExtension.hpp"
+#include "JsonFileReader.hpp"
+#include "PathHelper.hpp"
 
 void AccountManagerInitializer::Initialize(std::vector<Account>& accounts) {
     if (accounts.size())

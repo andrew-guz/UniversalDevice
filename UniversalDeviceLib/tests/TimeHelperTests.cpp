@@ -1,7 +1,7 @@
 #define CONFIG_CATCH_MAIN
 #include "catch.hpp"
 
-#include "TimeHelper.h"
+#include "TimeHelper.hpp"
 
 TEST_CASE() {
     auto now = std::chrono::system_clock::now();

@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "Base64Helper.h"
+#include "Base64Helper.hpp"
 
 #include <fstream>
 #include <sstream>
