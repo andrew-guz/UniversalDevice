@@ -26,7 +26,6 @@
 #define API_DEVICE "/api/device/<string>"
 #define API_DEVICE_SETTINGS "/api/device/settings/<string>"
 #define API_DEVICE_COMMANDS "/api/device/commands/<string>"
-#define API_DEVICE_INFORM "/api/device/inform"
 // for devices websockets
 #define API_DEVICE_WEBSOCKETS "/api/device/ws"
 // for client

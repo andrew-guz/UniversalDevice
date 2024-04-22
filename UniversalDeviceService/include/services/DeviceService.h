@@ -23,8 +23,6 @@ protected:
 
     crow::response SetCommands(const crow::request& request, const std::string& idString);
 
-    crow::response Inform(const crow::request& request);
-
     crow::response DeleteDevice(const std::string& idString);
 
     void OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary);
