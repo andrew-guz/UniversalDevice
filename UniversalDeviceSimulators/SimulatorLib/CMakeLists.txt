@@ -40,7 +40,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #this will search for *.cpp in source recursively
-file(GLOB_RECURSE SRC_FILES ./*.cpp)
+file(GLOB_RECURSE SRC_FILES *.cpp)
 
 #create shared library from source
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})

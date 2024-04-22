@@ -50,7 +50,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #this will search for *.cpp in source recursively
-file(GLOB_RECURSE SRC_FILES ./*.cpp)
+file(GLOB_RECURSE SRC_FILES *.cpp)
 
 #create executable from source
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
