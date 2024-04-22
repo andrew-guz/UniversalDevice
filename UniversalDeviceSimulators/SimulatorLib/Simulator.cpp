@@ -28,6 +28,8 @@ Simulator::Simulator(const std::string_view type) : _type(std::move(type)) {
             auth._authString = "Basic ZGV2aWNlOmVBITdSPWgmVnU=";
             auto authMessage = MessageHelper::Create(_type, _parameters._id, Constants::SubjectWebSocketAuthorization, auth);
             _websocket.send(authMessage.ToJson().dump());
+            AskForSettings();
+            AskForCommands();
         } else if (message->type == ix::WebSocketMessageType::Message)
             OnMessage(message);
     });

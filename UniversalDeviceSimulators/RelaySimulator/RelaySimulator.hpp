@@ -1,24 +1,22 @@
 #pragma once
 
-#include "Parameters.hpp"
 #include "PeriodSettings.h"
 #include "Simulator.hpp"
 
-class ThermometerSimulator final : public Simulator {
+class RelaySimulator final : public Simulator {
 public:
-    ThermometerSimulator();
+    RelaySimulator();
 
-    float GetTemperature();
+    bool GetState() const;
 
     int GetPeriod() const;
 
-    void SendTemperature();
+    void SendState();
 
 protected:
     virtual void OnMessage(const ix::WebSocketMessagePtr& message) override;
 
 private:
-    Parameters parameters;
     PeriodSettings periodSettings;
-    float temperature;
+    bool state = false;
 };

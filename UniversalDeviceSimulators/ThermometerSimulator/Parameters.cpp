@@ -8,7 +8,6 @@ Parameters Parameters::ReadFromFile() {
         return Parameters();
 
     Parameters parameters;
-    parameters._id = Uuid(json.value("id", ""));
     parameters._startTemperature = json.value("startTemperature", 20.0f);
     parameters._delta = json.value("delta", 0.1f);
     return parameters;
