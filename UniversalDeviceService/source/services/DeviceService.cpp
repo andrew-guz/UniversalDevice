@@ -215,6 +215,11 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
             auto webSocketAuthentication = JsonExtension::CreateFromJson<WebSocketAuthentication>(message._data);
             if (AccountManager::Instance()->IsValidUser(webSocketAuthentication._authString))
                 WebsocketsCache::Instance()->AddWebSocketConnection(message._header._description._id, connection);
+            else {
+                LOG_ERROR << "Not authorized connection." << std::endl;
+                // ask for authorization again
+                connection.send_text("{ \"reauthorize\" : true }");
+            }
         } else {
             auto knownConnection = WebsocketsCache::Instance()->GetWebSocketConnection(message._header._description._id);
             if (knownConnection) {
@@ -225,7 +230,7 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
             } else {
                 LOG_ERROR << "Not authorized connection." << std::endl;
                 // ask for authorization again
-                knownConnection->send_text("{ \"reauthorize\" : true }");
+                connection.send_text("{ \"reauthorize\" : true }");
             }
         }
     } catch (...) {
