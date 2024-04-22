@@ -12,15 +12,13 @@ git pull
 
 git submodule update --init
 
-rm -rf build
+if $clean; then
+    rm -rf build
+fi
 
 mkdir -p build 
 
 cd build 
-
-if $clean; then
-    make clean
-fi
 
 cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 --fresh ..
 
