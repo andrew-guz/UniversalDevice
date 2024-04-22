@@ -41,6 +41,7 @@ CMakeFiles/
 *.cmake
 CMakeCache.txt
 **/Makefile
+.cache
 
 #logs
 *.log

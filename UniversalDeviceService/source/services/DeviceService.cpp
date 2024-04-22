@@ -34,7 +34,6 @@ void DeviceService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) { return SetSettings(request, idString); });
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DeviceService::GetCommands));
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) { return SetCommands(request, idString); });
-    CROW_ROUTE(app, API_DEVICE_INFORM).methods(crow::HTTPMethod::POST)([&](const crow::request& request) { return Inform(request); });
     CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &DeviceService::DeleteDevice));
     CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
         .onopen([&](crow::websocket::connection& connection) { LOG_INFO << "Incoming ip - " << connection.get_remote_ip() << "." << std::endl; })
@@ -173,18 +172,6 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
     return crow::response(crow::BAD_REQUEST);
 }
 
-crow::response DeviceService::Inform(const crow::request& request) {
-    try {
-        auto timestamp = std::chrono::system_clock::now();
-        auto message = BaseServiceExtension::GetMessageFromRequest(request);
-        CallProcessorsNoResult(timestamp, message);
-        return crow::response(crow::OK);
-    } catch (...) {
-        LOG_ERROR << "Something went wrong in DeviceService::Inform." << std::endl;
-    }
-    return crow::response(crow::BAD_REQUEST);
-}
-
 crow::response DeviceService::DeleteDevice(const std::string& idString) {
     try {
         // delete device from all tables
@@ -251,6 +238,6 @@ void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, co
 void DeviceService::TimerFunction() {
     CurrentTime currentTime;
     currentTime._timestamp = std::chrono::system_clock::now();
-    auto message = MessageHelper::Create(Constants::DeviceTypeTimer, Constants::PredefinedIdTimer, Constants::SubjectTimerEvent, currentTime.ToJson());
+    auto message = MessageHelper::Create(Constants::DeviceTypeTimer, Constants::PredefinedIdTimer, Constants::SubjectTimerEvent, currentTime);
     CallProcessorsNoResult(std::chrono::system_clock::now(), message);
 }

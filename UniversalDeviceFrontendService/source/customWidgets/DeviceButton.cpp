@@ -34,7 +34,7 @@ void DeviceButton::Refresh() {
     messageData._type = _deviceType;
     messageData._id = _deviceId;
     messageData._seconds = 0;
-    auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData.ToJson());
+    auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData);
     auto replyJson = RequestHelper::DoPostRequestWithAnswer({BACKEND_IP, _port, API_CLIENT_DEVICE_GET_INFO}, Constants::LoginService, postMessage.ToJson());
     if (!replyJson.is_null()) {
         std::string additionalData;
