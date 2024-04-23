@@ -5,9 +5,9 @@
 
 #include <nlohmann/json.hpp>
 
-#include "JsonExtension.h"
-#include "MessageHelper.h"
-#include "ThermometerCurrentValue.h"
+#include "JsonExtension.hpp"
+#include "MessageHelper.hpp"
+#include "ThermometerCurrentValue.hpp"
 
 namespace {
     std::random_device random_device;

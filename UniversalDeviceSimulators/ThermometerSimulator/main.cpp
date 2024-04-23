@@ -1,6 +1,6 @@
 #include <chrono>
 
-#include "Logger.h"
+#include "Logger.hpp"
 #include "ThermometerSimulator.hpp"
 
 int main(int argc, char* argv[]) {

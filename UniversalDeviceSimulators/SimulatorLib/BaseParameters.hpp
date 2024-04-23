@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Defines.h"
-#include "Uuid.h"
+#include "Defines.hpp"
+#include "Uuid.hpp"
 
 class BaseParameters {
 public:

@@ -1,5 +1,5 @@
-#include "Application.h"
-#include "Logger.h"
+#include "Application.hpp"
+#include "Logger.hpp"
 
 int main(int argc, char** argv) {
     Logger::SetLogLevel(LogLevel::INFO);

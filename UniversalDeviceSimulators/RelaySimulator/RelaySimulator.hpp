@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PeriodSettings.h"
+#include "PeriodSettings.hpp"
 #include "Simulator.hpp"
 
 class RelaySimulator final : public Simulator {

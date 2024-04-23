@@ -5,10 +5,10 @@
 #include <ixwebsocket/IXSocketTLSOptions.h>
 #include <nlohmann/json.hpp>
 
-#include "Constants.h"
-#include "Defines.h"
-#include "MessageHelper.h"
-#include "WebSocketAuthentication.h"
+#include "Constants.hpp"
+#include "Defines.hpp"
+#include "MessageHelper.hpp"
+#include "WebSocketAuthentication.hpp"
 
 Simulator::Simulator(const std::string_view type) : _type(std::move(type)) {
     _parameters = BaseParameters::ReadFromFile();

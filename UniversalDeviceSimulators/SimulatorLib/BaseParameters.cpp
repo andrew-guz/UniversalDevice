@@ -1,6 +1,6 @@
 #include "BaseParameters.hpp"
 
-#include "ProcessSettingsReader.h"
+#include "ProcessSettingsReader.hpp"
 
 BaseParameters BaseParameters::ReadFromFile() {
     nlohmann::json json = ProcessSettingsReader::ReadProcessSettings();
