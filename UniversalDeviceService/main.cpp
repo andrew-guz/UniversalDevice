@@ -1,12 +1,12 @@
 #include <crow.h>
 
-#include "ClientService.h"
-#include "DeviceService.h"
-#include "Logger.h"
-#include "MainService.h"
-#include "Middleware.h"
-#include "Settings.h"
-#include "Storage.h"
+#include "ClientService.hpp"
+#include "DeviceService.hpp"
+#include "Logger.hpp"
+#include "MainService.hpp"
+#include "Middleware.hpp"
+#include "Settings.hpp"
+#include "Storage.hpp"
 
 int main() {
     Logger::SetLogLevel(LogLevel::INFO);

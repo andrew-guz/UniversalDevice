@@ -9,18 +9,17 @@ project(${PROJECT_NAME})
 
 #where to search headers
 include_directories(./../../vendor/ixwebsocket)
-include_directories(./../../UniversalDeviceLib/include)
-include_directories(./../../UniversalDeviceLib/include/authentication)
-include_directories(./../../UniversalDeviceLib/include/component)
-include_directories(./../../UniversalDeviceLib/include/core)
-include_directories(./../../UniversalDeviceLib/include/events)
-include_directories(./../../UniversalDeviceLib/include/interfaces)
-include_directories(./../../UniversalDeviceLib/include/messages)
-include_directories(./../../UniversalDeviceLib/include/network)
-include_directories(./../../UniversalDeviceLib/include/structures)
-include_directories(./../../UniversalDeviceLib/include/structures/commands)
-include_directories(./../../UniversalDeviceLib/include/structures/inform)
-include_directories(./../../UniversalDeviceLib/include/structures/settings)
+include_directories(./../../UniversalDeviceLib/authentication)
+include_directories(./../../UniversalDeviceLib/component)
+include_directories(./../../UniversalDeviceLib/core)
+include_directories(./../../UniversalDeviceLib/events)
+include_directories(./../../UniversalDeviceLib/interfaces)
+include_directories(./../../UniversalDeviceLib/messages)
+include_directories(./../../UniversalDeviceLib/network)
+include_directories(./../../UniversalDeviceLib/structures)
+include_directories(./../../UniversalDeviceLib/structures/commands)
+include_directories(./../../UniversalDeviceLib/structures/inform)
+include_directories(./../../UniversalDeviceLib/structures/settings)
 
 #set variable where to put ouput file
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin)
@@ -40,7 +39,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #this will search for *.cpp in source recursively
-file(GLOB_RECURSE SRC_FILES ./*.cpp)
+file(GLOB_RECURSE SRC_FILES *.cpp)
 
 #create shared library from source
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})

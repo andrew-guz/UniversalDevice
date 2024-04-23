@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Parameters.hpp"
-#include "PeriodSettings.h"
+#include "PeriodSettings.hpp"
 #include "Simulator.hpp"
 
 class ThermometerSimulator final : public Simulator {

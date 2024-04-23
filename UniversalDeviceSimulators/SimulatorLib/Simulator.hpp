@@ -3,7 +3,7 @@
 #include <ixwebsocket/IXWebSocket.h>
 
 #include "BaseParameters.hpp"
-#include "Message.h"
+#include "Message.hpp"
 
 class Simulator {
 protected:

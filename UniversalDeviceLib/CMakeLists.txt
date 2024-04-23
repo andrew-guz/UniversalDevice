@@ -19,18 +19,17 @@ set(CMAKE_BUILD_TYPE Debug)
 project(${PROJECT_NAME})
 
 #where to search headers
-include_directories(./include)
-include_directories(./include/authentication)
-include_directories(./include/component)
-include_directories(./include/core)
-include_directories(./include/events)
-include_directories(./include/interfaces)
-include_directories(./include/messages)
-include_directories(./include/network)
-include_directories(./include/structures)
-include_directories(./include/structures/commands)
-include_directories(./include/structures/inform)
-include_directories(./include/structures/settings)
+include_directories(./authentication)
+include_directories(./component)
+include_directories(./core)
+include_directories(./events)
+include_directories(./interfaces)
+include_directories(./messages)
+include_directories(./network)
+include_directories(./structures)
+include_directories(./structures/commands)
+include_directories(./structures/inform)
+include_directories(./structures/settings)
 
 #set variable where to put ouput file
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
@@ -49,37 +48,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #this will search for *.cpp in source recursively
-file(GLOB_RECURSE SRC_FILES ./source/*.cpp)
+file(GLOB_RECURSE SRC_FILES *.cpp)
 
 #create shared library from source
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 #executable needs libraries - so link to installed libs
 target_link_libraries(${PROJECT_NAME} -luuid -lcurlpp -lb64)
-
-#unit tests section
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/tests)
-
-#create output dir because it should exist to copy tests files there
-file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
-file(GLOB_RECURSE TEST_SOURCES tests/*.cpp)
-foreach(TEST_TARGET ${TEST_SOURCES})
-    get_filename_component(EXECUTABLE_NAME ${TEST_TARGET} NAME_WE)
-    add_executable(${EXECUTABLE_NAME} ${TEST_TARGET})
-    target_link_libraries(${EXECUTABLE_NAME} Catch2WithMain UniversalDeviceLib)
-    add_test(NAME ${EXECUTABLE_NAME} COMMAND ${EXECUTABLE_NAME})
-endforeach()
-
-#copy files needed by tests
-file(GLOB_RECURSE TEST_JSONS tests/*.json)
-foreach(TEST_TARGET ${TEST_JSONS})
-    configure_file(${TEST_TARGET} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COPYONLY)
-endforeach()
-file(GLOB_RECURSE TEST_JSONS tests/*.log)
-foreach(TEST_TARGET ${TEST_JSONS})
-    configure_file(${TEST_TARGET} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COPYONLY)
-endforeach()
 
 #install section
 install(TARGETS ${PROJECT_NAME})

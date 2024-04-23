@@ -4,9 +4,9 @@
 
 #include <nlohmann/json.hpp>
 
-#include "JsonExtension.h"
-#include "MessageHelper.h"
-#include "RelayCurrentState.h"
+#include "JsonExtension.hpp"
+#include "MessageHelper.hpp"
+#include "RelayCurrentState.hpp"
 
 RelaySimulator::RelaySimulator() : Simulator("relay") {}
 

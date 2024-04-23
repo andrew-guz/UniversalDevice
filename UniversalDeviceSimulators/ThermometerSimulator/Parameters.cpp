@@ -1,6 +1,6 @@
 #include "Parameters.hpp"
 
-#include "ProcessSettingsReader.h"
+#include "ProcessSettingsReader.hpp"
 
 Parameters Parameters::ReadFromFile() {
     nlohmann::json json = ProcessSettingsReader::ReadProcessSettings();
