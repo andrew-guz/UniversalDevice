@@ -1,7 +1,7 @@
 BasedOnStyle: LLVM
 
 #General
-ColumnLimit: 200
+ColumnLimit: 150
 Language: Cpp
 IndentWidth: 4
 MaxEmptyLinesToKeep: 1

@@ -21,8 +21,8 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
         }
         auto& description = message._header._description;
         std::stringstream queryStream;
-        queryStream << "INSERT INTO MotionRelays (id, timestamp, motion, state) VALUES ('" << description._id.data() << "', " << TimeHelper::TimeToInt(timestamp) << ", '" << currentState._motion
-                    << "', '" << currentState._state << "')";
+        queryStream << "INSERT INTO MotionRelays (id, timestamp, motion, state) VALUES ('" << description._id.data() << "', "
+                    << TimeHelper::TimeToInt(timestamp) << ", '" << currentState._motion << "', '" << currentState._state << "')";
         queryStream.flush();
         if (!_queryExecutor->Execute(queryStream.str()))
             LOG_SQL_ERROR(queryStream.str());
@@ -35,8 +35,8 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
                 auto now = std::chrono::system_clock::now();
                 now -= std::chrono::seconds(description._seconds);
                 std::stringstream queryStream;
-                queryStream << "SELECT timestamp, motion, state FROM MotionRelays WHERE id = '" << description._id.data() << "' AND timestamp >= " << TimeHelper::TimeToInt(now)
-                            << " ORDER BY idx DESC";
+                queryStream << "SELECT timestamp, motion, state FROM MotionRelays WHERE id = '" << description._id.data()
+                            << "' AND timestamp >= " << TimeHelper::TimeToInt(now) << " ORDER BY idx DESC";
                 queryStream.flush();
                 std::vector<std::vector<std::string>> data;
                 if (_queryExecutor->Select(queryStream.str(), data))
@@ -46,7 +46,8 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
             }
             if (extendedMotionRelayCurrentStates.size() == 0) {
                 std::stringstream queryStream;
-                queryStream << "SELECT timestamp, motion, state FROM MotionRelays WHERE id = '" << description._id.data() << "' ORDER BY idx DESC LIMIT 1";
+                queryStream << "SELECT timestamp, motion, state FROM MotionRelays WHERE id = '" << description._id.data()
+                            << "' ORDER BY idx DESC LIMIT 1";
                 queryStream.flush();
                 std::vector<std::vector<std::string>> data;
                 if (_queryExecutor->Select(queryStream.str(), data))

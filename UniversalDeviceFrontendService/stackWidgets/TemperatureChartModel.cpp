@@ -35,7 +35,8 @@ WModelIndex TemperatureChartModel::index(int row, int column, const WModelIndex&
 WModelIndex TemperatureChartModel::parent(const WModelIndex& index) const { return WModelIndex(); }
 
 cpp17::any TemperatureChartModel::data(const WModelIndex& index, ItemDataRole role) const {
-    if (index.isValid() && index.row() >= 0 && (size_t)index.row() < _data.size() && index.column() >= 0 && index.column() < 2 && role == ItemDataRole::Display) {
+    if (index.isValid() && index.row() >= 0 && (size_t)index.row() < _data.size() && index.column() >= 0 && index.column() < 2 &&
+        role == ItemDataRole::Display) {
         if (index.column() == 0) {
             auto timestamp = _data[index.row()]._timestamp;
             auto time_t = std::chrono::system_clock::to_time_t(timestamp);

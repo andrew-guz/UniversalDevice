@@ -8,7 +8,9 @@
 #include "Logger.hpp"
 #include "TimeHelper.hpp"
 
-struct ExtendedComponentDescription final : ComponentDescription, public IJson<ExtendedComponentDescription>, public IDb<ExtendedComponentDescription> {
+struct ExtendedComponentDescription final : ComponentDescription,
+                                            public IJson<ExtendedComponentDescription>,
+                                            public IDb<ExtendedComponentDescription> {
     std::string _name;
     std::string _group;
     std::chrono::system_clock::time_point _timestamp;

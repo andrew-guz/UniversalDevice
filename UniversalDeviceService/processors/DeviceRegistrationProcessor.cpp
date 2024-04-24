@@ -16,10 +16,11 @@ nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::sy
     if (_queryExecutor->Select(selectQueryStream.str(), data)) {
         std::stringstream updateInsertQueryStream;
         if (data.size()) {
-            updateInsertQueryStream << "UPDATE Devices SET timestamp = " << TimeHelper::TimeToInt(timestamp) << " WHERE id = '" << description._id.data() << "'";
+            updateInsertQueryStream << "UPDATE Devices SET timestamp = " << TimeHelper::TimeToInt(timestamp) << " WHERE id = '"
+                                    << description._id.data() << "'";
         } else {
-            updateInsertQueryStream << "INSERT INTO Devices (id, type, timestamp) VALUES ('" << description._id.data() << "', '" << description._type << "', " << TimeHelper::TimeToInt(timestamp)
-                                    << ")";
+            updateInsertQueryStream << "INSERT INTO Devices (id, type, timestamp) VALUES ('" << description._id.data() << "', '" << description._type
+                                    << "', " << TimeHelper::TimeToInt(timestamp) << ")";
         }
         updateInsertQueryStream.flush();
         if (!_queryExecutor->Execute(updateInsertQueryStream.str()))

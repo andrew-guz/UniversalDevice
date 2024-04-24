@@ -31,13 +31,19 @@ DeviceService::DeviceService(IQueryExecutor* queryExecutor) : BaseService(queryE
 
 void DeviceService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DeviceService::GetSettings));
-    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) { return SetSettings(request, idString); });
+    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) {
+        return SetSettings(request, idString);
+    });
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DeviceService::GetCommands));
-    CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) { return SetCommands(request, idString); });
+    CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) {
+        return SetCommands(request, idString);
+    });
     CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &DeviceService::DeleteDevice));
     CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
         .onopen([&](crow::websocket::connection& connection) { LOG_INFO << "Incoming ip - " << connection.get_remote_ip() << "." << std::endl; })
-        .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary) { return OnWebSocketMessage(connection, data, is_binary); })
+        .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary) {
+            return OnWebSocketMessage(connection, data, is_binary);
+        })
         .onclose([&](crow::websocket::connection& connection, const std::string& reason) { return OnWebSocketClose(connection, reason); });
 
     // also start thread for timer events
@@ -238,7 +244,9 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
     }
 }
 
-void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason) { WebsocketsCache::Instance()->DeleteWebSocketConnection(connection); }
+void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason) {
+    WebsocketsCache::Instance()->DeleteWebSocketConnection(connection);
+}
 
 void DeviceService::TimerFunction() {
     CurrentTime currentTime;

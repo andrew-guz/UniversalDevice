@@ -123,7 +123,9 @@ void EventsWidget::Refresh() {
     }
 }
 
-std::vector<nlohmann::json> EventsWidget::GetEvents() { return RequestHelper::DoGetRequest({BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS}, Constants::LoginService); }
+std::vector<nlohmann::json> EventsWidget::GetEvents() {
+    return RequestHelper::DoGetRequest({BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS}, Constants::LoginService);
+}
 
 std::vector<ExtendedComponentDescription> EventsWidget::GetDevices() {
     auto resultJson = RequestHelper::DoGetRequest({BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES}, Constants::LoginService);
@@ -160,7 +162,8 @@ void EventsWidget::DeleteEvent() {
 }
 
 void EventsWidget::UpdateEvent() {
-    if (GetSelectedEventIdFromTable().isEmpty() || _eventType->currentIndex() < 0 || GetCurrentEventEditor() == nullptr || !GetCurrentEventEditor()->IsValid()) {
+    if (GetSelectedEventIdFromTable().isEmpty() || _eventType->currentIndex() < 0 || GetCurrentEventEditor() == nullptr ||
+        !GetCurrentEventEditor()->IsValid()) {
         ShowIncorrectEventMsgBox();
         return;
     }

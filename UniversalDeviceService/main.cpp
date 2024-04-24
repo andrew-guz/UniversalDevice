@@ -21,7 +21,10 @@ int main() {
     BaseServiceExtension::Create<DeviceService>(app, &storage);
     BaseServiceExtension::Create<ClientService>(app, &storage);
 
-    app.ssl_file(PathHelper::FullFilePath("./ssl/backend.crt"), PathHelper::FullFilePath("./ssl/backend.key")).port(settings._port).multithreaded().run();
+    app.ssl_file(PathHelper::FullFilePath("./ssl/backend.crt"), PathHelper::FullFilePath("./ssl/backend.key"))
+        .port(settings._port)
+        .multithreaded()
+        .run();
 
     return 0;
 }

@@ -76,14 +76,18 @@ void ThermometerWidget::Initialize() {
     else {
         auto lastValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, 0);
         if (lastValues.empty() ||
-            lastValues[0]._timestamp != std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) { return a._timestamp < b._timestamp; })->_timestamp)
+            lastValues[0]._timestamp != std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) {
+                                            return a._timestamp < b._timestamp;
+                                        })->_timestamp)
             _cachedValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, seconds);
     }
     if (_cachedValues.size()) {
         auto value = _cachedValues.begin()->_value;
         _temperatureText->setText(WidgetHelper::TextWithFontSize(value, "°C", 80));
-        auto min = std::min_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) { return a._value < b._value; })->_value;
-        auto max = std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) { return a._value < b._value; })->_value;
+        auto min =
+            std::min_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) { return a._value < b._value; })->_value;
+        auto max =
+            std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) { return a._value < b._value; })->_value;
         _chart->axis(Chart::Axis::Y).setMinimum(min - 1);
         _chart->axis(Chart::Axis::Y).setMaximum(max + 1);
         auto timestamp = _cachedValues.begin()->_timestamp;
@@ -100,14 +104,16 @@ void ThermometerWidget::ClearData() {
 }
 
 ThermometerLedBrightness ThermometerWidget::GetBrightness() {
-    auto replyJson = RequestHelper::DoGetRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data())}, Constants::LoginService);
+    auto replyJson = RequestHelper::DoGetRequest(
+        {BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data())}, Constants::LoginService);
     return JsonExtension::CreateFromJson<ThermometerLedBrightness>(replyJson);
 }
 
 void ThermometerWidget::OnSettingsButton() {
     if (_deviceId.isEmpty())
         return;
-    auto [dialog, layout, nameEdit, groupEdit, periodEdit, ok] = WidgetHelper::CreateBaseSettingsDialog(this, 210, _deviceName, _deviceGroup, GetSettings<PeriodSettings>()._period, false);
+    auto [dialog, layout, nameEdit, groupEdit, periodEdit, ok] =
+        WidgetHelper::CreateBaseSettingsDialog(this, 210, _deviceName, _deviceGroup, GetSettings<PeriodSettings>()._period, false);
     // brightness
     layout->addWidget(std::make_unique<WText>("Яркость:"), 3, 0);
     auto brightnessEdit = layout->addWidget(std::make_unique<WSpinBox>(), 3, 1);
@@ -116,7 +122,8 @@ void ThermometerWidget::OnSettingsButton() {
     brightnessEdit->setValue(GetBrightness()._brightness);
     // validation
     auto okValidation = [&]() {
-        ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid || periodEdit->validate() != Wt::ValidationState::Valid || brightnessEdit->validate() != Wt::ValidationState::Valid);
+        ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid || periodEdit->validate() != Wt::ValidationState::Valid ||
+                        brightnessEdit->validate() != Wt::ValidationState::Valid);
     };
     nameEdit->keyWentUp().connect(okValidation);
     groupEdit->keyWentUp().connect(okValidation);
@@ -138,14 +145,16 @@ void ThermometerWidget::OnSettingsButton() {
     PeriodSettings newSettings;
     newSettings._period = periodEdit->value() * 1000;
     auto settingsResult =
-        RequestHelper::DoPostRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data())}, Constants::LoginService, newSettings.ToJson());
+        RequestHelper::DoPostRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data())},
+                                     Constants::LoginService, newSettings.ToJson());
     if (settingsResult != 200)
         LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
     // set brightness command
     ThermometerLedBrightness newCommand;
     newCommand._brightness = brightnessEdit->value();
     auto commandResult =
-        RequestHelper::DoPostRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data())}, Constants::LoginService, newCommand.ToJson());
+        RequestHelper::DoPostRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data())},
+                                     Constants::LoginService, newCommand.ToJson());
     if (commandResult != 200)
         LOG_ERROR << "Failed to update settings to " << newCommand.ToJson().dump() << "." << std::endl;
 }

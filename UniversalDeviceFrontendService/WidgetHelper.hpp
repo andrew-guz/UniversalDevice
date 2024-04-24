@@ -40,7 +40,8 @@ public:
     }
 
     static std::tuple<Wt::WDialog*, Wt::WGridLayout*, Wt::WLineEdit*, Wt::WLineEdit*, Wt::WSpinBox*, Wt::WPushButton*>
-    CreateBaseSettingsDialog(Wt::WContainerWidget* parent, int height, const Wt::WString& name, const Wt::WString& group, float period, bool useDefaultValidation);
+    CreateBaseSettingsDialog(Wt::WContainerWidget* parent, int height, const Wt::WString& name, const Wt::WString& group, float period,
+                             bool useDefaultValidation);
 
     static void ShowSimpleErrorMessage(Wt::WWidget* parent, const std::string& header, const std::string& message);
 };

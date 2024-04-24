@@ -21,7 +21,8 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
         }
         auto& description = message._header._description;
         std::stringstream queryStream;
-        queryStream << "INSERT INTO Relays (id, timestamp, state) VALUES ('" << description._id.data() << "', " << TimeHelper::TimeToInt(timestamp) << ", '" << currentState._state << "')";
+        queryStream << "INSERT INTO Relays (id, timestamp, state) VALUES ('" << description._id.data() << "', " << TimeHelper::TimeToInt(timestamp)
+                    << ", '" << currentState._state << "')";
         queryStream.flush();
         if (!_queryExecutor->Execute(queryStream.str()))
             LOG_SQL_ERROR(queryStream.str());
@@ -34,7 +35,8 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
                 auto now = std::chrono::system_clock::now();
                 now -= std::chrono::seconds(description._seconds);
                 std::stringstream queryStream;
-                queryStream << "SELECT timestamp, state FROM Relays WHERE id = '" << description._id.data() << "' AND timestamp >= " << TimeHelper::TimeToInt(now) << " ORDER BY idx DESC";
+                queryStream << "SELECT timestamp, state FROM Relays WHERE id = '" << description._id.data()
+                            << "' AND timestamp >= " << TimeHelper::TimeToInt(now) << " ORDER BY idx DESC";
                 queryStream.flush();
                 std::vector<std::vector<std::string>> data;
                 if (_queryExecutor->Select(queryStream.str(), data))

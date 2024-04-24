@@ -37,7 +37,10 @@ void TimerEventEditor::FillUi(const Event& event) {
     _receiver->FillUi(event);
 }
 
-bool TimerEventEditor::IsValid() const { return BaseEventEditor::IsValid() && _hour->validate() == ValidationState::Valid && _minute->validate() == ValidationState::Valid && _receiver->IsValid(); }
+bool TimerEventEditor::IsValid() const {
+    return BaseEventEditor::IsValid() && _hour->validate() == ValidationState::Valid && _minute->validate() == ValidationState::Valid &&
+           _receiver->IsValid();
+}
 
 void TimerEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);

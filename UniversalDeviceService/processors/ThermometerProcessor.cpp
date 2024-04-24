@@ -25,7 +25,8 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             return {};
         }
         std::stringstream queryStream;
-        queryStream << "INSERT INTO Thermometers (id, timestamp, value) VALUES ('" << description._id.data() << "', " << TimeHelper::TimeToInt(timestamp) << ", '" << currentValue._value << "')";
+        queryStream << "INSERT INTO Thermometers (id, timestamp, value) VALUES ('" << description._id.data() << "', "
+                    << TimeHelper::TimeToInt(timestamp) << ", '" << currentValue._value << "')";
         queryStream.flush();
         if (!_queryExecutor->Execute(queryStream.str()))
             LOG_SQL_ERROR(queryStream.str());
@@ -38,8 +39,8 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
                 auto now = std::chrono::system_clock::now();
                 now -= std::chrono::seconds(description._seconds);
                 std::stringstream queryStream;
-                queryStream << "SELECT timestamp, value FROM Thermometers WHERE id = '" << description._id.data() << "' AND timestamp >= " << TimeHelper::TimeToInt(now)
-                            << " AND value > -126.9 ORDER BY idx DESC";
+                queryStream << "SELECT timestamp, value FROM Thermometers WHERE id = '" << description._id.data()
+                            << "' AND timestamp >= " << TimeHelper::TimeToInt(now) << " AND value > -126.9 ORDER BY idx DESC";
                 queryStream.flush();
                 std::vector<std::vector<std::string>> data;
                 if (_queryExecutor->Select(queryStream.str(), data))
@@ -49,7 +50,8 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             }
             if (extendedThermometerCurrentValues.size() == 0) {
                 std::stringstream queryStream;
-                queryStream << "SELECT timestamp, value FROM Thermometers WHERE id = '" << description._id.data() << "' AND value > -126.9 ORDER BY idx DESC LIMIT 1";
+                queryStream << "SELECT timestamp, value FROM Thermometers WHERE id = '" << description._id.data()
+                            << "' AND value > -126.9 ORDER BY idx DESC LIMIT 1";
                 queryStream.flush();
                 std::vector<std::vector<std::string>> data;
                 if (_queryExecutor->Select(queryStream.str(), data))

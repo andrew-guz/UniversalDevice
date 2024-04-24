@@ -67,7 +67,8 @@ void EventReceiverWidget::OnReceiverChanged() {
         if (_receivers->GetSelectedDevice()._type == Constants::DeviceTypeThermometer) {
             EventWidgetHelper::Hide(_relayState);
             EventWidgetHelper::Show(_brightnessText, _brightness);
-        } else if (_receivers->GetSelectedDevice()._type == Constants::DeviceTypeRelay || _receivers->GetSelectedDevice()._type == Constants::DeviceTypeMotionRelay) {
+        } else if (_receivers->GetSelectedDevice()._type == Constants::DeviceTypeRelay ||
+                   _receivers->GetSelectedDevice()._type == Constants::DeviceTypeMotionRelay) {
             EventWidgetHelper::Hide(_brightnessText, _brightness);
             EventWidgetHelper::Show(_relayState);
         }

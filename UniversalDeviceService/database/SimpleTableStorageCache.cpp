@@ -56,7 +56,8 @@ StorageCacheProblem SimpleTableStorageCache::InsertOrReplace(const InsertOrRepla
 
     if (!customWhat._data.empty()) {
         std::stringstream queryStream;
-        queryStream << "INSERT OR REPLACE INTO " << _tableName << " (id, " << _fieldName << ") VALUES ('" << customWhat._id << "', '" << customWhat._data << "')";
+        queryStream << "INSERT OR REPLACE INTO " << _tableName << " (id, " << _fieldName << ") VALUES ('" << customWhat._id << "', '"
+                    << customWhat._data << "')";
         queryStream.flush();
         if (_queryExecutor->Execute(queryStream.str())) {
             _dataCache.insert(std::make_pair(customWhat._id, customWhat._data));

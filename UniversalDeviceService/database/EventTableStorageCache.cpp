@@ -21,7 +21,8 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
     }
 
     std::stringstream queryStream;
-    queryStream << "SELECT event FROM Events WHERE providerId = '" << customWhat._id << "' AND providerType = '" << customWhat._type << "' AND active = 1";
+    queryStream << "SELECT event FROM Events WHERE providerId = '" << customWhat._id << "' AND providerType = '" << customWhat._type
+                << "' AND active = 1";
     queryStream.flush();
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(queryStream.str(), data)) {
@@ -68,8 +69,9 @@ StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplac
     const EventTableInsertOrReplaceInput& customWhat = dynamic_cast<const EventTableInsertOrReplaceInput&>(what);
 
     std::stringstream queryStream;
-    queryStream << "INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('" << customWhat._id << "', " << (customWhat._active ? "1" : "0") << ", '" << customWhat._providerId.data()
-                << "', '" << customWhat._providerType << "', '" << customWhat._event << "')";
+    queryStream << "INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('" << customWhat._id << "', "
+                << (customWhat._active ? "1" : "0") << ", '" << customWhat._providerId.data() << "', '" << customWhat._providerType << "', '"
+                << customWhat._event << "')";
     queryStream.flush();
     if (_queryExecutor->Execute(queryStream.str()))
         return {StorageCacheProblemType::NoProblems, {}};
@@ -84,8 +86,9 @@ StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
     const EventTableUpdateInput& customWhat = dynamic_cast<const EventTableUpdateInput&>(what);
 
     std::stringstream queryStream;
-    queryStream << "UPDATE Events SET active = " << (customWhat._active ? "1" : "0") << ", providerId = '" << customWhat._providerId << "', providerType = '" << customWhat._providerType
-                << "', event = '" << customWhat._event << "' WHERE id = '" << customWhat._id << "'";
+    queryStream << "UPDATE Events SET active = " << (customWhat._active ? "1" : "0") << ", providerId = '" << customWhat._providerId
+                << "', providerType = '" << customWhat._providerType << "', event = '" << customWhat._event << "' WHERE id = '" << customWhat._id
+                << "'";
     queryStream.flush();
     if (_queryExecutor->Execute(queryStream.str()))
         return {StorageCacheProblemType::NoProblems, {}};
@@ -107,4 +110,6 @@ StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
     return {StorageCacheProblemType::SQLError, queryStream.str()};
 }
 
-IStorageCache* EventTableStorageCache::GetCache(IQueryExecutor* queryExecutor) { return StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(queryExecutor, "Events"); }
+IStorageCache* EventTableStorageCache::GetCache(IQueryExecutor* queryExecutor) {
+    return StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(queryExecutor, "Events");
+}

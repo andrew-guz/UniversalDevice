@@ -8,7 +8,9 @@
 #include "ThermometerCurrentValue.hpp"
 #include "TimeHelper.hpp"
 
-struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue, public IJson<ExtendedThermometerCurrentValue>, public IDb<ExtendedThermometerCurrentValue> {
+struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue,
+                                               public IJson<ExtendedThermometerCurrentValue>,
+                                               public IDb<ExtendedThermometerCurrentValue> {
     std::chrono::system_clock::time_point _timestamp;
 
     virtual nlohmann::json ToJson() const override {

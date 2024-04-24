@@ -77,7 +77,8 @@ void DevicesWidget::Refresh() {
         buttonRow = 0;
         buttonColumn = 0;
         currentDescriptions.clear();
-        std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions), [](const auto& d) { return d._group.size(); });
+        std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions),
+                     [](const auto& d) { return d._group.size(); });
         std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
         for (auto& description : currentDescriptions) {
             if (description._group != group)
@@ -89,7 +90,8 @@ void DevicesWidget::Refresh() {
     buttonRow = groupRow;
     buttonColumn = 0;
     currentDescriptions.clear();
-    std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions), [](const auto& d) { return d._group.size() == 0; });
+    std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions),
+                 [](const auto& d) { return d._group.size() == 0; });
     std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
     for (auto& description : allDescriptions) {
         if (description._group.size())
@@ -100,7 +102,8 @@ void DevicesWidget::Refresh() {
 }
 
 DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column) {
-    auto button = layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Center);
+    auto button = layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column,
+                                    AlignmentFlag::Top | AlignmentFlag::Center);
     button->clicked().connect([this, description]() {
         if (description._type == Constants::DeviceTypeThermometer)
             _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
@@ -114,7 +117,9 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
             auto popup = std::make_unique<Wt::WPopupMenu>();
             auto deleteItem = popup->addItem("Удалить...");
             deleteItem->triggered().connect([this, description]() {
-                auto result = RequestHelper::DoDeleteRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", description._id.data())}, Constants::LoginService, {});
+                auto result = RequestHelper::DoDeleteRequest(
+                    {BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", description._id.data())}, Constants::LoginService,
+                    {});
                 if (result == 200)
                     Refresh();
                 else

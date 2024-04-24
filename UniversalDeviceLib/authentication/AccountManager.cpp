@@ -34,7 +34,8 @@ bool AccountManager::IsValidUser(const std::string_view authorizationString) {
 
 std::string AccountManager::GetAuthString(const std::string_view login) {
     Initialize();
-    if (auto iter = std::find_if(_accounts.begin(), _accounts.end(), [&login](const auto& account) { return account._login == login; }); iter != _accounts.end())
+    if (auto iter = std::find_if(_accounts.begin(), _accounts.end(), [&login](const auto& account) { return account._login == login; });
+        iter != _accounts.end())
         return iter->_login + std::string(":") + iter->_password;
     return {};
 }

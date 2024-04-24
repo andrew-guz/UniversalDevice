@@ -8,7 +8,9 @@
 #include "MotionRelayCurrentState.hpp"
 #include "TimeHelper.hpp"
 
-struct ExtendedMotionRelayCurrentState final : public MotionRelayCurrentState, public IJson<ExtendedMotionRelayCurrentState>, public IDb<ExtendedMotionRelayCurrentState> {
+struct ExtendedMotionRelayCurrentState final : public MotionRelayCurrentState,
+                                               public IJson<ExtendedMotionRelayCurrentState>,
+                                               public IDb<ExtendedMotionRelayCurrentState> {
     std::chrono::system_clock::time_point _timestamp;
 
     virtual nlohmann::json ToJson() const override {

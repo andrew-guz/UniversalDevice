@@ -111,11 +111,13 @@ std::string EventsTableModel::EventAdditionalInfo(const std::string_view eventTy
     std::ostringstream sstream;
     if (eventType == Constants::EventTypeTimer) {
         const auto timerEvent = JsonExtension::CreateFromJson<TimerEvent>(eventJson);
-        sstream << "Сработает в " << std::setw(2) << std::setfill('0') << timerEvent._hour << ":" << std::setw(2) << std::setfill('0') << timerEvent._minute;
+        sstream << "Сработает в " << std::setw(2) << std::setfill('0') << timerEvent._hour << ":" << std::setw(2) << std::setfill('0')
+                << timerEvent._minute;
         return sstream.str();
     } else if (eventType == Constants::EventTypeThermometer) {
         const auto thermometerEvent = JsonExtension::CreateFromJson<ThermometerEvent>(eventJson);
-        sstream << "Сработает " << (thermometerEvent._lower ? std::string{"ниже "} : std::string{"выше "}) << std::fixed << std::setprecision(1) << thermometerEvent._temperature << "°C";
+        sstream << "Сработает " << (thermometerEvent._lower ? std::string{"ниже "} : std::string{"выше "}) << std::fixed << std::setprecision(1)
+                << thermometerEvent._temperature << "°C";
     } else if (eventType == Constants::EventTypeRelay) {
         const auto relayEvent = JsonExtension::CreateFromJson<RelayEvent>(eventJson);
         sstream << "Срабатывает при " << (relayEvent._state ? std::string{"включенном"} : std::string{"выключенном"}) << " реле";

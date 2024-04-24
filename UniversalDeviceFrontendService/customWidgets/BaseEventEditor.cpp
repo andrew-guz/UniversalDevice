@@ -34,7 +34,9 @@ void BaseEventEditor::FillFromUi(Event& event) const {
     event._active = _active->isChecked();
 }
 
-std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::string_view type) { return FilteredDevices(std::set<std::string_view>{type}); }
+std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::string_view type) {
+    return FilteredDevices(std::set<std::string_view>{type});
+}
 
 std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::set<std::string_view>& types) {
     auto devices = _devices;

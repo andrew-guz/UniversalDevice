@@ -19,11 +19,15 @@ ClientService::ClientService(IQueryExecutor* queryExecutor) : BaseService(queryE
 
 void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::ListDevices));
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) { return GetDeviceProperty(request, idString, "name"); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) {
+        return GetDeviceProperty(request, idString, "name");
+    });
     CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) {
         return SetDeviceProperty(request, idString, "name", false);
     });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) { return GetDeviceProperty(request, idString, "grp"); });
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) {
+        return GetDeviceProperty(request, idString, "grp");
+    });
     CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) {
         return SetDeviceProperty(request, idString, "grp", true);
     });
@@ -79,7 +83,8 @@ crow::response ClientService::GetDeviceProperty(const crow::request& request, co
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty) {
+crow::response ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field,
+                                                bool canBeEmpty) {
     try {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto deviceProperty = JsonExtension::CreateFromJson<DeviceProperty>(bodyJson);

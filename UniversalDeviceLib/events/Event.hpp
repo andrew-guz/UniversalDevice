@@ -22,7 +22,13 @@ struct Event : public IJson<Event> {
     virtual ~Event() = default;
 
     virtual nlohmann::json ToJson() const override {
-        return {{"id", _id.data()}, {"name", _name}, {"active", _active}, {"type", _type}, {"provider", _provider.ToJson()}, {"receiver", _receiver.ToJson()}, {"command", _command}};
+        return {{"id", _id.data()},
+                {"name", _name},
+                {"active", _active},
+                {"type", _type},
+                {"provider", _provider.ToJson()},
+                {"receiver", _receiver.ToJson()},
+                {"command", _command}};
     }
 
     virtual void FromJson(const nlohmann::json& json) override {

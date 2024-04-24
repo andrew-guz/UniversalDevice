@@ -11,7 +11,8 @@ static std::map<std::string, std::string> Tables = {
     {"Events", "CREATE TABLE IF NOT EXISTS Events (id TEXT UNIQUE, active INTEGER, providerId TEXT, providerType TEXT, event TEXT, PRIMARY KEY(id))"},
     {"Thermometers", "CREATE TABLE IF NOT EXISTS Thermometers (idx INTEGER, id TEXT, timestamp INTEGER, value REAL, PRIMARY KEY(idx AUTOINCREMENT))"},
     {"Relays", "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp INTEGER, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))"},
-    {"MotionRelays", "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))"}};
+    {"MotionRelays", "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY "
+                     "KEY(idx AUTOINCREMENT))"}};
 
 int NoActionCallback(void* data, int columnsInRow, char** rowData, char** columnNames) { return 0; }
 
@@ -40,11 +41,15 @@ bool Storage::Execute(const std::string_view query) { return Execute(query, NoAc
 
 bool Storage::Execute(const std::string_view query, int (*callback)(void*, int, char**, char**)) { return InternalExecute(query, callback, this); }
 
-bool Storage::Select(const std::string_view query, std::vector<std::vector<std::string>>& data) { return InternalExecute(query, SelectCallback, &data); }
+bool Storage::Select(const std::string_view query, std::vector<std::vector<std::string>>& data) {
+    return InternalExecute(query, SelectCallback, &data);
+}
 
 bool Storage::Delete(std::string query) { return Execute(query, NoActionCallback); }
 
-std::vector<std::string> Storage::GetAllTables() const { return {"Devices", "Settings", "Commands", "Events", "Thermometers", "Relays", "MotionRelays"}; }
+std::vector<std::string> Storage::GetAllTables() const {
+    return {"Devices", "Settings", "Commands", "Events", "Thermometers", "Relays", "MotionRelays"};
+}
 
 std::vector<std::string> Storage::GetDeviceRelatedTables() const { return {"Devices", "Thermometers", "Relays", "MotionRelays"}; }
 

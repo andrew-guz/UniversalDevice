@@ -39,7 +39,9 @@ void ThermometerEventEditor::FillUi(const Event& event) {
     _receiver->FillUi(event);
 }
 
-bool ThermometerEventEditor::IsValid() const { return BaseEventEditor::IsValid() && _provider->IsValid() && _temperature->validate() == ValidationState::Valid && _receiver->IsValid(); }
+bool ThermometerEventEditor::IsValid() const {
+    return BaseEventEditor::IsValid() && _provider->IsValid() && _temperature->validate() == ValidationState::Valid && _receiver->IsValid();
+}
 
 void ThermometerEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);

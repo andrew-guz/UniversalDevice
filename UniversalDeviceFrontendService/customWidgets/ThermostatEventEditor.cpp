@@ -44,7 +44,8 @@ void ThermostatEventEditor::FillUi(const Event& event) {
 }
 
 bool ThermostatEventEditor::IsValid() const {
-    return BaseEventEditor::IsValid() && _provider->IsValid() && _temperature->validate() == ValidationState::Valid && _delta->validate() == ValidationState::Valid && _receiver->IsValid();
+    return BaseEventEditor::IsValid() && _provider->IsValid() && _temperature->validate() == ValidationState::Valid &&
+           _delta->validate() == ValidationState::Valid && _receiver->IsValid();
 }
 
 void ThermostatEventEditor::FillFromUi(Event& event) const {

@@ -26,7 +26,7 @@
         {
             "label": "format",
             "type": "shell",
-            "command": "/usr/bin/clang-format-17 -i --verbose Universal*/**/*.cpp Universal*/**/*.h",
+            "command": "/usr/bin/clang-format-17 -i --verbose Universal*/**/*.cpp Universal*/**/*.hpp",
             "group": {
                 "kind": "none",
                 "isDefault": false
