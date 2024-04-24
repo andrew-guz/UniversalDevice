@@ -9,6 +9,7 @@
 #include "ThermostatEvent.hpp"
 #include "TimerEvent.hpp"
 
+#include <iomanip>
 #include <string>
 
 using namespace Wt;
