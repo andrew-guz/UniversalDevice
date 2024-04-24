@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ExtendedComponentDescription.hpp"
-
 #include <nlohmann/json.hpp>
 #include <string_view>
 #include <vector>
