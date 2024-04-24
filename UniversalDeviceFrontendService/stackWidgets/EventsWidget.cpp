@@ -53,6 +53,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventsTable->setSelectionBehavior(SelectionBehavior::Rows);
     _eventsTable->setEditTriggers(EditTrigger::None);
     _eventsTable->setModel(_eventsTableModel);
+    _eventsTable->setColumnWidth(3, 250);
     _eventsTable->selectionChanged().connect([&]() { OnTableSelectionChanged(); });
 
     tableLayout->setRowStretch(0, 0);

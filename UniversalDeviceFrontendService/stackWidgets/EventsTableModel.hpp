@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ExtendedComponentDescription.hpp"
+
 #include <nlohmann/json.hpp>
 #include <string_view>
 #include <vector>
@@ -28,7 +30,8 @@ public:
 
     static std::string EventTypeDisplayName(std::string_view eventType);
 
-    static std::string EventAdditionalInfo(const nlohmann::json& eventJson);
+private:
+    static std::string EventAdditionalInfo(std::string_view eventType, const nlohmann::json& eventJson);
 
 private:
     std::vector<nlohmann::json> _data;

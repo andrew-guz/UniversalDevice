@@ -1,9 +1,15 @@
 #include "EventsTableModel.hpp"
 
+#include "Constants.hpp"
 #include "Event.hpp"
 #include "IJson.hpp"
 #include "JsonExtension.hpp"
-#include <cassert>
+#include "RelayEvent.hpp"
+#include "ThermometerEvent.hpp"
+#include "ThermostatEvent.hpp"
+#include "TimerEvent.hpp"
+
+#include <string>
 
 using namespace Wt;
 
@@ -45,7 +51,7 @@ WModelIndex EventsTableModel::index(int row, int column, const WModelIndex& pare
 WModelIndex EventsTableModel::parent(const WModelIndex& index) const { return WModelIndex(); }
 
 cpp17::any EventsTableModel::data(const WModelIndex& index, ItemDataRole role) const {
-    if (index.isValid() && index.row() >= 0 && (size_t)index.row() < _data.size() && index.column() >= 0 && index.column() < 3) {
+    if (index.isValid() && index.row() >= 0 && (size_t)index.row() < _data.size() && index.column() >= 0 && index.column() < Columns::Count) {
         auto event = JsonExtension::CreateFromJson<Event>(_data[index.row()]);
         if (role == ItemDataRole::Display) {
             switch (index.column()) {
@@ -59,7 +65,7 @@ cpp17::any EventsTableModel::data(const WModelIndex& index, ItemDataRole role) c
                     return event._active ? "Активно" : "Неактивно";
                     break;
                 case Columns::Additional:
-                    return EventAdditionalInfo(_data[index.row()]);
+                    return EventAdditionalInfo(event._type, _data[index.row()]);
                     break;
             }
         }
@@ -101,4 +107,21 @@ std::string EventsTableModel::EventTypeDisplayName(const std::string_view eventT
     return {};
 }
 
-std::string EventsTableModel::EventAdditionalInfo(const nlohmann::json& eventJson) { return ""; }
+std::string EventsTableModel::EventAdditionalInfo(const std::string_view eventType, const nlohmann::json& eventJson) {
+    std::ostringstream sstream;
+    if (eventType == Constants::EventTypeTimer) {
+        const auto timerEvent = JsonExtension::CreateFromJson<TimerEvent>(eventJson);
+        sstream << "Сработает в " << std::setw(2) << std::setfill('0') << timerEvent._hour << ":" << std::setw(2) << std::setfill('0') << timerEvent._minute;
+        return sstream.str();
+    } else if (eventType == Constants::EventTypeThermometer) {
+        const auto thermometerEvent = JsonExtension::CreateFromJson<ThermometerEvent>(eventJson);
+        sstream << "Сработает " << (thermometerEvent._lower ? std::string{"ниже "} : std::string{"выше "}) << std::fixed << std::setprecision(1) << thermometerEvent._temperature << "°C";
+    } else if (eventType == Constants::EventTypeRelay) {
+        const auto relayEvent = JsonExtension::CreateFromJson<RelayEvent>(eventJson);
+        sstream << "Срабатывает при " << (relayEvent._state ? std::string{"включенном"} : std::string{"выключенном"}) << " реле";
+    } else if (eventType == Constants::EventTypeThermostat) {
+        const auto thermostatEvent = JsonExtension::CreateFromJson<ThermostatEvent>(eventJson);
+        sstream << "Поддерживает температуру " << thermostatEvent._temperature << "°C";
+    }
+    return sstream.str();
+}
