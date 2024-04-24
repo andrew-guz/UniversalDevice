@@ -29,5 +29,8 @@ public:
     static std::string EventTypeDisplayName(std::string_view eventType);
 
 private:
+    static std::string EventAdditionalInfo(std::string_view eventType, const nlohmann::json& eventJson);
+
+private:
     std::vector<nlohmann::json> _data;
 };
