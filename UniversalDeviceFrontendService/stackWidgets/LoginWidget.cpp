@@ -20,14 +20,14 @@ LoginWidget::LoginWidget(IStackHolder* stackHolder, const Settings& settings) : 
     auto boxLayout = box->setLayout(std::make_unique<WGridLayout>());
     boxLayout->addWidget(std::make_unique<WText>("Логин:"), 0, 0, AlignmentFlag::Left);
     _login = boxLayout->addWidget(std::make_unique<WLineEdit>(), 0, 1);
-    _login->enterPressed().connect([&]() { Login(); });
+    _login->enterPressed().connect([this]() { Login(); });
     boxLayout->addWidget(std::make_unique<WText>("Пароль:"), 1, 0, AlignmentFlag::Left);
     _password = boxLayout->addWidget(std::make_unique<WLineEdit>(), 1, 1);
     _password->setEchoMode(EchoMode::Password);
-    _password->enterPressed().connect([&]() { Login(); });
+    _password->enterPressed().connect([this]() { Login(); });
     auto okBtn = boxLayout->addWidget(std::make_unique<WPushButton>("Вход"), 2, 1, AlignmentFlag::Right);
-    okBtn->clicked().connect([&]() { Login(); });
-    okBtn->enterPressed().connect([&]() { Login(); });
+    okBtn->clicked().connect([this]() { Login(); });
+    okBtn->enterPressed().connect([this]() { Login(); });
 }
 
 void LoginWidget::Initialize(const std::string& data) {

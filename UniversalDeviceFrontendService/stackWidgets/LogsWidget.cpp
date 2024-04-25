@@ -14,16 +14,16 @@ LogsWidget::LogsWidget(IStackHolder* stackHolder, const Settings& settings) : Ba
 
     auto backButton = mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(backButton);
-    backButton->clicked().connect([&]() { _stackHolder->SetWidget(StackWidgetType::Devices, {}); });
+    backButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Devices, {}); });
 
     auto refreshButton = mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 1, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
-    refreshButton->clicked().connect([&]() { Refresh(); });
+    refreshButton->clicked().connect([this]() { Refresh(); });
 
     _logFiles = mainLayout->addWidget(std::make_unique<WComboBox>(), 1, 0, 1, 2);
     _logFiles->setMinimumSize(_logFiles->minimumWidth(), 50);
     _logFiles->setMaximumSize(_logFiles->maximumWidth(), 50);
-    _logFiles->changed().connect([&]() { OnLogSelected(); });
+    _logFiles->changed().connect([this]() { OnLogSelected(); });
 
     _logContent = mainLayout->addWidget(std::make_unique<WTextArea>(), 2, 0, 1, 2);
     _logContent->setReadOnly(true);

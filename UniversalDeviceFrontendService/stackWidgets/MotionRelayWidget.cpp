@@ -26,7 +26,7 @@ MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& 
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
     _stateButton->setMinimumSize(200, 200);
     _stateButton->setMaximumSize(200, 200);
-    _stateButton->clicked().connect([&]() { OnStateButton(); });
+    _stateButton->clicked().connect([this]() { OnStateButton(); });
 
     _mainLayout->setRowStretch(3, 1);
     _mainLayout->setRowStretch(4, 1);
@@ -69,7 +69,7 @@ void MotionRelayWidget::OnSettingsButton() {
     activityDelayEdit->setMaximum(MAX_ACTIVITY_DELAY);
     activityDelayEdit->setValue(settings._activityTime / 60000);
     // validation
-    auto okValidation = [&]() {
+    auto okValidation = [&ok, &nameEdit, &periodEdit, &activityDelayEdit]() {
         ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid || periodEdit->validate() != Wt::ValidationState::Valid ||
                         activityDelayEdit->validate() != Wt::ValidationState::Valid);
     };

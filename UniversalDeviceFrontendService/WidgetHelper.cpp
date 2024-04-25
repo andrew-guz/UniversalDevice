@@ -54,7 +54,7 @@ WidgetHelper::CreateBaseSettingsDialog(WContainerWidget* parent, int height, con
     ok->clicked().connect(dialog, &WDialog::accept);
     if (useDefaultValidation) {
         // validation
-        auto okValidation = [=]() {
+        auto okValidation = [&ok, &nameEdit, &periodEdit]() {
             ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid || periodEdit->validate() != Wt::ValidationState::Valid);
         };
         nameEdit->keyWentUp().connect(okValidation);
@@ -73,7 +73,7 @@ void WidgetHelper::ShowSimpleErrorMessage(Wt::WWidget* parent, const std::string
     dialog->setClosable(true);
     dialog->setResizable(false);
     dialog->rejectWhenEscapePressed(true);
-    dialog->enterPressed().connect([&]() { dialog->accept(); });
+    dialog->enterPressed().connect([&dialog]() { dialog->accept(); });
     layout->addWidget(std::make_unique<WText>(message), 0, 0, AlignmentFlag::Center);
     dialog->exec();
 }

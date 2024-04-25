@@ -14,7 +14,7 @@ EventReceiverWidget::EventReceiverWidget() : WContainerWidget(), IEventEditorWid
 
     _mainLayout->addWidget(std::make_unique<WText>("Получатель события:"), 0, 0, 1, 2);
     _receivers = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 1, 0, 1, 2);
-    _receivers->changed().connect([&]() { OnReceiverChanged(); });
+    _receivers->changed().connect([this]() { OnReceiverChanged(); });
     _brightnessText = _mainLayout->addWidget(std::make_unique<WText>("Яркость:"), 2, 0);
     _brightness = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
     _brightness->setMinimum(MIN_BRIGHTNESS);

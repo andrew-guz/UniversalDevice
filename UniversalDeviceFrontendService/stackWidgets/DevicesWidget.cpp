@@ -25,22 +25,22 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
 
     auto exitButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(exitButton);
-    exitButton->clicked().connect([&]() {
+    exitButton->clicked().connect([this]() {
         WApplication::instance()->removeCookie(Http::Cookie{"authorization"});
         _stackHolder->SetWidget(StackWidgetType::Login, {});
     });
 
     auto eventsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("События"), 0, 1, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(eventsButton);
-    eventsButton->clicked().connect([&]() { _stackHolder->SetWidget(StackWidgetType::Events, {}); });
+    eventsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Events, {}); });
 
     auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, 2, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(logsButton);
-    logsButton->clicked().connect([&]() { _stackHolder->SetWidget(StackWidgetType::Logs, {}); });
+    logsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Logs, {}); });
 
     auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 3, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
-    refreshButton->clicked().connect([&]() { Refresh(); });
+    refreshButton->clicked().connect([this]() { Refresh(); });
 
     Refresh();
 }
@@ -104,7 +104,7 @@ void DevicesWidget::Refresh() {
 DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column) {
     auto button = layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column,
                                     AlignmentFlag::Top | AlignmentFlag::Center);
-    button->clicked().connect([this, description]() {
+    button->clicked().connect([this, &description]() {
         if (description._type == Constants::DeviceTypeThermometer)
             _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
         if (description._type == Constants::DeviceTypeRelay)
@@ -116,7 +116,7 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
         if (event.button() == MouseButton::Right) {
             auto popup = std::make_unique<Wt::WPopupMenu>();
             auto deleteItem = popup->addItem("Удалить...");
-            deleteItem->triggered().connect([this, description]() {
+            deleteItem->triggered().connect([this, &description]() {
                 auto result = RequestHelper::DoDeleteRequest(
                     {BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", description._id.data())}, Constants::LoginService,
                     {});

@@ -36,7 +36,7 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
     _seconds->addItem("1 день");
     _seconds->addItem("1 неделя");
     _seconds->setCurrentIndex(1);
-    _seconds->changed().connect([&]() {
+    _seconds->changed().connect([this]() {
         _cachedValues.clear();
         BaseDeviceWidget::Initialize(_deviceId.data());
     });
@@ -121,7 +121,7 @@ void ThermometerWidget::OnSettingsButton() {
     brightnessEdit->setMaximum(MAX_BRIGHTNESS);
     brightnessEdit->setValue(GetBrightness()._brightness);
     // validation
-    auto okValidation = [&]() {
+    auto okValidation = [&ok, &nameEdit, &periodEdit, &brightnessEdit]() {
         ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid || periodEdit->validate() != Wt::ValidationState::Valid ||
                         brightnessEdit->validate() != Wt::ValidationState::Valid);
     };

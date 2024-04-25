@@ -29,11 +29,11 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
 
     auto backButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(backButton);
-    backButton->clicked().connect([&]() { _stackHolder->SetWidget(StackWidgetType::Devices, {}); });
+    backButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Devices, {}); });
 
     auto refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 1, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
-    refreshButton->clicked().connect([&]() { Refresh(); });
+    refreshButton->clicked().connect([this]() { Refresh(); });
 
     auto tableCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 0);
     auto tableLayout = tableCanvas->setLayout(std::make_unique<WGridLayout>());
@@ -54,7 +54,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventsTable->setEditTriggers(EditTrigger::None);
     _eventsTable->setModel(_eventsTableModel);
     _eventsTable->setColumnWidth(3, 250);
-    _eventsTable->selectionChanged().connect([&]() { OnTableSelectionChanged(); });
+    _eventsTable->selectionChanged().connect([this]() { OnTableSelectionChanged(); });
 
     tableLayout->setRowStretch(0, 0);
     tableLayout->setRowStretch(1, 1);
@@ -79,7 +79,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(Constants::EventTypeThermometer));
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(Constants::EventTypeRelay));
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(Constants::EventTypeThermostat));
-    _eventType->changed().connect([&]() { OnEventTypeChanged(); });
+    _eventType->changed().connect([this]() { OnEventTypeChanged(); });
 
     _eventEditorsStack = eventLayout->addWidget(std::make_unique<WStackedWidget>(), 2, 0, 1, 2);
     _eventEditorsStack->addWidget(std::make_unique<TimerEventEditor>());
