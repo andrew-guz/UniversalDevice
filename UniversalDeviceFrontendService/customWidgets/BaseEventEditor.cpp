@@ -35,7 +35,7 @@ void BaseEventEditor::FillFromUi(Event& event) const {
 }
 
 std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::string_view type) {
-    return FilteredDevices(std::set<std::string_view>{type});
+    return FilteredDevices(std::set<std::string_view>{ type });
 }
 
 std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::set<std::string_view>& types) {

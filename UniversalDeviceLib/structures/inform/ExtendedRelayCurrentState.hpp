@@ -13,7 +13,7 @@ struct ExtendedRelayCurrentState final : public RelayCurrentState, public IJson<
 
     virtual nlohmann::json ToJson() const override {
         auto relayCurrentState = RelayCurrentState::ToJson();
-        relayCurrentState += {"timestamp", TimeHelper::TimeToInt(_timestamp)};
+        relayCurrentState += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
         return relayCurrentState;
     }
 

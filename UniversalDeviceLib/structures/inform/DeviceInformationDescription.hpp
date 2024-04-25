@@ -7,7 +7,7 @@ struct DeviceInformationDescription : public ComponentDescription {
 
     virtual nlohmann::json ToJson() const override {
         auto componentDescription = ComponentDescription::ToJson();
-        componentDescription += {"seconds", _seconds};
+        componentDescription += { "seconds", _seconds };
         return componentDescription;
     }
 

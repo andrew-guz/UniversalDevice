@@ -17,7 +17,7 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
     auto iter = _dataCache.find(std::make_tuple(customWhat._id, customWhat._type));
     if (iter != _dataCache.end()) {
         customResult._data = iter->second;
-        return {StorageCacheProblemType::NoProblems, {}};
+        return { StorageCacheProblemType::NoProblems, {} };
     }
 
     std::stringstream queryStream;
@@ -34,9 +34,9 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
         }
         _dataCache.insert(std::make_pair(std::make_tuple(customWhat._id, customWhat._type), eventStrings));
         customResult._data = eventStrings;
-        return {StorageCacheProblemType::NoProblems, {}};
+        return { StorageCacheProblemType::NoProblems, {} };
     }
-    return {StorageCacheProblemType::SQLError, queryStream.str()};
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
 StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
@@ -56,9 +56,9 @@ StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
                 eventStrings.push_back(eventString);
         }
         customResult._data = eventStrings;
-        return {StorageCacheProblemType::NoProblems, {}};
+        return { StorageCacheProblemType::NoProblems, {} };
     }
-    return {StorageCacheProblemType::SQLError, queryStream.str()};
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
 StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what) {
@@ -74,8 +74,8 @@ StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplac
                 << customWhat._event << "')";
     queryStream.flush();
     if (_queryExecutor->Execute(queryStream.str()))
-        return {StorageCacheProblemType::NoProblems, {}};
-    return {StorageCacheProblemType::SQLError, queryStream.str()};
+        return { StorageCacheProblemType::NoProblems, {} };
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
 StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
@@ -91,8 +91,8 @@ StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
                 << "'";
     queryStream.flush();
     if (_queryExecutor->Execute(queryStream.str()))
-        return {StorageCacheProblemType::NoProblems, {}};
-    return {StorageCacheProblemType::SQLError, queryStream.str()};
+        return { StorageCacheProblemType::NoProblems, {} };
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
 StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
@@ -106,8 +106,8 @@ StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
     queryStream << "DELETE FROM Events WHERE id='" << customWhat._id << "'";
     queryStream.flush();
     if (_queryExecutor->Execute(queryStream.str()))
-        return {StorageCacheProblemType::NoProblems, {}};
-    return {StorageCacheProblemType::SQLError, queryStream.str()};
+        return { StorageCacheProblemType::NoProblems, {} };
+    return { StorageCacheProblemType::SQLError, queryStream.str() };
 }
 
 IStorageCache* EventTableStorageCache::GetCache(IQueryExecutor* queryExecutor) {

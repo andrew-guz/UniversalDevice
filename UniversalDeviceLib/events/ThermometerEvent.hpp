@@ -14,8 +14,8 @@ struct ThermometerEvent final : public Event, public IJson<ThermometerEvent> {
 
     virtual nlohmann::json ToJson() const override {
         auto event = Event::ToJson();
-        event += {"temperature", _temperature};
-        event += {"lower", _lower};
+        event += { "temperature", _temperature };
+        event += { "lower", _lower };
         return event;
     }
 

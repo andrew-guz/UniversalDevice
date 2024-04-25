@@ -26,7 +26,7 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     auto exitButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(exitButton);
     exitButton->clicked().connect([this]() {
-        WApplication::instance()->removeCookie(Http::Cookie{"authorization"});
+        WApplication::instance()->removeCookie(Http::Cookie{ "authorization" });
         _stackHolder->SetWidget(StackWidgetType::Login, {});
     });
 
@@ -56,7 +56,7 @@ void DevicesWidget::Clear() {
 
 void DevicesWidget::Refresh() {
     Clear();
-    auto replyJson = RequestHelper::DoGetRequest({BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES}, Constants::LoginService);
+    auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
     auto allDescriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
     if (allDescriptions.empty())
         return;
@@ -118,7 +118,7 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
             auto deleteItem = popup->addItem("Удалить...");
             deleteItem->triggered().connect([this, &description]() {
                 auto result = RequestHelper::DoDeleteRequest(
-                    {BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", description._id.data())}, Constants::LoginService,
+                    { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", description._id.data()) }, Constants::LoginService,
                     {});
                 if (result == 200)
                     Refresh();

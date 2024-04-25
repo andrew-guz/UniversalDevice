@@ -12,8 +12,8 @@ struct TimerEvent final : public Event, public IJson<TimerEvent> {
 
     virtual nlohmann::json ToJson() const override {
         auto event = Event::ToJson();
-        event += {"hour", _hour};
-        event += {"minute", _minute};
+        event += { "hour", _hour };
+        event += { "minute", _minute };
         return event;
     }
 

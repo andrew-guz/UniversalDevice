@@ -19,9 +19,9 @@ struct ExtendedComponentDescription final : ComponentDescription,
 
     virtual nlohmann::json ToJson() const override {
         auto componentDescription = ComponentDescription::ToJson();
-        componentDescription += {"name", _name};
-        componentDescription += {"grp", _group};
-        componentDescription += {"timestamp", TimeHelper::TimeToInt(_timestamp)};
+        componentDescription += { "name", _name };
+        componentDescription += { "grp", _group };
+        componentDescription += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
         return componentDescription;
     }
 
@@ -34,7 +34,7 @@ struct ExtendedComponentDescription final : ComponentDescription,
 
     virtual std::vector<std::string> ToDbStrings() const override {
         // id, type, name, group, timestamp
-        return {_id.data(), _type, _name, _group, std::to_string(TimeHelper::TimeToInt(_timestamp))};
+        return { _id.data(), _type, _name, _group, std::to_string(TimeHelper::TimeToInt(_timestamp)) };
     }
 
     virtual void FromDbStrings(const std::vector<std::string>& dbStrings) override {

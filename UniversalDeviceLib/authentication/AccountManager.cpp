@@ -8,7 +8,7 @@
 AccountManager::AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer) : _initializer(initializer) {}
 
 bool AccountManager::IsValidUser(std::string login, std::string password) {
-    Account account{std::move(login), std::string(password)};
+    Account account{ std::move(login), std::string(password) };
     return IsValidUser(account);
 }
 

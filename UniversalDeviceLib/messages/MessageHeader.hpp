@@ -4,9 +4,9 @@
 
 struct MessageHeader final : public IJson<MessageHeader> {
     ComponentDescription _description;
-    std::string _subject = std::string{Constants::SubjectUndefined};
+    std::string _subject = std::string{ Constants::SubjectUndefined };
 
-    virtual nlohmann::json ToJson() const override { return {{"description", _description.ToJson()}, {"subject", _subject}}; }
+    virtual nlohmann::json ToJson() const override { return { { "description", _description.ToJson() }, { "subject", _subject } }; }
 
     virtual void FromJson(const nlohmann::json& json) override {
         _description.FromJson(json["description"]);

@@ -117,11 +117,11 @@ std::string EventsTableModel::EventAdditionalInfo(const std::string_view eventTy
         return sstream.str();
     } else if (eventType == Constants::EventTypeThermometer) {
         const auto thermometerEvent = JsonExtension::CreateFromJson<ThermometerEvent>(eventJson);
-        sstream << "Сработает " << (thermometerEvent._lower ? std::string{"ниже "} : std::string{"выше "}) << std::fixed << std::setprecision(1)
+        sstream << "Сработает " << (thermometerEvent._lower ? std::string{ "ниже " } : std::string{ "выше " }) << std::fixed << std::setprecision(1)
                 << thermometerEvent._temperature << "°C";
     } else if (eventType == Constants::EventTypeRelay) {
         const auto relayEvent = JsonExtension::CreateFromJson<RelayEvent>(eventJson);
-        sstream << "Срабатывает при " << (relayEvent._state ? std::string{"включенном"} : std::string{"выключенном"}) << " реле";
+        sstream << "Срабатывает при " << (relayEvent._state ? std::string{ "включенном" } : std::string{ "выключенном" }) << " реле";
     } else if (eventType == Constants::EventTypeThermostat) {
         const auto thermostatEvent = JsonExtension::CreateFromJson<ThermostatEvent>(eventJson);
         sstream << "Поддерживает температуру " << thermostatEvent._temperature << "°C";

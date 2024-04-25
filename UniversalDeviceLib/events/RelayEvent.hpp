@@ -11,7 +11,7 @@ struct RelayEvent final : public Event, public IJson<RelayEvent> {
 
     virtual nlohmann::json ToJson() const override {
         auto event = Event::ToJson();
-        event += {"state", _state};
+        event += { "state", _state };
         return event;
     }
 

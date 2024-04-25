@@ -15,7 +15,7 @@ struct ExtendedMotionRelayCurrentState final : public MotionRelayCurrentState,
 
     virtual nlohmann::json ToJson() const override {
         auto motionRelayCurrentState = MotionRelayCurrentState::ToJson();
-        motionRelayCurrentState += {"timestamp", TimeHelper::TimeToInt(_timestamp)};
+        motionRelayCurrentState += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
         return motionRelayCurrentState;
     }
 

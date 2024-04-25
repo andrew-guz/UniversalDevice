@@ -105,7 +105,7 @@ void ThermometerWidget::ClearData() {
 
 ThermometerLedBrightness ThermometerWidget::GetBrightness() {
     auto replyJson = RequestHelper::DoGetRequest(
-        {BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data())}, Constants::LoginService);
+        { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService);
     return JsonExtension::CreateFromJson<ThermometerLedBrightness>(replyJson);
 }
 
@@ -145,7 +145,7 @@ void ThermometerWidget::OnSettingsButton() {
     PeriodSettings newSettings;
     newSettings._period = periodEdit->value() * 1000;
     auto settingsResult =
-        RequestHelper::DoPostRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data())},
+        RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
                                      Constants::LoginService, newSettings.ToJson());
     if (settingsResult != 200)
         LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
@@ -153,7 +153,7 @@ void ThermometerWidget::OnSettingsButton() {
     ThermometerLedBrightness newCommand;
     newCommand._brightness = brightnessEdit->value();
     auto commandResult =
-        RequestHelper::DoPostRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data())},
+        RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
                                      Constants::LoginService, newCommand.ToJson());
     if (commandResult != 200)
         LOG_ERROR << "Failed to update settings to " << newCommand.ToJson().dump() << "." << std::endl;

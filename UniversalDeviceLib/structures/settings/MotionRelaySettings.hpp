@@ -8,7 +8,7 @@ struct MotionRelaySettings : public PeriodSettings, public IJson<MotionRelaySett
 
     virtual nlohmann::json ToJson() const override {
         auto result = PeriodSettings::ToJson();
-        result += {"activityTime", _activityTime};
+        result += { "activityTime", _activityTime };
         return result;
     }
 

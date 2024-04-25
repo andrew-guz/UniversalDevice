@@ -15,7 +15,7 @@ struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue,
 
     virtual nlohmann::json ToJson() const override {
         auto thermometerCurrentValue = ThermometerCurrentValue::ToJson();
-        thermometerCurrentValue += {"timestamp", TimeHelper::TimeToInt(_timestamp)};
+        thermometerCurrentValue += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
         return thermometerCurrentValue;
     }
 

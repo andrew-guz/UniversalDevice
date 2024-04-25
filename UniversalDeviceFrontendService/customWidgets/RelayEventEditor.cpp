@@ -14,7 +14,7 @@ RelayEventEditor::RelayEventEditor() : BaseEventEditor() {
 
 void RelayEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
     BaseEventEditor::SetDevices(devices);
-    _provider->SetDevices(FilteredDevices({Constants::DeviceTypeRelay, Constants::DeviceTypeMotionRelay}));
+    _provider->SetDevices(FilteredDevices({ Constants::DeviceTypeRelay, Constants::DeviceTypeMotionRelay }));
     _receiver->SetDevices(devices);
 }
 

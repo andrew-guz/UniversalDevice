@@ -2,7 +2,7 @@
 
 #include "DbExtension.hpp"
 
-std::vector<std::string> data{"key1", "value1", "key2", "value2"};
+std::vector<std::string> data{ "key1", "value1", "key2", "value2" };
 
 TEST_CASE("Found") {
     REQUIRE(DbExtension::FindValueByName(data, "key1") == "value1");

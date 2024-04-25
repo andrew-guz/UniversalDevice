@@ -1,6 +1,6 @@
 BasedOnStyle: LLVM
 
-#General
+#general
 ColumnLimit: 150
 Language: Cpp
 IndentWidth: 4
@@ -22,3 +22,7 @@ IndentRequiresClause: true
 SpaceAfterTemplateKeyword: false
 
 IndentCaseLabels: true
+
+#spaces
+Cpp11BracedListStyle: false
+SpaceBeforeCpp11BracedList: false

@@ -83,7 +83,7 @@ void BaseDeviceWidget::Clear(ClearType type) {
 }
 
 void BaseDeviceWidget::GetDeviceProperty(const std::string& path, std::string& value) {
-    auto replyJson = RequestHelper::DoGetRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data())},
+    auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) },
                                                  Constants::LoginService);
     value = JsonExtension::CreateFromJson<DeviceProperty>(replyJson)._value;
 }
@@ -91,7 +91,7 @@ void BaseDeviceWidget::GetDeviceProperty(const std::string& path, std::string& v
 bool BaseDeviceWidget::SetDeviceProperty(const std::string& path, const std::string& newValue, std::string& value) {
     DeviceProperty deviceProperty;
     deviceProperty._value = newValue;
-    auto result = RequestHelper::DoPostRequest({BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data())},
+    auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) },
                                                Constants::LoginService, deviceProperty.ToJson());
     if (result == 200) {
         value = newValue;
