@@ -47,7 +47,7 @@ void LoginWidget::Initialize(const std::string& data) {
 void LoginWidget::Login() {
     auto login = _login->text().toUTF8();
     auto password = _password->text().toUTF8();
-    if (AccountManager::Instance()->IsValidUser(login, password)) {
+    if (AccountManager::Instance()->IsValidUser(std::move(login), std::move(password))) {
         auto data = login + ":" + password;
         auto encoded = Base64Helper::ToBase64(data);
         Http::Cookie authorizationCookie("authorization");
