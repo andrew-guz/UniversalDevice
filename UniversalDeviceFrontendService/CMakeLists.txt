@@ -32,7 +32,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
 
 #where to search for libraries
 link_directories(/usr/local/library)
-link_directories(./../../bin/)
+link_directories(./../bin/)
 link_directories(${CMAKE_BINARY_DIR}/vendor/wt/src/)
 link_directories(${CMAKE_BINARY_DIR}/vendor/wt/src/http)
 

@@ -7,8 +7,10 @@
 
 AccountManager::AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer) : _initializer(initializer) {}
 
-bool AccountManager::IsValidUser(std::string login, std::string password) {
-    Account account{ std::move(login), std::string(password) };
+bool AccountManager::IsValidUser(const std::string& login, const std::string& password) {
+    Account account;
+    account._login = login;
+    account._password = password;
     return IsValidUser(account);
 }
 
@@ -27,7 +29,7 @@ bool AccountManager::IsValidUser(const std::string_view authorizationString) {
         return false;
     auto login = loginPassword.substr(0, delimeterIndex);
     auto password = loginPassword.substr(delimeterIndex + 1);
-    return IsValidUser(std::move(login), std::move(password));
+    return IsValidUser(login, password);
 }
 
 std::string AccountManager::GetAuthString(const std::string_view login) {
