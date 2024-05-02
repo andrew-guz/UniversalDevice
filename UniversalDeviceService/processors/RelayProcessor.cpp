@@ -5,8 +5,8 @@
 #include "Constants.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "ExtendedRelayCurrentState.hpp"
-#include "JsonExtension.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "RelayCurrentState.hpp"
 #include "TimeHelper.hpp"
 
@@ -14,7 +14,7 @@ RelayProcessor::RelayProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWit
 
 nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     if (message._header._subject == Constants::SubjectRelayCurrentState) {
-        auto currentState = JsonExtension::CreateFromJson<RelayCurrentState>(message._data);
+        auto currentState = message._data.get<RelayCurrentState>();
         if (currentState._state == std::numeric_limits<float>::min()) {
             LOG_ERROR << "RelayProcessor - invalid message." << std::endl;
             return {};
@@ -28,7 +28,7 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
             LOG_SQL_ERROR(queryStream.str());
         return {};
     } else if (message._header._subject == Constants::SubjectGetDeviceInformation) {
-        auto description = JsonExtension::CreateFromJson<DeviceInformationDescription>(message._data);
+        auto description = message._data.get<DeviceInformationDescription>();
         if (description._type == Constants::DeviceTypeRelay && !description._id.isEmpty()) {
             std::vector<ExtendedRelayCurrentState> extendedRelayCurrentStates;
             if (description._seconds != 0) {
@@ -57,7 +57,7 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
             if (extendedRelayCurrentStates.size()) {
                 nlohmann::json result;
                 for (auto& extendedRelayCurrentState : extendedRelayCurrentStates)
-                    result.push_back(extendedRelayCurrentState.ToJson());
+                    result.push_back(nlohmann::json{ extendedRelayCurrentState });
                 return result;
             } else
                 LOG_INFO << "No data for device " << description._id.data() << "found." << std::endl;

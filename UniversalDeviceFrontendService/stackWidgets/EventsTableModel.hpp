@@ -1,8 +1,9 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
 #include <string_view>
 #include <vector>
+
+#include <nlohmann/json.hpp>
 
 #include <Wt/WAbstractItemModel.h>
 #include <Wt/WModelIndex.h>

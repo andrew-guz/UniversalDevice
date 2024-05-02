@@ -6,10 +6,11 @@
 #include "ExtendedRelayCurrentState.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
 #include "FrontendDefines.hpp"
-#include "JsonExtension.hpp"
+#include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
 #include "WidgetHelper.hpp"
+#include <nlohmann/json_fwd.hpp>
 
 using namespace Wt;
 
@@ -35,13 +36,13 @@ void DeviceButton::Refresh() {
     messageData._id = _deviceId;
     messageData._seconds = 0;
     auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData);
-    auto replyJson =
-        RequestHelper::DoPostRequestWithAnswer({ BACKEND_IP, _port, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage.ToJson());
+    auto replyJson = RequestHelper::DoPostRequestWithAnswer({ BACKEND_IP, _port, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService,
+                                                            nlohmann::json{ postMessage });
     if (!replyJson.is_null()) {
         std::string additionalData;
         std::chrono::system_clock::time_point timestamp;
         if (_deviceType == Constants::DeviceTypeThermometer) {
-            auto values = JsonExtension::CreateVectorFromJson<ExtendedThermometerCurrentValue>(replyJson);
+            auto values = replyJson.get<std::vector<ExtendedThermometerCurrentValue>>();
             if (values.size()) {
                 const auto& value = values[0];
                 std::stringstream ss;
@@ -53,14 +54,14 @@ void DeviceButton::Refresh() {
                 timestamp = value._timestamp;
             }
         } else if (_deviceType == Constants::DeviceTypeRelay) {
-            auto values = JsonExtension::CreateVectorFromJson<ExtendedRelayCurrentState>(replyJson);
+            auto values = replyJson.get<std::vector<ExtendedRelayCurrentState>>();
             if (values.size()) {
                 const auto& value = values[0];
                 additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._state == 1 ? "ON" : "OFF");
                 timestamp = value._timestamp;
             }
         } else if (_deviceType == Constants::DeviceTypeMotionRelay) {
-            auto values = JsonExtension::CreateVectorFromJson<ExtendedMotionRelayCurrentState>(replyJson);
+            auto values = replyJson.get<std::vector<ExtendedMotionRelayCurrentState>>();
             if (values.size()) {
                 const auto& value = values[0];
                 additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._motion == 1 ? "Движение" : "...");

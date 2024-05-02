@@ -7,7 +7,6 @@
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceButton.hpp"
-#include "JsonExtension.hpp"
 #include "Logger.hpp"
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
@@ -57,7 +56,7 @@ void DevicesWidget::Clear() {
 void DevicesWidget::Refresh() {
     Clear();
     auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
-    auto allDescriptions = JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(replyJson);
+    auto allDescriptions = replyJson.get<std::vector<ExtendedComponentDescription>>();
     if (allDescriptions.empty())
         return;
     LOG_DEBUG << allDescriptions.size() << " allDescriptions found." << std::endl;

@@ -11,6 +11,7 @@
 #include "EventTableStorageCache.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "LogInformation.hpp"
+#include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "ProcessorsFactory.hpp"
 #include "StorageCacheFactory.hpp"
@@ -46,7 +47,7 @@ crow::response ClientService::ListDevices() {
         if (_queryExecutor->Select("SELECT * FROM Devices", data)) {
             auto extendedComponentDescriptions = DbExtension::CreateVectorFromDbStrings<ExtendedComponentDescription>(data);
             for (auto& extendedComponentDescription : extendedComponentDescriptions)
-                result.push_back(extendedComponentDescription.ToJson());
+                result.push_back(nlohmann::json{ extendedComponentDescription });
         } else
             LOG_SQL_ERROR("SELECT * FROM Devices");
     } catch (...) {
@@ -67,7 +68,7 @@ crow::response ClientService::GetDeviceProperty(const crow::request& request, co
             if (data.size() == 1) {
                 DeviceProperty deviceProperty;
                 deviceProperty._value = data[0][1];
-                result = deviceProperty.ToJson();
+                result = nlohmann::json{ deviceProperty };
             } else {
                 if (data.size() == 0)
                     LOG_ERROR << "No devices with id " << idString << "." << std::endl;
@@ -87,7 +88,7 @@ crow::response ClientService::SetDeviceProperty(const crow::request& request, co
                                                 bool canBeEmpty) {
     try {
         auto bodyJson = nlohmann::json::parse(request.body);
-        auto deviceProperty = JsonExtension::CreateFromJson<DeviceProperty>(bodyJson);
+        auto deviceProperty = bodyJson.get<DeviceProperty>();
         if (canBeEmpty || !deviceProperty._value.empty()) {
             std::stringstream queryStream;
             queryStream << "UPDATE Devices SET " << field << " = '" << deviceProperty._value << "' WHERE id = '" << idString << "'";
@@ -240,7 +241,7 @@ crow::response ClientService::ListLogs() {
             LogInformation logInformation;
             logInformation._fileName = entry.path().filename().string();
             logInformation._fileContent = readFileContent(entry.path().string());
-            result.push_back(logInformation.ToJson());
+            result.push_back(nlohmann::json{ logInformation });
         }
     }
     return crow::response(crow::OK, result.dump());

@@ -8,21 +8,8 @@
 #include "ThermometerCurrentValue.hpp"
 #include "TimeHelper.hpp"
 
-struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue,
-                                               public IJson<ExtendedThermometerCurrentValue>,
-                                               public IDb<ExtendedThermometerCurrentValue> {
+struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue, public IDb<ExtendedThermometerCurrentValue> {
     std::chrono::system_clock::time_point _timestamp;
-
-    virtual nlohmann::json ToJson() const override {
-        auto thermometerCurrentValue = ThermometerCurrentValue::ToJson();
-        thermometerCurrentValue += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
-        return thermometerCurrentValue;
-    }
-
-    virtual void FromJson(const nlohmann::json& json) override {
-        ThermometerCurrentValue::FromJson(json);
-        _timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
-    }
 
     virtual std::vector<std::string> ToDbStrings() const override {
         LOG_ERROR << "This object should not be written to Database." << std::endl;

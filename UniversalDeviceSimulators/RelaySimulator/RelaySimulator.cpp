@@ -2,9 +2,6 @@
 
 #include "RelaySimulator.hpp"
 
-#include <nlohmann/json.hpp>
-
-#include "JsonExtension.hpp"
 #include "MessageHelper.hpp"
 #include "RelayCurrentState.hpp"
 
@@ -26,7 +23,7 @@ void RelaySimulator::OnMessage(const ix::WebSocketMessagePtr& message) {
         try {
             auto json = nlohmann::json::parse(message->str);
             if (json.contains("period")) {
-                periodSettings = JsonExtension::CreateFromJson<PeriodSettings>(json);
+                periodSettings = json["period"].get<PeriodSettings>();
                 SendState();
             }
             if (json.contains("state")) {

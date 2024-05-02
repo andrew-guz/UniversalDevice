@@ -1,7 +1,6 @@
 #include "AccountManagerInitializer.hpp"
 
 #include "Account.hpp"
-#include "JsonExtension.hpp"
 #include "JsonFileReader.hpp"
 #include "Marshaling.hpp"
 #include "PathHelper.hpp"

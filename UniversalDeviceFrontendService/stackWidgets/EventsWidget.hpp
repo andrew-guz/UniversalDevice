@@ -1,13 +1,13 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <Wt/WComboBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WStackedWidget.h>
 #include <Wt/WTableView.h>
-
-#include <nlohmann/json.hpp>
 
 #include "BaseEventEditor.hpp"
 #include "BaseStackWidget.hpp"
@@ -45,9 +45,7 @@ private:
 
     BaseEventEditor* GetCurrentEventEditor() const;
 
-    Event* CreateNewEventFromEditor(BaseEventEditor* eventEditor) const;
-
-    Event* CreateNewEventFromJson(const nlohmann::json& eventJson) const;
+    nlohmann::json CreateNewEventFromEditor(BaseEventEditor* eventEditor) const;
 
     nlohmann::json GetSelectedEventJsonFromTable() const;
 

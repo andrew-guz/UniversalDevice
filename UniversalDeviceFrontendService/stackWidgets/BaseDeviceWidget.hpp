@@ -8,7 +8,7 @@
 
 #include "BaseStackWidget.hpp"
 #include "DeviceInformationDescription.hpp"
-#include "JsonExtension.hpp"
+#include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
 #include "UrlHelper.hpp"
@@ -37,7 +37,7 @@ protected:
     TSettings GetSettings() {
         auto replyJson = RequestHelper::DoGetRequest(
             { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService);
-        return JsonExtension::CreateFromJson<TSettings>(replyJson);
+        return replyJson.get<TSettings>();
     }
 
     // return 1 last point
@@ -55,8 +55,8 @@ protected:
         messageData._seconds = seconds;
         auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData);
         auto replyJson = RequestHelper::DoPostRequestWithAnswer({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICE_GET_INFO },
-                                                                Constants::LoginService, postMessage.ToJson());
-        return JsonExtension::CreateVectorFromJson<TValues>(replyJson);
+                                                                Constants::LoginService, nlohmann::json{ postMessage });
+        return replyJson.get<std::vector<TValues>>();
     }
 
     void GetDeviceProperty(const std::string& path, std::string& value);

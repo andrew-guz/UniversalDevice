@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "Message.hpp"
+#include <nlohmann/json_fwd.hpp>
 
 class MessageHelper final {
 public:
@@ -11,11 +13,11 @@ public:
 
     template<typename Object>
     static Message Create(std::string_view type, const Uuid& id, std::string_view subject, const Object& object) {
-        return Create(type, id, subject, object.ToJson());
+        return Create(type, id, subject, nlohmann::json{ object });
     }
 
     template<typename Object>
     static Message Create(const ComponentDescription& description, std::string_view subject, const Object& object) {
-        return Create(description, subject, object.ToJson());
+        return Create(description, subject, nlohmann::json{ object });
     }
 };

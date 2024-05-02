@@ -5,8 +5,8 @@
 #include "Constants.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "ExtendedMotionRelayCurrentState.hpp"
-#include "JsonExtension.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "MotionRelayCurrentState.hpp"
 #include "TimeHelper.hpp"
 
@@ -14,7 +14,7 @@ MotionRelayProcessor::MotionRelayProcessor(IQueryExecutor* queryExecutor) : Base
 
 nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     if (message._header._subject == Constants::SubjectMotionRelayCurrentState) {
-        auto currentState = JsonExtension::CreateFromJson<MotionRelayCurrentState>(message._data);
+        auto currentState = message._data.get<MotionRelayCurrentState>();
         if (currentState._state == std::numeric_limits<float>::min()) {
             LOG_ERROR << "MotionRelayProcessor - invalid message." << std::endl;
             return {};
@@ -28,7 +28,7 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
             LOG_SQL_ERROR(queryStream.str());
         return {};
     } else if (message._header._subject == Constants::SubjectGetDeviceInformation) {
-        auto description = JsonExtension::CreateFromJson<DeviceInformationDescription>(message._data);
+        auto description = message._data.get<DeviceInformationDescription>();
         if (description._type == Constants::DeviceTypeMotionRelay && !description._id.isEmpty()) {
             std::vector<ExtendedMotionRelayCurrentState> extendedMotionRelayCurrentStates;
             if (description._seconds != 0) {
@@ -58,7 +58,7 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
             if (extendedMotionRelayCurrentStates.size()) {
                 nlohmann::json result;
                 for (auto& extendedMotionRelayCurrentState : extendedMotionRelayCurrentStates)
-                    result.push_back(extendedMotionRelayCurrentState.ToJson());
+                    result.push_back(nlohmann::json{ extendedMotionRelayCurrentState });
                 return result;
             } else
                 LOG_INFO << "No data for device " << description._id.data() << "found." << std::endl;

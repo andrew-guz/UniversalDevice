@@ -5,8 +5,8 @@
 #include <string_view>
 
 #include "IQueryExecutor.hpp"
-#include "JsonExtension.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "Message.hpp"
 #include "Middleware.hpp"
 
@@ -34,7 +34,7 @@ protected:
         return [service, func, functionName = std::move(functionName)](const crow::request& request) {
             try {
                 auto bodyJson = nlohmann::json::parse(request.body);
-                auto object = JsonExtension::CreateFromJson<Object>(bodyJson);
+                auto object = bodyJson.get<Object>();
                 return (service->*func)(object);
             } catch (std::exception& ex) {
                 LOG_ERROR << "Error to execute " << functionName << ": " << ex.what() << std::endl;
@@ -51,7 +51,7 @@ protected:
         return [service, func, functionName = std::move(functionName)](const crow::request& request) {
             try {
                 auto bodyJson = nlohmann::json::parse(request.body);
-                auto object = JsonExtension::CreateFromJson<Object>(bodyJson);
+                auto object = bodyJson.get<Object>();
                 return (service->*func)(object, request.body);
             } catch (std::exception& ex) {
                 LOG_ERROR << "Error to execute " << functionName << ": " << ex.what() << std::endl;

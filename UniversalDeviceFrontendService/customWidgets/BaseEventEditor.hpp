@@ -5,8 +5,6 @@
 #include <Wt/WGridLayout.h>
 #include <Wt/WLineEdit.h>
 
-#include <nlohmann/json.hpp>
-
 #include "DeviceComboBox.hpp"
 #include "Event.hpp"
 #include "IEventEditorWidget.hpp"
@@ -24,11 +22,6 @@ public:
     virtual void FillUi(const Event& event) override;
 
     virtual bool IsValid() const override;
-
-    template<typename T>
-    T* GetEvent() const {
-        return new T();
-    }
 
     virtual void FillFromUi(Event& event) const override;
 

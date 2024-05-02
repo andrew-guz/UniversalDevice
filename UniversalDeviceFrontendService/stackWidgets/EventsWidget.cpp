@@ -5,8 +5,8 @@
 
 #include "Constants.hpp"
 #include "Defines.hpp"
-#include "JsonExtension.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "RelayEvent.hpp"
 #include "RelayEventEditor.hpp"
@@ -21,6 +21,7 @@
 #include "TimerEventEditor.hpp"
 #include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
+#include "Wt/WGlobal.h"
 
 using namespace Wt;
 
@@ -129,7 +130,7 @@ std::vector<nlohmann::json> EventsWidget::GetEvents() {
 
 std::vector<ExtendedComponentDescription> EventsWidget::GetDevices() {
     auto resultJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
-    return JsonExtension::CreateVectorFromJson<ExtendedComponentDescription>(resultJson);
+    return resultJson.get<std::vector<ExtendedComponentDescription>>();
 }
 
 void EventsWidget::AddEvent() {
@@ -138,10 +139,7 @@ void EventsWidget::AddEvent() {
         return;
     }
     auto eventEditor = GetCurrentEventEditor();
-    Event* event = CreateNewEventFromEditor(eventEditor);
-    eventEditor->FillFromUi(*event);
-    auto eventJson = event->ToJson();
-    delete event;
+    nlohmann::json eventJson = CreateNewEventFromEditor(eventEditor);
     if (!eventJson.is_null()) {
         auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
         if (result != 200)
@@ -168,11 +166,8 @@ void EventsWidget::UpdateEvent() {
         return;
     }
     auto eventEditor = GetCurrentEventEditor();
-    Event* event = CreateNewEventFromEditor(eventEditor);
-    event->_id = GetSelectedEventIdFromTable();
-    eventEditor->FillFromUi(*event);
-    auto eventJson = event->ToJson();
-    delete event;
+    auto eventJson = CreateNewEventFromEditor(eventEditor);
+    eventJson["id"] = GetSelectedEventIdFromTable().data();
     if (!eventJson.is_null()) {
         auto result = RequestHelper::DoPutRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
         if (result != 200)
@@ -186,18 +181,17 @@ void EventsWidget::OnTableSelectionChanged() {
     if (selectedIndexes.empty())
         return;
     auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
-    auto event = CreateNewEventFromJson(eventJson);
-    if (event->_type == Constants::EventTypeTimer)
+    auto simpleEvent = eventJson.get<Event>();
+    if (simpleEvent._type == Constants::EventTypeTimer)
         _eventType->setCurrentIndex(0);
-    else if (event->_type == Constants::EventTypeThermometer)
+    else if (simpleEvent._type == Constants::EventTypeThermometer)
         _eventType->setCurrentIndex(1);
-    else if (event->_type == Constants::EventTypeRelay)
+    else if (simpleEvent._type == Constants::EventTypeRelay)
         _eventType->setCurrentIndex(2);
-    else if (event->_type == Constants::EventTypeThermostat)
+    else if (simpleEvent._type == Constants::EventTypeThermostat)
         _eventType->setCurrentIndex(3);
     OnEventTypeChanged();
-    GetCurrentEventEditor()->FillUi(*event);
-    delete event;
+    GetCurrentEventEditor()->FillUi(simpleEvent);
 }
 
 void EventsWidget::OnEventTypeChanged() {
@@ -215,41 +209,31 @@ BaseEventEditor* EventsWidget::GetCurrentEventEditor() const {
     return dynamic_cast<BaseEventEditor*>(_eventEditorsStack->currentWidget());
 }
 
-Event* EventsWidget::CreateNewEventFromEditor(BaseEventEditor* eventEditor) const {
-    if (!eventEditor)
-        return nullptr;
-    Event* event = nullptr;
+nlohmann::json EventsWidget::CreateNewEventFromEditor(BaseEventEditor* eventEditor) const {
+    nlohmann::json eventJson;
     switch (_eventType->currentIndex()) {
-        case 0:
-            event = eventEditor->GetEvent<TimerEvent>();
-            break;
-        case 1:
-            event = eventEditor->GetEvent<ThermometerEvent>();
-            break;
-        case 2:
-            event = eventEditor->GetEvent<RelayEvent>();
-            break;
-        case 3:
-            event = eventEditor->GetEvent<ThermostatEvent>();
-            break;
+        case 0: {
+            TimerEvent event;
+            eventEditor->FillFromUi(event);
+            eventJson = nlohmann::json{ event };
+        } break;
+        case 1: {
+            ThermometerEvent event;
+            eventEditor->FillFromUi(event);
+            eventJson = nlohmann::json{ event };
+        } break;
+        case 2: {
+            RelayEvent event;
+            eventEditor->FillFromUi(event);
+            eventJson = nlohmann::json{ event };
+        } break;
+        case 3: {
+            ThermostatEvent event;
+            eventEditor->FillFromUi(event);
+            eventJson = nlohmann::json{ event };
+        } break;
     }
-    return event;
-}
-
-Event* EventsWidget::CreateNewEventFromJson(const nlohmann::json& eventJson) const {
-    Event* event = nullptr;
-    auto simpleEvent = JsonExtension::CreateFromJson<Event>(eventJson);
-    if (simpleEvent._type == Constants::EventTypeTimer)
-        event = new TimerEvent();
-    else if (simpleEvent._type == Constants::EventTypeThermometer)
-        event = new ThermometerEvent();
-    else if (simpleEvent._type == Constants::EventTypeRelay)
-        event = new RelayEvent();
-    else if (simpleEvent._type == Constants::EventTypeThermostat)
-        event = new ThermostatEvent();
-    if (event)
-        event->FromJson(eventJson);
-    return event;
+    return eventJson;
 }
 
 nlohmann::json EventsWidget::GetSelectedEventJsonFromTable() const {
@@ -264,7 +248,7 @@ Uuid EventsWidget::GetSelectedEventIdFromTable() const {
     if (selectedIndexes.empty())
         return Uuid::Empty();
     auto selectedEventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
-    return JsonExtension::CreateFromJson<Event>(selectedEventJson)._id;
+    return selectedEventJson.get<Event>()._id;
 }
 
 void EventsWidget::ShowIncorrectEventMsgBox() { WidgetHelper::ShowSimpleErrorMessage(this, "Ошибка", "Неверно заполнены поля редактора событий!"); }

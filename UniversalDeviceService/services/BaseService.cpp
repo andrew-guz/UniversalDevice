@@ -1,6 +1,6 @@
 #include "BaseService.hpp"
 
-#include "JsonExtension.hpp"
+#include "Marshaling.hpp"
 #include "ProcessorsFactory.hpp"
 
 BaseService::BaseService(IQueryExecutor* queryExecutor) : _queryExecutor(queryExecutor) {}
@@ -40,7 +40,7 @@ Message BaseServiceExtension::GetMessageFromRequest(const crow::request& request
     try {
         auto bodyJson = nlohmann::json::parse(body);
         LOG_DEBUG << bodyJson.dump() << std::endl;
-        return JsonExtension::CreateFromJson<Message>(bodyJson);
+        return bodyJson.get<Message>();
     } catch (...) {
         LOG_ERROR << "Can't get message from request - " << body << std::endl;
     }
@@ -51,7 +51,7 @@ Message BaseServiceExtension::GetMessageFromWebSocketData(const std::string& dat
     try {
         auto dataJson = nlohmann::json::parse(data);
         LOG_DEBUG << dataJson.dump() << std::endl;
-        return JsonExtension::CreateFromJson<Message>(dataJson);
+        return dataJson.get<Message>();
     } catch (...) {
         LOG_ERROR << "Can't get message from data - " << data << std::endl;
     }

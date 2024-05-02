@@ -3,7 +3,7 @@
 #include <Wt/WGridLayout.h>
 #include <Wt/WPushButton.h>
 
-#include "JsonExtension.hpp"
+#include "Marshaling.hpp"
 #include "RequestHelper.hpp"
 #include "WidgetHelper.hpp"
 
@@ -56,7 +56,7 @@ void LogsWidget::Refresh() {
 
 std::vector<LogInformation> LogsWidget::GetLogs() {
     auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_LOGS }, Constants::LoginService);
-    return JsonExtension::CreateVectorFromJson<LogInformation>(replyJson);
+    return replyJson.get<std::vector<LogInformation>>();
 }
 
 void LogsWidget::OnLogSelected() {

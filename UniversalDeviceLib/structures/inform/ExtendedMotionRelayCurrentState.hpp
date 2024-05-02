@@ -8,21 +8,8 @@
 #include "MotionRelayCurrentState.hpp"
 #include "TimeHelper.hpp"
 
-struct ExtendedMotionRelayCurrentState final : public MotionRelayCurrentState,
-                                               public IJson<ExtendedMotionRelayCurrentState>,
-                                               public IDb<ExtendedMotionRelayCurrentState> {
+struct ExtendedMotionRelayCurrentState final : public MotionRelayCurrentState, public IDb<ExtendedMotionRelayCurrentState> {
     std::chrono::system_clock::time_point _timestamp;
-
-    virtual nlohmann::json ToJson() const override {
-        auto motionRelayCurrentState = MotionRelayCurrentState::ToJson();
-        motionRelayCurrentState += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
-        return motionRelayCurrentState;
-    }
-
-    virtual void FromJson(const nlohmann::json& json) override {
-        MotionRelayCurrentState::FromJson(json);
-        _timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
-    }
 
     virtual std::vector<std::string> ToDbStrings() const override {
         LOG_ERROR << "This object should not be written to Database." << std::endl;

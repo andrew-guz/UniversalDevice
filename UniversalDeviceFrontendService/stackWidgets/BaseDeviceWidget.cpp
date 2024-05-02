@@ -11,6 +11,7 @@
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
 #include "UrlHelper.hpp"
@@ -85,14 +86,14 @@ void BaseDeviceWidget::Clear(ClearType type) {
 void BaseDeviceWidget::GetDeviceProperty(const std::string& path, std::string& value) {
     auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) },
                                                  Constants::LoginService);
-    value = JsonExtension::CreateFromJson<DeviceProperty>(replyJson)._value;
+    value = replyJson.get<DeviceProperty>()._value;
 }
 
 bool BaseDeviceWidget::SetDeviceProperty(const std::string& path, const std::string& newValue, std::string& value) {
     DeviceProperty deviceProperty;
     deviceProperty._value = newValue;
     auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) },
-                                               Constants::LoginService, deviceProperty.ToJson());
+                                               Constants::LoginService, nlohmann::json{ deviceProperty });
     if (result == 200) {
         value = newValue;
         return true;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
-
 #include "Event.hpp"
 #include "ExtendedComponentDescription.hpp"
 
