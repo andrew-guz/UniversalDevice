@@ -10,7 +10,6 @@
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
 #include "WidgetHelper.hpp"
-#include <nlohmann/json_fwd.hpp>
 
 using namespace Wt;
 

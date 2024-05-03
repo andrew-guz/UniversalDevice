@@ -5,7 +5,6 @@
 #include "Marshaling.hpp"
 #include "RelayState.hpp"
 #include "ThermometerLedBrightness.hpp"
-#include <nlohmann/json_fwd.hpp>
 
 using namespace Wt;
 

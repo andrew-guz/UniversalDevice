@@ -3,7 +3,6 @@
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "Message.hpp"
-#include <nlohmann/json_fwd.hpp>
 
 class MessageHelper final {
 public:

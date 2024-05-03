@@ -1,6 +1,5 @@
 #include "Simulator.hpp"
 
-#include <nlohmann/json_fwd.hpp>
 #include <sstream>
 
 #include <ixwebsocket/IXSocketTLSOptions.h>

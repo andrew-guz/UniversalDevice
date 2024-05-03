@@ -1,6 +1,5 @@
 #include "EventsProcessor.hpp"
 
-#include <nlohmann/json_fwd.hpp>
 #include <sstream>
 
 #include "CurrentTime.hpp"
