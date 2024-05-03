@@ -62,13 +62,6 @@ void from_json(const nlohmann::json& json, CurrentTime& currentTime) {
     currentTime._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
-void to_json(nlohmann::json& json, const Event& event) {
-    json = {
-        { "id", event._id.data() },      { "name", event._name },         { "active", event._active },   { "type", event._type },
-        { "provider", event._provider }, { "receiver", event._receiver }, { "command", event._command },
-    };
-}
-
 void to_json(nlohmann::json& json, const DeviceInformationDescription& deviceInformationDescription) {
     to_json(json, (const ComponentDescription&)deviceInformationDescription);
     json += { "seconds", deviceInformationDescription._seconds };
@@ -86,6 +79,13 @@ void to_json(nlohmann::json& json, const DeviceProperty& deviceProperty) {
 }
 
 void from_json(const nlohmann::json& json, DeviceProperty& deviceProperty) { deviceProperty._value = json.value("value", std::string()); }
+
+void to_json(nlohmann::json& json, const Event& event) {
+    json = {
+        { "id", event._id.data() },      { "name", event._name },         { "active", event._active },   { "type", event._type },
+        { "provider", event._provider }, { "receiver", event._receiver }, { "command", event._command },
+    };
+}
 
 void from_json(const nlohmann::json& json, Event& event) {
     event._id = Uuid(json.value("id", ""));

@@ -48,7 +48,7 @@ void ThermometerSimulator::OnMessage(const ix::WebSocketMessagePtr& message) {
         try {
             auto json = nlohmann::json::parse(message->str);
             if (json.contains("period")) {
-                periodSettings = json["period"].get<PeriodSettings>();
+                periodSettings = json.get<PeriodSettings>();
                 SendTemperature();
             }
         } catch (...) {
