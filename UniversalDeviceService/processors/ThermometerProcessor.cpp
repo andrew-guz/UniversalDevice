@@ -59,12 +59,9 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
                 else
                     LOG_SQL_ERROR(queryStream.str());
             }
-            if (extendedThermometerCurrentValues.size()) {
-                nlohmann::json result;
-                for (auto& extendedThermometerCurrentValue : extendedThermometerCurrentValues)
-                    result.push_back(nlohmann::json{ extendedThermometerCurrentValue });
-                return result;
-            } else
+            if (extendedThermometerCurrentValues.size())
+                return extendedThermometerCurrentValues;
+            else
                 LOG_INFO << "No data for device " << description._id.data() << "found." << std::endl;
         }
         return {};

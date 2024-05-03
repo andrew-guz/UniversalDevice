@@ -95,9 +95,9 @@ void MotionRelayWidget::OnSettingsButton() {
     newSettings._activityTime = activityDelayEdit->value() * 60000;
     auto result =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, nlohmann::json{ newSettings });
+                                     Constants::LoginService, newSettings);
     if (result != 200)
-        LOG_ERROR << "Failed to update settings to " << nlohmann::json{ newSettings }.dump() << "." << std::endl;
+        LOG_ERROR << "Failed to update settings to " << nlohmann::json(newSettings).dump() << "." << std::endl;
 }
 
 void MotionRelayWidget::OnStateButton() {
@@ -107,8 +107,8 @@ void MotionRelayWidget::OnStateButton() {
     newCommands._state = newState;
     auto result =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, nlohmann::json{ newCommands });
+                                     Constants::LoginService, newCommands);
     if (result != 200)
-        LOG_ERROR << "Failed to update commands to " << nlohmann::json{ newCommands }.dump() << "." << std::endl;
+        LOG_ERROR << "Failed to update commands to " << nlohmann::json(newCommands).dump() << "." << std::endl;
     _stateButton->setEnabled(false);
 }

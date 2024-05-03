@@ -215,22 +215,22 @@ nlohmann::json EventsWidget::CreateNewEventFromEditor(BaseEventEditor* eventEdit
         case 0: {
             TimerEvent event;
             eventEditor->FillFromUi(event);
-            eventJson = nlohmann::json{ event };
+            eventJson = event;
         } break;
         case 1: {
             ThermometerEvent event;
             eventEditor->FillFromUi(event);
-            eventJson = nlohmann::json{ event };
+            eventJson = event;
         } break;
         case 2: {
             RelayEvent event;
             eventEditor->FillFromUi(event);
-            eventJson = nlohmann::json{ event };
+            eventJson = event;
         } break;
         case 3: {
             ThermostatEvent event;
             eventEditor->FillFromUi(event);
-            eventJson = nlohmann::json{ event };
+            eventJson = event;
         } break;
     }
     return eventJson;

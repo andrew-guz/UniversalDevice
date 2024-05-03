@@ -13,11 +13,11 @@ public:
 
     template<typename Object>
     static Message Create(std::string_view type, const Uuid& id, std::string_view subject, const Object& object) {
-        return Create(type, id, subject, nlohmann::json{ object });
+        return Create(type, id, subject, nlohmann::json(object));
     }
 
     template<typename Object>
     static Message Create(const ComponentDescription& description, std::string_view subject, const Object& object) {
-        return Create(description, subject, nlohmann::json{ object });
+        return Create(description, subject, nlohmann::json(object));
     }
 };

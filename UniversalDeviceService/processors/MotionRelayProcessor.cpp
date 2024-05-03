@@ -55,12 +55,9 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
                 else
                     LOG_SQL_ERROR(queryStream.str());
             }
-            if (extendedMotionRelayCurrentStates.size()) {
-                nlohmann::json result;
-                for (auto& extendedMotionRelayCurrentState : extendedMotionRelayCurrentStates)
-                    result.push_back(nlohmann::json{ extendedMotionRelayCurrentState });
-                return result;
-            } else
+            if (extendedMotionRelayCurrentStates.size())
+                return extendedMotionRelayCurrentStates;
+            else
                 LOG_INFO << "No data for device " << description._id.data() << "found." << std::endl;
         }
         return {};

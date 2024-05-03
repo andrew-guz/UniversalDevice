@@ -54,12 +54,9 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
                 else
                     LOG_SQL_ERROR(queryStream.str());
             }
-            if (extendedRelayCurrentStates.size()) {
-                nlohmann::json result;
-                for (auto& extendedRelayCurrentState : extendedRelayCurrentStates)
-                    result.push_back(nlohmann::json{ extendedRelayCurrentState });
-                return result;
-            } else
+            if (extendedRelayCurrentStates.size())
+                return extendedRelayCurrentStates;
+            else
                 LOG_INFO << "No data for device " << description._id.data() << "found." << std::endl;
         }
         return {};

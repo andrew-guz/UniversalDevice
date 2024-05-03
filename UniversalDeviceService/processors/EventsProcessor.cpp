@@ -116,13 +116,13 @@ void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEv
         // on
         RelayState relayState;
         relayState._state = true;
-        command = nlohmann::json{ relayState }.dump();
+        command = nlohmann::json(relayState).dump();
     }
     if (thermometerCurrentValue._value >= thermostatEvent._temperature + thermostatEvent._delta) {
         // off
         RelayState relayState;
         relayState._state = false;
-        command = nlohmann::json{ relayState }.dump();
+        command = nlohmann::json(relayState).dump();
     }
     if (command.size())
         SendCommand(thermostatEvent._receiver._id, command);

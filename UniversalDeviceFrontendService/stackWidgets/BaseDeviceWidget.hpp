@@ -55,7 +55,7 @@ protected:
         messageData._seconds = seconds;
         auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData);
         auto replyJson = RequestHelper::DoPostRequestWithAnswer({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICE_GET_INFO },
-                                                                Constants::LoginService, nlohmann::json{ postMessage });
+                                                                Constants::LoginService, postMessage);
         return replyJson.get<std::vector<TValues>>();
     }
 

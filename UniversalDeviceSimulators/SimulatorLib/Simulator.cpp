@@ -28,7 +28,7 @@ Simulator::Simulator(const std::string_view type) : _type(type) {
             WebSocketAuthentication auth;
             auth._authString = "Basic ZGV2aWNlOmVBITdSPWgmVnU=";
             auto authMessage = MessageHelper::Create(_type, _parameters._id, Constants::SubjectWebSocketAuthorization, auth);
-            _websocket.send(nlohmann::json{ authMessage }.dump());
+            _websocket.send(nlohmann::json(authMessage).dump());
             AskForSettings();
             AskForCommands();
         } else if (message->type == ix::WebSocketMessageType::Message)
@@ -45,14 +45,14 @@ const Uuid& Simulator::GetId() const { return _parameters._id; }
 
 void Simulator::AskForSettings() {
     auto settingsMessage = MessageHelper::Create(_type, _parameters._id, Constants::SubjectWebSocketGetSettings, {});
-    _websocket.send(nlohmann::json{ settingsMessage }.dump());
+    _websocket.send(nlohmann::json(settingsMessage).dump());
 }
 
 void Simulator::AskForCommands() {
     auto commandsMessage = MessageHelper::Create(_type, _parameters._id, Constants::SubjectWebSocketGetCommands, {});
-    _websocket.send(nlohmann::json{ commandsMessage }.dump());
+    _websocket.send(nlohmann::json(commandsMessage).dump());
 }
 
-void Simulator::SendMessage(const Message& message) { _websocket.send(nlohmann::json{ message }.dump()); }
+void Simulator::SendMessage(const Message& message) { _websocket.send(nlohmann::json(message).dump()); }
 
 void Simulator::OnMessage(const ix::WebSocketMessagePtr& message) {}

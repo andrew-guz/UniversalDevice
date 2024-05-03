@@ -147,15 +147,15 @@ void ThermometerWidget::OnSettingsButton() {
     newSettings._period = periodEdit->value() * 1000;
     auto settingsResult =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, nlohmann::json{ newSettings });
+                                     Constants::LoginService, newSettings);
     if (settingsResult != 200)
-        LOG_ERROR << "Failed to update settings to " << nlohmann::json{ newSettings }.dump() << "." << std::endl;
+        LOG_ERROR << "Failed to update settings to " << nlohmann::json(newSettings).dump() << "." << std::endl;
     // set brightness command
     ThermometerLedBrightness newCommand;
     newCommand._brightness = brightnessEdit->value();
     auto commandResult =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, nlohmann::json{ newCommand });
+                                     Constants::LoginService, newCommand);
     if (commandResult != 200)
-        LOG_ERROR << "Failed to update settings to " << nlohmann::json{ newCommand }.dump() << "." << std::endl;
+        LOG_ERROR << "Failed to update settings to " << nlohmann::json(newCommand).dump() << "." << std::endl;
 }

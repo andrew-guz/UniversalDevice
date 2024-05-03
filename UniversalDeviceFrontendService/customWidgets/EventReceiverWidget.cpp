@@ -53,11 +53,11 @@ void EventReceiverWidget::FillFromUi(Event& event) const {
     if (event._receiver._type == Constants::DeviceTypeThermometer) {
         ThermometerLedBrightness thermometerLedBrightness;
         thermometerLedBrightness._brightness = _brightness->value();
-        event._command = nlohmann::json{ thermometerLedBrightness };
+        event._command = thermometerLedBrightness;
     } else if (event._receiver._type == Constants::DeviceTypeRelay || event._receiver._type == Constants::DeviceTypeMotionRelay) {
         RelayState relayState;
         relayState._state = _relayState->isChecked();
-        event._command = nlohmann::json{ relayState };
+        event._command = relayState;
     }
 }
 
