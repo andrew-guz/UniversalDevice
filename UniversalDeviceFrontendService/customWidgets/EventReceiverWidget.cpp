@@ -2,7 +2,7 @@
 
 #include "Defines.hpp"
 #include "EventWidgetHelper.hpp"
-#include "JsonExtension.hpp"
+#include "Marshaling.hpp"
 #include "RelayState.hpp"
 #include "ThermometerLedBrightness.hpp"
 
@@ -37,10 +37,10 @@ void EventReceiverWidget::Cleanup() {
 void EventReceiverWidget::FillUi(const Event& event) {
     _receivers->SetSelectedDevice(event._receiver._id);
     if (event._receiver._type == Constants::DeviceTypeThermometer) {
-        auto thermometerLedBrightness = JsonExtension::CreateFromJson<ThermometerLedBrightness>(event._command);
+        auto thermometerLedBrightness = event._command.get<ThermometerLedBrightness>();
         _brightness->setValue(thermometerLedBrightness._brightness);
     } else if (event._receiver._type == Constants::DeviceTypeRelay || event._receiver._type == Constants::DeviceTypeMotionRelay) {
-        auto relayState = JsonExtension::CreateFromJson<RelayState>(event._command);
+        auto relayState = event._command.get<RelayState>();
         _relayState->setChecked(relayState._state);
     }
 }
@@ -52,11 +52,11 @@ void EventReceiverWidget::FillFromUi(Event& event) const {
     if (event._receiver._type == Constants::DeviceTypeThermometer) {
         ThermometerLedBrightness thermometerLedBrightness;
         thermometerLedBrightness._brightness = _brightness->value();
-        event._command = thermometerLedBrightness.ToJson();
+        event._command = thermometerLedBrightness;
     } else if (event._receiver._type == Constants::DeviceTypeRelay || event._receiver._type == Constants::DeviceTypeMotionRelay) {
         RelayState relayState;
         relayState._state = _relayState->isChecked();
-        event._command = relayState.ToJson();
+        event._command = relayState;
     }
 }
 

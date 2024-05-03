@@ -6,8 +6,8 @@
 #include "DbExtension.hpp"
 #include "EventTableStorageCache.hpp"
 #include "IDb.hpp"
-#include "JsonExtension.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "RelayCurrentState.hpp"
 #include "RelayState.hpp"
 #include "SimpleTableStorageCache.hpp"
@@ -23,18 +23,18 @@ nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::
     std::vector<nlohmann::json> eventJsons = LoadEvents(message._header._description);
     // do events
     for (auto& eventJson : eventJsons) {
-        auto simpleEvent = JsonExtension::CreateFromJson<Event>(eventJson);
+        auto simpleEvent = eventJson.get<Event>();
         if (simpleEvent._type == Constants::EventTypeTimer) {
-            auto timerEvent = JsonExtension::CreateFromJson<TimerEvent>(eventJson);
+            auto timerEvent = eventJson.get<TimerEvent>();
             ProcessTimerEvent(timerEvent, message);
         } else if (simpleEvent._type == Constants::EventTypeThermometer) {
-            auto thermometerEvent = JsonExtension::CreateFromJson<ThermometerEvent>(eventJson);
+            auto thermometerEvent = eventJson.get<ThermometerEvent>();
             ProcessThermometerEvent(thermometerEvent, message);
         } else if (simpleEvent._type == Constants::EventTypeRelay) {
-            auto relayEvent = JsonExtension::CreateFromJson<RelayEvent>(eventJson);
+            auto relayEvent = eventJson.get<RelayEvent>();
             ProcessRelayEvent(relayEvent, message);
         } else if (simpleEvent._type == Constants::EventTypeThermostat) {
-            auto thermostatEvent = JsonExtension::CreateFromJson<ThermostatEvent>(eventJson);
+            auto thermostatEvent = eventJson.get<ThermostatEvent>();
             ProcessThermostatEvent(thermostatEvent, message);
         }
     }
@@ -77,14 +77,14 @@ std::vector<nlohmann::json> EventsProcessor::LoadEvents(const ComponentDescripti
 }
 
 void EventsProcessor::ProcessTimerEvent(const TimerEvent& timeEvent, const Message& message) {
-    auto currentTime = JsonExtension::CreateFromJson<CurrentTime>(message._data);
+    auto currentTime = message._data.get<CurrentTime>();
     auto [hour, minute] = TimeHelper::GetHourMinute(currentTime._timestamp);
     if (hour == timeEvent._hour && minute == timeEvent._minute)
         SendCommand(timeEvent._receiver._id, timeEvent._command.dump());
 }
 
 void EventsProcessor::ProcessThermometerEvent(const ThermometerEvent& thermometerEvent, const Message& message) {
-    auto thermometerCurrentValue = JsonExtension::CreateFromJson<ThermometerCurrentValue>(message._data);
+    auto thermometerCurrentValue = message._data.get<ThermometerCurrentValue>();
     if (thermometerCurrentValue._value == std::numeric_limits<int>::min()) {
         LOG_ERROR << "Invalid value in EventsProcessor::ProcessThermometerEvent." << std::endl;
         return;
@@ -95,7 +95,7 @@ void EventsProcessor::ProcessThermometerEvent(const ThermometerEvent& thermomete
 }
 
 void EventsProcessor::ProcessRelayEvent(const RelayEvent& relayEvent, const Message& message) {
-    auto relayCurrentState = JsonExtension::CreateFromJson<RelayCurrentState>(message._data);
+    auto relayCurrentState = message._data.get<RelayCurrentState>();
     if (relayCurrentState._state == std::numeric_limits<int>::min()) {
         LOG_ERROR << "Invalid value in EventsProcessor::ProcessRelayEvent." << std::endl;
         return;
@@ -105,7 +105,7 @@ void EventsProcessor::ProcessRelayEvent(const RelayEvent& relayEvent, const Mess
 }
 
 void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEvent, const Message& message) {
-    auto thermometerCurrentValue = JsonExtension::CreateFromJson<ThermometerCurrentValue>(message._data);
+    auto thermometerCurrentValue = message._data.get<ThermometerCurrentValue>();
     if (thermometerCurrentValue._value == std::numeric_limits<int>::min()) {
         LOG_ERROR << "Invalid value in EventsProcessor::ProcessThermostatEvent." << std::endl;
         return;
@@ -115,13 +115,13 @@ void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEv
         // on
         RelayState relayState;
         relayState._state = true;
-        command = relayState.ToJson().dump();
+        command = nlohmann::json(relayState).dump();
     }
     if (thermometerCurrentValue._value >= thermostatEvent._temperature + thermostatEvent._delta) {
         // off
         RelayState relayState;
         relayState._state = false;
-        command = relayState.ToJson().dump();
+        command = nlohmann::json(relayState).dump();
     }
     if (command.size())
         SendCommand(thermostatEvent._receiver._id, command);

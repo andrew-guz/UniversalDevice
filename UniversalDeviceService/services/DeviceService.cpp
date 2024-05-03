@@ -4,8 +4,8 @@
 #include "CurrentTime.hpp"
 #include "Defines.hpp"
 #include "EventTableStorageCache.hpp"
-#include "JsonExtension.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "SimpleTableStorageCache.hpp"
 #include "StorageCacheFactory.hpp"
@@ -218,7 +218,7 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
         auto timestamp = std::chrono::system_clock::now();
         auto message = BaseServiceExtension::GetMessageFromWebSocketData(data);
         if (message._header._subject == Constants::SubjectWebSocketAuthorization) {
-            auto webSocketAuthentication = JsonExtension::CreateFromJson<WebSocketAuthentication>(message._data);
+            auto webSocketAuthentication = message._data.get<WebSocketAuthentication>();
             if (AccountManager::Instance()->IsValidUser(webSocketAuthentication._authString))
                 WebsocketsCache::Instance()->AddWebSocketConnection(message._header._description._id, connection);
             else {

@@ -68,9 +68,9 @@ void RelayWidget::OnSettingsButton() {
     newSettings._period = periodEdit->value() * 1000;
     auto result =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newSettings.ToJson());
+                                     Constants::LoginService, newSettings);
     if (result != 200)
-        LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
+        LOG_ERROR << "Failed to update settings to " << nlohmann::json(newSettings).dump() << "." << std::endl;
 }
 
 void RelayWidget::OnStateButton() {
@@ -80,8 +80,8 @@ void RelayWidget::OnStateButton() {
     newCommands._state = newState;
     auto result =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newCommands.ToJson());
+                                     Constants::LoginService, newCommands);
     if (result != 200)
-        LOG_ERROR << "Failed to update commands to " << newCommands.ToJson().dump() << "." << std::endl;
+        LOG_ERROR << "Failed to update commands to " << nlohmann::json(newCommands).dump() << "." << std::endl;
     _stateButton->setEnabled(false);
 }

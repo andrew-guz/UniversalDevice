@@ -8,19 +8,8 @@
 #include "RelayCurrentState.hpp"
 #include "TimeHelper.hpp"
 
-struct ExtendedRelayCurrentState final : public RelayCurrentState, public IJson<ExtendedRelayCurrentState>, public IDb<ExtendedRelayCurrentState> {
+struct ExtendedRelayCurrentState final : public RelayCurrentState, public IDb<ExtendedRelayCurrentState> {
     std::chrono::system_clock::time_point _timestamp;
-
-    virtual nlohmann::json ToJson() const override {
-        auto relayCurrentState = RelayCurrentState::ToJson();
-        relayCurrentState += { "timestamp", TimeHelper::TimeToInt(_timestamp) };
-        return relayCurrentState;
-    }
-
-    virtual void FromJson(const nlohmann::json& json) override {
-        RelayCurrentState::FromJson(json);
-        _timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
-    }
 
     virtual std::vector<std::string> ToDbStrings() const override {
         LOG_ERROR << "This object should not be written to Database." << std::endl;

@@ -1,7 +1,8 @@
 #include "AccountManagerInitializer.hpp"
 
-#include "JsonExtension.hpp"
+#include "Account.hpp"
 #include "JsonFileReader.hpp"
+#include "Marshaling.hpp"
 #include "PathHelper.hpp"
 
 void AccountManagerInitializer::Initialize(std::vector<Account>& accounts) {
@@ -11,13 +12,11 @@ void AccountManagerInitializer::Initialize(std::vector<Account>& accounts) {
     auto authenticationJson = JsonFileReader::ReadJson(fileName);
     if (authenticationJson.is_null())
         return;
-    auto serviceAccount = JsonExtension::CreateFromJson<Account>(authenticationJson.value("serviceAccount", nlohmann::json()));
+    auto serviceAccount = authenticationJson.value("serviceAccount", nlohmann::json()).get<Account>();
     accounts.push_back(serviceAccount);
-    auto deviceAccount = JsonExtension::CreateFromJson<Account>(authenticationJson.value("deviceAccount", nlohmann::json()));
+    auto deviceAccount = authenticationJson.value("deviceAccount", nlohmann::json()).get<Account>();
     accounts.push_back(deviceAccount);
     auto usersJson = authenticationJson.value("users", nlohmann::json::array());
-    for (auto& userJson : usersJson) {
-        auto userAccount = JsonExtension::CreateFromJson<Account>(userJson);
-        accounts.push_back(userAccount);
-    }
+    for (auto& userJson : usersJson)
+        accounts.emplace_back(userJson.get<Account>());
 }

@@ -1,6 +1,6 @@
 #include "AccountManager.hpp"
 
-#include <nlohmann/json.hpp>
+#include <algorithm>
 
 #include "Base64Helper.hpp"
 #include "Logger.hpp"

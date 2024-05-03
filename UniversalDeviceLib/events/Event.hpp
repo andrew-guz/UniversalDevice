@@ -3,12 +3,13 @@
 #include <string>
 #include <string_view>
 
+#include <nlohmann/json.hpp>
+
 #include "ComponentDescription.hpp"
 #include "Constants.hpp"
-#include "IJson.hpp"
 #include "Uuid.hpp"
 
-struct Event : public IJson<Event> {
+struct Event {
     Uuid _id;
     std::string _name;
     bool _active = true;
@@ -20,24 +21,4 @@ struct Event : public IJson<Event> {
     Event(const std::string_view type = Constants::EventTypeUndefined) : _type(type) {}
 
     virtual ~Event() = default;
-
-    virtual nlohmann::json ToJson() const override {
-        return { { "id", _id.data() },
-                 { "name", _name },
-                 { "active", _active },
-                 { "type", _type },
-                 { "provider", _provider.ToJson() },
-                 { "receiver", _receiver.ToJson() },
-                 { "command", _command } };
-    }
-
-    virtual void FromJson(const nlohmann::json& json) override {
-        _id = Uuid(json.value("id", ""));
-        _name = json.value("name", "");
-        _active = json.value("active", true);
-        _type = json.value("type", Constants::EventTypeUndefined);
-        _provider.FromJson(json["provider"]);
-        _receiver.FromJson(json["receiver"]);
-        _command = json["command"];
-    }
 };

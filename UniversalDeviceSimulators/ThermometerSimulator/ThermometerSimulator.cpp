@@ -3,10 +3,8 @@
 #include <cstdlib>
 #include <random>
 
-#include <nlohmann/json.hpp>
-
-#include "JsonExtension.hpp"
 #include "MessageHelper.hpp"
+#include "PeriodSettings.hpp"
 #include "ThermometerCurrentValue.hpp"
 
 namespace {
@@ -39,9 +37,9 @@ float ThermometerSimulator::GetTemperature() {
 int ThermometerSimulator::GetPeriod() const { return periodSettings._period; }
 
 void ThermometerSimulator::SendTemperature() {
-    ThermometerCurrentValue temeratureValue;
-    temeratureValue._value = GetTemperature();
-    auto temperatureMessage = MessageHelper::Create(GetType(), GetId(), Constants::SubjectThermometerCurrentValue, temeratureValue);
+    ThermometerCurrentValue temperatureValue;
+    temperatureValue._value = GetTemperature();
+    auto temperatureMessage = MessageHelper::Create(GetType(), GetId(), Constants::SubjectThermometerCurrentValue, temperatureValue);
     SendMessage(temperatureMessage);
 }
 
@@ -50,7 +48,7 @@ void ThermometerSimulator::OnMessage(const ix::WebSocketMessagePtr& message) {
         try {
             auto json = nlohmann::json::parse(message->str);
             if (json.contains("period")) {
-                periodSettings = JsonExtension::CreateFromJson<PeriodSettings>(json);
+                periodSettings = json.get<PeriodSettings>();
                 SendTemperature();
             }
         } catch (...) {

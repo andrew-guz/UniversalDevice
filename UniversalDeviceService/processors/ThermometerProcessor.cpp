@@ -5,8 +5,8 @@
 #include "Constants.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
-#include "JsonExtension.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "ThermometerCurrentValue.hpp"
 #include "TimeHelper.hpp"
 
@@ -14,7 +14,7 @@ ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) : Base
 
 nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     if (message._header._subject == Constants::SubjectThermometerCurrentValue) {
-        auto currentValue = JsonExtension::CreateFromJson<ThermometerCurrentValue>(message._data);
+        auto currentValue = message._data.get<ThermometerCurrentValue>();
         if (currentValue._value == std::numeric_limits<float>::min()) {
             LOG_ERROR << "ThermometerProcessor - invalid message." << std::endl;
             return {};
@@ -32,7 +32,7 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
             LOG_SQL_ERROR(queryStream.str());
         return {};
     } else if (message._header._subject == Constants::SubjectGetDeviceInformation) {
-        auto description = JsonExtension::CreateFromJson<DeviceInformationDescription>(message._data);
+        auto description = message._data.get<DeviceInformationDescription>();
         if (description._type == Constants::DeviceTypeThermometer && !description._id.isEmpty()) {
             std::vector<ExtendedThermometerCurrentValue> extendedThermometerCurrentValues;
             if (description._seconds != 0) {
@@ -59,12 +59,9 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
                 else
                     LOG_SQL_ERROR(queryStream.str());
             }
-            if (extendedThermometerCurrentValues.size()) {
-                nlohmann::json result;
-                for (auto& extendedThermometerCurrentValue : extendedThermometerCurrentValues)
-                    result.push_back(extendedThermometerCurrentValue.ToJson());
-                return result;
-            } else
+            if (extendedThermometerCurrentValues.size())
+                return extendedThermometerCurrentValues;
+            else
                 LOG_INFO << "No data for device " << description._id.data() << "found." << std::endl;
         }
         return {};

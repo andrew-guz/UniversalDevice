@@ -6,6 +6,7 @@
 #include "DeviceProperty.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "WidgetHelper.hpp"
 
 using namespace Wt;
@@ -106,7 +107,7 @@ void ThermometerWidget::ClearData() {
 ThermometerLedBrightness ThermometerWidget::GetBrightness() {
     auto replyJson = RequestHelper::DoGetRequest(
         { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService);
-    return JsonExtension::CreateFromJson<ThermometerLedBrightness>(replyJson);
+    return replyJson.get<ThermometerLedBrightness>();
 }
 
 void ThermometerWidget::OnSettingsButton() {
@@ -146,15 +147,15 @@ void ThermometerWidget::OnSettingsButton() {
     newSettings._period = periodEdit->value() * 1000;
     auto settingsResult =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newSettings.ToJson());
+                                     Constants::LoginService, newSettings);
     if (settingsResult != 200)
-        LOG_ERROR << "Failed to update settings to " << newSettings.ToJson().dump() << "." << std::endl;
+        LOG_ERROR << "Failed to update settings to " << nlohmann::json(newSettings).dump() << "." << std::endl;
     // set brightness command
     ThermometerLedBrightness newCommand;
     newCommand._brightness = brightnessEdit->value();
     auto commandResult =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newCommand.ToJson());
+                                     Constants::LoginService, newCommand);
     if (commandResult != 200)
-        LOG_ERROR << "Failed to update settings to " << newCommand.ToJson().dump() << "." << std::endl;
+        LOG_ERROR << "Failed to update settings to " << nlohmann::json(newCommand).dump() << "." << std::endl;
 }
