@@ -54,10 +54,10 @@ file(GLOB_RECURSE SRC_FILES *.cpp)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 #make sure that this project will be build after some targets
-add_dependencies(${PROJECT_NAME} wt wthttp UniversalDeviceLib)
+add_dependencies(${PROJECT_NAME} wt wthttp ixwebsocket UniversalDeviceLib)
 
 #executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} -lwt -lwthttp UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} -lwt -lwthttp ixwebsocket UniversalDeviceLib)
 
 #install section
 set(CMAKE_INSTALL_PREFIX /usr/local/bin/UniversalDevice)

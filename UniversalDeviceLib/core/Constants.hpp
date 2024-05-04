@@ -8,12 +8,16 @@ public:
     static constexpr std::string_view LoginService = "service";
     static constexpr std::string_view LoginDevice = "device";
 
-    // device types
+    // device types for messagess
     static constexpr std::string_view DeviceTypeUndefined = "undefined_type";
     static constexpr std::string_view DeviceTypeTimer = "timer";
     static constexpr std::string_view DeviceTypeThermometer = "thermometer";
     static constexpr std::string_view DeviceTypeRelay = "relay";
     static constexpr std::string_view DeviceTypeMotionRelay = "motion_relay";
+
+    // frontend type for messages
+
+    static constexpr std::string_view FrontendType = "frontend";
 
     // subjects - depends on type
     static constexpr std::string_view SubjectUndefined = "undefined_subject";
@@ -26,8 +30,11 @@ public:
     static constexpr std::string_view SubjectWebSocketGetSettings = "websocket_get_settings";
     static constexpr std::string_view SubjectWebSocketGetCommands = "websocket_get_commands";
 
-    // predefined ids for devices
+    // predefined id for timer device
     static const Uuid PredefinedIdTimer;
+
+    // predefined id for frontend service messages
+    static const Uuid PredefinedIdFrontend;
 
     // event types
     static constexpr std::string_view EventTypeUndefined = "undefined _event";

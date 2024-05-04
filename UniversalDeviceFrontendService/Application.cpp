@@ -2,6 +2,8 @@
 
 #include <Wt/WEnvironment.h>
 
+#include "AccountManager.hpp"
+#include "Constants.hpp"
 #include "DevicesWidget.hpp"
 #include "EventsWidget.hpp"
 #include "Logger.hpp"
@@ -10,11 +12,25 @@
 #include "MotionRelayWidget.hpp"
 #include "RelayWidget.hpp"
 #include "ThermometerWidget.hpp"
+#include "WebSocketAuthentication.hpp"
+#include "ixwebsocket/IXWebSocketMessageType.h"
 
 using namespace Wt;
 
 Application::Application(const Settings& settings, const WEnvironment& env) : Wt::WApplication(env) {
     setCssTheme("polished");
+
+    std::stringstream urlStream;
+    urlStream << "wss://localhost:" << settings._servicePort << API_DEVICE_WEBSOCKETS;
+    auto url = urlStream.str();
+
+    _websocket.setUrl(url);
+    // The way to ignore certificate
+    ix::SocketTLSOptions tlsOptions;
+    tlsOptions.caFile = "NONE";
+    _websocket.setTLSOptions(tlsOptions);
+    _websocket.setOnMessageCallback([&](const ix::WebSocketMessagePtr& message) { this->OnWebsocketMessage(message); });
+    _websocket.start();
 
     _mainLayout = root()->setLayout(std::make_unique<WHBoxLayout>());
     _mainStack = _mainLayout->addWidget(std::make_unique<WStackedWidget>());
@@ -68,4 +84,13 @@ void Application::SetWidget(StackWidgetType type, const std::string& data) {
     }
     if (stackWidget)
         stackWidget->Initialize(data);
+}
+
+void Application::OnWebsocketMessage(const ix::WebSocketMessagePtr& message) {
+    if (message->type == ix::WebSocketMessageType::Open) {
+        WebSocketAuthentication auth;
+        auth._authString = "Basic " + AccountManager::Instance()->GetAuthString(Constants::LoginService);
+        auto authMessage = MessageHelper::Create(Constants::FrontendType, Constants::PredefinedIdFrontend, Constants::SubjectWebSocketAuthorization, auth);
+        _websocket.send(nlohmann::json(authMessage).dump());
+    }
 }
