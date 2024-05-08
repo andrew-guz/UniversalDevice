@@ -56,7 +56,8 @@ void DevicesWidget::Clear() {
 void DevicesWidget::Refresh() {
     Clear();
     auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
-    auto allDescriptions = replyJson.get<std::vector<ExtendedComponentDescription>>();
+    auto allDescriptions =
+        !replyJson.is_null() ? replyJson.get<std::vector<ExtendedComponentDescription>>() : std::vector<ExtendedComponentDescription>{};
     if (allDescriptions.empty())
         return;
     LOG_DEBUG << allDescriptions.size() << " allDescriptions found." << std::endl;

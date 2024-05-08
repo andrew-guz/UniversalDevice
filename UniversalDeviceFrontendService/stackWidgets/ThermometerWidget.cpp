@@ -107,7 +107,7 @@ void ThermometerWidget::ClearData() {
 ThermometerLedBrightness ThermometerWidget::GetBrightness() {
     auto replyJson = RequestHelper::DoGetRequest(
         { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) }, Constants::LoginService);
-    return replyJson.get<ThermometerLedBrightness>();
+    return !replyJson.is_null() ? replyJson.get<ThermometerLedBrightness>() : ThermometerLedBrightness{};
 }
 
 void ThermometerWidget::OnSettingsButton() {

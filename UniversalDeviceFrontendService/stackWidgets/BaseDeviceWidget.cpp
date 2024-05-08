@@ -86,7 +86,7 @@ void BaseDeviceWidget::Clear(ClearType type) {
 void BaseDeviceWidget::GetDeviceProperty(const std::string& path, std::string& value) {
     auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) },
                                                  Constants::LoginService);
-    value = replyJson.get<DeviceProperty>()._value;
+    value = !replyJson.is_null() ? replyJson.get<DeviceProperty>()._value : std::string{};
 }
 
 bool BaseDeviceWidget::SetDeviceProperty(const std::string& path, const std::string& newValue, std::string& value) {

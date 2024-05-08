@@ -56,7 +56,7 @@ void LogsWidget::Refresh() {
 
 std::vector<LogInformation> LogsWidget::GetLogs() {
     auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_LOGS }, Constants::LoginService);
-    return replyJson.get<std::vector<LogInformation>>();
+    return !replyJson.is_null() ? replyJson.get<std::vector<LogInformation>>() : std::vector<LogInformation>{};
 }
 
 void LogsWidget::OnLogSelected() {
