@@ -37,7 +37,7 @@ protected:
     TSettings GetSettings() {
         auto replyJson = RequestHelper::DoGetRequest(
             { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) }, Constants::LoginService);
-        return replyJson.get<TSettings>();
+        return replyJson.is_null() ? TSettings() : replyJson.get<TSettings>();
     }
 
     // return 1 last point
@@ -56,7 +56,7 @@ protected:
         auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData);
         auto replyJson = RequestHelper::DoPostRequestWithAnswer({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICE_GET_INFO },
                                                                 Constants::LoginService, postMessage);
-        return replyJson.get<std::vector<TValues>>();
+        return replyJson.is_null() ? std::vector<TValues>{} : replyJson.get<std::vector<TValues>>();
     }
 
     void GetDeviceProperty(const std::string& path, std::string& value);
