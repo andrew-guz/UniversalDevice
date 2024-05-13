@@ -182,16 +182,23 @@ void EventsWidget::OnTableSelectionChanged() {
         return;
     auto eventJson = cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), ItemDataRole::User));
     auto simpleEvent = eventJson.get<Event>();
-    if (simpleEvent._type == Constants::EventTypeTimer)
+    if (simpleEvent._type == Constants::EventTypeTimer) {
         _eventType->setCurrentIndex(0);
-    else if (simpleEvent._type == Constants::EventTypeThermometer)
+        OnEventTypeChanged();
+        GetCurrentEventEditor()->FillUi(eventJson.get<TimerEvent>());
+    } else if (simpleEvent._type == Constants::EventTypeThermometer) {
         _eventType->setCurrentIndex(1);
-    else if (simpleEvent._type == Constants::EventTypeRelay)
+        OnEventTypeChanged();
+        GetCurrentEventEditor()->FillUi(eventJson.get<ThermometerEvent>());
+    } else if (simpleEvent._type == Constants::EventTypeRelay) {
         _eventType->setCurrentIndex(2);
-    else if (simpleEvent._type == Constants::EventTypeThermostat)
+        OnEventTypeChanged();
+        GetCurrentEventEditor()->FillUi(eventJson.get<RelayEvent>());
+    } else if (simpleEvent._type == Constants::EventTypeThermostat) {
         _eventType->setCurrentIndex(3);
-    OnEventTypeChanged();
-    GetCurrentEventEditor()->FillUi(simpleEvent);
+        OnEventTypeChanged();
+        GetCurrentEventEditor()->FillUi(eventJson.get<ThermostatEvent>());
+    }
 }
 
 void EventsWidget::OnEventTypeChanged() {
