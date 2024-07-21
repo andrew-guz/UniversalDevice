@@ -10,7 +10,6 @@ function (check_library lib_name)
 endfunction()
 check_library(uuid)
 check_library(curlpp)
-check_library(b64)
 
 #build in Debug mode
 set(CMAKE_BUILD_TYPE Debug)
@@ -54,8 +53,10 @@ file(GLOB_RECURSE SRC_FILES *.cpp)
 #create shared library from source
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
+add_dependencies(${PROJECT_NAME} b64)
+
 #executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} -luuid -lcurlpp -lb64)
+target_link_libraries(${PROJECT_NAME} b64 -luuid -lcurlpp)
 
 #install section
 install(TARGETS ${PROJECT_NAME})
