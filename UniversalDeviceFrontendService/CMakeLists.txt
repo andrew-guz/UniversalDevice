@@ -57,7 +57,7 @@ add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 add_dependencies(${PROJECT_NAME} wt wthttp UniversalDeviceLib)
 
 #executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} -lwt -lwthttp UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} wt wthttp UniversalDeviceLib)
 
 #install section
 set(CMAKE_INSTALL_PREFIX /usr/local/bin/UniversalDevice)
