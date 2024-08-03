@@ -54,7 +54,7 @@ file(GLOB_RECURSE SRC_FILES *.cpp)
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 #executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} b64 -luuid -lcurlpp)
+target_link_libraries(${PROJECT_NAME} b64 curlpp -luuid)
 
 #install section
 install(TARGETS ${PROJECT_NAME})
