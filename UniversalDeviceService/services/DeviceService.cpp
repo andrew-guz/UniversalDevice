@@ -44,7 +44,9 @@ void DeviceService::Initialize(CrowApp& app) {
         .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary) {
             return OnWebSocketMessage(connection, data, is_binary);
         })
-        .onclose([&](crow::websocket::connection& connection, const std::string& reason) { return OnWebSocketClose(connection, reason); });
+        .onclose([&](crow::websocket::connection& connection, const std::string& reason, const uint16_t code) {
+            return OnWebSocketClose(connection, reason, code);
+        });
 
     // also start thread for timer events
     auto timerFunction = std::bind(&DeviceService::TimerFunction, this);
@@ -244,7 +246,7 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
     }
 }
 
-void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason) {
+void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason, const uint16_t code) {
     WebsocketsCache::Instance()->DeleteWebSocketConnection(connection);
 }
 

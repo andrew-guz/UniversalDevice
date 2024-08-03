@@ -12,3 +12,7 @@ add_subdirectory(wt)
 
 set(USE_TLS on)
 add_subdirectory(ixwebsocket)
+
+add_subdirectory(b64)
+
+add_subdirectory(curlpp)

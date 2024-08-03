@@ -26,7 +26,7 @@ protected:
 
     void OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary);
 
-    void OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason);
+    void OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason, uint16_t code);
 
     void TimerFunction();
 
