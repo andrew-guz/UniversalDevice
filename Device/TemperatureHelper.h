@@ -1,49 +1,38 @@
 #ifndef _TEMPERATURE_HELPER_H_
 #define _TEMPERATURE_HELPER_H_
 
-#include <OneWire.h>
 #include <DallasTemperature.h>
+#include <OneWire.h>
 
-class SingleTemperatureSensor
-{
+class SingleTemperatureSensor {
 public:
-  SingleTemperatureSensor(int pin) :
-    _oneWire(pin),
-    _sensor(&_oneWire)
-  {      
-  }
+    SingleTemperatureSensor(int pin) : _oneWire(pin), _sensor(&_oneWire) {}
 
-  void Setup()
-  {
-    _sensor.begin();
-    _sensor.setResolution(12);
-  }
+    void Setup() {
+        _sensor.begin();
+        _sensor.setResolution(12);
+    }
 
-  void Verbose(bool verbose)
-  {
-    _verbose = verbose;
-  }
+    void Verbose(bool verbose) { _verbose = verbose; }
 
-  float GetTemperature()
-  {
-    _sensor.requestTemperatures();
-    auto temperature = _sensor.getTempCByIndex(0);        
-    if (_verbose)
-        PrintResults(temperature);
-    return temperature;
-  }
+    float GetTemperature() {
+        _sensor.requestTemperatures();
+        auto temperature = _sensor.getTempCByIndex(0);
+        if (_verbose)
+            PrintResults(temperature);
+        return temperature;
+    }
 
 private:
-  void PrintResults(float temperature)
-  {
-    Serial.print("Temp C: ");
-    Serial.println(temperature);
-  }
+    void PrintResults(float temperature) {
+        Serial.print("Temp C: ");
+        Serial.println(temperature);
+    }
 
 private:
-  OneWire             _oneWire;
-  DallasTemperature   _sensor;
-  bool                _verbose = false;
+    OneWire _oneWire;
+    DallasTemperature _sensor;
+    bool _verbose = false;
 };
 
 #endif //_TEMPERATURE_HELPER_H_
