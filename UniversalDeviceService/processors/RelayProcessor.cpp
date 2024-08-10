@@ -24,9 +24,11 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
         queryStream << "INSERT INTO Relays (id, timestamp, state) VALUES ('" << description._id.data() << "', " << TimeHelper::TimeToInt(timestamp)
                     << ", '" << currentState._state << "')";
         queryStream.flush();
-        if (!_queryExecutor->Execute(queryStream.str()))
+        if (!_queryExecutor->Execute(queryStream.str())) {
             LOG_SQL_ERROR(queryStream.str());
-        return {};
+            return {};
+        }
+        return Constants::AcknowledgeReply;
     } else if (message._header._subject == Constants::SubjectGetDeviceInformation) {
         auto description = message._data.get<DeviceInformationDescription>();
         if (description._type == Constants::DeviceTypeRelay && !description._id.isEmpty()) {
