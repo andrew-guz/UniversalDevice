@@ -35,7 +35,4 @@ public:
     static constexpr std::string_view EventTypeThermometer = "thermometer_event";
     static constexpr std::string_view EventTypeRelay = "relay_event";
     static constexpr std::string_view EventTypeThermostat = "thermostat_event";
-
-    // acknowledge reply
-    static constexpr std::string_view AcknowledgeReply = "ACK";
 };

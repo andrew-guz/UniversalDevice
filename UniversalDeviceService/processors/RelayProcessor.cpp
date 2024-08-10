@@ -28,7 +28,9 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
             LOG_SQL_ERROR(queryStream.str());
             return {};
         }
-        return Constants::AcknowledgeReply;
+        return nlohmann::json{
+            { "acknowledge", message._header._id },
+        };
     } else if (message._header._subject == Constants::SubjectGetDeviceInformation) {
         auto description = message._data.get<DeviceInformationDescription>();
         if (description._type == Constants::DeviceTypeRelay && !description._id.isEmpty()) {

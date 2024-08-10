@@ -28,7 +28,9 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
             LOG_SQL_ERROR(queryStream.str());
             return {};
         }
-        return Constants::AcknowledgeReply;
+        return nlohmann::json{
+            { "acknowledge", message._header._id },
+        };
     } else if (message._header._subject == Constants::SubjectGetDeviceInformation) {
         auto description = message._data.get<DeviceInformationDescription>();
         if (description._type == Constants::DeviceTypeMotionRelay && !description._id.isEmpty()) {
