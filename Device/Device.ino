@@ -113,6 +113,11 @@ void setRelayState() {
 }
 #endif
 
+void reconnectWebSocket() {
+    websocketClient.disconnect();
+    websocketClient.beginSSL(API_IP, API_PORT, API_WS);
+}
+
 bool connectToWiFi(const String& ssid, const String& password) {
     Serial.print("Connecting " + ssid + " ");
 #ifdef HAS_LED
@@ -142,14 +147,17 @@ bool reconnectWiFi() {
     if (!connectToWiFi(SSID_MAIN, PASSWORD_MAIN))
         if (!connectToWiFi(SSID_ADDITIONAL, PASSWORD_ADDITIONAL))
             return false;
+    reconnectWebSocket();
     return true;
 }
 
 bool checkWiFi() {
-    if (WiFi.status() != WL_CONNECTED)
+    if (WiFi.status() != WL_CONNECTED) {
         if (!connectToWiFi(SSID_MAIN, PASSWORD_MAIN))
             if (!connectToWiFi(SSID_ADDITIONAL, PASSWORD_ADDITIONAL))
                 return false;
+        reconnectWebSocket();
+    }
     return true;
 }
 
