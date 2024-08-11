@@ -28,6 +28,10 @@
 #include "Uuid.hpp"
 #include "WebSocketAuthentication.hpp"
 
+void to_json(nlohmann::json& json, const Uuid& uuid) { json = uuid.data(); }
+
+void from_json(const nlohmann::json& json, Uuid& uuid) { uuid = Uuid(json.get<std::string>()); }
+
 void to_json(nlohmann::json& json, const Account& account) {
     json = {
         { "login", account._login },
@@ -167,12 +171,15 @@ void from_json(const nlohmann::json& json, Message& message) {
 
 void to_json(nlohmann::json& json, const MessageHeader& messageHeader) {
     json = {
+        { "id", messageHeader._id },
         { "description", messageHeader._description },
         { "subject", messageHeader._subject },
     };
 }
 
 void from_json(const nlohmann::json& json, MessageHeader& messageHeader) {
+    // since old devices have no id in header
+    messageHeader._id = json.contains("id") ? json["id"].get<Uuid>() : Uuid();
     messageHeader._description = json["description"].get<ComponentDescription>();
     messageHeader._subject = json.value("subject", Constants::SubjectUndefined);
 }

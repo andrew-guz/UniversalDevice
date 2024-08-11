@@ -1,5 +1,6 @@
 #include "ThermometerProcessor.hpp"
 
+#include <nlohmann/json_fwd.hpp>
 #include <sstream>
 
 #include "Constants.hpp"
@@ -28,9 +29,13 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
         queryStream << "INSERT INTO Thermometers (id, timestamp, value) VALUES ('" << description._id.data() << "', "
                     << TimeHelper::TimeToInt(timestamp) << ", '" << currentValue._value << "')";
         queryStream.flush();
-        if (!_queryExecutor->Execute(queryStream.str()))
+        if (!_queryExecutor->Execute(queryStream.str())) {
             LOG_SQL_ERROR(queryStream.str());
-        return {};
+            return {};
+        }
+        return nlohmann::json{
+            { "acknowledge", message._header._id },
+        };
     } else if (message._header._subject == Constants::SubjectGetDeviceInformation) {
         auto description = message._data.get<DeviceInformationDescription>();
         if (description._type == Constants::DeviceTypeThermometer && !description._id.isEmpty()) {

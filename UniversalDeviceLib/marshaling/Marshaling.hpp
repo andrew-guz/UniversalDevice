@@ -2,6 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
+class Uuid;
 struct Account;
 struct ComponentDescription;
 struct CurrentTime;
@@ -27,6 +28,10 @@ struct ThermometerLedBrightness;
 struct ThermostatEvent;
 struct TimerEvent;
 struct WebSocketAuthentication;
+
+void to_json(nlohmann::json& json, const Uuid& uuid);
+
+void from_json(const nlohmann::json& json, Uuid& uuid);
 
 void to_json(nlohmann::json& json, const Account& account);
 
