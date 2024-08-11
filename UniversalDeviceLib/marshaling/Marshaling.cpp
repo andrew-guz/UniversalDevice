@@ -178,7 +178,8 @@ void to_json(nlohmann::json& json, const MessageHeader& messageHeader) {
 }
 
 void from_json(const nlohmann::json& json, MessageHeader& messageHeader) {
-    messageHeader._id = json["id"].get<Uuid>();
+    // since old devices have no id in header
+    messageHeader._id = json.contains("id") ? json["id"].get<Uuid>() : Uuid();
     messageHeader._description = json["description"].get<ComponentDescription>();
     messageHeader._subject = json.value("subject", Constants::SubjectUndefined);
 }
