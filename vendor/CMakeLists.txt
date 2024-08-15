@@ -19,6 +19,7 @@ add_subdirectory(curlpp)
 
 add_subdirectory(nlohmann_json)
 
+set(BUILD_SHARED_LIBS on)
 add_subdirectory(fmt)
 
 add_subdirectory(catch2)

@@ -1,8 +1,8 @@
 #include "Simulator.hpp"
 
-#include <sstream>
-
 #include <ixwebsocket/IXSocketTLSOptions.h>
+
+#include <fmt/format.h>
 
 #include "Constants.hpp"
 #include "Defines.hpp"
@@ -13,9 +13,7 @@
 Simulator::Simulator(const DeviceType type) : _type(type) {
     _parameters = BaseParameters::ReadFromFile();
 
-    std::stringstream urlStream;
-    urlStream << "wss://localhost:" << _parameters._port << API_DEVICE_WEBSOCKETS;
-    auto url = urlStream.str();
+    const auto url = fmt::format("wss://localhost:{}{}", _parameters._port, API_DEVICE_WEBSOCKETS);
 
     _websocket.setUrl(url);
     // The way to ignore certificate
