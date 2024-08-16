@@ -11,6 +11,8 @@
 int main() {
     Logger::SetLogLevel(LogLevel::INFO);
 
+    LOG_INFO << "Starting Device service..." << std::endl;
+
     auto settings = Settings::ReadSettings();
 
     Storage storage;
@@ -25,6 +27,8 @@ int main() {
         .port(settings._port)
         .multithreaded()
         .run();
+
+    LOG_INFO << "Stopping Device service" << std::endl;
 
     return 0;
 }
