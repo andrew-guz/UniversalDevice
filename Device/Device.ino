@@ -311,7 +311,7 @@ void loop() {
     auto currentTime = millis();
 
     // check that all data messages approved by ack
-    static const unsigned long MAX_ACK_TIMEOUT = 5000;
+    static const unsigned long MAX_ACK_TIMEOUT = 30000;
     if(ackMessages.size())
     {
       auto elapsedAck = std::find_if(ackMessages.begin(), ackMessages.end(), [currentTime](const std::pair<String, unsigned long>& kvp) -> bool {
