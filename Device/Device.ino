@@ -23,6 +23,9 @@
 #endif
 #ifdef HAS_RELAY
 #include "RelayHelper.h"
+#ifdef RELAY_AS_THERMOSTAT
+#include "TemperatureHelper.h"
+#endif
 #endif
 #ifdef HAS_MOTION_RELAY
 #include "MotionHelper.h"
@@ -312,20 +315,19 @@ void loop() {
 
     // check that all data messages approved by ack
     static const unsigned long MAX_ACK_TIMEOUT = 30000;
-    if(ackMessages.size())
-    {
-      auto elapsedAck = std::find_if(ackMessages.begin(), ackMessages.end(), [currentTime](const std::pair<String, unsigned long>& kvp) -> bool {
-          return currentTime > kvp.second ? currentTime - kvp.second >= MAX_ACK_TIMEOUT
-                                          : (std::numeric_limits<unsigned long>().max() - kvp.second) + currentTime > MAX_ACK_TIMEOUT;
-      });
-      if (elapsedAck != ackMessages.end()) {
-          Serial.println("Not ACK message found - reconnecting WiFi...");
-          ackMessages.clear();
-          if (!reconnectWiFi()) {
-              delay(1000);
-              return;
-          }
-      }
+    if (ackMessages.size()) {
+        auto elapsedAck = std::find_if(ackMessages.begin(), ackMessages.end(), [currentTime](const std::pair<String, unsigned long>& kvp) -> bool {
+            return currentTime > kvp.second ? currentTime - kvp.second >= MAX_ACK_TIMEOUT
+                                            : (std::numeric_limits<unsigned long>().max() - kvp.second) + currentTime > MAX_ACK_TIMEOUT;
+        });
+        if (elapsedAck != ackMessages.end()) {
+            Serial.println("Not ACK message found - reconnecting WiFi...");
+            ackMessages.clear();
+            if (!reconnectWiFi()) {
+                delay(1000);
+                return;
+            }
+        }
     }
 
 // case when millis goes over 0 - once in rough 50 days
