@@ -1,4 +1,5 @@
 #include <crow.h>
+#include <exception>
 
 #include "ClientService.hpp"
 #include "DeviceService.hpp"
@@ -9,26 +10,32 @@
 #include "Storage.hpp"
 
 int main() {
-    Logger::SetLogLevel(LogLevel::INFO);
+    try {
+        Logger::SetLogLevel(LogLevel::INFO);
 
-    LOG_INFO << "Starting Device service..." << std::endl;
+        LOG_INFO << "Starting Device service..." << std::endl;
 
-    auto settings = Settings::ReadSettings();
+        auto settings = Settings::ReadSettings();
 
-    Storage storage;
+        Storage storage;
 
-    CrowApp app;
+        CrowApp app;
 
-    BaseServiceExtension::Create<MainService>(app, &storage);
-    BaseServiceExtension::Create<DeviceService>(app, &storage);
-    BaseServiceExtension::Create<ClientService>(app, &storage);
+        BaseServiceExtension::Create<MainService>(app, &storage);
+        BaseServiceExtension::Create<DeviceService>(app, &storage);
+        BaseServiceExtension::Create<ClientService>(app, &storage);
 
-    app.ssl_file(PathHelper::FullFilePath("./ssl/backend.crt"), PathHelper::FullFilePath("./ssl/backend.key"))
-        .port(settings._port)
-        .multithreaded()
-        .run();
+        app.ssl_file(PathHelper::FullFilePath("./ssl/backend.crt"), PathHelper::FullFilePath("./ssl/backend.key"))
+            .port(settings._port)
+            .multithreaded()
+            .run();
 
-    LOG_INFO << "Stopping Device service" << std::endl;
+        LOG_INFO << "Stopping Device service" << std::endl;
+    } catch (const std::exception& ex) {
+        LOG_ERROR << "Exception caught: '" << ex.what() << "'" << std::endl;
+    } catch (...) {
+        LOG_ERROR << "Unknown exception caught" << std::endl;
+    }
 
     return 0;
 }

@@ -1,16 +1,25 @@
 #include "Application.hpp"
 #include "Logger.hpp"
+#include <exception>
 
 int main(int argc, char** argv) {
-    Logger::SetLogLevel(LogLevel::INFO);
+    int result = -1;
 
-    LOG_INFO << "Starting Client service..." << std::endl;
+    try {
+        Logger::SetLogLevel(LogLevel::INFO);
 
-    auto settings = Settings::ReadSettings();
+        LOG_INFO << "Starting Client service..." << std::endl;
 
-    const auto result = Wt::WRun(argc, argv, [&](const Wt::WEnvironment& env) { return std::make_unique<Application>(settings, env); });
+        auto settings = Settings::ReadSettings();
 
-    LOG_INFO << "Stopping Client service" << std::endl;
+        result = Wt::WRun(argc, argv, [&](const Wt::WEnvironment& env) { return std::make_unique<Application>(settings, env); });
+
+        LOG_INFO << "Stopping Client service" << std::endl;
+    } catch (const std::exception& ex) {
+        LOG_ERROR << "Exception caught: '" << ex.what() << "'" << std::endl;
+    } catch (...) {
+        LOG_ERROR << "Unknown exception caught" << std::endl;
+    }
 
     return result;
 }
