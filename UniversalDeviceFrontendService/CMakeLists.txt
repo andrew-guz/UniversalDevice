@@ -27,6 +27,7 @@ include_directories(./../UniversalDeviceLib/structures)
 include_directories(./../UniversalDeviceLib/structures/commands)
 include_directories(./../UniversalDeviceLib/structures/inform)
 include_directories(./../UniversalDeviceLib/structures/settings)
+include_directories(./../UniversalDeviceLib/utils)
 
 #set variable where to put ouput file
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
