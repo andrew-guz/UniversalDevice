@@ -30,6 +30,7 @@ include_directories(./structures)
 include_directories(./structures/commands)
 include_directories(./structures/inform)
 include_directories(./structures/settings)
+include_directories(./utils)
 
 #set variable where to put ouput file
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)

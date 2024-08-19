@@ -3,17 +3,32 @@
 #include <Wt/Http/Cookie.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WPopupMenu.h>
+#include <algorithm>
+#include <memory>
+#include <vector>
 
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceButton.hpp"
+#include "ExtendedComponentDescription.hpp"
 #include "Logger.hpp"
-#include "MessageHelper.hpp"
+#include "Marshaling.hpp"
 #include "RequestHelper.hpp"
+#include "String.hpp"
 #include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
+#include "Wt/WGridLayout.h"
 
 using namespace Wt;
+
+namespace {
+    struct Group {
+        Group* _parent;
+        std::vector<std::shared_ptr<Group>> _children;
+        std::string _name;
+        std::vector<ExtendedComponentDescription> _descriptions;
+    };
+} // namespace
 
 DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) : BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
@@ -61,49 +76,74 @@ void DevicesWidget::Refresh() {
     if (allDescriptions.empty())
         return;
     LOG_DEBUG << allDescriptions.size() << " allDescriptions found." << std::endl;
+
     std::set<std::string> groups;
-    std::for_each(allDescriptions.begin(), allDescriptions.end(), [&groups](const auto& d) {
-        if (d._group.size())
+    std::vector<ExtendedComponentDescription> descriptionsWithoutGroup;
+    std::vector<ExtendedComponentDescription> descriptionsWithGroup;
+    std::for_each(allDescriptions.begin(), allDescriptions.end(), [&groups, &descriptionsWithoutGroup, &descriptionsWithGroup](const auto& d) {
+        if (d._group.size()) {
             groups.insert(d._group);
+            descriptionsWithGroup.push_back(d);
+        } else
+            descriptionsWithoutGroup.push_back(d);
     });
     auto groupRow = 2;
-    auto buttonRow = 0;
-    auto buttonColumn = 0;
-    std::vector<ExtendedComponentDescription> currentDescriptions;
-    for (auto& group : groups) {
-        auto groupGroupBox = _mainLayout->addWidget(std::make_unique<WGroupBox>(group), groupRow++, 0, 1, 5);
-        auto groupLayout = groupGroupBox->setLayout(std::make_unique<WGridLayout>());
-        groupLayout->setVerticalSpacing(30);
-        buttonRow = 0;
-        buttonColumn = 0;
-        currentDescriptions.clear();
-        std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions),
-                     [](const auto& d) { return d._group.size(); });
-        std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
-        for (auto& description : currentDescriptions) {
-            if (description._group != group)
-                continue;
-            AddButtonToLayout(groupLayout, description, buttonRow, buttonColumn);
+    // add buttons in groups
+    auto topLevelGroup = std::make_shared<Group>();
+    for (const auto& description : descriptionsWithGroup) {
+        const auto groups = SplitString(description._group, '/');
+        Group* currentGroup = topLevelGroup.get();
+        for (auto groupIndex = 0; groupIndex < groups.size(); ++groupIndex) {
+            const auto& group = groups[groupIndex];
+            const auto iter = std::find_if(currentGroup->_children.begin(), currentGroup->_children.end(),
+                                           [&group](const std::shared_ptr<Group>& grp) -> bool { return grp->_name == group; });
+            if (iter == currentGroup->_children.end()) {
+                auto newGroup = std::make_shared<Group>();
+                newGroup->_name = group;
+                newGroup->_parent = currentGroup;
+                currentGroup->_children.push_back(newGroup);
+                currentGroup = newGroup.get();
+            } else
+                currentGroup = iter->get();
+            if (groupIndex == groups.size() - 1)
+                currentGroup->_descriptions.push_back(description);
         }
-        _deviceWidgets.insert(std::make_pair(groupGroupBox, _mainLayout));
     }
-    buttonRow = groupRow;
-    buttonColumn = 0;
-    currentDescriptions.clear();
-    std::copy_if(allDescriptions.begin(), allDescriptions.end(), std::back_inserter(currentDescriptions),
-                 [](const auto& d) { return d._group.size() == 0; });
-    std::sort(currentDescriptions.begin(), currentDescriptions.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
-    for (auto& description : allDescriptions) {
-        if (description._group.size())
-            continue;
+    std::function<void(Wt::WGridLayout*, int&, const std::shared_ptr<Group>&)> addGroup = [&](Wt::WGridLayout* layout, int& row,
+                                                                                              const std::shared_ptr<Group>& group) -> void {
+        auto groupGroupBox = layout->addWidget(std::make_unique<WGroupBox>(group->_name), row++, 0, 1, 5);
+        auto groupLayout = groupGroupBox->setLayout(std::make_unique<WGridLayout>());
+
+        int subRow = 0;
+        int subColumn = 0;
+        std::sort(group->_children.begin(), group->_children.end(), [](const auto& a, const auto& b) { return a->_name.compare(b->_name) < 0; });
+        for (const auto& subGroup : group->_children)
+            addGroup(groupLayout, subRow, subGroup);
+        std::sort(group->_descriptions.begin(), group->_descriptions.end(),
+                  [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
+        for (auto& description : group->_descriptions) {
+            auto button = AddButtonToLayout(groupLayout, description, subRow, subColumn);
+            _deviceWidgets.insert(std::make_pair(button, groupLayout));
+        }
+    };
+    std::sort(topLevelGroup->_children.begin(), topLevelGroup->_children.end(),
+              [](const auto& a, const auto& b) { return a->_name.compare(b->_name) < 0; });
+    for (const auto& group : topLevelGroup->_children)
+        addGroup(_mainLayout, groupRow, group);
+    // add buttons without groups
+    auto buttonRow = groupRow;
+    auto buttonColumn = 0;
+    std::sort(descriptionsWithoutGroup.begin(), descriptionsWithoutGroup.end(),
+              [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
+    for (const auto& description : descriptionsWithoutGroup) {
         auto button = AddButtonToLayout(_mainLayout, description, buttonRow, buttonColumn);
         _deviceWidgets.insert(std::make_pair(button, _mainLayout));
     }
 }
 
 DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column) {
-    auto button = layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column,
-                                    AlignmentFlag::Top | AlignmentFlag::Center);
+    auto button =
+        layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Left);
     button->clicked().connect([this, description]() {
         if (description._type == Constants::DeviceTypeThermometer)
             _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());

@@ -37,9 +37,9 @@ WidgetHelper::CreateBaseSettingsDialog(WContainerWidget* parent, int height, con
     nameEdit->setText(name);
     nameEdit->setFocus();
     // group
-    layout->addWidget(std::make_unique<WText>("Группа:"), 1, 0);
+    layout->addWidget(std::make_unique<WText>("Группа (разбивается по '/'):"), 1, 0);
     auto groupEdit = layout->addWidget(std::make_unique<WLineEdit>(), 1, 1);
-    auto groupValidator = std::make_shared<WRegExpValidator>("[\\w\\s\u0401\u0451\u0400-\u04ff]{0,50}");
+    auto groupValidator = std::make_shared<WRegExpValidator>("[\\w\\s\u0401\u0451\u0400-\u04ff/]{0,50}");
     groupEdit->setValidator(groupValidator);
     groupEdit->setText(group);
     // period
@@ -54,7 +54,7 @@ WidgetHelper::CreateBaseSettingsDialog(WContainerWidget* parent, int height, con
     ok->clicked().connect(dialog, &WDialog::accept);
     if (useDefaultValidation) {
         // validation
-        auto okValidation = [&ok, &nameEdit, &periodEdit]() {
+        auto okValidation = [ok, nameEdit, periodEdit]() {
             ok->setDisabled(nameEdit->validate() != Wt::ValidationState::Valid || periodEdit->validate() != Wt::ValidationState::Valid);
         };
         nameEdit->keyWentUp().connect(okValidation);
