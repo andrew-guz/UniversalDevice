@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "Message.hpp"
 

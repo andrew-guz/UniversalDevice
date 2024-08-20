@@ -28,11 +28,4 @@ public:
 
     // predefined ids for devices
     static const Uuid PredefinedIdTimer;
-
-    // event types
-    static constexpr std::string_view EventTypeUndefined = "undefined _event";
-    static constexpr std::string_view EventTypeTimer = "timer_event";
-    static constexpr std::string_view EventTypeThermometer = "thermometer_event";
-    static constexpr std::string_view EventTypeRelay = "relay_event";
-    static constexpr std::string_view EventTypeThermostat = "thermostat_event";
 };

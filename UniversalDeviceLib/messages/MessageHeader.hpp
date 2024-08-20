@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ComponentDescription.hpp"
+#include "Constants.hpp"
 #include "Uuid.hpp"
 
 struct MessageHeader final {
