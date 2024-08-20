@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string_view>
+#include "Enums.hpp"
 #include <vector>
 
 #include <nlohmann/json.hpp>
@@ -28,10 +28,10 @@ public:
     virtual Wt::cpp17::any headerData(int section, Wt::Orientation orientation = Wt::Orientation::Horizontal,
                                       Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
-    static std::string EventTypeDisplayName(std::string_view eventType);
+    static std::string EventTypeDisplayName(EventType eventType);
 
 private:
-    static std::string EventAdditionalInfo(std::string_view eventType, const nlohmann::json& eventJson);
+    static std::string EventAdditionalInfo(EventType eventType, const nlohmann::json& eventJson);
 
 private:
     std::vector<nlohmann::json> _data;

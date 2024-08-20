@@ -28,9 +28,9 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
     if (_queryExecutor->Select(queryStream.str(), data)) {
         std::vector<std::string> eventStrings;
         for (const auto& row : data) {
-            auto eventString = DbExtension::FindValueByName(row, "event");
-            if (eventString.size())
-                eventStrings.push_back(eventString);
+            auto eventString = DbExtension::FindValueByName<std::string>(row, "event");
+            if (eventString.has_value())
+                eventStrings.push_back(eventString.value());
         }
         _dataCache.insert(std::make_pair(std::make_tuple(customWhat._id, customWhat._type), eventStrings));
         customResult._data = eventStrings;
@@ -51,9 +51,9 @@ StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
     if (_queryExecutor->Select(queryStream.str(), data)) {
         std::vector<std::string> eventStrings;
         for (auto& row : data) {
-            auto eventString = DbExtension::FindValueByName(row, "event");
-            if (eventString.size())
-                eventStrings.push_back(eventString);
+            auto eventString = DbExtension::FindValueByName<std::string>(row, "event");
+            if (eventString.has_value())
+                eventStrings.push_back(eventString.value());
         }
         customResult._data = eventStrings;
         return { StorageCacheProblemType::NoProblems, {} };

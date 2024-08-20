@@ -6,12 +6,14 @@
 #include "CurrentTime.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "DeviceProperty.hpp"
+#include "Enums.hpp"
 #include "Event.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "ExtendedMotionRelayCurrentState.hpp"
 #include "ExtendedRelayCurrentState.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
 #include "LogInformation.hpp"
+#include "Logger.hpp"
 #include "Message.hpp"
 #include "MessageHeader.hpp"
 #include "MotionRelayCurrentState.hpp"
@@ -27,10 +29,45 @@
 #include "TimerEvent.hpp"
 #include "Uuid.hpp"
 #include "WebSocketAuthentication.hpp"
+#include <string>
+
+std::string EventTypeToString(EventType eventType) {
+    switch (eventType) {
+        case EventType::Undefined:
+            return "undefined _event";
+        case EventType::Timer:
+            return "timer_event";
+        case EventType::Thermometer:
+            return "thermometer_event";
+        case EventType::Relay:
+            return "relay_event";
+        case EventType::Thermostat:
+            return "thermostat_event";
+    }
+    LOG_ERROR << "Invalid EventType: " << static_cast<int>(eventType) << std::endl;
+    return {};
+}
+
+EventType EventTypeFromString(const std::string& str) {
+    if (str == "timer_event")
+        return EventType::Timer;
+    if (str == "thermometer_event")
+        return EventType::Thermometer;
+    if (str == "relay_event")
+        return EventType::Relay;
+    if (str == "thermostat_event")
+        return EventType::Thermostat;
+    LOG_ERROR << "Invalid EventType: " << str << std::endl;
+    return EventType::Undefined;
+}
 
 void to_json(nlohmann::json& json, const Uuid& uuid) { json = uuid.data(); }
 
 void from_json(const nlohmann::json& json, Uuid& uuid) { uuid = Uuid(json.get<std::string>()); }
+
+void to_json(nlohmann::json& json, const EventType eventType) { json = EventTypeToString(eventType); }
+
+void from_json(const nlohmann::json& json, EventType& eventType) { eventType = EventTypeFromString(json.get<std::string>()); }
 
 void to_json(nlohmann::json& json, const Account& account) {
     json = {
@@ -52,7 +89,7 @@ void to_json(nlohmann::json& json, const ComponentDescription& componentDescript
 }
 
 void from_json(const nlohmann::json& json, ComponentDescription& componentDescription) {
-    componentDescription._type = json.value("type", "");
+    componentDescription._type = json["type"].get<std::string>();
     componentDescription._id = Uuid(json.value("id", ""));
 }
 
@@ -95,7 +132,7 @@ void from_json(const nlohmann::json& json, Event& event) {
     event._id = Uuid(json.value("id", ""));
     event._name = json.value("name", "");
     event._active = json.value("active", true);
-    event._type = json.value("type", Constants::EventTypeUndefined);
+    event._type = json["type"].get<EventType>();
     event._provider = json["provider"].get<ComponentDescription>();
     event._receiver = json["receiver"].get<ComponentDescription>();
     event._command = json["command"];

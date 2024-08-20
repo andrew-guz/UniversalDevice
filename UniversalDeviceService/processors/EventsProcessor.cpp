@@ -4,6 +4,7 @@
 
 #include "CurrentTime.hpp"
 #include "DbExtension.hpp"
+#include "Enums.hpp"
 #include "EventTableStorageCache.hpp"
 #include "IDb.hpp"
 #include "Logger.hpp"
@@ -24,18 +25,22 @@ nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::
     // do events
     for (auto& eventJson : eventJsons) {
         auto simpleEvent = eventJson.get<Event>();
-        if (simpleEvent._type == Constants::EventTypeTimer) {
-            auto timerEvent = eventJson.get<TimerEvent>();
-            ProcessTimerEvent(timerEvent, message);
-        } else if (simpleEvent._type == Constants::EventTypeThermometer) {
-            auto thermometerEvent = eventJson.get<ThermometerEvent>();
-            ProcessThermometerEvent(thermometerEvent, message);
-        } else if (simpleEvent._type == Constants::EventTypeRelay) {
-            auto relayEvent = eventJson.get<RelayEvent>();
-            ProcessRelayEvent(relayEvent, message);
-        } else if (simpleEvent._type == Constants::EventTypeThermostat) {
-            auto thermostatEvent = eventJson.get<ThermostatEvent>();
-            ProcessThermostatEvent(thermostatEvent, message);
+        switch (simpleEvent._type) {
+            case EventType::Undefined:
+                LOG_ERROR << "Invalid event type" << std::endl;
+                break;
+            case EventType::Timer:
+                ProcessTimerEvent(eventJson.get<TimerEvent>(), message);
+                break;
+            case EventType::Thermometer:
+                ProcessThermometerEvent(eventJson.get<ThermometerEvent>(), message);
+                break;
+            case EventType::Relay:
+                ProcessRelayEvent(eventJson.get<RelayEvent>(), message);
+                break;
+            case EventType::Thermostat:
+                ProcessThermostatEvent(eventJson.get<ThermostatEvent>(), message);
+                break;
         }
     }
     return {};

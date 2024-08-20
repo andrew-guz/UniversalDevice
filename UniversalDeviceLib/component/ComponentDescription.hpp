@@ -2,10 +2,10 @@
 
 #include <string>
 
-#include "Constants.hpp"
 #include "Uuid.hpp"
 
 struct ComponentDescription {
+    // TODOAGZ : this 99% is Device Typ like Relay but can be TimerEvent. That why this was a string....
     std::string _type;
     Uuid _id;
 

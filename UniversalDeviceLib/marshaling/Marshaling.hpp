@@ -2,6 +2,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "Enums.hpp"
+
 class Uuid;
 struct Account;
 struct ComponentDescription;
@@ -29,9 +31,17 @@ struct ThermostatEvent;
 struct TimerEvent;
 struct WebSocketAuthentication;
 
+std::string EventTypeToString(EventType eventType);
+
+EventType EventTypeFromString(const std::string& str);
+
 void to_json(nlohmann::json& json, const Uuid& uuid);
 
 void from_json(const nlohmann::json& json, Uuid& uuid);
+
+void to_json(nlohmann::json& json, EventType eventType);
+
+void from_json(const nlohmann::json& json, EventType& eventType);
 
 void to_json(nlohmann::json& json, const Account& account);
 
