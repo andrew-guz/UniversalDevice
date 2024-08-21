@@ -93,7 +93,7 @@ void DevicesWidget::Refresh() {
     for (const auto& description : descriptionsWithGroup) {
         const auto groups = SplitString(description._group, '/');
         Group* currentGroup = topLevelGroup.get();
-        for (auto groupIndex = 0; groupIndex < groups.size(); ++groupIndex) {
+        for (std::size_t groupIndex = 0; groupIndex < groups.size(); ++groupIndex) {
             const auto& group = groups[groupIndex];
             const auto iter = std::find_if(currentGroup->_children.begin(), currentGroup->_children.end(),
                                            [&group](const std::shared_ptr<Group>& grp) -> bool { return grp->_name == group; });
