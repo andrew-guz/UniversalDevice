@@ -18,3 +18,5 @@ add_subdirectory(b64)
 add_subdirectory(curlpp)
 
 add_subdirectory(nlohmann_json)
+
+add_subdirectory(catch2)

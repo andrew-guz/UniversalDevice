@@ -16,3 +16,6 @@
 [submodule "nlohmann_json"]
 	path = vendor/nlohmann_json
 	url = https://github.com/nlohmann/json.git
+[submodule "catch2"]
+	path = vendor/catch2
+	url = https://github.com/catchorg/Catch2.git
