@@ -9,7 +9,6 @@ function (check_library lib_name)
     endif()
 endfunction()
 check_library(uuid)
-check_library(curlpp)
 
 #build in Debug mode
 set(CMAKE_BUILD_TYPE Debug)
