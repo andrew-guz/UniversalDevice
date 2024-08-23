@@ -35,7 +35,7 @@ template<>
 std::optional<EventType> DbExtension::FindValueByName<EventType>(const std::vector<std::string>& dbStrings, const std::string_view name) {
     std::optional<std::string> value = FindStringValueByName(dbStrings, name);
     if (value.has_value())
-        return EventTypeFromString(value.value());
+        return EnumFromString<EventType>(value.value());
     return std::nullopt;
 }
 

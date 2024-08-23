@@ -31,8 +31,41 @@
 #include "WebSocketAuthentication.hpp"
 #include <string>
 
-std::string EventTypeToString(EventType eventType) {
-    switch (eventType) {
+template<>
+std::string EnumToString(DeviceType enumType) {
+    switch (enumType) {
+        case DeviceType::Undefined:
+            return "undefined_type";
+        case DeviceType::Timer:
+            return "timer";
+        case DeviceType::Thermometer:
+            return "thermometer";
+        case DeviceType::Relay:
+            return "relay";
+        case DeviceType::MotionRelay:
+            return "motion_relay";
+    }
+    LOG_ERROR << "Invalid DeviceType: " << static_cast<int>(enumType) << std::endl;
+    return {};
+}
+
+template<>
+DeviceType EnumFromString(const std::string& str) {
+    if (str == "timer")
+        return DeviceType::Timer;
+    if (str == "thermometer")
+        return DeviceType::Thermometer;
+    if (str == "relay")
+        return DeviceType::Relay;
+    if (str == "motion_relay")
+        return DeviceType::MotionRelay;
+    LOG_ERROR << "Invalid DeviceType: " << str << std::endl;
+    return DeviceType::Undefined;
+}
+
+template<>
+std::string EnumToString(EventType enumType) {
+    switch (enumType) {
         case EventType::Undefined:
             return "undefined _event";
         case EventType::Timer:
@@ -44,11 +77,12 @@ std::string EventTypeToString(EventType eventType) {
         case EventType::Thermostat:
             return "thermostat_event";
     }
-    LOG_ERROR << "Invalid EventType: " << static_cast<int>(eventType) << std::endl;
+    LOG_ERROR << "Invalid EventType: " << static_cast<int>(enumType) << std::endl;
     return {};
 }
 
-EventType EventTypeFromString(const std::string& str) {
+template<>
+EventType EnumFromString(const std::string& str) {
     if (str == "timer_event")
         return EventType::Timer;
     if (str == "thermometer_event")
@@ -65,9 +99,9 @@ void to_json(nlohmann::json& json, const Uuid& uuid) { json = uuid.data(); }
 
 void from_json(const nlohmann::json& json, Uuid& uuid) { uuid = Uuid(json.get<std::string>()); }
 
-void to_json(nlohmann::json& json, const EventType eventType) { json = EventTypeToString(eventType); }
+void to_json(nlohmann::json& json, const EventType eventType) { json = EnumToString<EventType>(eventType); }
 
-void from_json(const nlohmann::json& json, EventType& eventType) { eventType = EventTypeFromString(json.get<std::string>()); }
+void from_json(const nlohmann::json& json, EventType& eventType) { eventType = EnumFromString<EventType>(json.get<std::string>()); }
 
 void to_json(nlohmann::json& json, const Account& account) {
     json = {

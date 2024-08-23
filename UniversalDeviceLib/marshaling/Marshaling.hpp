@@ -31,9 +31,23 @@ struct ThermostatEvent;
 struct TimerEvent;
 struct WebSocketAuthentication;
 
-std::string EventTypeToString(EventType eventType);
+template<typename EnumType>
+std::string EnumToString(EnumType enumType) = delete;
 
-EventType EventTypeFromString(const std::string& str);
+template<typename EnumType>
+EnumType EnumFromString(const std::string& str) = delete;
+
+template<>
+std::string EnumToString(DeviceType enumType);
+
+template<>
+DeviceType EnumFromString(const std::string& str);
+
+template<>
+std::string EnumToString(EventType enumType);
+
+template<>
+EventType EnumFromString(const std::string& str);
 
 void to_json(nlohmann::json& json, const Uuid& uuid);
 

@@ -47,7 +47,7 @@ void TimerEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);
     TimerEvent& timerEvent = dynamic_cast<TimerEvent&>(event);
     timerEvent._provider._id = Constants::PredefinedIdTimer;
-    timerEvent._provider._type = EventTypeToString(EventType::Timer);
+    timerEvent._provider._type = EnumToString(EventType::Timer);
     timerEvent._hour = _hour->value();
     timerEvent._minute = _minute->value();
     _receiver->FillFromUi(event);
