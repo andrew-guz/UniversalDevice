@@ -6,6 +6,6 @@
 
 struct ClientActor {};
 
-constexpr bool operator<(const ClientActor&, const ClientActor& ) noexcept { return false; }
+constexpr bool operator<(const ClientActor&, const ClientActor&) noexcept { return false; }
 
 using ActorType = std::variant<ClientActor, DeviceType, EventType>;

@@ -41,7 +41,8 @@ std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const
 
 std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::set<DeviceType>& types) {
     auto devices = _devices;
-    auto newEnd = std::remove_if(devices.begin(), devices.end(), [&](const auto& d) { return !d.isDeviceType() || types.count(d.getDeviceType()) == 0; });
+    auto newEnd =
+        std::remove_if(devices.begin(), devices.end(), [&](const auto& d) { return !d.isDeviceType() || types.count(d.getDeviceType()) == 0; });
     devices.erase(newEnd, devices.end());
     return devices;
 }
