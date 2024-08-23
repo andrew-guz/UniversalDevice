@@ -73,14 +73,14 @@ void ThermometerWidget::Initialize() {
             break;
     }
     if (_cachedValues.empty())
-        _cachedValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, seconds);
+        _cachedValues = GetValues<ExtendedThermometerCurrentValue>(DeviceType::Thermometer, seconds);
     else {
-        auto lastValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, 0);
+        auto lastValues = GetValues<ExtendedThermometerCurrentValue>(DeviceType::Thermometer, 0);
         if (lastValues.empty() ||
             lastValues[0]._timestamp != std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) {
                                             return a._timestamp < b._timestamp;
                                         })->_timestamp)
-            _cachedValues = GetValues<ExtendedThermometerCurrentValue>(Constants::DeviceTypeThermometer, seconds);
+            _cachedValues = GetValues<ExtendedThermometerCurrentValue>(DeviceType::Thermometer, seconds);
     }
     if (_cachedValues.size()) {
         auto value = _cachedValues.begin()->_value;

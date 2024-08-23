@@ -22,8 +22,8 @@ ThermostatEventEditor::ThermostatEventEditor() : BaseEventEditor() {
 
 void ThermostatEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
     BaseEventEditor::SetDevices(devices);
-    _provider->SetDevices(FilteredDevices(Constants::DeviceTypeThermometer));
-    _receiver->SetDevices(FilteredDevices(Constants::DeviceTypeRelay));
+    _provider->SetDevices(FilteredDevices(DeviceType::Thermometer));
+    _receiver->SetDevices(FilteredDevices(DeviceType::Relay));
 }
 
 void ThermostatEventEditor::Cleanup() {

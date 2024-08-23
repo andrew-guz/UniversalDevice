@@ -6,6 +6,7 @@
 #include <Wt/WTimer.h>
 
 #include "ExtendedComponentDescription.hpp"
+#include "Types.hpp"
 #include "Uuid.hpp"
 
 class DeviceButton final : public Wt::WPushButton {
@@ -19,7 +20,7 @@ private:
 
 private:
     int _port;
-    std::string _deviceType;
+    ActorType _deviceType;
     Uuid _deviceId;
     std::string _text;
     Wt::WTimer* _refreshTimer = nullptr;

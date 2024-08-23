@@ -33,7 +33,7 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
         };
     } else if (message._header._subject == Constants::SubjectGetDeviceInformation) {
         auto description = message._data.get<DeviceInformationDescription>();
-        if (description._type == Constants::DeviceTypeMotionRelay && !description._id.isEmpty()) {
+        if (description.isDeviceType() && description.getDeviceType() == DeviceType::MotionRelay && !description._id.isEmpty()) {
             std::vector<ExtendedMotionRelayCurrentState> extendedMotionRelayCurrentStates;
             if (description._seconds != 0) {
                 auto now = std::chrono::system_clock::now();

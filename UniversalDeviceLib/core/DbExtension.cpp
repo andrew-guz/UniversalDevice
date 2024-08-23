@@ -1,5 +1,4 @@
 #include "DbExtension.hpp"
-#include "Enums.hpp"
 #include "Marshaling.hpp"
 #include "TimeHelper.hpp"
 #include "Uuid.hpp"
@@ -36,6 +35,21 @@ std::optional<EventType> DbExtension::FindValueByName<EventType>(const std::vect
     std::optional<std::string> value = FindStringValueByName(dbStrings, name);
     if (value.has_value())
         return EnumFromString<EventType>(value.value());
+    return std::nullopt;
+}
+template<>
+std::optional<DeviceType> DbExtension::FindValueByName<DeviceType>(const std::vector<std::string>& dbStrings, std::string_view name) {
+    std::optional<std::string> value = FindStringValueByName(dbStrings, name);
+    if (value.has_value())
+        return EnumFromString<DeviceType>(value.value());
+    return std::nullopt;
+}
+
+template<>
+std::optional<ActorType> DbExtension::FindValueByName<ActorType>(const std::vector<std::string>& dbStrings, std::string_view name) {
+    std::optional<std::string> value = FindStringValueByName(dbStrings, name);
+    if (value.has_value())
+        return ActorTypeFromString(value.value());
     return std::nullopt;
 }
 

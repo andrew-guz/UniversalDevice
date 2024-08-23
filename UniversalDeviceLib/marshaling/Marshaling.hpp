@@ -1,8 +1,9 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
-
 #include "Enums.hpp"
+#include "Types.hpp"
+
+#include <nlohmann/json.hpp>
 
 class Uuid;
 struct Account;
@@ -49,13 +50,25 @@ std::string EnumToString(EventType enumType);
 template<>
 EventType EnumFromString(const std::string& str);
 
-void to_json(nlohmann::json& json, const Uuid& uuid);
+std::string ActorTypeToString(const ActorType& type);
 
-void from_json(const nlohmann::json& json, Uuid& uuid);
+ActorType ActorTypeFromString(const std::string& str);
 
 void to_json(nlohmann::json& json, EventType eventType);
 
 void from_json(const nlohmann::json& json, EventType& eventType);
+
+void to_json(nlohmann::json& json, DeviceType deviceType);
+
+void from_json(const nlohmann::json& json, DeviceType& deviceType);
+
+void to_json(nlohmann::json& json, const ActorType& type);
+
+void from_json(const nlohmann::json& json, ActorType& type);
+
+void to_json(nlohmann::json& json, const Uuid& uuid);
+
+void from_json(const nlohmann::json& json, Uuid& uuid);
 
 void to_json(nlohmann::json& json, const Account& account);
 

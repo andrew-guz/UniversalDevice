@@ -2,6 +2,7 @@
 
 #include "Defines.hpp"
 #include "DeviceInformationDescription.hpp"
+#include "Enums.hpp"
 #include "ExtendedMotionRelayCurrentState.hpp"
 #include "ExtendedRelayCurrentState.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
@@ -10,6 +11,7 @@
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
 #include "WidgetHelper.hpp"
+#include <variant>
 
 using namespace Wt;
 
@@ -34,36 +36,46 @@ void DeviceButton::Refresh() {
     messageData._type = _deviceType;
     messageData._id = _deviceId;
     messageData._seconds = 0;
-    auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData);
+    auto postMessage = MessageHelper::Create(ClientActor{}, Constants::PredefinedIdClient, Constants::SubjectGetDeviceInformation, messageData);
     auto replyJson = RequestHelper::DoPostRequestWithAnswer({ BACKEND_IP, _port, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage);
     if (!replyJson.is_null()) {
         std::string additionalData;
         std::chrono::system_clock::time_point timestamp;
-        if (_deviceType == Constants::DeviceTypeThermometer) {
-            auto values = replyJson.get<std::vector<ExtendedThermometerCurrentValue>>();
-            if (values.size()) {
-                const auto& value = values[0];
-                std::stringstream ss;
-                ss << WidgetHelper::TextWithFontSize("🌡", 40);
-                ss.precision(1);
-                ss << std::fixed << value._value << "°C";
-                ss.flush();
-                additionalData = ss.str();
-                timestamp = value._timestamp;
-            }
-        } else if (_deviceType == Constants::DeviceTypeRelay) {
-            auto values = replyJson.get<std::vector<ExtendedRelayCurrentState>>();
-            if (values.size()) {
-                const auto& value = values[0];
-                additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._state == 1 ? "ON" : "OFF");
-                timestamp = value._timestamp;
-            }
-        } else if (_deviceType == Constants::DeviceTypeMotionRelay) {
-            auto values = replyJson.get<std::vector<ExtendedMotionRelayCurrentState>>();
-            if (values.size()) {
-                const auto& value = values[0];
-                additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._motion == 1 ? "Движение" : "...");
-                timestamp = value._timestamp;
+        if (std::holds_alternative<DeviceType>(_deviceType)) {
+            switch (std::get<DeviceType>(_deviceType)) {
+                case DeviceType::Undefined:
+                case DeviceType::Timer:
+                    LOG_ERROR << "Unknown device type" << std::endl;
+                    break;
+                case DeviceType::Thermometer: {
+                    auto values = replyJson.get<std::vector<ExtendedThermometerCurrentValue>>();
+                    if (values.size()) {
+                        const auto& value = values[0];
+                        std::stringstream ss;
+                        ss << WidgetHelper::TextWithFontSize("🌡", 40);
+                        ss.precision(1);
+                        ss << std::fixed << value._value << "°C";
+                        ss.flush();
+                        additionalData = ss.str();
+                        timestamp = value._timestamp;
+                    }
+                } break;
+                case DeviceType::Relay: {
+                    auto values = replyJson.get<std::vector<ExtendedRelayCurrentState>>();
+                    if (values.size()) {
+                        const auto& value = values[0];
+                        additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._state == 1 ? "ON" : "OFF");
+                        timestamp = value._timestamp;
+                    }
+                } break;
+                case DeviceType::MotionRelay: {
+                    auto values = replyJson.get<std::vector<ExtendedMotionRelayCurrentState>>();
+                    if (values.size()) {
+                        const auto& value = values[0];
+                        additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._motion == 1 ? "Движение" : "...");
+                        timestamp = value._timestamp;
+                    }
+                } break;
             }
         } else
             LOG_ERROR << "Unknown device type" << std::endl;

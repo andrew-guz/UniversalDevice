@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Types.hpp"
 #include <string>
 #include <vector>
 
@@ -63,7 +64,7 @@ struct EventTableSelectInput final : public SelectInput {
     virtual ~EventTableSelectInput() = default;
 
     std::string _id;
-    std::string _type;
+    ActorType _type;
 };
 
 struct EventTableSelectOutput final : public SelectOutput {
@@ -84,7 +85,7 @@ struct EventTableInsertOrReplaceInput final : public InsertOrReplaceInput {
     std::string _id;
     bool _active;
     std::string _providerId;
-    std::string _providerType;
+    ActorType _providerType;
     std::string _event;
 };
 
@@ -94,7 +95,7 @@ struct EventTableUpdateInput final : public UpdateInput {
     std::string _id;
     bool _active;
     std::string _providerId;
-    std::string _providerType;
+    ActorType _providerType;
     std::string _event;
 };
 

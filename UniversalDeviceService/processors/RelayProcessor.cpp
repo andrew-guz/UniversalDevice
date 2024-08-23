@@ -33,7 +33,7 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
         };
     } else if (message._header._subject == Constants::SubjectGetDeviceInformation) {
         auto description = message._data.get<DeviceInformationDescription>();
-        if (description._type == Constants::DeviceTypeRelay && !description._id.isEmpty()) {
+        if (description.isDeviceType() && description.getDeviceType() == DeviceType::Relay && !description._id.isEmpty()) {
             std::vector<ExtendedRelayCurrentState> extendedRelayCurrentStates;
             if (description._seconds != 0) {
                 auto now = std::chrono::system_clock::now();

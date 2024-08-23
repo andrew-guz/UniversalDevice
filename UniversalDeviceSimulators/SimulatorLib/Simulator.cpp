@@ -10,7 +10,7 @@
 #include "MessageHelper.hpp"
 #include "WebSocketAuthentication.hpp"
 
-Simulator::Simulator(const std::string_view type) : _type(type) {
+Simulator::Simulator(const DeviceType type) : _type(type) {
     _parameters = BaseParameters::ReadFromFile();
 
     std::stringstream urlStream;
@@ -38,7 +38,7 @@ Simulator::Simulator(const std::string_view type) : _type(type) {
 
 Simulator::~Simulator() { _websocket.close(); }
 
-std::string_view Simulator::GetType() const { return _type; }
+DeviceType Simulator::GetType() const { return _type; }
 
 const Uuid& Simulator::GetId() const { return _parameters._id; }
 

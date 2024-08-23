@@ -27,9 +27,11 @@
 #include "ThermometerLedBrightness.hpp"
 #include "ThermostatEvent.hpp"
 #include "TimerEvent.hpp"
+#include "Types.hpp"
 #include "Uuid.hpp"
 #include "WebSocketAuthentication.hpp"
 #include <string>
+#include <variant>
 
 template<>
 std::string EnumToString(DeviceType enumType) {
@@ -49,8 +51,7 @@ std::string EnumToString(DeviceType enumType) {
     return {};
 }
 
-template<>
-DeviceType EnumFromString(const std::string& str) {
+DeviceType DeviceTypeFromString(const std::string& str) {
     if (str == "timer")
         return DeviceType::Timer;
     if (str == "thermometer")
@@ -59,8 +60,15 @@ DeviceType EnumFromString(const std::string& str) {
         return DeviceType::Relay;
     if (str == "motion_relay")
         return DeviceType::MotionRelay;
-    LOG_ERROR << "Invalid DeviceType: " << str << std::endl;
     return DeviceType::Undefined;
+}
+
+template<>
+DeviceType EnumFromString(const std::string& str) {
+    const DeviceType deviceType = DeviceTypeFromString(str);
+    if (deviceType == DeviceType::Undefined)
+        LOG_ERROR << "Invalid DeviceType: " << str << std::endl;
+    return deviceType;
 }
 
 template<>
@@ -81,8 +89,7 @@ std::string EnumToString(EventType enumType) {
     return {};
 }
 
-template<>
-EventType EnumFromString(const std::string& str) {
+EventType EventTypeFromString(const std::string& str) {
     if (str == "timer_event")
         return EventType::Timer;
     if (str == "thermometer_event")
@@ -91,17 +98,58 @@ EventType EnumFromString(const std::string& str) {
         return EventType::Relay;
     if (str == "thermostat_event")
         return EventType::Thermostat;
-    LOG_ERROR << "Invalid EventType: " << str << std::endl;
     return EventType::Undefined;
 }
 
-void to_json(nlohmann::json& json, const Uuid& uuid) { json = uuid.data(); }
+template<>
+EventType EnumFromString(const std::string& str) {
+    const EventType eventType = EventTypeFromString(str);
+    if (eventType == EventType::Undefined)
+        LOG_ERROR << "Invalid EventType: " << str << std::endl;
+    return eventType;
+}
 
-void from_json(const nlohmann::json& json, Uuid& uuid) { uuid = Uuid(json.get<std::string>()); }
+std::string ActorTypeToString(const ActorType& type) {
+    switch (type.index()) {
+        case 0: // ClientActor
+            return "client";
+        case 1: // DeviceType
+            return EnumToString<DeviceType>(std::get<DeviceType>(type));
+        case 2: // EventType
+            return EnumToString<EventType>(std::get<EventType>(type));
+    }
+    LOG_ERROR << "Invalid Type" << std::endl;
+    return {};
+}
+
+ActorType ActorTypeFromString(const std::string& str) {
+    if (str == "client")
+        return ClientActor{};
+    const DeviceType deviceType = DeviceTypeFromString(str);
+    if (deviceType != DeviceType::Undefined)
+        return deviceType;
+    const EventType eventType = EventTypeFromString(str);
+    if (eventType != EventType::Undefined)
+        return eventType;
+    LOG_ERROR << "Invalid Type: " << str << std::endl;
+    return ClientActor{};
+}
 
 void to_json(nlohmann::json& json, const EventType eventType) { json = EnumToString<EventType>(eventType); }
 
 void from_json(const nlohmann::json& json, EventType& eventType) { eventType = EnumFromString<EventType>(json.get<std::string>()); }
+
+void to_json(nlohmann::json& json, DeviceType deviceType) { json = EnumToString<DeviceType>(deviceType); }
+
+void from_json(const nlohmann::json& json, DeviceType& deviceType) { deviceType = EnumFromString<DeviceType>(json.get<std::string>()); }
+
+void to_json(nlohmann::json& json, const ActorType& type) { json = ActorTypeToString(type); }
+
+void from_json(const nlohmann::json& json, ActorType& type) { type = ActorTypeFromString(json.get<std::string>()); }
+
+void to_json(nlohmann::json& json, const Uuid& uuid) { json = uuid.data(); }
+
+void from_json(const nlohmann::json& json, Uuid& uuid) { uuid = Uuid(json.get<std::string>()); }
 
 void to_json(nlohmann::json& json, const Account& account) {
     json = {
@@ -123,7 +171,7 @@ void to_json(nlohmann::json& json, const ComponentDescription& componentDescript
 }
 
 void from_json(const nlohmann::json& json, ComponentDescription& componentDescription) {
-    componentDescription._type = json["type"].get<std::string>();
+    componentDescription._type = json["type"].get<ActorType>();
     componentDescription._id = Uuid(json.value("id", ""));
 }
 

@@ -34,7 +34,7 @@ MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& 
 }
 
 void MotionRelayWidget::Initialize() {
-    auto motionStateValues = GetValues<ExtendedMotionRelayCurrentState>(Constants::DeviceTypeMotionRelay);
+    auto motionStateValues = GetValues<ExtendedMotionRelayCurrentState>(DeviceType::MotionRelay);
     if (motionStateValues.size()) {
         auto& motionStateValue = motionStateValues[0];
         _motionDetected = motionStateValue._motion;

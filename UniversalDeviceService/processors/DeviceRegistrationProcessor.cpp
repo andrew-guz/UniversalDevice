@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "TimeHelper.hpp"
 
 DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
@@ -19,8 +20,8 @@ nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::sy
             updateInsertQueryStream << "UPDATE Devices SET timestamp = " << TimeHelper::TimeToInt(timestamp) << " WHERE id = '"
                                     << description._id.data() << "'";
         } else {
-            updateInsertQueryStream << "INSERT INTO Devices (id, type, timestamp) VALUES ('" << description._id.data() << "', '" << description._type
-                                    << "', " << TimeHelper::TimeToInt(timestamp) << ")";
+            updateInsertQueryStream << "INSERT INTO Devices (id, type, timestamp) VALUES ('" << description._id.data() << "', '"
+                                    << ActorTypeToString(description._type) << "', " << TimeHelper::TimeToInt(timestamp) << ")";
         }
         updateInsertQueryStream.flush();
         if (!_queryExecutor->Execute(updateInsertQueryStream.str()))

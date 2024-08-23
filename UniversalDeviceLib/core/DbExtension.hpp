@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Enums.hpp"
+#include "Types.hpp"
 #include "Uuid.hpp"
 #include <chrono>
 #include <optional>
@@ -38,6 +38,12 @@ std::optional<std::string> DbExtension::FindValueByName<std::string>(const std::
 
 template<>
 std::optional<EventType> DbExtension::FindValueByName<EventType>(const std::vector<std::string>& dbStrings, std::string_view name);
+
+template<>
+std::optional<DeviceType> DbExtension::FindValueByName<DeviceType>(const std::vector<std::string>& dbStrings, std::string_view name);
+
+template<>
+std::optional<ActorType> DbExtension::FindValueByName<ActorType>(const std::vector<std::string>& dbStrings, std::string_view name);
 
 template<>
 std::optional<Uuid> DbExtension::FindValueByName<Uuid>(const std::vector<std::string>& dbStrings, std::string_view name);

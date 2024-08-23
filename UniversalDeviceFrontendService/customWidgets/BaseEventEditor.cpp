@@ -1,6 +1,7 @@
 #include "BaseEventEditor.hpp"
 
 #include "Defines.hpp"
+#include "Enums.hpp"
 #include "Event.hpp"
 #include "RequestHelper.hpp"
 
@@ -34,13 +35,13 @@ void BaseEventEditor::FillFromUi(Event& event) const {
     event._active = _active->isChecked();
 }
 
-std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::string_view type) {
-    return FilteredDevices(std::set<std::string_view>{ type });
+std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const DeviceType type) {
+    return FilteredDevices(std::set<DeviceType>{ type });
 }
 
-std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::set<std::string_view>& types) {
+std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::set<DeviceType>& types) {
     auto devices = _devices;
-    auto newEnd = std::remove_if(devices.begin(), devices.end(), [&](const auto& d) { return types.count(d._type) == 0; });
+    auto newEnd = std::remove_if(devices.begin(), devices.end(), [&](const auto& d) { return !d.isDeviceType() || types.count(d.getDeviceType()) == 0; });
     devices.erase(newEnd, devices.end());
     return devices;
 }

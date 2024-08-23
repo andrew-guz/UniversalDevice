@@ -8,13 +8,6 @@ public:
     static constexpr std::string_view LoginService = "service";
     static constexpr std::string_view LoginDevice = "device";
 
-    // device types
-    static constexpr std::string_view DeviceTypeUndefined = "undefined_type";
-    static constexpr std::string_view DeviceTypeTimer = "timer";
-    static constexpr std::string_view DeviceTypeThermometer = "thermometer";
-    static constexpr std::string_view DeviceTypeRelay = "relay";
-    static constexpr std::string_view DeviceTypeMotionRelay = "motion_relay";
-
     // subjects - depends on type
     static constexpr std::string_view SubjectUndefined = "undefined_subject";
     static constexpr std::string_view SubjectTimerEvent = "timer_timeout";
@@ -26,6 +19,7 @@ public:
     static constexpr std::string_view SubjectWebSocketGetSettings = "websocket_get_settings";
     static constexpr std::string_view SubjectWebSocketGetCommands = "websocket_get_commands";
 
-    // predefined ids for devices
+    // predefined ids
     static const Uuid PredefinedIdTimer;
+    static const Uuid PredefinedIdClient;
 };

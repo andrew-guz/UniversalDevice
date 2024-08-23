@@ -4,9 +4,9 @@
 
 #include "ComponentDescription.hpp"
 #include "DbExtension.hpp"
-#include "Enums.hpp"
 #include "IDb.hpp"
 #include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "TimeHelper.hpp"
 #include "Uuid.hpp"
 
@@ -20,13 +20,13 @@ struct ExtendedComponentDescription final : ComponentDescription, public IDb<Ext
     virtual std::vector<std::string> ToDbStrings() const override {
         // id, type, name, group, timestamp
         return {
-            _id.data(), _type, _name, _group, std::to_string(TimeHelper::TimeToInt(_timestamp)),
+            _id.data(), ActorTypeToString(_type), _name, _group, std::to_string(TimeHelper::TimeToInt(_timestamp)),
         };
     }
 
     virtual void FromDbStrings(const std::vector<std::string>& dbStrings) override {
         if (dbStrings.size() % 2 == 0) {
-            auto type = DbExtension::FindValueByName<std::string>(dbStrings, "type");
+            auto type = DbExtension::FindValueByName<ActorType>(dbStrings, "type");
             auto id = DbExtension::FindValueByName<Uuid>(dbStrings, "id");
             auto name = DbExtension::FindValueByName<std::string>(dbStrings, "name");
             auto group = DbExtension::FindValueByName<std::string>(dbStrings, "grp");
