@@ -15,7 +15,7 @@ int RelaySimulator::GetPeriod() const { return periodSettings._period; }
 void RelaySimulator::SendState() {
     RelayCurrentState stateValue;
     stateValue._state = GetState();
-    auto stateMessage = MessageHelper::Create(GetType(), GetId(), Constants::SubjectRelayCurrentState, stateValue);
+    auto stateMessage = MessageHelper::Create(GetType(), GetId(), Subject::RelayCurrentState, stateValue);
     SendMessage(stateMessage);
 }
 

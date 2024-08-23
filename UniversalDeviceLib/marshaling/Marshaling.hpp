@@ -50,6 +50,12 @@ std::string EnumToString(EventType enumType);
 template<>
 EventType EnumFromString(const std::string& str);
 
+template<>
+std::string EnumToString(Subject enumType);
+
+template<>
+Subject EnumFromString(const std::string& str);
+
 std::string ActorTypeToString(const ActorType& type);
 
 ActorType ActorTypeFromString(const std::string& str);
@@ -61,6 +67,10 @@ void from_json(const nlohmann::json& json, EventType& eventType);
 void to_json(nlohmann::json& json, DeviceType deviceType);
 
 void from_json(const nlohmann::json& json, DeviceType& deviceType);
+
+void to_json(nlohmann::json& json, Subject subject);
+
+void from_json(const nlohmann::json& json, Subject& subject);
 
 void to_json(nlohmann::json& json, const ActorType& type);
 

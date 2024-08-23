@@ -109,6 +109,54 @@ EventType EnumFromString(const std::string& str) {
     return eventType;
 }
 
+template<>
+std::string EnumToString(Subject enumType) {
+    switch (enumType) {
+        case Subject::Undefined:
+            return "undefined_subject";
+        case Subject::TimerEvent:
+            return "timer_timeout";
+        case Subject::GetDeviceInformation:
+            return "get_device_information";
+        case Subject::ThermometerCurrentValue:
+            return "thermometer_current_value";
+        case Subject::RelayCurrentState:
+            return "relay_current_state";
+        case Subject::MotionRelayCurrentState:
+            return "motion_relay_current_state";
+        case Subject::WebSocketAuthorization:
+            return "websocket_authorization";
+        case Subject::WebSocketGetSettings:
+            return "websocket_get_settings";
+        case Subject::WebSocketGetCommands:
+            return "websocket_get_commands";
+    }
+    LOG_ERROR << "Invalid SubjectType: " << static_cast<int>(enumType) << std::endl;
+    return {};
+}
+
+template<>
+Subject EnumFromString(const std::string& str) {
+    if (str == "timer_timeout")
+        return Subject::TimerEvent;
+    if (str == "get_device_information")
+        return Subject::GetDeviceInformation;
+    if (str == "thermometer_current_value")
+        return Subject::ThermometerCurrentValue;
+    if (str == "relay_current_state")
+        return Subject::RelayCurrentState;
+    if (str == "motion_relay_current_state")
+        return Subject::MotionRelayCurrentState;
+    if (str == "websocket_authorization")
+        return Subject::WebSocketAuthorization;
+    if (str == "websocket_get_settings")
+        return Subject::WebSocketGetSettings;
+    if (str == "websocket_get_commands")
+        return Subject::WebSocketGetCommands;
+    LOG_ERROR << "Invalid SubjectType: " << str << std::endl;
+    return Subject::Undefined;
+}
+
 std::string ActorTypeToString(const ActorType& type) {
     switch (type.index()) {
         case 0: // ClientActor
@@ -142,6 +190,10 @@ void from_json(const nlohmann::json& json, EventType& eventType) { eventType = E
 void to_json(nlohmann::json& json, DeviceType deviceType) { json = EnumToString<DeviceType>(deviceType); }
 
 void from_json(const nlohmann::json& json, DeviceType& deviceType) { deviceType = EnumFromString<DeviceType>(json.get<std::string>()); }
+
+void to_json(nlohmann::json& json, Subject subject) { json = EnumToString<Subject>(subject); }
+
+void from_json(const nlohmann::json& json, Subject& subject) { subject = EnumFromString<Subject>(json.get<std::string>()); }
 
 void to_json(nlohmann::json& json, const ActorType& type) { json = ActorTypeToString(type); }
 
@@ -300,7 +352,8 @@ void from_json(const nlohmann::json& json, MessageHeader& messageHeader) {
     // since old devices have no id in header
     messageHeader._id = json.contains("id") ? json["id"].get<Uuid>() : Uuid();
     messageHeader._description = json["description"].get<ComponentDescription>();
-    messageHeader._subject = json.value("subject", Constants::SubjectUndefined);
+    // TODO: do we really have message without Subject?
+    messageHeader._subject = json.contains("subject") ? json["subject"].get<Subject>() : Subject::Undefined;
 }
 
 void to_json(nlohmann::json& json, const MotionRelayCurrentState& motionRelayCurrentState) {

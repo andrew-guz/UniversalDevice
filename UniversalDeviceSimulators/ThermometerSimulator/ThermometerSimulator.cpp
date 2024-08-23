@@ -40,7 +40,7 @@ int ThermometerSimulator::GetPeriod() const { return periodSettings._period; }
 void ThermometerSimulator::SendTemperature() {
     ThermometerCurrentValue temperatureValue;
     temperatureValue._value = GetTemperature();
-    auto temperatureMessage = MessageHelper::Create(GetType(), GetId(), Constants::SubjectThermometerCurrentValue, temperatureValue);
+    auto temperatureMessage = MessageHelper::Create(GetType(), GetId(), Subject::ThermometerCurrentValue, temperatureValue);
     SendMessage(temperatureMessage);
 }
 

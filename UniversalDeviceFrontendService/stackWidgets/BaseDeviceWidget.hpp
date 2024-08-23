@@ -54,7 +54,7 @@ protected:
         messageData._type = type;
         messageData._id = _deviceId;
         messageData._seconds = seconds;
-        auto postMessage = MessageHelper::Create(ClientActor{}, Constants::PredefinedIdClient, Constants::SubjectGetDeviceInformation, messageData);
+        auto postMessage = MessageHelper::Create(ClientActor{}, Constants::PredefinedIdClient, Subject::GetDeviceInformation, messageData);
         auto replyJson = RequestHelper::DoPostRequestWithAnswer({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICE_GET_INFO },
                                                                 Constants::LoginService, postMessage);
         return !replyJson.is_null() ? replyJson.get<std::vector<TValues>>() : std::vector<TValues>{};
