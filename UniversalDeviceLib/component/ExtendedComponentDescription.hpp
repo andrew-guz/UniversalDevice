@@ -17,6 +17,10 @@ struct ExtendedComponentDescription final : ComponentDescription, public IDb<Ext
 
     std::string GetDisplayString() const { return _name.size() ? _name : _id.data(); }
 
+    std::string GetDisplayStringWithGroup() const {
+        return _group.empty() ? GetDisplayString() : GetDisplayString() + std::string{ " (" } + _group + std::string{ ")" };
+    }
+
     virtual std::vector<std::string> ToDbStrings() const override {
         // id, type, name, group, timestamp
         return {
