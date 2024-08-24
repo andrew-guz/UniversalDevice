@@ -36,10 +36,11 @@ void EventReceiverWidget::Cleanup() {
 
 void EventReceiverWidget::FillUi(const Event& event) {
     _receivers->SetSelectedDevice(event._receiver._id);
-    if (event._receiver._type == Constants::DeviceTypeThermometer) {
+    if (event._receiver.isDeviceType() && event._receiver.getDeviceType() == DeviceType::Thermometer) {
         auto thermometerLedBrightness = event._command.get<ThermometerLedBrightness>();
         _brightness->setValue(thermometerLedBrightness._brightness);
-    } else if (event._receiver._type == Constants::DeviceTypeRelay || event._receiver._type == Constants::DeviceTypeMotionRelay) {
+    } else if (event._receiver.isDeviceType() &&
+               (event._receiver.getDeviceType() == DeviceType::Relay || event._receiver.getDeviceType() == DeviceType::MotionRelay)) {
         auto relayState = event._command.get<RelayState>();
         _relayState->setChecked(relayState._state);
     }
@@ -49,11 +50,12 @@ bool EventReceiverWidget::IsValid() const { return _receivers->IsValid(); }
 
 void EventReceiverWidget::FillFromUi(Event& event) const {
     event._receiver = _receivers->GetSelectedDevice();
-    if (event._receiver._type == Constants::DeviceTypeThermometer) {
+    if (event._receiver.isDeviceType() && event._receiver.getDeviceType() == DeviceType::Thermometer) {
         ThermometerLedBrightness thermometerLedBrightness;
         thermometerLedBrightness._brightness = _brightness->value();
         event._command = thermometerLedBrightness;
-    } else if (event._receiver._type == Constants::DeviceTypeRelay || event._receiver._type == Constants::DeviceTypeMotionRelay) {
+    } else if (event._receiver.isDeviceType() &&
+               (event._receiver.getDeviceType() == DeviceType::Relay || event._receiver.getDeviceType() == DeviceType::MotionRelay)) {
         RelayState relayState;
         relayState._state = _relayState->isChecked();
         event._command = relayState;
@@ -64,11 +66,12 @@ void EventReceiverWidget::OnReceiverChanged() {
     if (!_receivers->IsValid())
         EventWidgetHelper::Hide(_brightnessText, _brightness, _relayState);
     else {
-        if (_receivers->GetSelectedDevice()._type == Constants::DeviceTypeThermometer) {
+        const auto& selectedDevice = _receivers->GetSelectedDevice();
+        if (selectedDevice.isDeviceType() && selectedDevice.getDeviceType() == DeviceType::Thermometer) {
             EventWidgetHelper::Hide(_relayState);
             EventWidgetHelper::Show(_brightnessText, _brightness);
-        } else if (_receivers->GetSelectedDevice()._type == Constants::DeviceTypeRelay ||
-                   _receivers->GetSelectedDevice()._type == Constants::DeviceTypeMotionRelay) {
+        } else if (selectedDevice.isDeviceType() &&
+                   (selectedDevice.getDeviceType() == DeviceType::Relay || selectedDevice.getDeviceType() == DeviceType::MotionRelay)) {
             EventWidgetHelper::Hide(_brightnessText, _brightness);
             EventWidgetHelper::Show(_relayState);
         }

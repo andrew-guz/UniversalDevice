@@ -10,7 +10,9 @@
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceButton.hpp"
+#include "Enums.hpp"
 #include "ExtendedComponentDescription.hpp"
+#include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RequestHelper.hpp"
@@ -145,12 +147,25 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
     auto button =
         layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Left);
     button->clicked().connect([this, description]() {
-        if (description._type == Constants::DeviceTypeThermometer)
-            _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
-        if (description._type == Constants::DeviceTypeRelay)
-            _stackHolder->SetWidget(StackWidgetType::Relay, description._id.data());
-        if (description._type == Constants::DeviceTypeMotionRelay)
-            _stackHolder->SetWidget(StackWidgetType::MotionRelay, description._id.data());
+        if (description.isDeviceType()) {
+            StackWidgetType stackWidgetType = static_cast<StackWidgetType>(-1);
+            switch (description.getDeviceType()) {
+                case DeviceType::Undefined:
+                case DeviceType::Timer:
+                    break;
+                case DeviceType::Thermometer:
+                    stackWidgetType = StackWidgetType::Thermometer;
+                    break;
+                case DeviceType::Relay:
+                    stackWidgetType = StackWidgetType::Relay;
+                    break;
+                case DeviceType::MotionRelay:
+                    stackWidgetType = StackWidgetType::MotionRelay;
+                    break;
+            }
+            if (stackWidgetType != static_cast<StackWidgetType>(-1))
+                _stackHolder->SetWidget(stackWidgetType, description._id.data());
+        }
     });
     button->mouseWentUp().connect([this, description](const WMouseEvent& event) {
         if (event.button() == MouseButton::Right) {

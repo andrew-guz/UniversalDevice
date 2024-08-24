@@ -6,7 +6,6 @@
 #include "IDb.hpp"
 #include "Logger.hpp"
 #include "ThermometerCurrentValue.hpp"
-#include "TimeHelper.hpp"
 
 struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue, public IDb<ExtendedThermometerCurrentValue> {
     std::chrono::system_clock::time_point _timestamp;
@@ -18,11 +17,11 @@ struct ExtendedThermometerCurrentValue final : public ThermometerCurrentValue, p
 
     virtual void FromDbStrings(const std::vector<std::string>& dbStrings) override {
         if (dbStrings.size() % 2 == 0) {
-            auto timestamp = DbExtension::FindValueByName(dbStrings, "timestamp");
-            auto value = DbExtension::FindValueByName(dbStrings, "value");
-            if (timestamp.size() && value.size()) {
-                _timestamp = TimeHelper::TimeFromInt((int64_t)std::stoll(timestamp));
-                _value = atof(value.c_str());
+            auto timestamp = DbExtension::FindValueByName<std::chrono::system_clock::time_point>(dbStrings, "timestamp");
+            auto value = DbExtension::FindValueByName<float>(dbStrings, "value");
+            if (timestamp.has_value() && value.has_value()) {
+                _timestamp = timestamp.value();
+                _value = value.value();
             }
         } else
             LOG_ERROR << "Invalid db strings." << std::endl;

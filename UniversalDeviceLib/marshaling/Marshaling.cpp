@@ -6,12 +6,14 @@
 #include "CurrentTime.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "DeviceProperty.hpp"
+#include "Enums.hpp"
 #include "Event.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "ExtendedMotionRelayCurrentState.hpp"
 #include "ExtendedRelayCurrentState.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
 #include "LogInformation.hpp"
+#include "Logger.hpp"
 #include "Message.hpp"
 #include "MessageHeader.hpp"
 #include "MotionRelayCurrentState.hpp"
@@ -25,8 +27,177 @@
 #include "ThermometerLedBrightness.hpp"
 #include "ThermostatEvent.hpp"
 #include "TimerEvent.hpp"
+#include "Types.hpp"
 #include "Uuid.hpp"
 #include "WebSocketAuthentication.hpp"
+#include <string>
+#include <variant>
+
+template<>
+std::string EnumToString(DeviceType enumType) {
+    switch (enumType) {
+        case DeviceType::Undefined:
+            return "undefined_type";
+        case DeviceType::Timer:
+            return "timer";
+        case DeviceType::Thermometer:
+            return "thermometer";
+        case DeviceType::Relay:
+            return "relay";
+        case DeviceType::MotionRelay:
+            return "motion_relay";
+    }
+    LOG_ERROR << "Invalid DeviceType: " << static_cast<int>(enumType) << std::endl;
+    return {};
+}
+
+DeviceType DeviceTypeFromString(const std::string& str) {
+    if (str == "timer")
+        return DeviceType::Timer;
+    if (str == "thermometer")
+        return DeviceType::Thermometer;
+    if (str == "relay")
+        return DeviceType::Relay;
+    if (str == "motion_relay")
+        return DeviceType::MotionRelay;
+    return DeviceType::Undefined;
+}
+
+template<>
+DeviceType EnumFromString(const std::string& str) {
+    const DeviceType deviceType = DeviceTypeFromString(str);
+    if (deviceType == DeviceType::Undefined)
+        LOG_ERROR << "Invalid DeviceType: " << str << std::endl;
+    return deviceType;
+}
+
+template<>
+std::string EnumToString(EventType enumType) {
+    switch (enumType) {
+        case EventType::Undefined:
+            return "undefined _event";
+        case EventType::Timer:
+            return "timer_event";
+        case EventType::Thermometer:
+            return "thermometer_event";
+        case EventType::Relay:
+            return "relay_event";
+        case EventType::Thermostat:
+            return "thermostat_event";
+    }
+    LOG_ERROR << "Invalid EventType: " << static_cast<int>(enumType) << std::endl;
+    return {};
+}
+
+EventType EventTypeFromString(const std::string& str) {
+    if (str == "timer_event")
+        return EventType::Timer;
+    if (str == "thermometer_event")
+        return EventType::Thermometer;
+    if (str == "relay_event")
+        return EventType::Relay;
+    if (str == "thermostat_event")
+        return EventType::Thermostat;
+    return EventType::Undefined;
+}
+
+template<>
+EventType EnumFromString(const std::string& str) {
+    const EventType eventType = EventTypeFromString(str);
+    if (eventType == EventType::Undefined)
+        LOG_ERROR << "Invalid EventType: " << str << std::endl;
+    return eventType;
+}
+
+template<>
+std::string EnumToString(Subject enumType) {
+    switch (enumType) {
+        case Subject::Undefined:
+            return "undefined_subject";
+        case Subject::TimerEvent:
+            return "timer_timeout";
+        case Subject::GetDeviceInformation:
+            return "get_device_information";
+        case Subject::ThermometerCurrentValue:
+            return "thermometer_current_value";
+        case Subject::RelayCurrentState:
+            return "relay_current_state";
+        case Subject::MotionRelayCurrentState:
+            return "motion_relay_current_state";
+        case Subject::WebSocketAuthorization:
+            return "websocket_authorization";
+        case Subject::WebSocketGetSettings:
+            return "websocket_get_settings";
+        case Subject::WebSocketGetCommands:
+            return "websocket_get_commands";
+    }
+    LOG_ERROR << "Invalid SubjectType: " << static_cast<int>(enumType) << std::endl;
+    return {};
+}
+
+template<>
+Subject EnumFromString(const std::string& str) {
+    if (str == "timer_timeout")
+        return Subject::TimerEvent;
+    if (str == "get_device_information")
+        return Subject::GetDeviceInformation;
+    if (str == "thermometer_current_value")
+        return Subject::ThermometerCurrentValue;
+    if (str == "relay_current_state")
+        return Subject::RelayCurrentState;
+    if (str == "motion_relay_current_state")
+        return Subject::MotionRelayCurrentState;
+    if (str == "websocket_authorization")
+        return Subject::WebSocketAuthorization;
+    if (str == "websocket_get_settings")
+        return Subject::WebSocketGetSettings;
+    if (str == "websocket_get_commands")
+        return Subject::WebSocketGetCommands;
+    LOG_ERROR << "Invalid SubjectType: " << str << std::endl;
+    return Subject::Undefined;
+}
+
+std::string ActorTypeToString(const ActorType& type) {
+    switch (type.index()) {
+        case 0: // ClientActor
+            return "client";
+        case 1: // DeviceType
+            return EnumToString<DeviceType>(std::get<DeviceType>(type));
+        case 2: // EventType
+            return EnumToString<EventType>(std::get<EventType>(type));
+    }
+    LOG_ERROR << "Invalid Type" << std::endl;
+    return {};
+}
+
+ActorType ActorTypeFromString(const std::string& str) {
+    if (str == "client")
+        return ClientActor{};
+    const DeviceType deviceType = DeviceTypeFromString(str);
+    if (deviceType != DeviceType::Undefined)
+        return deviceType;
+    const EventType eventType = EventTypeFromString(str);
+    if (eventType != EventType::Undefined)
+        return eventType;
+    LOG_ERROR << "Invalid Type: " << str << std::endl;
+    return ClientActor{};
+}
+
+void to_json(nlohmann::json& json, const EventType eventType) { json = EnumToString<EventType>(eventType); }
+
+void from_json(const nlohmann::json& json, EventType& eventType) { eventType = EnumFromString<EventType>(json.get<std::string>()); }
+
+void to_json(nlohmann::json& json, DeviceType deviceType) { json = EnumToString<DeviceType>(deviceType); }
+
+void from_json(const nlohmann::json& json, DeviceType& deviceType) { deviceType = EnumFromString<DeviceType>(json.get<std::string>()); }
+
+void to_json(nlohmann::json& json, Subject subject) { json = EnumToString<Subject>(subject); }
+
+void from_json(const nlohmann::json& json, Subject& subject) { subject = EnumFromString<Subject>(json.get<std::string>()); }
+
+void to_json(nlohmann::json& json, const ActorType& type) { json = ActorTypeToString(type); }
+
+void from_json(const nlohmann::json& json, ActorType& type) { type = ActorTypeFromString(json.get<std::string>()); }
 
 void to_json(nlohmann::json& json, const Uuid& uuid) { json = uuid.data(); }
 
@@ -52,7 +223,7 @@ void to_json(nlohmann::json& json, const ComponentDescription& componentDescript
 }
 
 void from_json(const nlohmann::json& json, ComponentDescription& componentDescription) {
-    componentDescription._type = json.value("type", "");
+    componentDescription._type = json["type"].get<ActorType>();
     componentDescription._id = Uuid(json.value("id", ""));
 }
 
@@ -95,7 +266,7 @@ void from_json(const nlohmann::json& json, Event& event) {
     event._id = Uuid(json.value("id", ""));
     event._name = json.value("name", "");
     event._active = json.value("active", true);
-    event._type = json.value("type", Constants::EventTypeUndefined);
+    event._type = json["type"].get<EventType>();
     event._provider = json["provider"].get<ComponentDescription>();
     event._receiver = json["receiver"].get<ComponentDescription>();
     event._command = json["command"];
@@ -181,7 +352,8 @@ void from_json(const nlohmann::json& json, MessageHeader& messageHeader) {
     // since old devices have no id in header
     messageHeader._id = json.contains("id") ? json["id"].get<Uuid>() : Uuid();
     messageHeader._description = json["description"].get<ComponentDescription>();
-    messageHeader._subject = json.value("subject", Constants::SubjectUndefined);
+    // TODO: do we really have message without Subject?
+    messageHeader._subject = json.contains("subject") ? json["subject"].get<Subject>() : Subject::Undefined;
 }
 
 void to_json(nlohmann::json& json, const MotionRelayCurrentState& motionRelayCurrentState) {

@@ -4,6 +4,7 @@
 #include <tuple>
 
 #include "BaseStorageCache.hpp"
+#include "Types.hpp"
 
 class EventTableStorageCache final : public BaseStorageCache {
 public:
@@ -24,5 +25,7 @@ public:
     static IStorageCache* GetCache(IQueryExecutor* queryExecutor);
 
 private:
-    std::map<std::tuple<std::string, std::string>, std::vector<std::string>> _dataCache;
+    using Key = std::pair<std::string, ActorType>;
+
+    std::map<EventTableStorageCache::Key, std::vector<std::string>> _dataCache;
 };

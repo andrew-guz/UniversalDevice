@@ -1,6 +1,16 @@
 #pragma once
 
-#include "Enums.hpp"
+#include <cstdint>
+
+enum class StackWidgetType : std::uint8_t {
+    Login,
+    Devices,
+    Events,
+    Logs,
+    Thermometer,
+    Relay,
+    MotionRelay,
+};
 
 class IStackHolder {
 public:

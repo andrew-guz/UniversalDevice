@@ -219,7 +219,7 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
     try {
         auto timestamp = std::chrono::system_clock::now();
         auto message = BaseServiceExtension::GetMessageFromWebSocketData(data);
-        if (message._header._subject == Constants::SubjectWebSocketAuthorization) {
+        if (message._header._subject == Subject::WebSocketAuthorization) {
             auto webSocketAuthentication = message._data.get<WebSocketAuthentication>();
             if (AccountManager::Instance()->IsValidUser(webSocketAuthentication._authString))
                 WebsocketsCache::Instance()->AddWebSocketConnection(message._header._description._id, connection);
@@ -253,6 +253,6 @@ void DeviceService::OnWebSocketClose(crow::websocket::connection& connection, co
 void DeviceService::TimerFunction() {
     CurrentTime currentTime;
     currentTime._timestamp = std::chrono::system_clock::now();
-    auto message = MessageHelper::Create(Constants::DeviceTypeTimer, Constants::PredefinedIdTimer, Constants::SubjectTimerEvent, currentTime);
+    auto message = MessageHelper::Create(DeviceType::Timer, Constants::PredefinedIdTimer, Subject::TimerEvent, currentTime);
     CallProcessorsNoResult(std::chrono::system_clock::now(), message);
 }

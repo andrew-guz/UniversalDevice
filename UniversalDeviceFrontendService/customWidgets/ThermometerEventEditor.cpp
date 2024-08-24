@@ -18,7 +18,7 @@ ThermometerEventEditor::ThermometerEventEditor() : BaseEventEditor() {
 
 void ThermometerEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
     BaseEventEditor::SetDevices(devices);
-    _provider->SetDevices(FilteredDevices(Constants::DeviceTypeThermometer));
+    _provider->SetDevices(FilteredDevices(DeviceType::Thermometer));
     _receiver->SetDevices(devices);
 }
 

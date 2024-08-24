@@ -11,6 +11,7 @@
 #include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
+#include "Types.hpp"
 #include "UrlHelper.hpp"
 #include "Uuid.hpp"
 
@@ -42,18 +43,18 @@ protected:
 
     // return 1 last point
     template<typename TValues>
-    std::vector<TValues> GetValues(const std::string_view type) {
+    std::vector<TValues> GetValues(const ActorType type) {
         return GetValues<TValues>(type, (uint64_t)0);
     }
 
     // return data from last N seconds or at least one last known point
     template<typename TValues>
-    std::vector<TValues> GetValues(const std::string_view type, uint64_t seconds) {
+    std::vector<TValues> GetValues(const ActorType type, uint64_t seconds) {
         DeviceInformationDescription messageData;
         messageData._type = type;
         messageData._id = _deviceId;
         messageData._seconds = seconds;
-        auto postMessage = MessageHelper::Create({}, Uuid::Empty(), Constants::SubjectGetDeviceInformation, messageData);
+        auto postMessage = MessageHelper::Create(ClientActor{}, Constants::PredefinedIdClient, Subject::GetDeviceInformation, messageData);
         auto replyJson = RequestHelper::DoPostRequestWithAnswer({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICE_GET_INFO },
                                                                 Constants::LoginService, postMessage);
         return !replyJson.is_null() ? replyJson.get<std::vector<TValues>>() : std::vector<TValues>{};

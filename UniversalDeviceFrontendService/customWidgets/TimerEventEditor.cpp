@@ -1,17 +1,18 @@
 #include "TimerEventEditor.hpp"
 
 #include "Constants.hpp"
+#include "Enums.hpp"
+#include "Marshaling.hpp"
 #include "TimerEvent.hpp"
-
-using namespace Wt;
+#include "Wt/WGlobal.h"
 
 TimerEventEditor::TimerEventEditor() : BaseEventEditor() {
-    _mainLayout->addWidget(std::make_unique<WText>("Час:"), 2, 0);
-    _hour = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 2, 1);
+    _mainLayout->addWidget(std::make_unique<Wt::WText>("Час:"), 2, 0);
+    _hour = _mainLayout->addWidget(std::make_unique<Wt::WSpinBox>(), 2, 1);
     _hour->setMinimum(0);
     _hour->setMaximum(23);
-    _mainLayout->addWidget(std::make_unique<WText>("Минута:"), 3, 0);
-    _minute = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 3, 1);
+    _mainLayout->addWidget(std::make_unique<Wt::WText>("Минута:"), 3, 0);
+    _minute = _mainLayout->addWidget(std::make_unique<Wt::WSpinBox>(), 3, 1);
     _minute->setMinimum(0);
     _minute->setMaximum(59);
     _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 4, 0, 1, 2);
@@ -38,7 +39,7 @@ void TimerEventEditor::FillUi(const Event& event) {
 }
 
 bool TimerEventEditor::IsValid() const {
-    return BaseEventEditor::IsValid() && _hour->validate() == ValidationState::Valid && _minute->validate() == ValidationState::Valid &&
+    return BaseEventEditor::IsValid() && _hour->validate() == Wt::ValidationState::Valid && _minute->validate() == Wt::ValidationState::Valid &&
            _receiver->IsValid();
 }
 
@@ -46,7 +47,7 @@ void TimerEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);
     TimerEvent& timerEvent = dynamic_cast<TimerEvent&>(event);
     timerEvent._provider._id = Constants::PredefinedIdTimer;
-    timerEvent._provider._type = Constants::EventTypeTimer;
+    timerEvent._provider._type = EventType::Timer;
     timerEvent._hour = _hour->value();
     timerEvent._minute = _minute->value();
     _receiver->FillFromUi(event);

@@ -5,7 +5,7 @@
 #include <Wt/WGridLayout.h>
 #include <Wt/WLineEdit.h>
 
-#include "DeviceComboBox.hpp"
+#include "Enums.hpp"
 #include "Event.hpp"
 #include "IEventEditorWidget.hpp"
 
@@ -26,9 +26,9 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 protected:
-    std::vector<ExtendedComponentDescription> FilteredDevices(std::string_view type);
+    std::vector<ExtendedComponentDescription> FilteredDevices(DeviceType type);
 
-    std::vector<ExtendedComponentDescription> FilteredDevices(const std::set<std::string_view>& types);
+    std::vector<ExtendedComponentDescription> FilteredDevices(const std::set<DeviceType>& types);
 
 protected:
     std::vector<ExtendedComponentDescription> _devices;

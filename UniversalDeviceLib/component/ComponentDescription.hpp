@@ -1,13 +1,21 @@
 #pragma once
 
-#include <string>
-
-#include "Constants.hpp"
+#include "Types.hpp"
 #include "Uuid.hpp"
 
 struct ComponentDescription {
-    std::string _type;
+    ActorType _type;
     Uuid _id;
 
     virtual ~ComponentDescription() = default;
+
+    bool isClientType() const;
+
+    bool isDeviceType() const;
+
+    bool isEventType() const;
+
+    DeviceType getDeviceType() const;
+
+    EventType getEventType() const;
 };

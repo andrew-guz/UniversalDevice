@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <random>
 
+#include "Enums.hpp"
 #include "MessageHelper.hpp"
 #include "PeriodSettings.hpp"
 #include "ThermometerCurrentValue.hpp"
@@ -13,7 +14,7 @@ namespace {
     std::uniform_int_distribution<> distribution(1, 4);
 } // namespace
 
-ThermometerSimulator::ThermometerSimulator() : Simulator("thermometer") {
+ThermometerSimulator::ThermometerSimulator() : Simulator(DeviceType::Thermometer) {
     parameters = Parameters::ReadFromFile();
     temperature = parameters._startTemperature;
 }
@@ -39,7 +40,7 @@ int ThermometerSimulator::GetPeriod() const { return periodSettings._period; }
 void ThermometerSimulator::SendTemperature() {
     ThermometerCurrentValue temperatureValue;
     temperatureValue._value = GetTemperature();
-    auto temperatureMessage = MessageHelper::Create(GetType(), GetId(), Constants::SubjectThermometerCurrentValue, temperatureValue);
+    auto temperatureMessage = MessageHelper::Create(GetType(), GetId(), Subject::ThermometerCurrentValue, temperatureValue);
     SendMessage(temperatureMessage);
 }
 

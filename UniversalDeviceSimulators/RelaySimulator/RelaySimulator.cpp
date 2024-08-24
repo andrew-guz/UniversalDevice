@@ -2,10 +2,11 @@
 
 #include "RelaySimulator.hpp"
 
+#include "Enums.hpp"
 #include "MessageHelper.hpp"
 #include "RelayCurrentState.hpp"
 
-RelaySimulator::RelaySimulator() : Simulator("relay") {}
+RelaySimulator::RelaySimulator() : Simulator(DeviceType::Relay) {}
 
 bool RelaySimulator::GetState() const { return state; }
 
@@ -14,7 +15,7 @@ int RelaySimulator::GetPeriod() const { return periodSettings._period; }
 void RelaySimulator::SendState() {
     RelayCurrentState stateValue;
     stateValue._state = GetState();
-    auto stateMessage = MessageHelper::Create(GetType(), GetId(), Constants::SubjectRelayCurrentState, stateValue);
+    auto stateMessage = MessageHelper::Create(GetType(), GetId(), Subject::RelayCurrentState, stateValue);
     SendMessage(stateMessage);
 }
 
