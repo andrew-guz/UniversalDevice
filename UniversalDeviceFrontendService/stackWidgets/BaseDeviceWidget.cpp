@@ -19,6 +19,14 @@
 
 using namespace Wt;
 
+namespace {
+
+    std::string CombineNameAndGroup(const std::string name, const std::string& group) {
+        return group.empty() ? name : name + std::string{ " (" } + group + std::string{ ")" };
+    }
+
+} // namespace
+
 BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& settings)
     : BaseStackWidget(stackHolder, settings), _deviceId(Uuid::Empty()) {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
@@ -40,7 +48,7 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
     refresh->clicked().connect([this]() { Initialize(_deviceId.data()); });
 
     _nameText = _mainLayout->addWidget(std::make_unique<WText>(), 1, 0, 1, 3, AlignmentFlag::Center);
-    _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
+    _nameText->setText(WidgetHelper::TextWithFontSize(CombineNameAndGroup(_deviceName, _deviceGroup), 20));
 
     _timeText = _mainLayout->addWidget(std::make_unique<WText>(), 2, 0, 1, 3, AlignmentFlag::Center);
     _timeText->setText(WidgetHelper::TextWithFontSize("", 20));
@@ -66,8 +74,8 @@ void BaseDeviceWidget::Initialize(const std::string& data) {
     }
 
     GetDeviceProperty(API_CLIENT_DEVICE_NAME, _deviceName);
-    _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
     GetDeviceProperty(API_CLIENT_DEVICE_GROUP, _deviceGroup);
+    _nameText->setText(WidgetHelper::TextWithFontSize(CombineNameAndGroup(_deviceName, _deviceGroup), 20));
 
     Initialize();
 }
@@ -75,8 +83,8 @@ void BaseDeviceWidget::Initialize(const std::string& data) {
 void BaseDeviceWidget::Clear(ClearType type) {
     if (type & BaseDeviceWidget::ClearType::Name) {
         _deviceName = {};
-        _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
         _deviceGroup = {};
+        _nameText->setText(WidgetHelper::TextWithFontSize(CombineNameAndGroup(_deviceName, _deviceGroup), 20));
     }
     if (type & BaseDeviceWidget::ClearType::Data) {
         ClearData();
@@ -104,7 +112,10 @@ bool BaseDeviceWidget::SetDeviceProperty(const std::string& path, const std::str
 
 void BaseDeviceWidget::SetNewName(const std::string& newName) {
     if (SetDeviceProperty(API_CLIENT_DEVICE_NAME, newName, _deviceName))
-        _nameText->setText(WidgetHelper::TextWithFontSize(_deviceName, 20));
+        _nameText->setText(WidgetHelper::TextWithFontSize(CombineNameAndGroup(_deviceName, _deviceGroup), 20));
 }
 
-void BaseDeviceWidget::SetNewGroup(const std::string& newGroup) { SetDeviceProperty(API_CLIENT_DEVICE_GROUP, newGroup, _deviceGroup); }
+void BaseDeviceWidget::SetNewGroup(const std::string& newGroup) {
+    if (SetDeviceProperty(API_CLIENT_DEVICE_GROUP, newGroup, _deviceGroup))
+        _nameText->setText(WidgetHelper::TextWithFontSize(CombineNameAndGroup(_deviceName, _deviceGroup), 20));
+}

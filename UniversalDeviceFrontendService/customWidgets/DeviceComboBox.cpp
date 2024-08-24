@@ -11,7 +11,7 @@ void DeviceComboBox::SetDevices(const std::vector<ExtendedComponentDescription>&
     clear();
     _devices = devices;
     for (auto& device : _devices)
-        addItem(device.GetDisplayString());
+        addItem(device.GetDisplayStringWithGroup());
 }
 
 bool DeviceComboBox::IsValid() const {
