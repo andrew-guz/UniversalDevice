@@ -50,16 +50,15 @@ bool EventReceiverWidget::IsValid() const { return _receivers->IsValid(); }
 
 void EventReceiverWidget::FillFromUi(Event& event) const {
     event._receiver = _receivers->GetSelectedDevice();
-    if (event._receiver.isDeviceType()) {
-        if (event._receiver.getDeviceType() == DeviceType::Thermometer) {
-            ThermometerLedBrightness thermometerLedBrightness;
-            thermometerLedBrightness._brightness = _brightness->value();
-            event._command = thermometerLedBrightness;
-        } else if (event._receiver.getDeviceType() == DeviceType::Relay || event._receiver.getDeviceType() == DeviceType::MotionRelay) {
-            RelayState relayState;
-            relayState._state = _relayState->isChecked();
-            event._command = relayState;
-        }
+    if (event._receiver.isDeviceType() && event._receiver.getDeviceType() == DeviceType::Thermometer) {
+        ThermometerLedBrightness thermometerLedBrightness;
+        thermometerLedBrightness._brightness = _brightness->value();
+        event._command = thermometerLedBrightness;
+    } else if (event._receiver.isDeviceType() &&
+               (event._receiver.getDeviceType() == DeviceType::Relay || event._receiver.getDeviceType() == DeviceType::MotionRelay)) {
+        RelayState relayState;
+        relayState._state = _relayState->isChecked();
+        event._command = relayState;
     }
 }
 
@@ -68,14 +67,13 @@ void EventReceiverWidget::OnReceiverChanged() {
         EventWidgetHelper::Hide(_brightnessText, _brightness, _relayState);
     else {
         const auto& selectedDevice = _receivers->GetSelectedDevice();
-        if (selectedDevice.isDeviceType()) {
-            if (selectedDevice.getDeviceType() == DeviceType::Thermometer) {
-                EventWidgetHelper::Hide(_relayState);
-                EventWidgetHelper::Show(_brightnessText, _brightness);
-            } else if (selectedDevice.getDeviceType() == DeviceType::Relay || selectedDevice.getDeviceType() == DeviceType::MotionRelay) {
-                EventWidgetHelper::Hide(_brightnessText, _brightness);
-                EventWidgetHelper::Show(_relayState);
-            }
+        if (selectedDevice.isDeviceType() && selectedDevice.getDeviceType() == DeviceType::Thermometer) {
+            EventWidgetHelper::Hide(_relayState);
+            EventWidgetHelper::Show(_brightnessText, _brightness);
+        } else if (selectedDevice.isDeviceType() &&
+                   (selectedDevice.getDeviceType() == DeviceType::Relay || selectedDevice.getDeviceType() == DeviceType::MotionRelay)) {
+            EventWidgetHelper::Hide(_brightnessText, _brightness);
+            EventWidgetHelper::Show(_relayState);
         }
     }
 }

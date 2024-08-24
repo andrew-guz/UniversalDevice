@@ -164,7 +164,7 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
                     break;
             }
             if (stackWidgetType != static_cast<StackWidgetType>(-1))
-                _stackHolder->SetWidget(StackWidgetType::Thermometer, description._id.data());
+                _stackHolder->SetWidget(stackWidgetType, description._id.data());
         }
     });
     button->mouseWentUp().connect([this, description](const WMouseEvent& event) {

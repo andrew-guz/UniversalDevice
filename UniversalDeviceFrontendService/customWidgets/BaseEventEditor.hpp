@@ -5,7 +5,6 @@
 #include <Wt/WGridLayout.h>
 #include <Wt/WLineEdit.h>
 
-#include "DeviceComboBox.hpp"
 #include "Enums.hpp"
 #include "Event.hpp"
 #include "IEventEditorWidget.hpp"

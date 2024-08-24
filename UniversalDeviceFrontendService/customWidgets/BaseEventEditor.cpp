@@ -1,9 +1,6 @@
 #include "BaseEventEditor.hpp"
 
-#include "Defines.hpp"
-#include "Enums.hpp"
 #include "Event.hpp"
-#include "RequestHelper.hpp"
 
 using namespace Wt;
 
