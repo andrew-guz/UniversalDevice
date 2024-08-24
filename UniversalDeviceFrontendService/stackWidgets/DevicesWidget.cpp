@@ -146,7 +146,7 @@ void DevicesWidget::Refresh() {
 DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column) {
     auto button =
         layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Left);
-    button->clicked().connect([this, &description]() {
+    button->clicked().connect([this, description]() {
         if (description.isDeviceType()) {
             StackWidgetType stackWidgetType = static_cast<StackWidgetType>(-1);
             switch (description.getDeviceType()) {
