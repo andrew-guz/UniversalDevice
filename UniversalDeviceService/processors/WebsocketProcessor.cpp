@@ -1,7 +1,6 @@
 #include "WebsocketProcessor.hpp"
 
 #include "SimpleTableStorageCache.hpp"
-#include "StorageCacheFactory.hpp"
 
 WebSocketProcessor::WebSocketProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
 
