@@ -27,6 +27,8 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
         case Subject::WebSocketGetCommands:
             return {};
     }
+    LOG_ERROR << "Unknown subject to process in MotionRelayProcessor: " << static_cast<int>(message._header._subject) << std::endl;
+    return {};
 }
 
 nlohmann::json MotionRelayProcessor::ProcessMotionRelayCurrentStateMessage(const std::chrono::system_clock::time_point& timestamp,

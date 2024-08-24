@@ -28,6 +28,8 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
         case Subject::WebSocketGetCommands:
             return {};
     }
+    LOG_ERROR << "Unknown subject to process in ThermometerProcessor: " << static_cast<int>(message._header._subject) << std::endl;
+    return {};
 }
 
 nlohmann::json ThermometerProcessor::ProcessThermometerCurrentValueMessage(const std::chrono::system_clock::time_point& timestamp,

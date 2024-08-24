@@ -23,7 +23,9 @@ nlohmann::json WebSocketProcessor::ProcessMessage(const std::chrono::system_cloc
         }
     } catch (...) {
         LOG_ERROR << "Something went wrong in WebSocketProcessor::ProcessMessage." << std::endl;
+        return {};
     }
+    LOG_ERROR << "Unknown subject to process in WebSocketProcessor: " << static_cast<int>(message._header._subject) << std::endl;
     return {};
 }
 
