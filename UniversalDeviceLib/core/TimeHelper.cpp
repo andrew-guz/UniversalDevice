@@ -1,5 +1,7 @@
 #include "TimeHelper.hpp"
 
+#include <fmt/chrono.h>
+#include <fmt/format.h>
 #include <iomanip>
 #include <time.h>
 
@@ -15,23 +17,17 @@ std::chrono::system_clock::time_point TimeHelper::TimeFromInt(int64_t value) {
 }
 
 std::string TimeHelper::TimeToString(const std::chrono::system_clock::time_point& time) {
-    auto time_t = std::chrono::system_clock::to_time_t(time);
-    auto tm = std::localtime(&time_t);
-    std::stringstream sstream;
-    sstream << std::put_time(tm, "%d-%m-%Y %T");
-    sstream.flush();
-    return sstream.str();
+    const auto time_t = std::chrono::system_clock::to_time_t(time);
+    const auto tm = fmt::localtime(time_t);
+    return fmt::format("{:%d-%m-%Y %T}", tm);
 }
 
 std::string TimeHelper::TimeToString(int64_t value) { return TimeToString(TimeFromInt(value)); }
 
 std::string TimeHelper::TimeToShortString(const std::chrono::system_clock::time_point& time) {
-    auto time_t = std::chrono::system_clock::to_time_t(time);
-    auto tm = std::localtime(&time_t);
-    std::stringstream sstream;
-    sstream << std::put_time(tm, "%H:%M %d-%m");
-    sstream.flush();
-    return sstream.str();
+    const auto time_t = std::chrono::system_clock::to_time_t(time);
+    const auto tm = fmt::localtime(time_t);
+    return fmt::format("{:%H:%M %d-%m}", tm);
 }
 
 std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::string_view string) {
