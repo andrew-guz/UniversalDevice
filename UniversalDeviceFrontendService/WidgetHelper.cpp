@@ -1,7 +1,5 @@
 #include "WidgetHelper.hpp"
 
-#include <fmt/format.h>
-
 #include <Wt/WLineEdit.h>
 #include <Wt/WRegExpValidator.h>
 #include <Wt/WSpinBox.h>

@@ -124,7 +124,7 @@ std::string EventsTableModel::EventAdditionalInfo(const EventType eventType, con
         };
         case EventType::Thermometer: {
             const auto thermometerEvent = eventJson.get<ThermometerEvent>();
-            return fmt::format("Сработает {} {:.2} °C", (thermometerEvent._lower ? "ниже " : "выше "), thermometerEvent._temperature);
+            return fmt::format("Сработает {} {:.1f} °C", (thermometerEvent._lower ? "ниже " : "выше "), thermometerEvent._temperature);
         };
         case EventType::Relay: {
             const auto relayEvent = eventJson.get<RelayEvent>();
@@ -132,7 +132,7 @@ std::string EventsTableModel::EventAdditionalInfo(const EventType eventType, con
         };
         case EventType::Thermostat: {
             const auto thermostatEvent = eventJson.get<ThermostatEvent>();
-            return fmt::format("Поддерживает температуру {:.2}±{:.2} °C", thermostatEvent._temperature, thermostatEvent._delta);
+            return fmt::format("Поддерживает температуру {:.1f}±{:.1f} °C", thermostatEvent._temperature, thermostatEvent._delta);
         };
     }
     return {};
