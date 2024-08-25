@@ -1,6 +1,5 @@
 #include "Base64Helper.hpp"
 
-#include <array>
 #include <b64/decode.h>
 #include <b64/encode.h>
 #include <sstream>

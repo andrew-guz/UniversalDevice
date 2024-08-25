@@ -11,6 +11,7 @@
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
 #include "WidgetHelper.hpp"
+#include "fmt/format.h"
 
 using namespace Wt;
 
@@ -50,12 +51,7 @@ void DeviceButton::Refresh() {
                     auto values = replyJson.get<std::vector<ExtendedThermometerCurrentValue>>();
                     if (values.size()) {
                         const auto& value = values[0];
-                        std::stringstream ss;
-                        ss << WidgetHelper::TextWithFontSize("🌡", 40);
-                        ss.precision(1);
-                        ss << std::fixed << value._value << "°C";
-                        ss.flush();
-                        additionalData = ss.str();
+                        additionalData = fmt::format("{}{:.1f}°C", WidgetHelper::TextWithFontSize("🌡", 40), value._value);
                         timestamp = value._timestamp;
                     }
                 } break;
@@ -63,7 +59,7 @@ void DeviceButton::Refresh() {
                     auto values = replyJson.get<std::vector<ExtendedRelayCurrentState>>();
                     if (values.size()) {
                         const auto& value = values[0];
-                        additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._state == 1 ? "ON" : "OFF");
+                        additionalData = fmt::format("{}{}", WidgetHelper::TextWithFontSize("⏻", 40), value._state == 1 ? "ON" : "OFF");
                         timestamp = value._timestamp;
                     }
                 } break;
@@ -71,7 +67,7 @@ void DeviceButton::Refresh() {
                     auto values = replyJson.get<std::vector<ExtendedMotionRelayCurrentState>>();
                     if (values.size()) {
                         const auto& value = values[0];
-                        additionalData = WidgetHelper::TextWithFontSize("⏻", 40) + (value._motion == 1 ? "Движение" : "...");
+                        additionalData = fmt::format("{}{}", WidgetHelper::TextWithFontSize("⏻", 40), value._motion == 1 ? "Движение" : "...");
                         timestamp = value._timestamp;
                     }
                 } break;
