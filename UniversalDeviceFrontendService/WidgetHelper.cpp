@@ -1,5 +1,7 @@
 #include "WidgetHelper.hpp"
 
+#include <fmt/format.h>
+
 #include <Wt/WLineEdit.h>
 #include <Wt/WRegExpValidator.h>
 #include <Wt/WSpinBox.h>
@@ -8,10 +10,7 @@
 using namespace Wt;
 
 std::string WidgetHelper::TextWithFontSize(const std::string& txt, int size) {
-    std::stringstream ss;
-    ss << "<div style='font-size:" << size << "px'>" << txt << "</div>";
-    ss.flush();
-    return ss.str();
+    return fmt::format("<div style='font-size:{}px'>{}</div>", size, txt);
 }
 
 void WidgetHelper::SetUsualButtonSize(WPushButton* button) {
