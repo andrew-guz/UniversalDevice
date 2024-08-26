@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include <fmt/format.h>
+
 #include "StorageCacheFactory.hpp"
 
 SimpleTableStorageCache::SimpleTableStorageCache(IQueryExecutor* queryExecutor, const std::string& tableName, const std::string& fieldName)
@@ -19,11 +21,9 @@ StorageCacheProblem SimpleTableStorageCache::Select(const SelectInput& what, Sel
         return { StorageCacheProblemType::NoProblems, {} };
     }
 
-    std::stringstream queryStream;
-    queryStream << "SELECT " << _fieldName << " FROM " << _tableName << " WHERE id = '" << customWhat._id << "'";
-    queryStream.flush();
+    const std::string query = fmt::format("SELECT {} FROM {} WHERE id = '{}'", _fieldName, _tableName, customWhat._id);
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(queryStream.str(), data)) {
+    if (_queryExecutor->Select(query, data)) {
         if (data.size() == 0)
             return { StorageCacheProblemType::NotExists, {} };
         else if (data.size() == 1) {
@@ -37,7 +37,7 @@ StorageCacheProblem SimpleTableStorageCache::Select(const SelectInput& what, Sel
         } else
             return { StorageCacheProblemType::TooMany, {} };
     }
-    return { StorageCacheProblemType::SQLError, queryStream.str() };
+    return { StorageCacheProblemType::SQLError, query };
 }
 
 StorageCacheProblem SimpleTableStorageCache::SelectAll(SelectAllOutput& result) {
@@ -54,18 +54,16 @@ StorageCacheProblem SimpleTableStorageCache::InsertOrReplace(const InsertOrRepla
     if (iter != _dataCache.end())
         _dataCache.erase(iter);
 
-    if (!customWhat._data.empty()) {
-        std::stringstream queryStream;
-        queryStream << "INSERT OR REPLACE INTO " << _tableName << " (id, " << _fieldName << ") VALUES ('" << customWhat._id << "', '"
-                    << customWhat._data << "')";
-        queryStream.flush();
-        if (_queryExecutor->Execute(queryStream.str())) {
-            _dataCache.insert(std::make_pair(customWhat._id, customWhat._data));
-            return { StorageCacheProblemType::NoProblems, {} };
-        }
-        return { StorageCacheProblemType::SQLError, queryStream.str() };
+    if (!customWhat._data.empty())
+        return { StorageCacheProblemType::Empty, {} };
+
+    const std::string query =
+        fmt::format("INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')", _tableName, _fieldName, customWhat._id, customWhat._data);
+    if (_queryExecutor->Execute(query)) {
+        _dataCache.insert(std::make_pair(customWhat._id, customWhat._data));
+        return { StorageCacheProblemType::NoProblems, {} };
     }
-    return { StorageCacheProblemType::Empty, {} };
+    return { StorageCacheProblemType::SQLError, query };
 }
 
 StorageCacheProblem SimpleTableStorageCache::Update(const UpdateInput& what) {
@@ -80,12 +78,10 @@ StorageCacheProblem SimpleTableStorageCache::Delete(const DeleteInput& what) {
 
     const SimpleTableDeleteInput& customWhat = dynamic_cast<const SimpleTableDeleteInput&>(what);
 
-    std::stringstream queryStream;
-    queryStream << "DELETE FROM " << _tableName << " WHERE id='" << customWhat._id << "'";
-    queryStream.flush();
-    if (_queryExecutor->Execute(queryStream.str()))
+    const std::string query = fmt::format("DELETE FROM {} WHERE id='{}'", _tableName, customWhat._id);
+    if (_queryExecutor->Execute(query))
         return { StorageCacheProblemType::NoProblems, {} };
-    return { StorageCacheProblemType::SQLError, queryStream.str() };
+    return { StorageCacheProblemType::SQLError, query };
 }
 
 IStorageCache* SimpleTableStorageCache::GetSettingsCache(IQueryExecutor* queryExecutor) {
