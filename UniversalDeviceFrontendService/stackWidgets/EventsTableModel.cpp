@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <string>
 
+#include <fmt/format.h>
+
 #include "Enums.hpp"
 #include "Event.hpp"
 #include "Logger.hpp"
