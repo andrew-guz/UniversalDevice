@@ -1,6 +1,6 @@
-#include <catch2/catch_all.hpp>
-
 #include <string>
+
+#include <catch2/catch_all.hpp>
 
 #include "AccountManager.hpp"
 #include "Base64Helper.hpp"

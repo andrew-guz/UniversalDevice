@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Enums.hpp"
-
 #include <variant>
+
+#include "Enums.hpp"
 
 struct ClientActor {};
 

@@ -26,3 +26,17 @@ IndentCaseLabels: true
 #spaces
 Cpp11BracedListStyle: false
 SpaceBeforeCpp11BracedList: false
+
+#headers
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^((<|")(Wt|nlohmann|b64|ixwebsocket|catch2|uuid|curlpp|crow))'
+    CaseSensitive: true
+    Priority: 2
+  - Regex: "<[[:alnum:]._]+>"
+    CaseSensitive: true
+    Priority: 1
+  - Regex: ".*"
+    CaseSensitive: true
+    Priority: 3
+    SortPriority: 0

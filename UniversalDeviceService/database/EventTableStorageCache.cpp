@@ -4,7 +4,6 @@
 #include <utility>
 
 #include "DbExtension.hpp"
-
 #include "Marshaling.hpp"
 #include "StorageCacheFactory.hpp"
 

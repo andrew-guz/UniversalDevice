@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Types.hpp"
 #include <string>
 #include <vector>
+
+#include "Types.hpp"
 
 enum StorageCacheProblemType { NoProblems, Empty, NotExists, TooMany, SQLError };
 

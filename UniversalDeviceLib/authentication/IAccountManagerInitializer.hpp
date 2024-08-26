@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Account.hpp"
 #include <vector>
+
+#include "Account.hpp"
 
 class IAccountManagerInitializer {
 public:

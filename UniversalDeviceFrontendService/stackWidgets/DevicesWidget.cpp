@@ -1,11 +1,13 @@
 #include "DevicesWidget.hpp"
 
-#include <Wt/Http/Cookie.h>
-#include <Wt/WGroupBox.h>
-#include <Wt/WPopupMenu.h>
 #include <algorithm>
 #include <memory>
 #include <vector>
+
+#include "Wt/WGridLayout.h"
+#include <Wt/Http/Cookie.h>
+#include <Wt/WGroupBox.h>
+#include <Wt/WPopupMenu.h>
 
 #include "Constants.hpp"
 #include "Defines.hpp"
@@ -19,7 +21,6 @@
 #include "String.hpp"
 #include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
-#include "Wt/WGridLayout.h"
 
 using namespace Wt;
 
