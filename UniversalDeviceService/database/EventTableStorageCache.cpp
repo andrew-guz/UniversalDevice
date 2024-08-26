@@ -3,6 +3,8 @@
 #include <sstream>
 #include <utility>
 
+#include <fmt/format.h>
+
 #include "DbExtension.hpp"
 
 #include "Marshaling.hpp"
@@ -22,12 +24,10 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
         return { StorageCacheProblemType::NoProblems, {} };
     }
 
-    std::stringstream queryStream;
-    queryStream << "SELECT event FROM Events WHERE providerId = '" << customWhat._id << "' AND providerType = '"
-                << ActorTypeToString(customWhat._type) << "' AND active = 1";
-    queryStream.flush();
+    std::string query = fmt::format("SELECT event FROM Events WHERE providerId = '{}' AND providerType = '{}' AND active = 1", customWhat._id,
+                                    ActorTypeToString(customWhat._type));
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(queryStream.str(), data)) {
+    if (_queryExecutor->Select(query, data)) {
         std::vector<std::string> eventStrings;
         for (const auto& row : data) {
             auto eventString = DbExtension::FindValueByName<std::string>(row, "event");
@@ -38,7 +38,7 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
         customResult._data = eventStrings;
         return { StorageCacheProblemType::NoProblems, {} };
     }
-    return { StorageCacheProblemType::SQLError, queryStream.str() };
+    return { StorageCacheProblemType::SQLError, query };
 }
 
 StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
