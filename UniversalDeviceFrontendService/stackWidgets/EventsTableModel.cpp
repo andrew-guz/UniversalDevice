@@ -1,4 +1,8 @@
 #include "EventsTableModel.hpp"
+
+#include <iomanip>
+#include <string>
+
 #include "Enums.hpp"
 #include "Event.hpp"
 #include "Logger.hpp"
@@ -7,11 +11,6 @@
 #include "ThermometerEvent.hpp"
 #include "ThermostatEvent.hpp"
 #include "TimerEvent.hpp"
-
-#include <iomanip>
-#include <string>
-
-#include <fmt/format.h>
 
 namespace {
     enum Columns {

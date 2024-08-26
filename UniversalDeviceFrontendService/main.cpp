@@ -1,6 +1,7 @@
+#include <exception>
+
 #include "Application.hpp"
 #include "Logger.hpp"
-#include <exception>
 
 int main(int argc, char** argv) {
     int result = -1;

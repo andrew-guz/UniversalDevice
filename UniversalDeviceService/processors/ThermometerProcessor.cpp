@@ -1,7 +1,8 @@
 #include "ThermometerProcessor.hpp"
 
-#include <nlohmann/json_fwd.hpp>
 #include <sstream>
+
+#include <nlohmann/json_fwd.hpp>
 
 #include "Constants.hpp"
 #include "DeviceInformationDescription.hpp"

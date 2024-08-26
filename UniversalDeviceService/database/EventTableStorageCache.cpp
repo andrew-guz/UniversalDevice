@@ -6,7 +6,6 @@
 #include <fmt/format.h>
 
 #include "DbExtension.hpp"
-
 #include "Marshaling.hpp"
 #include "StorageCacheFactory.hpp"
 

@@ -1,7 +1,7 @@
-#include <catch2/catch_all.hpp>
-
-#include <fmt/format.h>
 #include <string>
+
+#include <catch2/catch_all.hpp>
+#include <fmt/format.h>
 
 #include "AccountManager.hpp"
 #include "Base64Helper.hpp"

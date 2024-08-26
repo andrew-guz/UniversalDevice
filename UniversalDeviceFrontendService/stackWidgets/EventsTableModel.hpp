@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Enums.hpp"
 #include <vector>
-
-#include <nlohmann/json.hpp>
 
 #include <Wt/WAbstractItemModel.h>
 #include <Wt/WModelIndex.h>
 #include <Wt/cpp17/any.hpp>
+#include <nlohmann/json.hpp>
+
+#include "Enums.hpp"
 
 class EventsTableModel : public Wt::WAbstractItemModel {
 public:

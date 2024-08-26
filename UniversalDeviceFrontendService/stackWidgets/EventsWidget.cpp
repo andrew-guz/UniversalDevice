@@ -1,5 +1,6 @@
 #include "EventsWidget.hpp"
 
+#include "Wt/WGlobal.h"
 #include <Wt/WGroupBox.h>
 #include <Wt/WText.h>
 
@@ -22,7 +23,6 @@
 #include "TimerEventEditor.hpp"
 #include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
-#include "Wt/WGlobal.h"
 
 EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) : BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<Wt::WGridLayout>());

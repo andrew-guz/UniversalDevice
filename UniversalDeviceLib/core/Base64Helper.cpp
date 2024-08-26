@@ -1,8 +1,9 @@
 #include "Base64Helper.hpp"
 
+#include <sstream>
+
 #include <b64/decode.h>
 #include <b64/encode.h>
-#include <sstream>
 
 std::string Base64Helper::ToBase64(const std::string_view str) {
     std::istringstream incoming(str.data());
