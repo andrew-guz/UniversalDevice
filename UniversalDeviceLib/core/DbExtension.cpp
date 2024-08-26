@@ -1,14 +1,15 @@
 #include "DbExtension.hpp"
+
+#include <algorithm>
+#include <chrono>
+#include <cstdlib>
+#include <optional>
+
+#include <nlohmann/json.hpp>
+
 #include "Marshaling.hpp"
 #include "TimeHelper.hpp"
 #include "Uuid.hpp"
-
-#include <algorithm>
-
-#include <chrono>
-#include <cstdlib>
-#include <nlohmann/json.hpp>
-#include <optional>
 
 namespace {
     std::optional<std::string> FindStringValueByName(const std::vector<std::string>& dbStrings, const std::string_view name) {

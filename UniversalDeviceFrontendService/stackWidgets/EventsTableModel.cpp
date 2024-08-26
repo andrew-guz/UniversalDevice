@@ -1,5 +1,8 @@
 #include "EventsTableModel.hpp"
 
+#include <iomanip>
+#include <string>
+
 #include "Constants.hpp"
 #include "Enums.hpp"
 #include "Event.hpp"
@@ -9,9 +12,6 @@
 #include "ThermometerEvent.hpp"
 #include "ThermostatEvent.hpp"
 #include "TimerEvent.hpp"
-
-#include <iomanip>
-#include <string>
 
 namespace {
     enum Columns {

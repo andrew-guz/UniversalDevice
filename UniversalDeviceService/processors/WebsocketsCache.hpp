@@ -1,8 +1,9 @@
 #pragma once
 
-#include <crow.h>
 #include <map>
 #include <mutex>
+
+#include <crow.h>
 
 #include "Singleton.hpp"
 #include "Uuid.hpp"

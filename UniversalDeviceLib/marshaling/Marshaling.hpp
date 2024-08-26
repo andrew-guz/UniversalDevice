@@ -1,9 +1,9 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include "Enums.hpp"
 #include "Types.hpp"
-
-#include <nlohmann/json.hpp>
 
 class Uuid;
 struct Account;

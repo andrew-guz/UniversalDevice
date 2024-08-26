@@ -1,5 +1,6 @@
-#include <crow.h>
 #include <exception>
+
+#include <crow.h>
 
 #include "ClientService.hpp"
 #include "DeviceService.hpp"

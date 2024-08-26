@@ -1,10 +1,11 @@
 #pragma once
 
+#include <mutex>
+
 #include <Wt/WContainerWidget.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WText.h>
 #include <Wt/WTimer.h>
-#include <mutex>
 
 #include "BaseStackWidget.hpp"
 #include "DeviceInformationDescription.hpp"

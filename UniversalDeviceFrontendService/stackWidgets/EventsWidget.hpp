@@ -1,13 +1,12 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
-
 #include <Wt/WComboBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WStackedWidget.h>
 #include <Wt/WTableView.h>
+#include <nlohmann/json.hpp>
 
 #include "BaseEventEditor.hpp"
 #include "BaseStackWidget.hpp"

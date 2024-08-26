@@ -1,10 +1,11 @@
 #include "RequestHelper.hpp"
 
+#include <sstream>
+
 #include <curlpp/Easy.hpp>
 #include <curlpp/Infos.hpp>
 #include <curlpp/Options.hpp>
 #include <curlpp/cURLpp.hpp>
-#include <sstream>
 
 #include "AccountManager.hpp"
 #include "Logger.hpp"

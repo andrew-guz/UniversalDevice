@@ -1,10 +1,11 @@
 #include "TimerEventEditor.hpp"
 
+#include "Wt/WGlobal.h"
+
 #include "Constants.hpp"
 #include "Enums.hpp"
 #include "Marshaling.hpp"
 #include "TimerEvent.hpp"
-#include "Wt/WGlobal.h"
 
 TimerEventEditor::TimerEventEditor() : BaseEventEditor() {
     _mainLayout->addWidget(std::make_unique<Wt::WText>("Час:"), 2, 0);

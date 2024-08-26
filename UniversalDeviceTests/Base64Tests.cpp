@@ -1,9 +1,9 @@
+#include <fstream>
+#include <sstream>
+
 #include <catch2/catch_all.hpp>
 
 #include "Base64Helper.hpp"
-
-#include <fstream>
-#include <sstream>
 
 TEST_CASE("To base64") { REQUIRE(Base64Helper::ToBase64("login5:password5") == "bG9naW41OnBhc3N3b3JkNQ=="); }
 

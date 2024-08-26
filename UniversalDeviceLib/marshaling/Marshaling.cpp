@@ -1,5 +1,8 @@
 #include "Marshaling.hpp"
 
+#include <string>
+#include <variant>
+
 #include "Account.hpp"
 #include "Base64Helper.hpp"
 #include "ComponentDescription.hpp"
@@ -30,8 +33,6 @@
 #include "Types.hpp"
 #include "Uuid.hpp"
 #include "WebSocketAuthentication.hpp"
-#include <string>
-#include <variant>
 
 template<>
 std::string EnumToString(DeviceType enumType) {

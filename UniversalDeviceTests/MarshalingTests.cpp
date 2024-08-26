@@ -1,8 +1,10 @@
+#include <variant>
+
+#include <catch2/catch_all.hpp>
+
 #include "Enums.hpp"
 #include "Marshaling.hpp"
 #include "Types.hpp"
-#include <catch2/catch_all.hpp>
-#include <variant>
 
 TEST_CASE("ActorTypeToString") {
     ActorType type;
