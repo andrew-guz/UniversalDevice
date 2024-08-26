@@ -1,5 +1,7 @@
 #include <exception>
 
+#include <fmt/format.h>
+
 #include "Application.hpp"
 #include "Logger.hpp"
 
@@ -17,7 +19,7 @@ int main(int argc, char** argv) {
 
         LOG_INFO << "Stopping Client service" << std::endl;
     } catch (const std::exception& ex) {
-        LOG_ERROR << "Exception caught: '" << ex.what() << "'" << std::endl;
+        LOG_ERROR << fmt::format("Exception caught: '{}'", ex.what()) << std::endl;
     } catch (...) {
         LOG_ERROR << "Unknown exception caught" << std::endl;
     }

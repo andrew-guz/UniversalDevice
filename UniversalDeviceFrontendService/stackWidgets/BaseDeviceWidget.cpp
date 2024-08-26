@@ -5,14 +5,13 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WRegExpValidator.h>
 #include <Wt/WSpinBox.h>
+#include <fmt/format.h>
 
-#include "ComponentDescription.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
-#include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
 #include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
@@ -106,7 +105,7 @@ bool BaseDeviceWidget::SetDeviceProperty(const std::string& path, const std::str
         value = newValue;
         return true;
     }
-    LOG_ERROR << "Failed to update property " << path << " to " << newValue << "." << std::endl;
+    LOG_ERROR << fmt::format("Failed to update property {} to {}.", path, newValue) << std::endl;
     return false;
 }
 

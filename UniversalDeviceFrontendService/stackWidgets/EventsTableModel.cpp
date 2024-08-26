@@ -1,6 +1,5 @@
 #include "EventsTableModel.hpp"
 
-#include <iomanip>
 #include <string>
 
 #include <fmt/format.h>

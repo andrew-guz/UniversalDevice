@@ -8,6 +8,7 @@
 #include <Wt/Http/Cookie.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WPopupMenu.h>
+#include <fmt/format.h>
 
 #include "Constants.hpp"
 #include "Defines.hpp"
@@ -78,7 +79,7 @@ void DevicesWidget::Refresh() {
         !replyJson.is_null() ? replyJson.get<std::vector<ExtendedComponentDescription>>() : std::vector<ExtendedComponentDescription>{};
     if (allDescriptions.empty())
         return;
-    LOG_DEBUG << allDescriptions.size() << " allDescriptions found." << std::endl;
+    LOG_DEBUG << fmt::format("{} descriptions found.", allDescriptions.size()) << std::endl;
 
     std::set<std::string> groups;
     std::vector<ExtendedComponentDescription> descriptionsWithoutGroup;
@@ -179,7 +180,7 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
                 if (result == 200)
                     Refresh();
                 else
-                    LOG_ERROR << "Failed to delete device " << description._id.data() << "." << std::endl;
+                    LOG_ERROR << fmt::format("Failed to delete device {}.", description._id.data()) << std::endl;
             });
             popup->exec(event);
         }
