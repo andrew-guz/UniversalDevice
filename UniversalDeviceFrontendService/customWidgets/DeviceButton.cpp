@@ -1,5 +1,7 @@
 #include "DeviceButton.hpp"
 
+#include <fmt/format.h>
+
 #include "Defines.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "Enums.hpp"
@@ -11,7 +13,6 @@
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
 #include "WidgetHelper.hpp"
-#include "fmt/format.h"
 
 using namespace Wt;
 

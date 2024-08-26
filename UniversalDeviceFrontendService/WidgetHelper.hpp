@@ -3,14 +3,13 @@
 #include <string>
 #include <tuple>
 
-#include <fmt/format.h>
-
 #include <Wt/WDialog.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WSpinBox.h>
 #include <Wt/WString.h>
+#include <fmt/format.h>
 
 class WidgetHelper final {
 public:

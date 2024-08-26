@@ -1,9 +1,10 @@
 #include "TimeHelper.hpp"
 
-#include <fmt/chrono.h>
-#include <fmt/format.h>
 #include <iomanip>
 #include <time.h>
+
+#include <fmt/chrono.h>
+#include <fmt/format.h>
 
 int64_t TimeHelper::TimeToInt(const std::chrono::system_clock::time_point& time) {
     auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(time);
