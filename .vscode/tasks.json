@@ -6,7 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "mkdir -p build && cd build && cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --fresh .. && cmake --build . -j 10 && cd ..",
+            "command": "./.vscode/build.sh",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -16,7 +16,7 @@
         {
             "label": "clear",
             "type": "shell",
-            "command": "mkdir -p build && cd build && make clean && cd ..",
+            "command": "./.vscode/clean.sh",
             "problemMatcher": [],
             "group": {
                 "kind": "none",
@@ -26,7 +26,7 @@
         {
             "label": "format",
             "type": "shell",
-            "command": "/usr/bin/clang-format-17 -i --verbose Universal*/**/*.cpp Universal*/**/*.hpp",
+            "command": "./.vscode/format.sh",
             "group": {
                 "kind": "none",
                 "isDefault": false
