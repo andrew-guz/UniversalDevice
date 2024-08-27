@@ -1,18 +1,15 @@
 #include "EventsProcessor.hpp"
 
-#include <sstream>
+#include <fmt/format.h>
 
 #include "CurrentTime.hpp"
-#include "DbExtension.hpp"
 #include "Enums.hpp"
 #include "EventTableStorageCache.hpp"
-#include "IDb.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RelayCurrentState.hpp"
 #include "RelayState.hpp"
 #include "SimpleTableStorageCache.hpp"
-#include "StorageCacheFactory.hpp"
 #include "ThermometerCurrentValue.hpp"
 #include "TimeHelper.hpp"
 #include "WebsocketsCache.hpp"
@@ -27,7 +24,7 @@ nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::
         auto simpleEvent = eventJson.get<Event>();
         switch (simpleEvent._type) {
             case EventType::Undefined:
-                LOG_ERROR << "Invalid event type" << std::endl;
+                LOG_ERROR_MSG("Invalid event type");
                 break;
             case EventType::Timer:
                 ProcessTimerEvent(eventJson.get<TimerEvent>(), message);
@@ -74,7 +71,7 @@ std::vector<nlohmann::json> EventsProcessor::LoadEvents(const ComponentDescripti
             auto json = nlohmann::json::parse(eventString);
             result.push_back(json);
         } catch (...) {
-            LOG_ERROR << "Invalid JSON - " << eventString << "." << std::endl;
+            LOG_ERROR_MSG(fmt::format("Invalid JSON - {}.", eventString));
         }
     }
 
@@ -91,7 +88,7 @@ void EventsProcessor::ProcessTimerEvent(const TimerEvent& timeEvent, const Messa
 void EventsProcessor::ProcessThermometerEvent(const ThermometerEvent& thermometerEvent, const Message& message) {
     auto thermometerCurrentValue = message._data.get<ThermometerCurrentValue>();
     if (thermometerCurrentValue._value == std::numeric_limits<int>::min()) {
-        LOG_ERROR << "Invalid value in EventsProcessor::ProcessThermometerEvent." << std::endl;
+        LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessThermometerEvent.");
         return;
     }
     if ((thermometerEvent._lower == true && thermometerCurrentValue._value <= thermometerEvent._temperature) ||
@@ -102,7 +99,7 @@ void EventsProcessor::ProcessThermometerEvent(const ThermometerEvent& thermomete
 void EventsProcessor::ProcessRelayEvent(const RelayEvent& relayEvent, const Message& message) {
     auto relayCurrentState = message._data.get<RelayCurrentState>();
     if (relayCurrentState._state == std::numeric_limits<int>::min()) {
-        LOG_ERROR << "Invalid value in EventsProcessor::ProcessRelayEvent." << std::endl;
+        LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessRelayEvent.");
         return;
     }
     if (relayCurrentState._state == relayEvent._state)
@@ -112,7 +109,7 @@ void EventsProcessor::ProcessRelayEvent(const RelayEvent& relayEvent, const Mess
 void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEvent, const Message& message) {
     auto thermometerCurrentValue = message._data.get<ThermometerCurrentValue>();
     if (thermometerCurrentValue._value == std::numeric_limits<int>::min()) {
-        LOG_ERROR << "Invalid value in EventsProcessor::ProcessThermostatEvent." << std::endl;
+        LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessThermostatEvent.");
         return;
     }
     std::string command;
@@ -146,7 +143,7 @@ void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandStri
                     connection->send_text(commandString);
             } break;
             case StorageCacheProblemType::Empty:
-                LOG_ERROR << "Invalid command " << commandString << "." << std::endl;
+                LOG_ERROR_MSG(fmt::format("Invalid command {}.", commandString));
                 break;
             case StorageCacheProblemType::NotExists:
                 break;
@@ -157,6 +154,6 @@ void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandStri
                 break;
         }
     } catch (...) {
-        LOG_ERROR << "EventsProcessor::SendCommand." << std::endl;
+        LOG_ERROR_MSG("EventsProcessor::SendCommand.");
     }
 }

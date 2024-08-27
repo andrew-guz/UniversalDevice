@@ -1,8 +1,7 @@
 #include "DeviceRegistrationProcessor.hpp"
 
-#include <sstream>
+#include <fmt/format.h>
 
-#include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "TimeHelper.hpp"
 
@@ -10,23 +9,20 @@ DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryEx
 
 nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     auto& description = message._header._description;
-    std::stringstream selectQueryStream;
-    selectQueryStream << "SELECT * FROM Devices WHERE id = '" << description._id.data() << "'";
-    selectQueryStream.flush();
+    const std::string selectQuery = fmt::format("SELECT * FROM Devices WHERE id = '{}'", description._id.data());
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(selectQueryStream.str(), data)) {
-        std::stringstream updateInsertQueryStream;
+    if (_queryExecutor->Select(selectQuery, data)) {
+        std::string updateInsertQuery;
         if (data.size()) {
-            updateInsertQueryStream << "UPDATE Devices SET timestamp = " << TimeHelper::TimeToInt(timestamp) << " WHERE id = '"
-                                    << description._id.data() << "'";
+            updateInsertQuery =
+                fmt::format("UPDATE Devices SET timestamp = {} WHERE id = '{}'", TimeHelper::TimeToInt(timestamp), description._id.data());
         } else {
-            updateInsertQueryStream << "INSERT INTO Devices (id, type, timestamp) VALUES ('" << description._id.data() << "', '"
-                                    << ActorTypeToString(description._type) << "', " << TimeHelper::TimeToInt(timestamp) << ")";
+            updateInsertQuery = fmt::format("INSERT INTO Devices (id, type, timestamp) VALUES ('{}', '{}', {})", description._id.data(),
+                                            ActorTypeToString(description._type), TimeHelper::TimeToInt(timestamp));
         }
-        updateInsertQueryStream.flush();
-        if (!_queryExecutor->Execute(updateInsertQueryStream.str()))
-            LOG_SQL_ERROR(updateInsertQueryStream.str());
+        if (!_queryExecutor->Execute(updateInsertQuery))
+            LOG_SQL_ERROR(updateInsertQuery);
     } else
-        LOG_SQL_ERROR(selectQueryStream.str());
+        LOG_SQL_ERROR(selectQuery);
     return {};
 }
