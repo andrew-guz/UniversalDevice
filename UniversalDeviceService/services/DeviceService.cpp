@@ -1,14 +1,14 @@
 #include "DeviceService.hpp"
 
+#include <fmt/format.h>
+
 #include "AccountManager.hpp"
 #include "CurrentTime.hpp"
 #include "Defines.hpp"
-#include "EventTableStorageCache.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "SimpleTableStorageCache.hpp"
-#include "StorageCacheFactory.hpp"
 #include "TimeHelper.hpp"
 #include "WebSocketAuthentication.hpp"
 #include "WebsocketsCache.hpp"
@@ -40,7 +40,7 @@ void DeviceService::Initialize(CrowApp& app) {
     });
     CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &DeviceService::DeleteDevice));
     CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
-        .onopen([&](crow::websocket::connection& connection) { LOG_INFO << "Incoming ip - " << connection.get_remote_ip() << "." << std::endl; })
+        .onopen([&](crow::websocket::connection& connection) { LOG_INFO_MSG(fmt::format("Incoming ip - {}", connection.get_remote_ip())); })
         .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary) {
             return OnWebSocketMessage(connection, data, is_binary);
         })
@@ -66,20 +66,20 @@ crow::response DeviceService::GetSettings(const std::string& idString) {
                 return crow::response(crow::OK, result._data);
                 break;
             case StorageCacheProblemType::Empty:
-                LOG_INFO << "Empty settings for device " << idString << "." << std::endl;
+                LOG_INFO_MSG(fmt::format("Empty settings for device {}", idString));
                 break;
             case StorageCacheProblemType::NotExists:
-                LOG_DEBUG << "No settings for device " << idString << "." << std::endl;
+                LOG_DEBUG_MSG(fmt::format("No settings for device {}", idString));
                 break;
             case StorageCacheProblemType::TooMany:
-                LOG_ERROR << "Too many settings for device " << idString << "." << std::endl;
+                LOG_ERROR_MSG(fmt::format("Too many settings for device {}", idString));
                 break;
             case StorageCacheProblemType::SQLError:
                 LOG_SQL_ERROR(problem._message);
                 break;
         }
     } catch (...) {
-        LOG_ERROR << "Something went wrong in DeviceService::GetSettings." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in DeviceService::GetSettings");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::OK, std::string());
@@ -101,7 +101,7 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
                 return crow::response(crow::OK);
             } break;
             case StorageCacheProblemType::Empty:
-                LOG_ERROR << "Invalid settings " << settingsString << "." << std::endl;
+                LOG_ERROR_MSG(fmt::format("Invalid settings {}", settingsString));
                 break;
             case StorageCacheProblemType::NotExists:
                 break;
@@ -112,7 +112,7 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
                 break;
         }
     } catch (...) {
-        LOG_ERROR << "Something went wrong in DeviceService::SetSettings." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in DeviceService::SetSettings");
     }
     return crow::response(crow::BAD_REQUEST);
 }
@@ -129,20 +129,20 @@ crow::response DeviceService::GetCommands(const std::string& idString) {
                 return crow::response(crow::OK, result._data);
                 break;
             case StorageCacheProblemType::Empty:
-                LOG_INFO << "Empty commands for device " << idString << "." << std::endl;
+                LOG_INFO_MSG(fmt::format("Empty commands for device {}", idString));
                 break;
             case StorageCacheProblemType::NotExists:
-                LOG_DEBUG << "No commands for device " << idString << "." << std::endl;
+                LOG_DEBUG_MSG(fmt::format("No commands for device {}", idString));
                 break;
             case StorageCacheProblemType::TooMany:
-                LOG_ERROR << "Too many commands for device " << idString << "." << std::endl;
+                LOG_ERROR_MSG(fmt::format("Too many commands for device {}", idString));
                 break;
             case StorageCacheProblemType::SQLError:
                 LOG_SQL_ERROR(problem._message);
                 break;
         }
     } catch (...) {
-        LOG_ERROR << "Something went wrong in DeviceService::GetCommands." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in DeviceService::GetCommands");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::OK, std::string());
@@ -164,7 +164,7 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
                 return crow::response(crow::OK);
             } break;
             case StorageCacheProblemType::Empty:
-                LOG_ERROR << "Invalid commands " << commandsString << "." << std::endl;
+                LOG_ERROR_MSG(fmt::format("Invalid commands {}", commandsString));
                 break;
             case StorageCacheProblemType::NotExists:
                 break;
@@ -175,7 +175,7 @@ crow::response DeviceService::SetCommands(const crow::request& request, const st
                 break;
         }
     } catch (...) {
-        LOG_ERROR << "Something went wrong in DeviceService::SetCommands." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in DeviceService::SetCommands");
     }
     return crow::response(crow::BAD_REQUEST);
 }
@@ -184,11 +184,9 @@ crow::response DeviceService::DeleteDevice(const std::string& idString) {
     try {
         // delete device from all tables
         for (const auto& table : _queryExecutor->GetDeviceRelatedTables()) {
-            std::stringstream queryStream;
-            queryStream << "DELETE FROM " << table << " WHERE id = '" << idString << "'";
-            queryStream.flush();
-            if (!_queryExecutor->Delete(queryStream.str())) {
-                LOG_ERROR << "Failed to delete device " << idString << " from " << table << std::endl;
+            const std::string query = fmt::format("DELETE FROM {} WHERE id = '{}'", table, idString);
+            if (!_queryExecutor->Delete(query)) {
+                LOG_ERROR_MSG(fmt::format("Failed to delete device {} from {}", idString, table));
                 return crow::response(crow::BAD_REQUEST);
             }
         }
@@ -197,18 +195,18 @@ crow::response DeviceService::DeleteDevice(const std::string& idString) {
             what._id = idString;
             if (SimpleTableStorageCache::GetSettingsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
 
-                LOG_ERROR << "Failed to delete device " << idString << " from Settings" << std::endl;
+                LOG_ERROR_MSG(fmt::format("Failed to delete device {} from Settings", idString));
                 return crow::response(crow::BAD_REQUEST);
             }
             if (SimpleTableStorageCache::GetCommandsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
-                LOG_ERROR << "Failed to delete device " << idString << " from Commands" << std::endl;
+                LOG_ERROR_MSG(fmt::format("Failed to delete device {} from Commands", idString));
                 return crow::response(crow::BAD_REQUEST);
             }
         }
         // TODO: Clean event table. Right now deleted id is not a column of event table...
         return crow::response{ crow::status::OK };
     } catch (...) {
-        LOG_ERROR << "Something went wrong in DeviceService::DeleteDevice." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in DeviceService::DeleteDevice");
     }
     return crow::response(crow::BAD_REQUEST);
 }
@@ -224,7 +222,7 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
             if (AccountManager::Instance()->IsValidUser(webSocketAuthentication._authString))
                 WebsocketsCache::Instance()->AddWebSocketConnection(message._header._description._id, connection);
             else {
-                LOG_ERROR << "Not authorized connection." << std::endl;
+                LOG_ERROR_MSG("Not authorized connection");
                 // ask for authorization again
                 connection.send_text("{ \"reauthorize\" : true }");
             }
@@ -236,13 +234,13 @@ void DeviceService::OnWebSocketMessage(crow::websocket::connection& connection, 
                 if (!result.is_null())
                     connection.send_text(result.dump());
             } else {
-                LOG_ERROR << "Not authorized connection." << std::endl;
+                LOG_ERROR_MSG("Not authorized connection");
                 // ask for authorization again
                 connection.send_text("{ \"reauthorize\" : true }");
             }
         }
     } catch (...) {
-        LOG_ERROR << "Something went wrong in DeviceService::OnWebSocketMessage." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in DeviceService::OnWebSocketMessage");
     }
 }
 
