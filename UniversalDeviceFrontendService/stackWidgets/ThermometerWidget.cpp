@@ -1,10 +1,9 @@
 #include "ThermometerWidget.hpp"
 
-#include "ComponentDescription.hpp"
+#include <fmt/format.h>
+
 #include "Constants.hpp"
 #include "Defines.hpp"
-#include "DeviceProperty.hpp"
-#include "ExtendedComponentDescription.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "WidgetHelper.hpp"
@@ -149,7 +148,7 @@ void ThermometerWidget::OnSettingsButton() {
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
                                      Constants::LoginService, newSettings);
     if (settingsResult != 200)
-        LOG_ERROR << "Failed to update settings to " << nlohmann::json(newSettings).dump() << "." << std::endl;
+        LOG_ERROR_MSG(fmt::format("Failed to update settings to {}.", nlohmann::json(newSettings).dump()));
     // set brightness command
     ThermometerLedBrightness newCommand;
     newCommand._brightness = brightnessEdit->value();
@@ -157,5 +156,5 @@ void ThermometerWidget::OnSettingsButton() {
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
                                      Constants::LoginService, newCommand);
     if (commandResult != 200)
-        LOG_ERROR << "Failed to update settings to " << nlohmann::json(newCommand).dump() << "." << std::endl;
+        LOG_ERROR_MSG(fmt::format("Failed to update settings to {}.", nlohmann::json(newCommand).dump()));
 }

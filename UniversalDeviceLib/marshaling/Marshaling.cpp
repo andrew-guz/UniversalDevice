@@ -1,7 +1,8 @@
 #include "Marshaling.hpp"
 
 #include <string>
-#include <variant>
+
+#include <fmt/format.h>
 
 #include "Account.hpp"
 #include "Base64Helper.hpp"
@@ -48,7 +49,7 @@ std::string EnumToString(DeviceType enumType) {
         case DeviceType::MotionRelay:
             return "motion_relay";
     }
-    LOG_ERROR << "Invalid DeviceType: " << static_cast<int>(enumType) << std::endl;
+    LOG_ERROR_MSG(fmt::format("Invalid DeviceType: {}", static_cast<int>(enumType)));
     return {};
 }
 
@@ -68,7 +69,7 @@ template<>
 DeviceType EnumFromString(const std::string& str) {
     const DeviceType deviceType = DeviceTypeFromString(str);
     if (deviceType == DeviceType::Undefined)
-        LOG_ERROR << "Invalid DeviceType: " << str << std::endl;
+        LOG_ERROR_MSG(fmt::format("Invalid DeviceType: {}", str));
     return deviceType;
 }
 
@@ -86,7 +87,7 @@ std::string EnumToString(EventType enumType) {
         case EventType::Thermostat:
             return "thermostat_event";
     }
-    LOG_ERROR << "Invalid EventType: " << static_cast<int>(enumType) << std::endl;
+    LOG_ERROR_MSG(fmt::format("Invalid EventType: {}", static_cast<int>(enumType)));
     return {};
 }
 
@@ -106,7 +107,7 @@ template<>
 EventType EnumFromString(const std::string& str) {
     const EventType eventType = EventTypeFromString(str);
     if (eventType == EventType::Undefined)
-        LOG_ERROR << "Invalid EventType: " << str << std::endl;
+        LOG_ERROR_MSG(fmt::format("Invalid EventType: {}", str));
     return eventType;
 }
 
@@ -132,7 +133,7 @@ std::string EnumToString(Subject enumType) {
         case Subject::WebSocketGetCommands:
             return "websocket_get_commands";
     }
-    LOG_ERROR << "Invalid SubjectType: " << static_cast<int>(enumType) << std::endl;
+    LOG_ERROR_MSG(fmt::format("Invalid SubjectType: {}", static_cast<int>(enumType)));
     return {};
 }
 
@@ -154,7 +155,7 @@ Subject EnumFromString(const std::string& str) {
         return Subject::WebSocketGetSettings;
     if (str == "websocket_get_commands")
         return Subject::WebSocketGetCommands;
-    LOG_ERROR << "Invalid SubjectType: " << str << std::endl;
+    LOG_ERROR_MSG(fmt::format("Invalid SubjectType: {}", str));
     return Subject::Undefined;
 }
 
@@ -167,7 +168,7 @@ std::string ActorTypeToString(const ActorType& type) {
         case 2: // EventType
             return EnumToString<EventType>(std::get<EventType>(type));
     }
-    LOG_ERROR << "Invalid Type" << std::endl;
+    LOG_ERROR_MSG(fmt::format("Invalid Actor Type: {}", type.index()));
     return {};
 }
 
@@ -180,7 +181,7 @@ ActorType ActorTypeFromString(const std::string& str) {
     const EventType eventType = EventTypeFromString(str);
     if (eventType != EventType::Undefined)
         return eventType;
-    LOG_ERROR << "Invalid Type: " << str << std::endl;
+    LOG_ERROR_MSG(fmt::format("Invalid Actor Type: {}", str));
     return ClientActor{};
 }
 

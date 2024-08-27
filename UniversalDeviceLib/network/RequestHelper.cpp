@@ -6,6 +6,7 @@
 #include <curlpp/Infos.hpp>
 #include <curlpp/Options.hpp>
 #include <curlpp/cURLpp.hpp>
+#include <fmt/format.h>
 
 #include "AccountManager.hpp"
 #include "Logger.hpp"
@@ -13,7 +14,7 @@
 nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress, const std::string_view login) {
     try {
         std::string url = requestAddress.BuildUrl();
-        LOG_DEBUG << "GET " << url << "." << std::endl;
+        LOG_DEBUG_MSG(fmt::format("GET {}.", url));
 
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;
@@ -33,20 +34,20 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress,
 
         auto returnCode = curlpp::infos::ResponseCode::get(request);
         if (returnCode != 200)
-            LOG_ERROR << "GET request failed : " << returnCode << "." << std::endl;
+            LOG_ERROR_MSG(fmt::format("GET request failed : {}.", returnCode));
 
         auto body = response.str();
         if (body.empty())
             return {};
         try {
             auto bodyJson = nlohmann::json::parse(body);
-            LOG_DEBUG << "GET result - " << bodyJson.dump() << std::endl;
+            LOG_DEBUG_MSG(fmt::format("GET result - {}", bodyJson.dump()));
             return bodyJson;
         } catch (...) {
-            LOG_ERROR << "Invalid response " << body << "." << std::endl;
+            LOG_ERROR_MSG(fmt::format("Invalid response {}.", body));
         }
     } catch (...) {
-        LOG_ERROR << "GET request failed (" << requestAddress.BuildUrl() << ")." << std::endl;
+        LOG_ERROR_MSG(fmt::format("GET request failed ({}).", requestAddress.BuildUrl()));
     }
     return {};
 }
@@ -60,12 +61,12 @@ nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requ
     std::ostringstream response;
     if (DoRequest("POST", requestAddress, login, json, &response) == 200) {
         auto body = response.str();
-        LOG_DEBUG << "POST result - " << body << std::endl;
+        LOG_DEBUG_MSG(fmt::format("POST result - {}", body));
         try {
             auto bodyJson = nlohmann::json::parse(body);
             return bodyJson;
         } catch (...) {
-            LOG_ERROR << "Failed to parse POST result as JSON." << std::endl;
+            LOG_ERROR_MSG("Failed to parse POST result as JSON.");
         }
     }
     return {};
@@ -87,7 +88,7 @@ int RequestHelper::DoRequest(const std::string& method, const RequestAddress& re
         std::string url = requestAddress.BuildUrl();
         auto sendingString = json.dump();
 
-        LOG_DEBUG << method << " " << url << " " << sendingString << "." << std::endl;
+        LOG_DEBUG_MSG(fmt::format("{} {} {}.", method, url, sendingString));
 
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;
@@ -117,11 +118,11 @@ int RequestHelper::DoRequest(const std::string& method, const RequestAddress& re
 
         auto returnCode = curlpp::infos::ResponseCode::get(request);
         if (returnCode != 200)
-            LOG_ERROR << method << " request failed : " << returnCode << "." << std::endl;
+            LOG_ERROR_MSG(fmt::format("{} request failed: {}.", method, returnCode));
 
         return returnCode;
     } catch (...) {
-        LOG_ERROR << method << " request failed (" << requestAddress.BuildUrl() << ")." << std::endl;
+        LOG_ERROR_MSG(fmt::format("{} request failed ({}).", method, requestAddress.BuildUrl()));
     }
     return 400;
 }

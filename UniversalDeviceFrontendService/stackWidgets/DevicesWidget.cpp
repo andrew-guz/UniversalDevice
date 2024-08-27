@@ -79,7 +79,7 @@ void DevicesWidget::Refresh() {
         !replyJson.is_null() ? replyJson.get<std::vector<ExtendedComponentDescription>>() : std::vector<ExtendedComponentDescription>{};
     if (allDescriptions.empty())
         return;
-    LOG_DEBUG << fmt::format("{} descriptions found.", allDescriptions.size()) << std::endl;
+    LOG_DEBUG_MSG(fmt::format("{} descriptions found.", allDescriptions.size()));
 
     std::set<std::string> groups;
     std::vector<ExtendedComponentDescription> descriptionsWithoutGroup;
@@ -180,7 +180,7 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
                 if (result == 200)
                     Refresh();
                 else
-                    LOG_ERROR << fmt::format("Failed to delete device {}.", description._id.data()) << std::endl;
+                    LOG_ERROR_MSG(fmt::format("Failed to delete device {}.", description._id.data()));
             });
             popup->exec(event);
         }

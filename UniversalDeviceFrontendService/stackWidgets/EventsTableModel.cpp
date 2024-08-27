@@ -98,7 +98,7 @@ Wt::cpp17::any EventsTableModel::headerData(int section, Wt::Orientation orienta
 std::string EventsTableModel::EventTypeDisplayName(const EventType eventType) {
     switch (eventType) {
         case EventType::Undefined:
-            LOG_ERROR << "Invalid event type" << std::endl;
+            LOG_ERROR_MSG("Invalid event type");
             break;
         case EventType::Timer:
             return "Таймер";
@@ -116,7 +116,7 @@ std::string EventsTableModel::EventTypeDisplayName(const EventType eventType) {
 std::string EventsTableModel::EventAdditionalInfo(const EventType eventType, const nlohmann::json& eventJson) {
     switch (eventType) {
         case EventType::Undefined:
-            LOG_ERROR << "Invalid event type" << std::endl;
+            LOG_ERROR_MSG("Invalid event type");
             return {};
         case EventType::Timer: {
             const auto timerEvent = eventJson.get<TimerEvent>();

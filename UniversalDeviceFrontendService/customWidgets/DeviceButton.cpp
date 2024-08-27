@@ -46,7 +46,7 @@ void DeviceButton::Refresh() {
             switch (std::get<DeviceType>(_deviceType)) {
                 case DeviceType::Undefined:
                 case DeviceType::Timer:
-                    LOG_ERROR << "Unknown device type" << std::endl;
+                    LOG_ERROR_MSG("Unknown device type");
                     break;
                 case DeviceType::Thermometer: {
                     auto values = replyJson.get<std::vector<ExtendedThermometerCurrentValue>>();
@@ -74,7 +74,7 @@ void DeviceButton::Refresh() {
                 } break;
             }
         } else
-            LOG_ERROR << "Unknown device type" << std::endl;
+            LOG_ERROR_MSG("Unknown device type");
         if (additionalData.size())
             text += std::string("<br/><br/>") + additionalData + std::string("<br/><br/>") + TimeHelper::TimeToShortString(timestamp);
         auto currentTime = std::chrono::system_clock::now();
