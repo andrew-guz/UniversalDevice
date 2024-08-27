@@ -34,7 +34,7 @@ nlohmann::json MotionRelayProcessor::ProcessMotionRelayCurrentStateMessage(const
                                                                            const Message& message) {
     auto currentState = message._data.get<MotionRelayCurrentState>();
     if (currentState._state == std::numeric_limits<float>::min()) {
-        LOG_ERROR_MSG("MotionRelayProcessor - invalid message.");
+        LOG_ERROR_MSG("MotionRelayProcessor - invalid message");
         return {};
     }
     auto& description = message._header._description;
@@ -78,6 +78,6 @@ nlohmann::json MotionRelayProcessor::ProcessGetDeviceInformationMessage(const st
     }
     if (extendedMotionRelayCurrentStates.size())
         return extendedMotionRelayCurrentStates;
-    LOG_INFO_MSG(fmt::format("No data for device {} found.", description._id.data()));
+    LOG_INFO_MSG(fmt::format("No data for device {} found", description._id.data()));
     return {};
 }

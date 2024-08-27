@@ -64,7 +64,7 @@ void Application::SetWidget(StackWidgetType type, const std::string& data) {
             stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(6));
             break;
         default:
-            LOG_ERROR_MSG(fmt::format("Unknown widget type: {}.", static_cast<int>(type)));
+            LOG_ERROR_MSG(fmt::format("Unknown widget type: {}", static_cast<int>(type)));
             break;
     }
     if (stackWidget)

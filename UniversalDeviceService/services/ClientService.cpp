@@ -48,7 +48,7 @@ crow::response ClientService::ListDevices() {
         else
             LOG_SQL_ERROR(query);
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::ListDevices.");
+        LOG_ERROR_MSG("Something went wrong in ClientService::ListDevices");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::OK, result.dump());

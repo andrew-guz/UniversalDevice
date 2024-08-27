@@ -23,7 +23,7 @@ nlohmann::json WebSocketProcessor::ProcessMessage(const std::chrono::system_cloc
                 return {};
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in WebSocketProcessor::ProcessMessage.");
+        LOG_ERROR_MSG("Something went wrong in WebSocketProcessor::ProcessMessage");
         return {};
     }
     LOG_ERROR_MSG(fmt::format("Unknown subject to process in WebSocketProcessor: {}", static_cast<int>(message._header._subject)));
@@ -42,13 +42,13 @@ nlohmann::json WebSocketProcessor::ProcessWebSocketGetSettingsMessage(const std:
             return nlohmann::json::parse(result._data);
             break;
         case StorageCacheProblemType::Empty:
-            LOG_INFO_MSG(fmt::format("Empty settings for device {}.", what._id.data()));
+            LOG_INFO_MSG(fmt::format("Empty settings for device {}", what._id.data()));
             break;
         case StorageCacheProblemType::NotExists:
-            LOG_DEBUG_MSG(fmt::format("No settings for device {}.", what._id.data()));
+            LOG_DEBUG_MSG(fmt::format("No settings for device {}", what._id.data()));
             break;
         case StorageCacheProblemType::TooMany:
-            LOG_ERROR_MSG(fmt::format("Too many settings for device {}.", what._id.data()));
+            LOG_ERROR_MSG(fmt::format("Too many settings for device {}", what._id.data()));
             break;
         case StorageCacheProblemType::SQLError:
             LOG_SQL_ERROR(problem._message);
@@ -69,13 +69,13 @@ nlohmann::json WebSocketProcessor::ProcessWebSocketGetCommandsMessage(const std:
             return nlohmann::json::parse(result._data);
             break;
         case StorageCacheProblemType::Empty:
-            LOG_INFO_MSG(fmt::format("Empty commands for device {}.", what._id.data()));
+            LOG_INFO_MSG(fmt::format("Empty commands for device {}", what._id.data()));
             break;
         case StorageCacheProblemType::NotExists:
-            LOG_DEBUG_MSG(fmt::format("No commands for device {}.", what._id.data()));
+            LOG_DEBUG_MSG(fmt::format("No commands for device {}", what._id.data()));
             break;
         case StorageCacheProblemType::TooMany:
-            LOG_ERROR_MSG(fmt::format("Too many commands for device {}.", what._id.data()));
+            LOG_ERROR_MSG(fmt::format("Too many commands for device {}", what._id.data()));
             break;
         case StorageCacheProblemType::SQLError:
             LOG_SQL_ERROR(problem._message);

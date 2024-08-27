@@ -71,7 +71,7 @@ std::vector<nlohmann::json> EventsProcessor::LoadEvents(const ComponentDescripti
             auto json = nlohmann::json::parse(eventString);
             result.push_back(json);
         } catch (...) {
-            LOG_ERROR_MSG(fmt::format("Invalid JSON - {}.", eventString));
+            LOG_ERROR_MSG(fmt::format("Invalid JSON - {}", eventString));
         }
     }
 
@@ -88,7 +88,7 @@ void EventsProcessor::ProcessTimerEvent(const TimerEvent& timeEvent, const Messa
 void EventsProcessor::ProcessThermometerEvent(const ThermometerEvent& thermometerEvent, const Message& message) {
     auto thermometerCurrentValue = message._data.get<ThermometerCurrentValue>();
     if (thermometerCurrentValue._value == std::numeric_limits<int>::min()) {
-        LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessThermometerEvent.");
+        LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessThermometerEvent");
         return;
     }
     if ((thermometerEvent._lower == true && thermometerCurrentValue._value <= thermometerEvent._temperature) ||
@@ -99,7 +99,7 @@ void EventsProcessor::ProcessThermometerEvent(const ThermometerEvent& thermomete
 void EventsProcessor::ProcessRelayEvent(const RelayEvent& relayEvent, const Message& message) {
     auto relayCurrentState = message._data.get<RelayCurrentState>();
     if (relayCurrentState._state == std::numeric_limits<int>::min()) {
-        LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessRelayEvent.");
+        LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessRelayEvent");
         return;
     }
     if (relayCurrentState._state == relayEvent._state)
@@ -109,7 +109,7 @@ void EventsProcessor::ProcessRelayEvent(const RelayEvent& relayEvent, const Mess
 void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEvent, const Message& message) {
     auto thermometerCurrentValue = message._data.get<ThermometerCurrentValue>();
     if (thermometerCurrentValue._value == std::numeric_limits<int>::min()) {
-        LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessThermostatEvent.");
+        LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessThermostatEvent");
         return;
     }
     std::string command;
@@ -143,7 +143,7 @@ void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandStri
                     connection->send_text(commandString);
             } break;
             case StorageCacheProblemType::Empty:
-                LOG_ERROR_MSG(fmt::format("Invalid command {}.", commandString));
+                LOG_ERROR_MSG(fmt::format("Invalid command {}", commandString));
                 break;
             case StorageCacheProblemType::NotExists:
                 break;
@@ -154,6 +154,6 @@ void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandStri
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("EventsProcessor::SendCommand.");
+        LOG_ERROR_MSG("EventsProcessor::SendCommand");
     }
 }

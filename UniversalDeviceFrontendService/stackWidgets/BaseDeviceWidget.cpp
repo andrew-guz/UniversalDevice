@@ -105,7 +105,7 @@ bool BaseDeviceWidget::SetDeviceProperty(const std::string& path, const std::str
         value = newValue;
         return true;
     }
-    LOG_ERROR_MSG(fmt::format("Failed to update property {} to {}.", path, newValue));
+    LOG_ERROR_MSG(fmt::format("Failed to update property {} to {}", path, newValue));
     return false;
 }
 

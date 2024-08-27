@@ -43,6 +43,6 @@ struct ExtendedComponentDescription final : ComponentDescription, public IDb<Ext
                 _timestamp = timestamp.value();
             }
         } else
-            LOG_ERROR_MSG("Invalid db strings.");
+            LOG_ERROR_MSG("Invalid db strings");
     }
 };

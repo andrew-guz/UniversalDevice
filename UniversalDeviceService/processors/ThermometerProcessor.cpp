@@ -34,12 +34,12 @@ nlohmann::json ThermometerProcessor::ProcessThermometerCurrentValueMessage(const
                                                                            const Message& message) {
     auto currentValue = message._data.get<ThermometerCurrentValue>();
     if (currentValue._value == std::numeric_limits<float>::min()) {
-        LOG_ERROR_MSG("ThermometerProcessor - invalid message.");
+        LOG_ERROR_MSG("ThermometerProcessor - invalid message");
         return {};
     }
     auto& description = message._header._description;
     if (std::abs(currentValue._value - -127.0f) < 0.1f) {
-        LOG_INFO_MSG(fmt::format("-127.0 found - no sensor connected to {}.", description._id.data()));
+        LOG_INFO_MSG(fmt::format("-127.0 found - no sensor connected to {}", description._id.data()));
         return {};
     }
     const std::string query = fmt::format("INSERT INTO Thermometers (id, timestamp, value) VALUES ('{}', {}, '{}'", description._id.data(),

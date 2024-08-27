@@ -156,5 +156,5 @@ void ThermometerWidget::OnSettingsButton() {
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
                                      Constants::LoginService, newCommand);
     if (commandResult != 200)
-        LOG_ERROR_MSG(fmt::format("Failed to update settings to {}.", nlohmann::json(newCommand).dump()));
+        LOG_ERROR_MSG(fmt::format("Failed to update settings to {}", nlohmann::json(newCommand).dump()));
 }

@@ -14,7 +14,7 @@
 nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress, const std::string_view login) {
     try {
         std::string url = requestAddress.BuildUrl();
-        LOG_DEBUG_MSG(fmt::format("GET {}.", url));
+        LOG_DEBUG_MSG(fmt::format("GET {}", url));
 
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;
@@ -34,7 +34,7 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress,
 
         auto returnCode = curlpp::infos::ResponseCode::get(request);
         if (returnCode != 200)
-            LOG_ERROR_MSG(fmt::format("GET request failed : {}.", returnCode));
+            LOG_ERROR_MSG(fmt::format("GET request failed : {}", returnCode));
 
         auto body = response.str();
         if (body.empty())
@@ -44,10 +44,10 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress,
             LOG_DEBUG_MSG(fmt::format("GET result - {}", bodyJson.dump()));
             return bodyJson;
         } catch (...) {
-            LOG_ERROR_MSG(fmt::format("Invalid response {}.", body));
+            LOG_ERROR_MSG(fmt::format("Invalid response {}", body));
         }
     } catch (...) {
-        LOG_ERROR_MSG(fmt::format("GET request failed ({}).", requestAddress.BuildUrl()));
+        LOG_ERROR_MSG(fmt::format("GET request failed ({})", requestAddress.BuildUrl()));
     }
     return {};
 }
@@ -66,7 +66,7 @@ nlohmann::json RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requ
             auto bodyJson = nlohmann::json::parse(body);
             return bodyJson;
         } catch (...) {
-            LOG_ERROR_MSG("Failed to parse POST result as JSON.");
+            LOG_ERROR_MSG("Failed to parse POST result as JSON");
         }
     }
     return {};
@@ -88,7 +88,7 @@ int RequestHelper::DoRequest(const std::string& method, const RequestAddress& re
         std::string url = requestAddress.BuildUrl();
         auto sendingString = json.dump();
 
-        LOG_DEBUG_MSG(fmt::format("{} {} {}.", method, url, sendingString));
+        LOG_DEBUG_MSG(fmt::format("{} {} {}", method, url, sendingString));
 
         cURLpp::Cleanup cleaner;
         cURLpp::Easy request;
@@ -118,11 +118,11 @@ int RequestHelper::DoRequest(const std::string& method, const RequestAddress& re
 
         auto returnCode = curlpp::infos::ResponseCode::get(request);
         if (returnCode != 200)
-            LOG_ERROR_MSG(fmt::format("{} request failed: {}.", method, returnCode));
+            LOG_ERROR_MSG(fmt::format("{} request failed: {}", method, returnCode));
 
         return returnCode;
     } catch (...) {
-        LOG_ERROR_MSG(fmt::format("{} request failed ({}).", method, requestAddress.BuildUrl()));
+        LOG_ERROR_MSG(fmt::format("{} request failed ({})", method, requestAddress.BuildUrl()));
     }
     return 400;
 }

@@ -8,7 +8,7 @@ nlohmann::json ProcessSettingsReader::ReadProcessSettings() {
         auto settingsPath = PathHelper::AppSettingsPath();
         return JsonFileReader::ReadJson(settingsPath);
     } catch (...) {
-        LOG_ERROR_MSG("Failed to read settings.");
+        LOG_ERROR_MSG("Failed to read settings");
     }
 
     return nlohmann::json();

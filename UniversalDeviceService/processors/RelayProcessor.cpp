@@ -33,7 +33,7 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
 nlohmann::json RelayProcessor::ProcessRelayCurrentStateMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     auto currentState = message._data.get<RelayCurrentState>();
     if (currentState._state == std::numeric_limits<float>::min()) {
-        LOG_ERROR_MSG("RelayProcessor - invalid message.");
+        LOG_ERROR_MSG("RelayProcessor - invalid message");
         return {};
     }
     auto& description = message._header._description;
