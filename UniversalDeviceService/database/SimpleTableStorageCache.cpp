@@ -54,7 +54,7 @@ StorageCacheProblem SimpleTableStorageCache::InsertOrReplace(const InsertOrRepla
     if (iter != _dataCache.end())
         _dataCache.erase(iter);
 
-    if (!customWhat._data.empty())
+    if (customWhat._data.empty())
         return { StorageCacheProblemType::Empty, {} };
 
     const std::string query =

@@ -9,9 +9,9 @@
             //"type": "cppdbg",
             "type": "lldb",
             "request": "launch",
-            //"program": "${workspaceFolder}/bin/UniversalDeviceService",
-            //"args": [],
-            "program": "${workspaceFolder}/bin/UniversalDeviceFrontendService",
+            /*"program": "${workspaceFolder}/bin/UniversalDeviceService",
+            "args": [],*/
+            /*"program": "${workspaceFolder}/bin/UniversalDeviceFrontendService",
             "args": [
                 "--docroot",
                 ".",
@@ -23,9 +23,9 @@
                 "./ssl/frontend.key",
                 "--ssl-tmp-dh",
                 "./ssl/dhparam.pem"
-            ],
-            //"program": "${workspaceFolder}/bin/ThermometerSimulator",
-            //"args": [],
+            ],*/
+            /*"program": "${workspaceFolder}/bin/ThermometerSimulator",
+            "args": [],*/
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin/",
             "environment": [],
