@@ -1,6 +1,5 @@
 #include "EventTableStorageCache.hpp"
 
-#include <sstream>
 #include <utility>
 
 #include <fmt/format.h>
