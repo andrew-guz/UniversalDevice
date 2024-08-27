@@ -3,6 +3,7 @@
 #include <string_view>
 
 #include <crow.h>
+#include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
 #include "IQueryExecutor.hpp"
@@ -38,9 +39,9 @@ protected:
                 auto object = bodyJson.get<Object>();
                 return (service->*func)(object);
             } catch (std::exception& ex) {
-                LOG_ERROR << "Error to execute " << functionName << ": " << ex.what() << std::endl;
+                LOG_ERROR_MSG(fmt::format("Error to execute {}: {}", functionName, ex.what()));
             } catch (...) {
-                LOG_ERROR << "Error to execute " << functionName << ": unknown exception" << std::endl;
+                LOG_ERROR_MSG(fmt::format("Error to execute {}: unknown exception", functionName));
             }
             return crow::response(crow::BAD_REQUEST);
         };
@@ -55,9 +56,9 @@ protected:
                 auto object = bodyJson.get<Object>();
                 return (service->*func)(object, request.body);
             } catch (std::exception& ex) {
-                LOG_ERROR << "Error to execute " << functionName << ": " << ex.what() << std::endl;
+                LOG_ERROR_MSG(fmt::format("Error to execute {}: {}", functionName, ex.what()));
             } catch (...) {
-                LOG_ERROR << "Error to execute " << functionName << ": unknown exception" << std::endl;
+                LOG_ERROR_MSG(fmt::format("Error to execute {}: unknown exception", functionName));
             }
             return crow::response(crow::BAD_REQUEST);
         };
