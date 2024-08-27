@@ -30,7 +30,7 @@ SpaceBeforeCpp11BracedList: false
 #headers
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^((<|")(Wt|nlohmann|b64|ixwebsocket|catch2|uuid|curlpp|crow))'
+  - Regex: '^((<|")(Wt|nlohmann|b64|ixwebsocket|catch2|uuid|curlpp|crow|fmt))'
     CaseSensitive: true
     Priority: 2
   - Regex: "<[[:alnum:]._]+>"

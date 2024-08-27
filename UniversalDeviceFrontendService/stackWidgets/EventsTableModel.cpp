@@ -1,9 +1,9 @@
 #include "EventsTableModel.hpp"
 
-#include <iomanip>
 #include <string>
 
-#include "Constants.hpp"
+#include <fmt/format.h>
+
 #include "Enums.hpp"
 #include "Event.hpp"
 #include "Logger.hpp"
@@ -98,7 +98,7 @@ Wt::cpp17::any EventsTableModel::headerData(int section, Wt::Orientation orienta
 std::string EventsTableModel::EventTypeDisplayName(const EventType eventType) {
     switch (eventType) {
         case EventType::Undefined:
-            LOG_ERROR << "Invalid event type" << std::endl;
+            LOG_ERROR_MSG("Invalid event type");
             break;
         case EventType::Timer:
             return "Таймер";
@@ -114,29 +114,26 @@ std::string EventsTableModel::EventTypeDisplayName(const EventType eventType) {
 }
 
 std::string EventsTableModel::EventAdditionalInfo(const EventType eventType, const nlohmann::json& eventJson) {
-    std::ostringstream sstream;
     switch (eventType) {
         case EventType::Undefined:
-            LOG_ERROR << "Invalid event type" << std::endl;
+            LOG_ERROR_MSG("Invalid event type");
             return {};
         case EventType::Timer: {
             const auto timerEvent = eventJson.get<TimerEvent>();
-            sstream << "Сработает в " << std::setw(2) << std::setfill('0') << timerEvent._hour << ":" << std::setw(2) << std::setfill('0')
-                    << timerEvent._minute;
-        } break;
+            return fmt::format("Сработает в {:02}:{:02}", timerEvent._hour, timerEvent._minute);
+        };
         case EventType::Thermometer: {
             const auto thermometerEvent = eventJson.get<ThermometerEvent>();
-            sstream << "Сработает " << (thermometerEvent._lower ? std::string{ "ниже " } : std::string{ "выше " }) << std::fixed
-                    << std::setprecision(1) << thermometerEvent._temperature << "°C";
-        } break;
+            return fmt::format("Сработает {} {:.1f} °C", (thermometerEvent._lower ? "ниже " : "выше "), thermometerEvent._temperature);
+        };
         case EventType::Relay: {
             const auto relayEvent = eventJson.get<RelayEvent>();
-            sstream << "Срабатывает при " << (relayEvent._state ? std::string{ "включенном" } : std::string{ "выключенном" }) << " реле";
-        } break;
+            return fmt::format("Срабатывает при {} реле", (relayEvent._state ? "включенном" : "выключенном"));
+        };
         case EventType::Thermostat: {
             const auto thermostatEvent = eventJson.get<ThermostatEvent>();
-            sstream << "Поддерживает температуру " << thermostatEvent._temperature << "°C";
-        } break;
+            return fmt::format("Поддерживает температуру {:.1f}±{:.1f} °C", thermostatEvent._temperature, thermostatEvent._delta);
+        };
     }
-    return sstream.str();
+    return {};
 }

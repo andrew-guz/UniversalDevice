@@ -3,6 +3,7 @@
 #include "Wt/WGlobal.h"
 #include <Wt/WGroupBox.h>
 #include <Wt/WText.h>
+#include <fmt/format.h>
 
 #include "Constants.hpp"
 #include "Defines.hpp"
@@ -142,7 +143,7 @@ void EventsWidget::AddEvent() {
     if (!eventJson.is_null()) {
         auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
         if (result != 200)
-            LOG_ERROR << "Error while adding new Event " << eventJson.dump() << "." << std::endl;
+            LOG_ERROR_MSG(fmt::format("Error while adding new Event {}", eventJson.dump()));
     }
     Refresh();
 }
@@ -154,7 +155,7 @@ void EventsWidget::DeleteEvent() {
     auto eventJson = Wt::cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), Wt::ItemDataRole::User));
     auto result = RequestHelper::DoDeleteRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
     if (result != 200)
-        LOG_ERROR << "Error while deleting Event " << eventJson.dump() << "." << std::endl;
+        LOG_ERROR_MSG(fmt::format("Error while deleting Event {}", eventJson.dump()));
     Refresh();
 }
 
@@ -170,7 +171,7 @@ void EventsWidget::UpdateEvent() {
     if (!eventJson.is_null()) {
         auto result = RequestHelper::DoPutRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
         if (result != 200)
-            LOG_ERROR << "Error while updating Event " << eventJson.dump() << "." << std::endl;
+            LOG_ERROR_MSG(fmt::format("Error while updating Event {}", eventJson.dump()));
     }
     Refresh();
 }
@@ -188,7 +189,7 @@ void EventsWidget::OnTableSelectionChanged() {
     };
     switch (simpleEvent._type) {
         case EventType::Undefined:
-            LOG_ERROR << "Invalid event type" << std::endl;
+            LOG_ERROR_MSG("Invalid event type");
             break;
         case EventType::Timer:
             applyType(0, eventJson.get<TimerEvent>());

@@ -3,6 +3,8 @@
 #include <sstream>
 #include <utility>
 
+#include <fmt/format.h>
+
 #include "DbExtension.hpp"
 #include "Marshaling.hpp"
 #include "StorageCacheFactory.hpp"
@@ -21,12 +23,10 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
         return { StorageCacheProblemType::NoProblems, {} };
     }
 
-    std::stringstream queryStream;
-    queryStream << "SELECT event FROM Events WHERE providerId = '" << customWhat._id << "' AND providerType = '"
-                << ActorTypeToString(customWhat._type) << "' AND active = 1";
-    queryStream.flush();
+    const std::string query = fmt::format("SELECT event FROM Events WHERE providerId = '{}' AND providerType = '{}' AND active = 1", customWhat._id,
+                                          ActorTypeToString(customWhat._type));
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(queryStream.str(), data)) {
+    if (_queryExecutor->Select(query, data)) {
         std::vector<std::string> eventStrings;
         for (const auto& row : data) {
             auto eventString = DbExtension::FindValueByName<std::string>(row, "event");
@@ -37,7 +37,7 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
         customResult._data = eventStrings;
         return { StorageCacheProblemType::NoProblems, {} };
     }
-    return { StorageCacheProblemType::SQLError, queryStream.str() };
+    return { StorageCacheProblemType::SQLError, query };
 }
 
 StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
@@ -45,11 +45,9 @@ StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
 
     EventTableSelectAllOutput& customResult = dynamic_cast<EventTableSelectAllOutput&>(result);
 
-    std::stringstream queryStream;
-    queryStream << "SELECT event FROM Events";
-    queryStream.flush();
+    static const std::string query = "SELECT event FROM Events";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(queryStream.str(), data)) {
+    if (_queryExecutor->Select(query, data)) {
         std::vector<std::string> eventStrings;
         for (auto& row : data) {
             auto eventString = DbExtension::FindValueByName<std::string>(row, "event");
@@ -59,7 +57,7 @@ StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
         customResult._data = eventStrings;
         return { StorageCacheProblemType::NoProblems, {} };
     }
-    return { StorageCacheProblemType::SQLError, queryStream.str() };
+    return { StorageCacheProblemType::SQLError, query };
 }
 
 StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what) {
@@ -69,14 +67,12 @@ StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplac
 
     const EventTableInsertOrReplaceInput& customWhat = dynamic_cast<const EventTableInsertOrReplaceInput&>(what);
 
-    std::stringstream queryStream;
-    queryStream << "INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('" << customWhat._id << "', "
-                << (customWhat._active ? "1" : "0") << ", '" << customWhat._providerId.data() << "', '" << ActorTypeToString(customWhat._providerType)
-                << "', '" << customWhat._event << "')";
-    queryStream.flush();
-    if (_queryExecutor->Execute(queryStream.str()))
+    const std::string query =
+        fmt::format("INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('{}', {}, '{}', '{}', '{}')", customWhat._id,
+                    (customWhat._active ? "1" : "0"), customWhat._providerId.data(), ActorTypeToString(customWhat._providerType), customWhat._event);
+    if (_queryExecutor->Execute(query))
         return { StorageCacheProblemType::NoProblems, {} };
-    return { StorageCacheProblemType::SQLError, queryStream.str() };
+    return { StorageCacheProblemType::SQLError, query };
 }
 
 StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
@@ -86,14 +82,12 @@ StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
 
     const EventTableUpdateInput& customWhat = dynamic_cast<const EventTableUpdateInput&>(what);
 
-    std::stringstream queryStream;
-    queryStream << "UPDATE Events SET active = " << (customWhat._active ? "1" : "0") << ", providerId = '" << customWhat._providerId
-                << "', providerType = '" << ActorTypeToString(customWhat._providerType) << "', event = '" << customWhat._event << "' WHERE id = '"
-                << customWhat._id << "'";
-    queryStream.flush();
-    if (_queryExecutor->Execute(queryStream.str()))
+    const std::string query = fmt::format("UPDATE Events SET active = {}, providerId = '{}', providerType = '{}', event = '{}' WHERE id = '{}'",
+                                          (customWhat._active ? "1" : "0"), customWhat._providerId, ActorTypeToString(customWhat._providerType),
+                                          customWhat._event, customWhat._id);
+    if (_queryExecutor->Execute(query))
         return { StorageCacheProblemType::NoProblems, {} };
-    return { StorageCacheProblemType::SQLError, queryStream.str() };
+    return { StorageCacheProblemType::SQLError, query };
 }
 
 StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
@@ -103,12 +97,10 @@ StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
 
     const EventTableDeleteInput& customWhat = dynamic_cast<const EventTableDeleteInput&>(what);
 
-    std::stringstream queryStream;
-    queryStream << "DELETE FROM Events WHERE id='" << customWhat._id << "'";
-    queryStream.flush();
-    if (_queryExecutor->Execute(queryStream.str()))
+    const std::string query = fmt::format("DELETE FROM Events WHERE id='{}'", customWhat._id);
+    if (_queryExecutor->Execute(query))
         return { StorageCacheProblemType::NoProblems, {} };
-    return { StorageCacheProblemType::SQLError, queryStream.str() };
+    return { StorageCacheProblemType::SQLError, query };
 }
 
 IStorageCache* EventTableStorageCache::GetCache(IQueryExecutor* queryExecutor) {

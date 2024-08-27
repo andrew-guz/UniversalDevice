@@ -1,5 +1,7 @@
 #include <exception>
 
+#include <fmt/format.h>
+
 #include "Application.hpp"
 #include "Logger.hpp"
 
@@ -9,17 +11,17 @@ int main(int argc, char** argv) {
     try {
         Logger::SetLogLevel(LogLevel::INFO);
 
-        LOG_INFO << "Starting Client service..." << std::endl;
+        LOG_INFO_MSG("Starting Client service...");
 
         auto settings = Settings::ReadSettings();
 
         result = Wt::WRun(argc, argv, [&](const Wt::WEnvironment& env) { return std::make_unique<Application>(settings, env); });
 
-        LOG_INFO << "Stopping Client service" << std::endl;
+        LOG_INFO_MSG("Stopping Client service");
     } catch (const std::exception& ex) {
-        LOG_ERROR << "Exception caught: '" << ex.what() << "'" << std::endl;
+        LOG_ERROR_MSG(fmt::format("Exception caught: '{}'", ex.what()));
     } catch (...) {
-        LOG_ERROR << "Unknown exception caught" << std::endl;
+        LOG_ERROR_MSG("Unknown exception caught");
     }
 
     return result;

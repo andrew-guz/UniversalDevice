@@ -8,7 +8,7 @@ nlohmann::json JsonFileReader::ReadJson(const std::string_view fullFileName) {
         auto settingsJson = nlohmann::json::parse(settingsFileStream);
         return settingsJson;
     } catch (...) {
-        LOG_ERROR << "Failed to read file." << std::endl;
+        LOG_ERROR_MSG("Failed to read file");
     }
 
     return nlohmann::json();

@@ -1,6 +1,7 @@
 #include <exception>
 
 #include <crow.h>
+#include <fmt/format.h>
 
 #include "ClientService.hpp"
 #include "DeviceService.hpp"
@@ -14,7 +15,7 @@ int main() {
     try {
         Logger::SetLogLevel(LogLevel::INFO);
 
-        LOG_INFO << "Starting Device service..." << std::endl;
+        LOG_INFO_MSG("Starting Device service...");
 
         auto settings = Settings::ReadSettings();
 
@@ -31,11 +32,11 @@ int main() {
             .multithreaded()
             .run();
 
-        LOG_INFO << "Stopping Device service" << std::endl;
+        LOG_INFO_MSG("Stopping Device service");
     } catch (const std::exception& ex) {
-        LOG_ERROR << "Exception caught: '" << ex.what() << "'" << std::endl;
+        LOG_ERROR_MSG(fmt::format("Exception caught: '{}'", ex.what()));
     } catch (...) {
-        LOG_ERROR << "Unknown exception caught" << std::endl;
+        LOG_ERROR_MSG("Unknown exception caught");
     }
 
     return 0;

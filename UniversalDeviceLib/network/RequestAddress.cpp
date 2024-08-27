@@ -1,10 +1,5 @@
 #include "RequestAddress.hpp"
 
-#include <sstream>
+#include <fmt/format.h>
 
-std::string RequestAddress::BuildUrl() const {
-    std::stringstream url;
-    url << "https://" << _ip << ":" << _port << _api;
-    url.flush();
-    return url.str();
-}
+std::string RequestAddress::BuildUrl() const { return fmt::format("https://{}:{}{}", _ip, _port, _api); }

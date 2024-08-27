@@ -4,6 +4,8 @@
 #include <string_view>
 #include <vector>
 
+#include <fmt/format.h>
+
 #include "Logger.hpp"
 
 class IQueryExecutor {
@@ -25,4 +27,4 @@ public:
     virtual std::vector<std::string> GetDeviceRelatedTables() const = 0;
 };
 
-#define LOG_SQL_ERROR(QUERY) LOG_ERROR << "Error in query: '" << QUERY << "'." << std::endl;
+#define LOG_SQL_ERROR(QUERY) LOG_ERROR_MSG(fmt::format("Error in query: '{}'", (QUERY)))

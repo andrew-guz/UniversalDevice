@@ -1,10 +1,11 @@
 #include "ClientService.hpp"
 
 #include <deque>
-#include <exception>
 #include <filesystem>
 #include <numeric>
 #include <string>
+
+#include <fmt/format.h>
 
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
@@ -12,9 +13,6 @@
 #include "ExtendedComponentDescription.hpp"
 #include "LogInformation.hpp"
 #include "Marshaling.hpp"
-#include "MessageHelper.hpp"
-#include "ProcessorsFactory.hpp"
-#include "StorageCacheFactory.hpp"
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) : BaseService(queryExecutor) {}
 
@@ -44,12 +42,13 @@ crow::response ClientService::ListDevices() {
     nlohmann::json result;
     try {
         std::vector<std::vector<std::string>> data;
-        if (_queryExecutor->Select("SELECT * FROM Devices", data))
+        static const std::string query = "SELECT * FROM Devices";
+        if (_queryExecutor->Select(query, data))
             result = DbExtension::CreateVectorFromDbStrings<ExtendedComponentDescription>(data);
         else
-            LOG_SQL_ERROR("SELECT * FROM Devices");
+            LOG_SQL_ERROR(query);
     } catch (...) {
-        LOG_ERROR << "Something went wrong in ClientService::ListDevices." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in ClientService::ListDevices");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::OK, result.dump());
@@ -58,25 +57,23 @@ crow::response ClientService::ListDevices() {
 crow::response ClientService::GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) {
     nlohmann::json result;
     try {
-        std::stringstream queryStream;
-        queryStream << "SELECT " << field << " FROM Devices WHERE id = '" << idString << "'";
-        queryStream.flush();
+        const std::string query = fmt::format("SELECT {} FROM Devices WHERE id = '{}'", field, idString);
         std::vector<std::vector<std::string>> data;
-        if (_queryExecutor->Select(queryStream.str(), data)) {
+        if (_queryExecutor->Select(query, data)) {
             if (data.size() == 1) {
                 DeviceProperty deviceProperty;
                 deviceProperty._value = data[0][1];
                 result = deviceProperty;
             } else {
                 if (data.size() == 0)
-                    LOG_ERROR << "No devices with id " << idString << "." << std::endl;
+                    LOG_ERROR_MSG(fmt::format("No devices with id {}", idString));
                 else
-                    LOG_ERROR << "Too many devices with same id " << idString << "." << std::endl;
+                    LOG_ERROR_MSG(fmt::format("Too many devices with same id {}", idString));
             }
         } else
-            LOG_SQL_ERROR(queryStream.str());
+            LOG_SQL_ERROR(query);
     } catch (...) {
-        LOG_ERROR << "Something went wrong in ClientService::GetDeviceProperty." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in ClientService::GetDeviceProperty");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::OK, result.dump());
@@ -88,17 +85,15 @@ crow::response ClientService::SetDeviceProperty(const crow::request& request, co
         auto bodyJson = nlohmann::json::parse(request.body);
         auto deviceProperty = bodyJson.get<DeviceProperty>();
         if (canBeEmpty || !deviceProperty._value.empty()) {
-            std::stringstream queryStream;
-            queryStream << "UPDATE Devices SET " << field << " = '" << deviceProperty._value << "' WHERE id = '" << idString << "'";
-            queryStream.flush();
-            if (_queryExecutor->Execute(queryStream.str()))
+            const std::string query = fmt::format("UPDATE Devices SET {} = '{}' WHERE id = '{}'", field, deviceProperty._value, idString);
+            if (_queryExecutor->Execute(query))
                 return crow::response(crow::OK);
             else
-                LOG_SQL_ERROR(queryStream.str());
+                LOG_SQL_ERROR(query);
         } else
-            LOG_ERROR << "Invalid device " << field << " " << request.body << "." << std::endl;
+            LOG_ERROR_MSG(fmt::format("Invalid device {} {}", field, request.body));
     } catch (...) {
-        LOG_ERROR << "Something went wrong in ClientService::SetDeviceProperty." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in ClientService::SetDeviceProperty");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::BAD_REQUEST);
@@ -112,7 +107,7 @@ crow::response ClientService::GetDeviceInfo(const crow::request& request) {
         auto message = BaseServiceExtension::GetMessageFromRequest(request);
         result = CallProcessorsJsonResult(timestamp, message);
     } catch (...) {
-        LOG_ERROR << "Something went wrong in ClientService::GetDeviceInfo." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in ClientService::GetDeviceInfo");
     }
     return crow::response(crow::OK, result.dump());
 }
@@ -143,11 +138,11 @@ crow::response ClientService::GetEvents() {
                 nlohmann::json eventJson = nlohmann::json::parse(eventString);
                 result.push_back(eventJson);
             } catch (...) {
-                LOG_ERROR << "Invalid event JSON " << eventString << "." << std::endl;
+                LOG_ERROR_MSG(fmt::format("Invalid event JSON {}", eventString));
             }
         }
     } catch (...) {
-        LOG_ERROR << "Something went wrong in ClientService::GetEvents." << std::endl;
+        LOG_ERROR_MSG("Something went wrong in ClientService::GetEvents");
     }
     return crow::response(crow::OK, result.dump());
 }

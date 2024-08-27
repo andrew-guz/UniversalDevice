@@ -2,12 +2,10 @@
 
 #include <Wt/WEvent.h>
 #include <Wt/WTimer.h>
+#include <fmt/format.h>
 
-#include "ComponentDescription.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
-#include "DeviceProperty.hpp"
-#include "ExtendedComponentDescription.hpp"
 #include "Logger.hpp"
 #include "RelayState.hpp"
 #include "WidgetHelper.hpp"
@@ -97,7 +95,7 @@ void MotionRelayWidget::OnSettingsButton() {
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
                                      Constants::LoginService, newSettings);
     if (result != 200)
-        LOG_ERROR << "Failed to update settings to " << nlohmann::json(newSettings).dump() << "." << std::endl;
+        LOG_ERROR_MSG(fmt::format("Failed to update settings to {}", nlohmann::json(newSettings).dump()));
 }
 
 void MotionRelayWidget::OnStateButton() {
@@ -109,6 +107,6 @@ void MotionRelayWidget::OnStateButton() {
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
                                      Constants::LoginService, newCommands);
     if (result != 200)
-        LOG_ERROR << "Failed to update commands to " << nlohmann::json(newCommands).dump() << "." << std::endl;
+        LOG_ERROR_MSG(fmt::format("Failed to update commands to {}", nlohmann::json(newCommands).dump()));
     _stateButton->setEnabled(false);
 }

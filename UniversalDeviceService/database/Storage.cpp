@@ -1,6 +1,6 @@
 #include "Storage.hpp"
 
-#include <algorithm>
+#include <fmt/format.h>
 
 #include "Logger.hpp"
 
@@ -61,7 +61,7 @@ bool Storage::InternalExecute(const std::string_view query, int (*callback)(void
     char* error = nullptr;
     int result = sqlite3_exec(_connection, query.data(), callback, data, &error);
     if (result != SQLITE_OK) {
-        LOG_ERROR << "SQL error: " << error << " for query " << query << "." << std::endl;
+        LOG_ERROR_MSG(fmt::format("SQL error: {} for query {}", error, query));
         sqlite3_free(error);
         return false;
     }

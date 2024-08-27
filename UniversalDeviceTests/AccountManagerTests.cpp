@@ -1,6 +1,7 @@
 #include <string>
 
 #include <catch2/catch_all.hpp>
+#include <fmt/format.h>
 
 #include "AccountManager.hpp"
 #include "Base64Helper.hpp"
@@ -14,7 +15,7 @@ public:
     virtual void Initialize(std::vector<Account>& accounts) override {
         // TODO: formats is not working :(
         for (auto i = 1; i <= 5; ++i)
-            accounts.emplace_back("login"s + std::to_string(i), "password"s + std::to_string(i));
+            accounts.emplace_back(fmt::format("login{}", i), fmt::format("password{}", i));
     }
 };
 

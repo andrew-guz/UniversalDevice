@@ -1,5 +1,7 @@
 #include "BaseService.hpp"
 
+#include <fmt/format.h>
+
 #include "Marshaling.hpp"
 #include "ProcessorsFactory.hpp"
 
@@ -39,10 +41,10 @@ Message BaseServiceExtension::GetMessageFromRequest(const crow::request& request
     auto body = request.body;
     try {
         auto bodyJson = nlohmann::json::parse(body);
-        LOG_DEBUG << bodyJson.dump() << std::endl;
+        LOG_DEBUG_MSG(bodyJson.dump());
         return bodyJson.get<Message>();
     } catch (...) {
-        LOG_ERROR << "Can't get message from request - " << body << std::endl;
+        LOG_ERROR_MSG(fmt::format("Can't get message from request - {}", body));
     }
     return Message();
 }
@@ -50,10 +52,10 @@ Message BaseServiceExtension::GetMessageFromRequest(const crow::request& request
 Message BaseServiceExtension::GetMessageFromWebSocketData(const std::string& data) {
     try {
         auto dataJson = nlohmann::json::parse(data);
-        LOG_DEBUG << dataJson.dump() << std::endl;
+        LOG_DEBUG_MSG(dataJson.dump());
         return dataJson.get<Message>();
     } catch (...) {
-        LOG_ERROR << "Can't get message from data - " << data << std::endl;
+        LOG_ERROR_MSG(fmt::format("Can't get message from data - {}", data));
     }
     return Message();
 }

@@ -1,6 +1,7 @@
 #include "Application.hpp"
 
 #include <Wt/WEnvironment.h>
+#include <fmt/format.h>
 
 #include "DevicesWidget.hpp"
 #include "EventsWidget.hpp"
@@ -63,7 +64,7 @@ void Application::SetWidget(StackWidgetType type, const std::string& data) {
             stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(6));
             break;
         default:
-            LOG_ERROR << "Unknown widget type " << (int)type << "." << std::endl;
+            LOG_ERROR_MSG(fmt::format("Unknown widget type: {}", static_cast<int>(type)));
             break;
     }
     if (stackWidget)

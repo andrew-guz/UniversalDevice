@@ -11,7 +11,7 @@ struct ExtendedRelayCurrentState final : public RelayCurrentState, public IDb<Ex
     std::chrono::system_clock::time_point _timestamp;
 
     virtual std::vector<std::string> ToDbStrings() const override {
-        LOG_ERROR << "This object should not be written to Database." << std::endl;
+        LOG_ERROR_MSG("This object should not be written to Database");
         return {};
     }
 
@@ -24,6 +24,6 @@ struct ExtendedRelayCurrentState final : public RelayCurrentState, public IDb<Ex
                 _state = state.value();
             }
         } else
-            LOG_ERROR << "Invalid db strings." << std::endl;
+            LOG_ERROR_MSG("Invalid db strings");
     }
 };
