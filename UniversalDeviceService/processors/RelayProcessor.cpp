@@ -37,7 +37,7 @@ nlohmann::json RelayProcessor::ProcessRelayCurrentStateMessage(const std::chrono
         return {};
     }
     auto& description = message._header._description;
-    const std::string query = fmt::format("INSERT INTO Relays (id, timestamp, state) VALUES ('{}', {}, '{}'", description._id.data(),
+    const std::string query = fmt::format("INSERT INTO Relays (id, timestamp, state) VALUES ('{}', {}, '{}')", description._id.data(),
                                           TimeHelper::TimeToInt(timestamp), currentState._state);
     if (!_queryExecutor->Execute(query)) {
         LOG_SQL_ERROR(query);

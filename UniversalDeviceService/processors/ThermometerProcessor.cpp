@@ -42,7 +42,7 @@ nlohmann::json ThermometerProcessor::ProcessThermometerCurrentValueMessage(const
         LOG_INFO_MSG(fmt::format("-127.0 found - no sensor connected to {}", description._id.data()));
         return {};
     }
-    const std::string query = fmt::format("INSERT INTO Thermometers (id, timestamp, value) VALUES ('{}', {}, '{}'", description._id.data(),
+    const std::string query = fmt::format("INSERT INTO Thermometers (id, timestamp, value) VALUES ('{}', {}, '{}')", description._id.data(),
                                           TimeHelper::TimeToInt(timestamp), currentValue._value);
     if (!_queryExecutor->Execute(query)) {
         LOG_SQL_ERROR(query);
