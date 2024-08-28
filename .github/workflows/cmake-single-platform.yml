@@ -22,11 +22,12 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Install packages
-        run:
+        run: |
+          sudo apt-get update
           wget https://apt.llvm.org/llvm.sh
           chmod u+x llvm.sh
           sudo ./llvm.sh 17
-          sudo apt-get update && sudo apt-get -y install cmake-format libasio-dev libboost-all-dev curl libcurl4 libcurl4-openssl-dev
+          sudo apt-get -y install cmake-format libasio-dev libboost-all-dev curl libcurl4 libcurl4-openssl-dev
 
       - name: Check format
         run: ${{github.workspace}}/Scripts/check_format.sh
