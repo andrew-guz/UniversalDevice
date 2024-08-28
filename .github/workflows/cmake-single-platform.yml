@@ -22,8 +22,15 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Install packages
-        run:
-          sudo apt-get update && sudo apt-get -y install libasio-dev libboost-all-dev curl libcurl4 libcurl4-openssl-dev
+        run: |
+          sudo apt-get update
+          wget https://apt.llvm.org/llvm.sh
+          chmod u+x llvm.sh
+          sudo ./llvm.sh 17
+          sudo apt-get -y install clang-format-17 cmake-format libasio-dev libboost-all-dev curl libcurl4 libcurl4-openssl-dev
+
+      - name: Check format
+        run: ${{github.workspace}}/Scripts/check_format.sh
 
       - name: Configure
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
