@@ -5,13 +5,35 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "build & debug",
-            //"type": "cppdbg",
+            "name": "UniversalDeviceService",
             "type": "lldb",
             "request": "launch",
-            /*"program": "${workspaceFolder}/bin/UniversalDeviceService",
-            "args": [],*/
-            /*"program": "${workspaceFolder}/bin/UniversalDeviceFrontendService",
+            "program": "${workspaceFolder}/bin/UniversalDeviceService",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "UniversalDeviceFrontendService",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/UniversalDeviceFrontendService",
             "args": [
                 "--docroot",
                 ".",
@@ -23,9 +45,7 @@
                 "./ssl/frontend.key",
                 "--ssl-tmp-dh",
                 "./ssl/dhparam.pem"
-            ],*/
-            /*"program": "${workspaceFolder}/bin/ThermometerSimulator",
-            "args": [],*/
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin/",
             "environment": [],
