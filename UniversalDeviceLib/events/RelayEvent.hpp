@@ -6,7 +6,8 @@
 struct RelayEvent final : public Event {
     int _state = 0;
 
-    RelayEvent() : Event(EventType::Relay) {}
+    RelayEvent() :
+        Event(EventType::Relay) {}
 
     virtual ~RelayEvent() = default;
 };

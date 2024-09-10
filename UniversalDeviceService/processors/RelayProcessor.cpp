@@ -9,7 +9,8 @@
 #include "RelayCurrentState.hpp"
 #include "TimeHelper.hpp"
 
-RelayProcessor::RelayProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
+RelayProcessor::RelayProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor) {}
 
 nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     switch (message._header._subject) {

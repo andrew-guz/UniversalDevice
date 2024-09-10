@@ -23,6 +23,7 @@ AlignConsecutiveMacros:
   AcrossEmptyLines: true
   AcrossComments: true
 AllowShortBlocksOnASingleLine: Never
+PackConstructorInitializers: Never
 
 # breaks
 BreakConstructorInitializers: AfterColon

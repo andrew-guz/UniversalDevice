@@ -2,7 +2,8 @@
 
 #include "Defines.hpp"
 
-MainService::MainService(IQueryExecutor* queryExecutor) : BaseService(queryExecutor) {}
+MainService::MainService(IQueryExecutor* queryExecutor) :
+    BaseService(queryExecutor) {}
 
 void MainService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_VERSION).methods(crow::HTTPMethod::GET)([]() { return crow::response(crow::OK, VERSION); });

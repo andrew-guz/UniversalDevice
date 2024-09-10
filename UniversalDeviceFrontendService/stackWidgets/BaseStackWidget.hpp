@@ -7,7 +7,9 @@
 
 class BaseStackWidget : public IStackWidget {
 public:
-    BaseStackWidget(IStackHolder* stackHolder, const Settings& settings) : _stackHolder(stackHolder), _settings(settings) {}
+    BaseStackWidget(IStackHolder* stackHolder, const Settings& settings) :
+        _stackHolder(stackHolder),
+        _settings(settings) {}
 
     virtual ~BaseStackWidget() = default;
 

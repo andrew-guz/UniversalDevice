@@ -25,7 +25,8 @@
 #include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
 
-EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) : BaseStackWidget(stackHolder, settings) {
+EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<Wt::WGridLayout>());
 
     auto backButton = _mainLayout->addWidget(std::make_unique<Wt::WPushButton>("Назад..."), 0, 0, Wt::AlignmentFlag::Left);

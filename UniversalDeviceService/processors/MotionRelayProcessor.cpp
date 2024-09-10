@@ -9,7 +9,8 @@
 #include "MotionRelayCurrentState.hpp"
 #include "TimeHelper.hpp"
 
-MotionRelayProcessor::MotionRelayProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
+MotionRelayProcessor::MotionRelayProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor) {}
 
 nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     switch (message._header._subject) {

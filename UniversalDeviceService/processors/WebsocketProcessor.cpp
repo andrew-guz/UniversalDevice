@@ -4,7 +4,8 @@
 
 #include "SimpleTableStorageCache.hpp"
 
-WebSocketProcessor::WebSocketProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
+WebSocketProcessor::WebSocketProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor) {}
 
 nlohmann::json WebSocketProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     try {

@@ -34,7 +34,8 @@ namespace {
     };
 } // namespace
 
-DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) : BaseStackWidget(stackHolder, settings) {
+DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
 
     auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, 0, 1, 5);

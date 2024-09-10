@@ -5,7 +5,8 @@
 
 using namespace Wt;
 
-ThermostatEventEditor::ThermostatEventEditor() : BaseEventEditor() {
+ThermostatEventEditor::ThermostatEventEditor() :
+    BaseEventEditor() {
     _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
     _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
     _mainLayout->addWidget(std::make_unique<WText>("Температура:"), 4, 0);

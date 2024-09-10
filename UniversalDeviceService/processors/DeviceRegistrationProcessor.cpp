@@ -5,7 +5,8 @@
 #include "Marshaling.hpp"
 #include "TimeHelper.hpp"
 
-DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
+DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor) {}
 
 nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     auto& description = message._header._description;

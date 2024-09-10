@@ -14,7 +14,8 @@
 #include "TimeHelper.hpp"
 #include "WebsocketsCache.hpp"
 
-EventsProcessor::EventsProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
+EventsProcessor::EventsProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor) {}
 
 nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     // load all events

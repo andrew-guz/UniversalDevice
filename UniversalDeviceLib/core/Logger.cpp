@@ -17,7 +17,9 @@ std::ostream& FileStreamWrapper::NullStream() { return _nullStream; }
 std::map<LogLevel, Logger*> Logger::_instanceMap;
 LogLevel Logger::_minLogLevel = LogLevel::DEBUG;
 
-Logger::Logger(LogLevel logLevel, const std::string& path) : _logLevel(logLevel), _logPath(path) {}
+Logger::Logger(LogLevel logLevel, const std::string& path) :
+    _logLevel(logLevel),
+    _logPath(path) {}
 
 Logger& Logger::Instance(LogLevel logLevel, const std::string& path) {
     if (_instanceMap.count(logLevel) == 0)

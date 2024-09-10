@@ -8,7 +8,8 @@
 #include "Marshaling.hpp"
 #include "StorageCacheFactory.hpp"
 
-EventTableStorageCache::EventTableStorageCache(IQueryExecutor* queryExecutor) : BaseStorageCache(queryExecutor) {}
+EventTableStorageCache::EventTableStorageCache(IQueryExecutor* queryExecutor) :
+    BaseStorageCache(queryExecutor) {}
 
 StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, SelectOutput& result) {
     std::lock_guard<std::mutex> lock(_mutex);

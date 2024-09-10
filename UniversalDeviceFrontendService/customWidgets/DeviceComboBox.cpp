@@ -5,7 +5,8 @@
 
 using namespace std;
 
-DeviceComboBox::DeviceComboBox() : WComboBox() {}
+DeviceComboBox::DeviceComboBox() :
+    WComboBox() {}
 
 void DeviceComboBox::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
     clear();

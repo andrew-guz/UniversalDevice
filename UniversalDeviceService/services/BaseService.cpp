@@ -5,7 +5,8 @@
 #include "Marshaling.hpp"
 #include "ProcessorsFactory.hpp"
 
-BaseService::BaseService(IQueryExecutor* queryExecutor) : _queryExecutor(queryExecutor) {}
+BaseService::BaseService(IQueryExecutor* queryExecutor) :
+    _queryExecutor(queryExecutor) {}
 
 void BaseService::CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);

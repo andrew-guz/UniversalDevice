@@ -9,7 +9,8 @@
 
 using namespace Wt;
 
-LogsWidget::LogsWidget(IStackHolder* stackHolder, const Settings& settings) : BaseStackWidget(stackHolder, settings) {
+LogsWidget::LogsWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseStackWidget(stackHolder, settings) {
     auto mainLayout = setLayout(std::make_unique<WGridLayout>());
 
     auto backButton = mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);

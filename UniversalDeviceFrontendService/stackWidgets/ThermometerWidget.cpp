@@ -10,7 +10,8 @@
 
 using namespace Wt;
 
-ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& settings) : BaseDeviceWidget(stackHolder, settings) {
+ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseDeviceWidget(stackHolder, settings) {
     _temperatureText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 0, 1, 3, AlignmentFlag::Center);
     _temperatureText->setText(WidgetHelper::TextWithFontSize(0.0f, "°C", 80));
     _temperatureText->setMaximumSize(400, 200);

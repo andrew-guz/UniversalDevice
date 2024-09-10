@@ -9,7 +9,8 @@ struct ThermostatEvent final : public Event {
     float _temperature = std::numeric_limits<float>::min();
     float _delta = 0.5f;
 
-    ThermostatEvent() : Event(EventType::Thermostat) {}
+    ThermostatEvent() :
+        Event(EventType::Thermostat) {}
 
     virtual ~ThermostatEvent() = default;
 };

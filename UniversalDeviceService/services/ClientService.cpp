@@ -14,7 +14,8 @@
 #include "LogInformation.hpp"
 #include "Marshaling.hpp"
 
-ClientService::ClientService(IQueryExecutor* queryExecutor) : BaseService(queryExecutor) {}
+ClientService::ClientService(IQueryExecutor* queryExecutor) :
+    BaseService(queryExecutor) {}
 
 void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::ListDevices));

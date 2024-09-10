@@ -27,7 +27,8 @@ void TimerThreadFunction(std::function<void(void)> timerFunction) {
     }
 }
 
-DeviceService::DeviceService(IQueryExecutor* queryExecutor) : BaseService(queryExecutor) {}
+DeviceService::DeviceService(IQueryExecutor* queryExecutor) :
+    BaseService(queryExecutor) {}
 
 void DeviceService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DeviceService::GetSettings));

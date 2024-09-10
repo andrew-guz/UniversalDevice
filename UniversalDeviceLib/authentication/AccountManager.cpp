@@ -5,7 +5,8 @@
 #include "Base64Helper.hpp"
 #include "Logger.hpp"
 
-AccountManager::AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer) : _initializer(initializer) {}
+AccountManager::AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer) :
+    _initializer(initializer) {}
 
 bool AccountManager::IsValidUser(const std::string& login, const std::string& password) {
     Account account;

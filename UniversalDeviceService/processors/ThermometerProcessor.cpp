@@ -9,7 +9,8 @@
 #include "ThermometerCurrentValue.hpp"
 #include "TimeHelper.hpp"
 
-ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
+ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor) {}
 
 nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     switch (message._header._subject) {

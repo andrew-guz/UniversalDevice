@@ -7,7 +7,8 @@
 
 using namespace Wt;
 
-TemperatureChartModel::TemperatureChartModel(const std::vector<ExtendedThermometerCurrentValue>& data) : _data(data) {}
+TemperatureChartModel::TemperatureChartModel(const std::vector<ExtendedThermometerCurrentValue>& data) :
+    _data(data) {}
 
 void TemperatureChartModel::UpdateData(const std::vector<ExtendedThermometerCurrentValue>& data) {
     _data = data;

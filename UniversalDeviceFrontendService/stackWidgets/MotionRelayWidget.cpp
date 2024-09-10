@@ -12,7 +12,8 @@
 
 using namespace Wt;
 
-MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings) : BaseDeviceWidget(stackHolder, settings) {
+MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseDeviceWidget(stackHolder, settings) {
     _motionText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 1, AlignmentFlag::Center);
     _motionText->setText(WidgetHelper::TextWithFontSize("Нет движения", 80));
 

@@ -23,7 +23,8 @@ namespace {
     };
 }
 
-EventsTableModel::EventsTableModel(const std::vector<nlohmann::json>& data) : _data(data) {}
+EventsTableModel::EventsTableModel(const std::vector<nlohmann::json>& data) :
+    _data(data) {}
 
 void EventsTableModel::UpdateData(const std::vector<nlohmann::json>& data) {
     _data = data;

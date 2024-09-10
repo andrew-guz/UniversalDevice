@@ -12,7 +12,8 @@
 
 using namespace Wt;
 
-RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) : BaseDeviceWidget(stackHolder, settings) {
+RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseDeviceWidget(stackHolder, settings) {
     _stateText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 1, AlignmentFlag::Center);
     _stateText->setText(WidgetHelper::TextWithFontSize("Выключено", 80));
 
