@@ -28,6 +28,9 @@ AllowShortBlocksOnASingleLine: Never
 BreakConstructorInitializers: AfterColon
 EmptyLineAfterAccessModifier: Never
 
+#namespaces
+FixNamespaceComments: true
+
 # * and & position
 PointerAlignment: Left
 
@@ -36,6 +39,7 @@ AlwaysBreakTemplateDeclarations: Yes
 IndentRequiresClause: true
 SpaceAfterTemplateKeyword: false
 
+#case
 IndentCaseLabels: true
 
 #spaces
