@@ -79,8 +79,8 @@ crow::response ClientService::GetDeviceProperty(const crow::request& request, co
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field,
-                                                bool canBeEmpty) {
+crow::response
+ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty) {
     try {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto deviceProperty = bodyJson.get<DeviceProperty>();

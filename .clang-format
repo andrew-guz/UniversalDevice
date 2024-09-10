@@ -8,10 +8,13 @@ MaxEmptyLinesToKeep: 1
 TabWidth: 4
 UseTab: Never
 
-#Indents
+#indents
 AccessModifierOffset: -4
 IndentAccessModifiers: false
 NamespaceIndentation: All
+
+#parameters
+BinPackParameters: false
 
 # * and & position
 PointerAlignment: Left
