@@ -63,12 +63,12 @@ private:
     std::string _logPath;
 };
 
-#define LOG(level) Logger::Instance(level, PathHelper::AppLogPath())
+#define LOG(level)         Logger::Instance(level, PathHelper::AppLogPath())
 
-#define LOG_DEBUG LOG(LogLevel::DEBUG)
-#define LOG_INFO LOG(LogLevel::INFO)
-#define LOG_ERROR LOG(LogLevel::ERROR)
+#define LOG_DEBUG          LOG(LogLevel::DEBUG)
+#define LOG_INFO           LOG(LogLevel::INFO)
+#define LOG_ERROR          LOG(LogLevel::ERROR)
 
 #define LOG_DEBUG_MSG(msg) LOG_DEBUG << (msg) << std::endl
-#define LOG_INFO_MSG(msg) LOG_INFO << (msg) << std::endl
+#define LOG_INFO_MSG(msg)  LOG_INFO << (msg) << std::endl
 #define LOG_ERROR_MSG(msg) LOG_ERROR << (msg) << std::endl

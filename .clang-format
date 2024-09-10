@@ -16,6 +16,12 @@ NamespaceIndentation: All
 #parameters
 BinPackParameters: false
 
+#alignment
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+
 # * and & position
 PointerAlignment: Left
 
