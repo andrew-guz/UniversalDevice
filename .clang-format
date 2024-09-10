@@ -24,6 +24,7 @@ AlignConsecutiveMacros:
   AcrossComments: true
 AllowShortBlocksOnASingleLine: Never
 PackConstructorInitializers: Never
+SpaceInEmptyBlock: false
 
 # breaks
 BreakConstructorInitializers: AfterColon
