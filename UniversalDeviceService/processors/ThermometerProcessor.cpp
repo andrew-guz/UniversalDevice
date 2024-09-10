@@ -42,8 +42,10 @@ nlohmann::json ThermometerProcessor::ProcessThermometerCurrentValueMessage(const
         LOG_INFO_MSG(fmt::format("-127.0 found - no sensor connected to {}", description._id.data()));
         return {};
     }
-    const std::string query = fmt::format("INSERT INTO Thermometers (id, timestamp, value) VALUES ('{}', {}, '{}')", description._id.data(),
-                                          TimeHelper::TimeToInt(timestamp), currentValue._value);
+    const std::string query = fmt::format("INSERT INTO Thermometers (id, timestamp, value) VALUES ('{}', {}, '{}')",
+                                          description._id.data(),
+                                          TimeHelper::TimeToInt(timestamp),
+                                          currentValue._value);
     if (!_queryExecutor->Execute(query)) {
         LOG_SQL_ERROR(query);
         return {};
@@ -64,7 +66,8 @@ nlohmann::json ThermometerProcessor::ProcessGetDeviceInformationMessage(const st
         now -= std::chrono::seconds(description._seconds);
         const std::string query =
             fmt::format("SELECT timestamp, value FROM Thermometers WHERE id = '{}' AND timestamp >= {} AND value > -126.9 ORDER BY idx DESC",
-                        description._id.data(), TimeHelper::TimeToInt(now));
+                        description._id.data(),
+                        TimeHelper::TimeToInt(now));
         std::vector<std::vector<std::string>> data;
         if (_queryExecutor->Select(query, data))
             extendedThermometerCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedThermometerCurrentValue>(data);

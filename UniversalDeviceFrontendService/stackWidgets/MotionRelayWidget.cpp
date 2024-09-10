@@ -93,7 +93,8 @@ void MotionRelayWidget::OnSettingsButton() {
     newSettings._activityTime = activityDelayEdit->value() * 60000;
     auto result =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newSettings);
+                                     Constants::LoginService,
+                                     newSettings);
     if (result != 200)
         LOG_ERROR_MSG(fmt::format("Failed to update settings to {}", nlohmann::json(newSettings).dump()));
 }
@@ -105,7 +106,8 @@ void MotionRelayWidget::OnStateButton() {
     newCommands._state = newState;
     auto result =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newCommands);
+                                     Constants::LoginService,
+                                     newCommands);
     if (result != 200)
         LOG_ERROR_MSG(fmt::format("Failed to update commands to {}", nlohmann::json(newCommands).dump()));
     _stateButton->setEnabled(false);

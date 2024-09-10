@@ -39,7 +39,10 @@ nlohmann::json MotionRelayProcessor::ProcessMotionRelayCurrentStateMessage(const
     }
     auto& description = message._header._description;
     const std::string query = fmt::format("INSERT INTO MotionRelays (id, timestamp, motion, state) VALUES ('{}', {}, '{}', '{}')",
-                                          description._id.data(), TimeHelper::TimeToInt(timestamp), currentState._motion, currentState._state);
+                                          description._id.data(),
+                                          TimeHelper::TimeToInt(timestamp),
+                                          currentState._motion,
+                                          currentState._state);
     if (!_queryExecutor->Execute(query)) {
         LOG_SQL_ERROR(query);
         return {};
@@ -60,7 +63,8 @@ nlohmann::json MotionRelayProcessor::ProcessGetDeviceInformationMessage(const st
         now -= std::chrono::seconds(description._seconds);
         const std::string query =
             fmt::format("SELECT timestamp, motion, state FROM MotionRelays WHERE id = '{}' AND timestamp >= {} ORDER BY idx DESC",
-                        description._id.data(), TimeHelper::TimeToInt(now));
+                        description._id.data(),
+                        TimeHelper::TimeToInt(now));
         std::vector<std::vector<std::string>> data;
         if (_queryExecutor->Select(query, data))
             extendedMotionRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedMotionRelayCurrentState>(data);

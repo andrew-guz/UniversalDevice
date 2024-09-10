@@ -17,8 +17,10 @@ nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::sy
             updateInsertQuery =
                 fmt::format("UPDATE Devices SET timestamp = {} WHERE id = '{}'", TimeHelper::TimeToInt(timestamp), description._id.data());
         } else {
-            updateInsertQuery = fmt::format("INSERT INTO Devices (id, type, timestamp) VALUES ('{}', '{}', {})", description._id.data(),
-                                            ActorTypeToString(description._type), TimeHelper::TimeToInt(timestamp));
+            updateInsertQuery = fmt::format("INSERT INTO Devices (id, type, timestamp) VALUES ('{}', '{}', {})",
+                                            description._id.data(),
+                                            ActorTypeToString(description._type),
+                                            TimeHelper::TimeToInt(timestamp));
         }
         if (!_queryExecutor->Execute(updateInsertQuery))
             LOG_SQL_ERROR(updateInsertQuery);

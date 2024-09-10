@@ -14,6 +14,7 @@ IndentAccessModifiers: false
 NamespaceIndentation: All
 
 #parameters
+BinPackArguments: false
 BinPackParameters: false
 
 #alignment
@@ -21,6 +22,7 @@ AlignConsecutiveMacros:
   Enabled: true
   AcrossEmptyLines: true
   AcrossComments: true
+AllowShortBlocksOnASingleLine: Never
 
 # * and & position
 PointerAlignment: Left

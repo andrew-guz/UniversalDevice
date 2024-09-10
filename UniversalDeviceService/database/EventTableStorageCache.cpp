@@ -22,7 +22,8 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
         return { StorageCacheProblemType::NoProblems, {} };
     }
 
-    const std::string query = fmt::format("SELECT event FROM Events WHERE providerId = '{}' AND providerType = '{}' AND active = 1", customWhat._id,
+    const std::string query = fmt::format("SELECT event FROM Events WHERE providerId = '{}' AND providerType = '{}' AND active = 1",
+                                          customWhat._id,
                                           ActorTypeToString(customWhat._type));
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(query, data)) {
@@ -66,9 +67,12 @@ StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplac
 
     const EventTableInsertOrReplaceInput& customWhat = dynamic_cast<const EventTableInsertOrReplaceInput&>(what);
 
-    const std::string query =
-        fmt::format("INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('{}', {}, '{}', '{}', '{}')", customWhat._id,
-                    (customWhat._active ? "1" : "0"), customWhat._providerId.data(), ActorTypeToString(customWhat._providerType), customWhat._event);
+    const std::string query = fmt::format("INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('{}', {}, '{}', '{}', '{}')",
+                                          customWhat._id,
+                                          (customWhat._active ? "1" : "0"),
+                                          customWhat._providerId.data(),
+                                          ActorTypeToString(customWhat._providerType),
+                                          customWhat._event);
     if (_queryExecutor->Execute(query))
         return { StorageCacheProblemType::NoProblems, {} };
     return { StorageCacheProblemType::SQLError, query };
@@ -82,8 +86,11 @@ StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
     const EventTableUpdateInput& customWhat = dynamic_cast<const EventTableUpdateInput&>(what);
 
     const std::string query = fmt::format("UPDATE Events SET active = {}, providerId = '{}', providerType = '{}', event = '{}' WHERE id = '{}'",
-                                          (customWhat._active ? "1" : "0"), customWhat._providerId, ActorTypeToString(customWhat._providerType),
-                                          customWhat._event, customWhat._id);
+                                          (customWhat._active ? "1" : "0"),
+                                          customWhat._providerId,
+                                          ActorTypeToString(customWhat._providerType),
+                                          customWhat._event,
+                                          customWhat._id);
     if (_queryExecutor->Execute(query))
         return { StorageCacheProblemType::NoProblems, {} };
     return { StorageCacheProblemType::SQLError, query };

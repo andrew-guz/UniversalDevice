@@ -99,8 +99,8 @@ void BaseDeviceWidget::GetDeviceProperty(const std::string& path, std::string& v
 bool BaseDeviceWidget::SetDeviceProperty(const std::string& path, const std::string& newValue, std::string& value) {
     DeviceProperty deviceProperty;
     deviceProperty._value = newValue;
-    auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) },
-                                               Constants::LoginService, deviceProperty);
+    auto result = RequestHelper::DoPostRequest(
+        { BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) }, Constants::LoginService, deviceProperty);
     if (result == 200) {
         value = newValue;
         return true;
