@@ -24,6 +24,10 @@ AlignConsecutiveMacros:
   AcrossComments: true
 AllowShortBlocksOnASingleLine: Never
 
+# breaks
+BreakConstructorInitializers: AfterColon
+EmptyLineAfterAccessModifier: Never
+
 # * and & position
 PointerAlignment: Left
 

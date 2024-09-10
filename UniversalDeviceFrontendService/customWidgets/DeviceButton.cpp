@@ -16,8 +16,8 @@
 
 using namespace Wt;
 
-DeviceButton::DeviceButton(int port, const ExtendedComponentDescription& description)
-    : WPushButton(), _port(port), _deviceType(description._type), _deviceId(description._id), _text(description.GetDisplayString()) {
+DeviceButton::DeviceButton(int port, const ExtendedComponentDescription& description) :
+    WPushButton(), _port(port), _deviceType(description._type), _deviceId(description._id), _text(description.GetDisplayString()) {
     setText(_text);
     setMinimumSize(200, 150);
     setMaximumSize(200, 150);
