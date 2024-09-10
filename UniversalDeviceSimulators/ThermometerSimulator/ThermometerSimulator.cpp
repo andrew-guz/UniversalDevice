@@ -14,7 +14,8 @@ namespace {
     std::uniform_int_distribution<> distribution(1, 4);
 } // namespace
 
-ThermometerSimulator::ThermometerSimulator() : Simulator(DeviceType::Thermometer) {
+ThermometerSimulator::ThermometerSimulator() :
+    Simulator(DeviceType::Thermometer) {
     parameters = Parameters::ReadFromFile();
     temperature = parameters._startTemperature;
 }

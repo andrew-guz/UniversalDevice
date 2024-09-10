@@ -8,7 +8,8 @@
 #include "MessageHelper.hpp"
 #include "WebSocketAuthentication.hpp"
 
-Simulator::Simulator(const DeviceType type) : _type(type) {
+Simulator::Simulator(const DeviceType type) :
+    _type(type) {
     _parameters = BaseParameters::ReadFromFile();
 
     const auto url = fmt::format("wss://localhost:{}{}", _parameters._port, API_DEVICE_WEBSOCKETS);

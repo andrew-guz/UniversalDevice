@@ -9,7 +9,8 @@
 #include "RelayCurrentState.hpp"
 #include "TimeHelper.hpp"
 
-RelayProcessor::RelayProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
+RelayProcessor::RelayProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor) {}
 
 nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     switch (message._header._subject) {
@@ -37,8 +38,10 @@ nlohmann::json RelayProcessor::ProcessRelayCurrentStateMessage(const std::chrono
         return {};
     }
     auto& description = message._header._description;
-    const std::string query = fmt::format("INSERT INTO Relays (id, timestamp, state) VALUES ('{}', {}, '{}')", description._id.data(),
-                                          TimeHelper::TimeToInt(timestamp), currentState._state);
+    const std::string query = fmt::format("INSERT INTO Relays (id, timestamp, state) VALUES ('{}', {}, '{}')",
+                                          description._id.data(),
+                                          TimeHelper::TimeToInt(timestamp),
+                                          currentState._state);
     if (!_queryExecutor->Execute(query)) {
         LOG_SQL_ERROR(query);
         return {};
@@ -57,7 +60,8 @@ nlohmann::json RelayProcessor::ProcessGetDeviceInformationMessage(const std::chr
         auto now = std::chrono::system_clock::now();
         now -= std::chrono::seconds(description._seconds);
         const std::string query = fmt::format("SELECT timestamp, state FROM Relays WHERE id = '{}' AND timestamp >= {} ORDER BY idx DESC",
-                                              description._id.data(), TimeHelper::TimeToInt(now));
+                                              description._id.data(),
+                                              TimeHelper::TimeToInt(now));
         std::vector<std::vector<std::string>> data;
         if (_queryExecutor->Select(query, data))
             extendedRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedRelayCurrentState>(data);

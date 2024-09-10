@@ -12,7 +12,8 @@
 
 using namespace Wt;
 
-MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings) : BaseDeviceWidget(stackHolder, settings) {
+MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseDeviceWidget(stackHolder, settings) {
     _motionText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 1, AlignmentFlag::Center);
     _motionText->setText(WidgetHelper::TextWithFontSize("Нет движения", 80));
 
@@ -93,7 +94,8 @@ void MotionRelayWidget::OnSettingsButton() {
     newSettings._activityTime = activityDelayEdit->value() * 60000;
     auto result =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newSettings);
+                                     Constants::LoginService,
+                                     newSettings);
     if (result != 200)
         LOG_ERROR_MSG(fmt::format("Failed to update settings to {}", nlohmann::json(newSettings).dump()));
 }
@@ -105,7 +107,8 @@ void MotionRelayWidget::OnStateButton() {
     newCommands._state = newState;
     auto result =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newCommands);
+                                     Constants::LoginService,
+                                     newCommands);
     if (result != 200)
         LOG_ERROR_MSG(fmt::format("Failed to update commands to {}", nlohmann::json(newCommands).dump()));
     _stateButton->setEnabled(false);

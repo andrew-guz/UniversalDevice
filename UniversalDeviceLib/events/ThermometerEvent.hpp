@@ -9,7 +9,8 @@ struct ThermometerEvent final : public Event {
     float _temperature = std::numeric_limits<float>::min();
     bool _lower = true;
 
-    ThermometerEvent() : Event(EventType::Thermometer) {}
+    ThermometerEvent() :
+        Event(EventType::Thermometer) {}
 
     virtual ~ThermometerEvent() = default;
 };

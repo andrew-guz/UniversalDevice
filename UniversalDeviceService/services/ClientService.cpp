@@ -14,7 +14,8 @@
 #include "LogInformation.hpp"
 #include "Marshaling.hpp"
 
-ClientService::ClientService(IQueryExecutor* queryExecutor) : BaseService(queryExecutor) {}
+ClientService::ClientService(IQueryExecutor* queryExecutor) :
+    BaseService(queryExecutor) {}
 
 void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::ListDevices));
@@ -79,8 +80,8 @@ crow::response ClientService::GetDeviceProperty(const crow::request& request, co
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field,
-                                                bool canBeEmpty) {
+crow::response
+ClientService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty) {
     try {
         auto bodyJson = nlohmann::json::parse(request.body);
         auto deviceProperty = bodyJson.get<DeviceProperty>();

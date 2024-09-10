@@ -5,7 +5,8 @@
 
 using namespace Wt;
 
-RelayEventEditor::RelayEventEditor() : BaseEventEditor() {
+RelayEventEditor::RelayEventEditor() :
+    BaseEventEditor() {
     _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
     _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
     _state = _mainLayout->addWidget(std::make_unique<WCheckBox>("Включено"), 5, 0, 1, 2);

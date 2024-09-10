@@ -1,3 +1,4 @@
 #include "BaseProcessorWithQueryExecutor.hpp"
 
-BaseProcessorWithQueryExecutor::BaseProcessorWithQueryExecutor(IQueryExecutor* queryExecutor) : _queryExecutor(queryExecutor) {}
+BaseProcessorWithQueryExecutor::BaseProcessorWithQueryExecutor(IQueryExecutor* queryExecutor) :
+    _queryExecutor(queryExecutor) {}

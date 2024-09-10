@@ -13,7 +13,8 @@
 
 using namespace Wt;
 
-LoginWidget::LoginWidget(IStackHolder* stackHolder, const Settings& settings) : BaseStackWidget(stackHolder, settings) {
+LoginWidget::LoginWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseStackWidget(stackHolder, settings) {
     auto mainLayout = setLayout(std::make_unique<WGridLayout>());
     auto box = mainLayout->addWidget(std::make_unique<WGroupBox>(), 0, 0, AlignmentFlag::Center);
     box->setTitle("Вход");

@@ -25,7 +25,8 @@ public:
 
     virtual Wt::cpp17::any data(const Wt::WModelIndex& index, Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
-    virtual Wt::cpp17::any headerData(int section, Wt::Orientation orientation = Wt::Orientation::Horizontal,
+    virtual Wt::cpp17::any headerData(int section,
+                                      Wt::Orientation orientation = Wt::Orientation::Horizontal,
                                       Wt::ItemDataRole role = Wt::ItemDataRole::Display) const override;
 
     static std::string EventTypeDisplayName(EventType eventType);

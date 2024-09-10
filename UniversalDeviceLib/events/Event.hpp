@@ -19,7 +19,8 @@ struct Event {
     ComponentDescription _receiver;
     nlohmann::json _command;
 
-    Event(const EventType type = EventType::Undefined) : _type(type) {}
+    Event(const EventType type = EventType::Undefined) :
+        _type(type) {}
 
     virtual ~Event() = default;
 };

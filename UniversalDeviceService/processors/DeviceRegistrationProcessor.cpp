@@ -5,7 +5,8 @@
 #include "Marshaling.hpp"
 #include "TimeHelper.hpp"
 
-DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryExecutor) : BaseProcessorWithQueryExecutor(queryExecutor) {}
+DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryExecutor) :
+    BaseProcessorWithQueryExecutor(queryExecutor) {}
 
 nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     auto& description = message._header._description;
@@ -17,8 +18,10 @@ nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::sy
             updateInsertQuery =
                 fmt::format("UPDATE Devices SET timestamp = {} WHERE id = '{}'", TimeHelper::TimeToInt(timestamp), description._id.data());
         } else {
-            updateInsertQuery = fmt::format("INSERT INTO Devices (id, type, timestamp) VALUES ('{}', '{}', {})", description._id.data(),
-                                            ActorTypeToString(description._type), TimeHelper::TimeToInt(timestamp));
+            updateInsertQuery = fmt::format("INSERT INTO Devices (id, type, timestamp) VALUES ('{}', '{}', {})",
+                                            description._id.data(),
+                                            ActorTypeToString(description._type),
+                                            TimeHelper::TimeToInt(timestamp));
         }
         if (!_queryExecutor->Execute(updateInsertQuery))
             LOG_SQL_ERROR(updateInsertQuery);

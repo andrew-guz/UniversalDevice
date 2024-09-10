@@ -8,7 +8,9 @@
 
 using namespace Wt;
 
-EventReceiverWidget::EventReceiverWidget() : WContainerWidget(), IEventEditorWidget() {
+EventReceiverWidget::EventReceiverWidget() :
+    WContainerWidget(),
+    IEventEditorWidget() {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
     _mainLayout->setContentsMargins(0, 0, 0, 0);
 

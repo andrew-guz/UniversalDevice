@@ -26,8 +26,9 @@ namespace {
 
 } // namespace
 
-BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& settings)
-    : BaseStackWidget(stackHolder, settings), _deviceId(Uuid::Empty()) {
+BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseStackWidget(stackHolder, settings),
+    _deviceId(Uuid::Empty()) {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
 
     auto backButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
@@ -99,8 +100,8 @@ void BaseDeviceWidget::GetDeviceProperty(const std::string& path, std::string& v
 bool BaseDeviceWidget::SetDeviceProperty(const std::string& path, const std::string& newValue, std::string& value) {
     DeviceProperty deviceProperty;
     deviceProperty._value = newValue;
-    auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) },
-                                               Constants::LoginService, deviceProperty);
+    auto result = RequestHelper::DoPostRequest(
+        { BACKEND_IP, _settings._servicePort, UrlHelper::Url(path, "<string>", _deviceId.data()) }, Constants::LoginService, deviceProperty);
     if (result == 200) {
         value = newValue;
         return true;

@@ -13,8 +13,9 @@ static std::map<std::string, std::string> Tables = {
     { "Thermometers",
       "CREATE TABLE IF NOT EXISTS Thermometers (idx INTEGER, id TEXT, timestamp INTEGER, value REAL, PRIMARY KEY(idx AUTOINCREMENT))" },
     { "Relays", "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp INTEGER, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))" },
-    { "MotionRelays", "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY "
-                      "KEY(idx AUTOINCREMENT))" }
+    { "MotionRelays",
+      "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY "
+      "KEY(idx AUTOINCREMENT))" }
 };
 
 int NoActionCallback(void* data, int columnsInRow, char** rowData, char** columnNames) { return 0; }

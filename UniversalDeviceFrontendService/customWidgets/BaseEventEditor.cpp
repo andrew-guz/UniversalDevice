@@ -4,7 +4,9 @@
 
 using namespace Wt;
 
-BaseEventEditor::BaseEventEditor() : WContainerWidget(), IEventEditorWidget() {
+BaseEventEditor::BaseEventEditor() :
+    WContainerWidget(),
+    IEventEditorWidget() {
     _mainLayout = setLayout(std::make_unique<WGridLayout>());
     _mainLayout->setContentsMargins(0, 0, 0, 0);
 

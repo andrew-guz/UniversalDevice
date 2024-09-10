@@ -6,7 +6,8 @@
 #include "MessageHelper.hpp"
 #include "RelayCurrentState.hpp"
 
-RelaySimulator::RelaySimulator() : Simulator(DeviceType::Relay) {}
+RelaySimulator::RelaySimulator() :
+    Simulator(DeviceType::Relay) {}
 
 bool RelaySimulator::GetState() const { return state; }
 

@@ -48,8 +48,8 @@ protected:
     }
 
     template<typename ServiceType, typename Object>
-    static auto bindObject(ServiceType* service, crow::response (ServiceType::*func)(const Object&, const std::string&),
-                           const std::string_view functionName) {
+    static auto
+    bindObject(ServiceType* service, crow::response (ServiceType::*func)(const Object&, const std::string&), const std::string_view functionName) {
         return [service, func, functionName = std::move(functionName)](const crow::request& request) {
             try {
                 auto bodyJson = nlohmann::json::parse(request.body);

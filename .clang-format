@@ -7,20 +7,44 @@ IndentWidth: 4
 MaxEmptyLinesToKeep: 1
 TabWidth: 4
 UseTab: Never
+Standard: c++17
 
-#Indents
+#indents
 AccessModifierOffset: -4
 IndentAccessModifiers: false
 NamespaceIndentation: All
 
+#parameters
+BinPackArguments: false
+BinPackParameters: false
+
+#alignment
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+AllowShortBlocksOnASingleLine: Never
+PackConstructorInitializers: Never
+SpaceInEmptyBlock: false
+
+# breaks
+BreakConstructorInitializers: AfterColon
+EmptyLineAfterAccessModifier: Never
+
+#namespaces
+FixNamespaceComments: true
+
 # * and & position
 PointerAlignment: Left
+ReferenceAlignment: Left
+QualifierAlignment: Left
 
 #templates
 AlwaysBreakTemplateDeclarations: Yes
 IndentRequiresClause: true
 SpaceAfterTemplateKeyword: false
 
+#case
 IndentCaseLabels: true
 
 #spaces

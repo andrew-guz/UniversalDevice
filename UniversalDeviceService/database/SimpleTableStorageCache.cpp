@@ -6,8 +6,10 @@
 
 #include "StorageCacheFactory.hpp"
 
-SimpleTableStorageCache::SimpleTableStorageCache(IQueryExecutor* queryExecutor, const std::string& tableName, const std::string& fieldName)
-    : BaseStorageCache(queryExecutor), _tableName(tableName), _fieldName(fieldName) {}
+SimpleTableStorageCache::SimpleTableStorageCache(IQueryExecutor* queryExecutor, const std::string& tableName, const std::string& fieldName) :
+    BaseStorageCache(queryExecutor),
+    _tableName(tableName),
+    _fieldName(fieldName) {}
 
 StorageCacheProblem SimpleTableStorageCache::Select(const SelectInput& what, SelectOutput& result) {
     std::lock_guard<std::mutex> lock(_mutex);

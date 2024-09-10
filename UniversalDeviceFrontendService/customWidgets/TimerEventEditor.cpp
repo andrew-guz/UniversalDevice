@@ -7,7 +7,8 @@
 #include "Marshaling.hpp"
 #include "TimerEvent.hpp"
 
-TimerEventEditor::TimerEventEditor() : BaseEventEditor() {
+TimerEventEditor::TimerEventEditor() :
+    BaseEventEditor() {
     _mainLayout->addWidget(std::make_unique<Wt::WText>("Час:"), 2, 0);
     _hour = _mainLayout->addWidget(std::make_unique<Wt::WSpinBox>(), 2, 1);
     _hour->setMinimum(0);

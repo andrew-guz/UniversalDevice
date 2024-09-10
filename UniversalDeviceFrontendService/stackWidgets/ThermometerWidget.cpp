@@ -10,7 +10,8 @@
 
 using namespace Wt;
 
-ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& settings) : BaseDeviceWidget(stackHolder, settings) {
+ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseDeviceWidget(stackHolder, settings) {
     _temperatureText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 0, 1, 3, AlignmentFlag::Center);
     _temperatureText->setText(WidgetHelper::TextWithFontSize(0.0f, "°C", 80));
     _temperatureText->setMaximumSize(400, 200);
@@ -146,7 +147,8 @@ void ThermometerWidget::OnSettingsButton() {
     newSettings._period = periodEdit->value() * 1000;
     auto settingsResult =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_SETTINGS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newSettings);
+                                     Constants::LoginService,
+                                     newSettings);
     if (settingsResult != 200)
         LOG_ERROR_MSG(fmt::format("Failed to update settings to {}.", nlohmann::json(newSettings).dump()));
     // set brightness command
@@ -154,7 +156,8 @@ void ThermometerWidget::OnSettingsButton() {
     newCommand._brightness = brightnessEdit->value();
     auto commandResult =
         RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE_COMMANDS, "<string>", _deviceId.data()) },
-                                     Constants::LoginService, newCommand);
+                                     Constants::LoginService,
+                                     newCommand);
     if (commandResult != 200)
         LOG_ERROR_MSG(fmt::format("Failed to update settings to {}", nlohmann::json(newCommand).dump()));
 }
