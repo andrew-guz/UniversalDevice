@@ -1,7 +1,5 @@
 #pragma once
 
-#define VERSION                    "1.1"
-
 #define DEFAULT_SERVICE_PORT       7315
 #define DEFAULT_FRONTEND_PORT      7316
 

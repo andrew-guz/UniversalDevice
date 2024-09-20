@@ -1,8 +1,17 @@
 # minimum version
 cmake_minimum_required(VERSION 3.18)
 
+# common variable for project name and executable name
+set(PROJECT_NAME "UniversalDevice")
+
 # name of a project
-project("UniversalDevice")
+project(${PROJECT_NAME} VERSION 1.12.0)
+
+# create file with version defines
+configure_file(Version.hpp.in Version.hpp)
+
+# include build folder so code can find Version.h
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # allow unit tests
 enable_testing()
