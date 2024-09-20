@@ -1,3 +1,4 @@
+#include <cstring>
 #include <exception>
 
 #include <crow.h>
@@ -10,8 +11,14 @@
 #include "Middleware.hpp"
 #include "Settings.hpp"
 #include "Storage.hpp"
+#include "Version.hpp"
 
-int main() {
+int main(int argc, char** argv) {
+    if (argc == 2 && strcmp(argv[1], "--version") == 0) {
+        std::cout << fmt::format("{}.{}.{}", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH) << std::endl;
+        return 0;
+    }
+
     try {
         Logger::SetLogLevel(LogLevel::INFO);
 
