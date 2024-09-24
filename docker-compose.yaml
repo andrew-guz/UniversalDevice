@@ -1,0 +1,4 @@
+services:
+  universaldevice:
+    build: .
+    image: universladevice:1.12.2
