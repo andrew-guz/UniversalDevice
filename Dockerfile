@@ -23,4 +23,4 @@ COPY . .
 # build
 RUN ./Scripts/build.sh
 
-ENTRYPOINT [ "./Scripts/start.sh" ]
+ENTRYPOINT [ "./Scripts/start_for_docker.sh" ]
