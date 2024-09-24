@@ -8,3 +8,4 @@ services:
     ports:
       - "7315:7315"
       - "7316:7316"
+    restart: unless-stopped
