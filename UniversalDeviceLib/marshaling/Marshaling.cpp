@@ -257,7 +257,7 @@ void to_json(nlohmann::json& json, const Account& account) {
 void from_json(const nlohmann::json& json, Account& account) {
     account._login = json.value("login", std::string());
     account._password = json.value("password", std::string());
-    account._type = json.at("type").get<AccountType>();
+    account._type = json.contains("type") ? json.at("type").get<AccountType>() : AccountType::Undefined;
 }
 
 void to_json(nlohmann::json& json, const ComponentDescription& componentDescription) {
