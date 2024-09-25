@@ -36,6 +36,39 @@
 #include "WebSocketAuthentication.hpp"
 
 template<>
+std::string EnumToString(AccountType enumType) {
+    switch (enumType) {
+        case AccountType::Viewer:
+            return "viewer";
+        case AccountType::User:
+            return "user";
+        case AccountType::Admin:
+            return "admin";
+        case AccountType::Internal:
+            return "internal";
+    }
+    LOG_ERROR_MSG(fmt::format("Invalid AccountType: {}", static_cast<int>(enumType)));
+    return {};
+}
+
+AccountType AccountTypeFromString(const std::string& str) {
+    if (str == "viewer")
+        return AccountType::Viewer;
+    if (str == "user")
+        return AccountType::User;
+    if (str == "admin")
+        return AccountType::Admin;
+    if (str == "internal")
+        return AccountType::Internal;
+    return AccountType::Viewer;
+}
+
+template<>
+AccountType EnumFromString(const std::string& str) {
+    return AccountTypeFromString(str);
+}
+
+template<>
 std::string EnumToString(DeviceType enumType) {
     switch (enumType) {
         case DeviceType::Undefined:
@@ -185,13 +218,17 @@ ActorType ActorTypeFromString(const std::string& str) {
     return ClientActor{};
 }
 
-void to_json(nlohmann::json& json, const EventType eventType) { json = EnumToString<EventType>(eventType); }
+void to_json(nlohmann::json& json, AccountType accountType) { json = EnumToString<AccountType>(accountType); }
 
-void from_json(const nlohmann::json& json, EventType& eventType) { eventType = EnumFromString<EventType>(json.get<std::string>()); }
+void from_json(const nlohmann::json& json, AccountType& accountType) { accountType = EnumFromString<AccountType>(json.get<std::string>()); }
 
 void to_json(nlohmann::json& json, DeviceType deviceType) { json = EnumToString<DeviceType>(deviceType); }
 
 void from_json(const nlohmann::json& json, DeviceType& deviceType) { deviceType = EnumFromString<DeviceType>(json.get<std::string>()); }
+
+void to_json(nlohmann::json& json, const EventType eventType) { json = EnumToString<EventType>(eventType); }
+
+void from_json(const nlohmann::json& json, EventType& eventType) { eventType = EnumFromString<EventType>(json.get<std::string>()); }
 
 void to_json(nlohmann::json& json, Subject subject) { json = EnumToString<Subject>(subject); }
 
@@ -209,12 +246,14 @@ void to_json(nlohmann::json& json, const Account& account) {
     json = {
         { "login", account._login },
         { "password", account._password },
+        { "type", account._type },
     };
 }
 
 void from_json(const nlohmann::json& json, Account& account) {
     account._login = json.value("login", std::string());
     account._password = json.value("password", std::string());
+    account._type = json.at("_type").get<AccountType>();
 }
 
 void to_json(nlohmann::json& json, const ComponentDescription& componentDescription) {

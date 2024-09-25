@@ -2,6 +2,13 @@
 
 #include <cstdint>
 
+enum class AccountType : std::uint8_t {
+    Viewer,
+    User,
+    Admin,
+    Internal,
+};
+
 enum class DeviceType : std::uint8_t {
     Undefined,
     Timer,
