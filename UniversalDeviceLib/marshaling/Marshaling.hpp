@@ -39,6 +39,12 @@ template<typename EnumType>
 EnumType EnumFromString(const std::string& str) = delete;
 
 template<>
+std::string EnumToString(AccountType enumType);
+
+template<>
+AccountType EnumFromString(const std::string& str);
+
+template<>
 std::string EnumToString(DeviceType enumType);
 
 template<>
@@ -60,13 +66,17 @@ std::string ActorTypeToString(const ActorType& type);
 
 ActorType ActorTypeFromString(const std::string& str);
 
-void to_json(nlohmann::json& json, EventType eventType);
+void to_json(nlohmann::json& json, AccountType accountType);
 
-void from_json(const nlohmann::json& json, EventType& eventType);
+void from_json(const nlohmann::json& json, AccountType& accountType);
 
 void to_json(nlohmann::json& json, DeviceType deviceType);
 
 void from_json(const nlohmann::json& json, DeviceType& deviceType);
+
+void to_json(nlohmann::json& json, EventType eventType);
+
+void from_json(const nlohmann::json& json, EventType& eventType);
 
 void to_json(nlohmann::json& json, Subject subject);
 
