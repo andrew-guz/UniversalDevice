@@ -3,6 +3,7 @@
 #include <cstdint>
 
 enum class AccountType : std::uint8_t {
+    Undefined,
     Viewer,
     User,
     Admin,

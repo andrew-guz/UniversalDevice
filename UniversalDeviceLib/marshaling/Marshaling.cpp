@@ -38,6 +38,8 @@
 template<>
 std::string EnumToString(AccountType enumType) {
     switch (enumType) {
+        case AccountType::Undefined:
+            return "undefined";
         case AccountType::Viewer:
             return "viewer";
         case AccountType::User:
@@ -52,6 +54,8 @@ std::string EnumToString(AccountType enumType) {
 }
 
 AccountType AccountTypeFromString(const std::string& str) {
+    if (str == "undefined")
+        return AccountType::Undefined;
     if (str == "viewer")
         return AccountType::Viewer;
     if (str == "user")
@@ -60,7 +64,7 @@ AccountType AccountTypeFromString(const std::string& str) {
         return AccountType::Admin;
     if (str == "internal")
         return AccountType::Internal;
-    return AccountType::Viewer;
+    return AccountType::Undefined;
 }
 
 template<>

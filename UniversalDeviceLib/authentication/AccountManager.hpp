@@ -5,6 +5,7 @@
 
 #include "Account.hpp"
 #include "AccountManagerInitializer.hpp"
+#include "Enums.hpp"
 #include "Singleton.hpp"
 
 class AccountManager final : public Singleton<AccountManager> {
@@ -13,14 +14,11 @@ public:
 
     bool IsValidUser(const std::string& login, const std::string& password);
 
-    bool IsValidUser(const Account& account);
-
     bool IsValidUser(std::string_view authorizationString);
 
     std::string GetAuthString(std::string_view login);
 
-private:
-    void Initialize();
+    AccountType GetUserType(std::string_view login) const;
 
 private:
     std::shared_ptr<IAccountManagerInitializer> _initializer;

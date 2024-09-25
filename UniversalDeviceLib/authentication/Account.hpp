@@ -10,7 +10,7 @@ struct Account final {
     std::string _password;
     AccountType _type;
 
-    explicit Account(const std::string& login = {}, const std::string& password = {}, AccountType type = AccountType::Viewer) :
+    explicit Account(const std::string& login = {}, const std::string& password = {}, AccountType type = AccountType::Undefined) :
         _login(login),
         _password(password),
         _type(type) {}
