@@ -30,7 +30,7 @@ jobs:
           sudo apt-get -y install clang-format-17 cmake-format libasio-dev libboost-all-dev curl libcurl4 libcurl4-openssl-dev
 
       - name: Check format
-        run: ${{github.workspace}}/Scripts/check_format.sh
+        run: ${{github.workspace}}/scripts/check_format.sh
 
       - name: Configure
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}

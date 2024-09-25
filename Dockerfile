@@ -21,6 +21,6 @@ WORKDIR /src
 COPY . .
 
 # build
-RUN ./Scripts/build.sh
+RUN ./scripts/build.sh
 
-ENTRYPOINT [ "./Scripts/start_for_docker.sh" ]
+ENTRYPOINT [ "./scripts/start_for_docker.sh" ]
