@@ -1,0 +1,5 @@
+add_subdirectory(UniversalDeviceLib)
+add_subdirectory(UniversalDeviceService)
+add_subdirectory(UniversalDeviceFrontendService)
+add_subdirectory(UniversalDeviceSimulators)
+add_subdirectory(UniversalDeviceTests)

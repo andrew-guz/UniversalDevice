@@ -32,7 +32,7 @@ include_directories(./structures/settings)
 include_directories(./utils)
 
 # set variable where to put ouput file
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin)
 
 # where to search for libraries
 link_directories(/usr/local/library)

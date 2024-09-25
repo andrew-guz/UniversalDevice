@@ -40,7 +40,7 @@ include_directories(./../UniversalDeviceLib/structures/settings)
 include_directories(./../UniversalDeviceLib/utils)
 
 # set variable where to put ouput file
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin)
 
 # where to search for libraries
 link_directories(/usr/local/library)
@@ -79,11 +79,11 @@ target_link_libraries(
 # install section
 set(CMAKE_INSTALL_PREFIX /usr/local/bin/UniversalDevice)
 install(TARGETS ${PROJECT_NAME} DESTINATION /usr/local/bin/UniversalDevice)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../bin/${PROJECT_NAME}.json
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/${PROJECT_NAME}.json
         DESTINATION /usr/local/bin/UniversalDevice)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../bin/HOW_TO_RUN.md
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/HOW_TO_RUN.md
         DESTINATION /usr/local/bin/UniversalDevice)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../bin/authentication.json
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/authentication.json
         DESTINATION /usr/local/bin/UniversalDevice)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin/ssl
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/ssl
         DESTINATION /usr/local/bin/UniversalDevice)

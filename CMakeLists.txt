@@ -18,13 +18,7 @@ enable_testing()
 
 # subprojects
 add_subdirectory(vendor)
-add_subdirectory(UniversalDeviceLib)
-add_subdirectory(UniversalDeviceService)
-add_subdirectory(UniversalDeviceFrontendService)
-add_subdirectory(UniversalDeviceSimulators/SimulatorLib)
-add_subdirectory(UniversalDeviceSimulators/ThermometerSimulator)
-add_subdirectory(UniversalDeviceSimulators/RelaySimulator)
-add_subdirectory(UniversalDeviceTests)
+add_subdirectory(src)
 
 # cpack
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
@@ -39,5 +33,5 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "andrew.guz.spb@gmail.com")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS on)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "")
 
-# This must always be after all CPACK\_\* variables are defined
+# This must always be after all CPACK_* variables are defined
 include(CPack)

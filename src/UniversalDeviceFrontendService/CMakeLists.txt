@@ -9,8 +9,8 @@ project(${PROJECT_NAME})
 
 # where to search headers
 include_directories(${CMAKE_BINARY_DIR}/vendor/wt)
-include_directories(./../vendor/wt)
-include_directories(./../vendor/wt/src)
+include_directories(./../../vendor/wt)
+include_directories(./../../vendor/wt/src)
 include_directories(.)
 include_directories(./interfaces)
 include_directories(./customWidgets)
@@ -30,7 +30,7 @@ include_directories(./../UniversalDeviceLib/structures/settings)
 include_directories(./../UniversalDeviceLib/utils)
 
 # set variable where to put ouput file
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin)
 
 # where to search for libraries
 link_directories(/usr/local/library)
@@ -64,11 +64,11 @@ target_link_libraries(${PROJECT_NAME} wt wthttp UniversalDeviceLib)
 # install section
 set(CMAKE_INSTALL_PREFIX /usr/local/bin/UniversalDevice)
 install(TARGETS ${PROJECT_NAME} DESTINATION /usr/local/bin/UniversalDevice)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../bin/${PROJECT_NAME}.json
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/${PROJECT_NAME}.json
         DESTINATION /usr/local/bin/UniversalDevice)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../bin/authentication.json
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/authentication.json
         DESTINATION /usr/local/bin/UniversalDevice)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin/ssl
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/ssl
         DESTINATION /usr/local/bin/UniversalDevice)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin/resources
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/resources
         DESTINATION /usr/local/bin/UniversalDevice)

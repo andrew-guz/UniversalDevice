@@ -1,5 +1,14 @@
 # common variable for project name and executable name
-set(PROJECT_NAME "SimulatorLib")
+set(PROJECT_NAME "RelaySimulator")
+
+# check that all needed librarties are preinstalled
+function(check_library lib_name)
+  find_library(${lib_name}_LIB ${lib_name})
+  if(NOT ${lib_name}_LIB)
+    message(FATAL_ERROR "${lib_name} library was not found")
+  endif()
+endfunction()
+check_library(pthread)
 
 # build in Debug mode
 set(CMAKE_BUILD_TYPE Debug)
@@ -8,7 +17,8 @@ set(CMAKE_BUILD_TYPE Debug)
 project(${PROJECT_NAME})
 
 # where to search headers
-include_directories(./../../vendor/ixwebsocket)
+include_directories(./../SimulatorLib)
+include_directories(./../../../vendor/ixwebsocket)
 include_directories(./../../UniversalDeviceLib/authentication)
 include_directories(./../../UniversalDeviceLib/component)
 include_directories(./../../UniversalDeviceLib/core)
@@ -23,7 +33,7 @@ include_directories(./../../UniversalDeviceLib/structures/inform)
 include_directories(./../../UniversalDeviceLib/structures/settings)
 
 # set variable where to put ouput file
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../../bin)
 
 # where to search for libraries
 link_directories(/usr/local/library)
@@ -43,11 +53,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # this will search for *.cpp in source recursively
 file(GLOB_RECURSE SRC_FILES *.cpp)
 
-# create shared library from source
-add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
+# create executable from source
+add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 # make sure that this project will be build after some targets
-add_dependencies(${PROJECT_NAME} ixwebsocket UniversalDeviceLib)
+add_dependencies(${PROJECT_NAME} UniversalDeviceLib SimulatorLib)
 
 # executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} ixwebsocket UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} UniversalDeviceLib SimulatorLib)
