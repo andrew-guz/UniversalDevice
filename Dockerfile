@@ -4,10 +4,10 @@ EXPOSE 7315
 EXPOSE 7316
 
 # update
-RUN apt update && apt upgrade -y
+RUN apt-get update && apt-get upgrade -y
 
-# install all needed for buildapt install iproute2 -y
-RUN apt install -y wget lsb-release wget software-properties-common gnupg make cmake libasio-dev libboost-all-dev libcurl4-openssl-dev uuid-dev libsqlite3-dev git jq
+# install all needed for build
+RUN apt-get install -y wget lsb-release wget software-properties-common gnupg make cmake libasio-dev libboost-all-dev libcurl4-openssl-dev uuid-dev libsqlite3-dev git jq
 
 # get clang 17
 RUN wget https://apt.llvm.org/llvm.sh

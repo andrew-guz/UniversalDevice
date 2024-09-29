@@ -5,12 +5,12 @@ services:
     environment:
       - TZ=Europe/Moscow
     build: .
-    image: universaldevice:1.13.1
+    image: universaldevice:1.13.2
     network_mode: bridge
     ports:
       - "7315:7315"
       - "7316:7316"
-    restart: unless-stopped
+    restart: always
     volumes:
       - ./opt:/opt/UniversalDevice
 
