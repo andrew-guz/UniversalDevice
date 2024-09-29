@@ -31,9 +31,8 @@ public:
         return fmt::format("<div style='font-size:{}px'>{}</div>", size, value, type);
     }
 
-    static std::tuple<Wt::WDialog*, Wt::WGridLayout*, Wt::WLineEdit*, Wt::WLineEdit*, Wt::WSpinBox*, Wt::WPushButton*>
-    CreateBaseSettingsDialog(Wt::WContainerWidget* parent, int height, const Wt::WString& name, const Wt::WString& group, float period,
-                             bool useDefaultValidation);
+    static std::tuple<Wt::WDialog*, Wt::WGridLayout*, Wt::WLineEdit*, Wt::WLineEdit*, Wt::WSpinBox*, Wt::WPushButton*> CreateBaseSettingsDialog(
+        Wt::WContainerWidget* parent, int height, const Wt::WString& name, const Wt::WString& group, float period, bool useDefaultValidation);
 
     static void ShowSimpleErrorMessage(Wt::WWidget* parent, const std::string& header, const std::string& message);
 };
