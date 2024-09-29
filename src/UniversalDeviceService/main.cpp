@@ -5,6 +5,7 @@
 #include <crow.h>
 #include <fmt/format.h>
 
+#include "AccountManagerInitializer.hpp"
 #include "ClientService.hpp"
 #include "DeviceService.hpp"
 #include "Logger.hpp"
@@ -21,11 +22,6 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    if (argc == 3 && strcmp(argv[1], "-d") == 0) {
-        std::filesystem::path databasePath = argv[2];
-        PathHelper::SetAppDbPath(databasePath);
-    }
-
     try {
         Logger::SetLogLevel(LogLevel::INFO);
 
@@ -33,7 +29,9 @@ int main(int argc, char** argv) {
 
         auto settings = Settings::ReadSettings();
 
-        Storage storage;
+        AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializer>(PathHelper::FullFilePath(settings._authPath)));
+
+        Storage storage(PathHelper::FullFilePath(settings._dbPath));
 
         CrowApp app;
 
@@ -41,7 +39,7 @@ int main(int argc, char** argv) {
         BaseServiceExtension::Create<DeviceService>(app, &storage);
         BaseServiceExtension::Create<ClientService>(app, &storage);
 
-        app.ssl_file(PathHelper::FullFilePath("./ssl/backend.crt"), PathHelper::FullFilePath("./ssl/backend.key"))
+        app.ssl_file(PathHelper::FullFilePath(settings._certificatePath).native(), PathHelper::FullFilePath(settings._keyPath).native())
             .port(settings._port)
             .multithreaded()
             .run();

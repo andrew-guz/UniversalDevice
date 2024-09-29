@@ -1,24 +1,21 @@
 #pragma once
 
 #include <filesystem>
-#include <string>
 
 class PathHelper final {
 public:
+    /// Path to executable (for example /home/user/Work/UniversalDevice/bin/UniversalDeviceService)
     static std::filesystem::path AppPath();
 
+    /// Path to executable folder (for example /home/user/Work/UniversalDevice/bin/UniversalDeviceService)
     static std::filesystem::path AppDirPath();
 
+    /// Path to executable settings json file (for example /home/user/Work/UniversalDevice/bin/UniversalDeviceService.json)
     static std::filesystem::path AppSettingsPath();
 
+    /// Path to executable log file (for example /home/user/Work/UniversalDevice/bin/UniversalDeviceService.log)
     static std::filesystem::path AppLogPath();
 
-    static void SetAppDbPath(const std::filesystem::path& path);
-
-    static std::filesystem::path AppDbPath();
-
-    static std::filesystem::path FullFilePath(const std::string& shortFileName);
-
-private:
-    static std::filesystem::path _customDbPath;
+    /// Path to some file in AppDirPath
+    static std::filesystem::path FullFilePath(const std::filesystem::path& path);
 };

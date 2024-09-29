@@ -10,5 +10,9 @@ Settings Settings::ReadSettings() {
 
     Settings settings;
     settings._port = settingsJson.value("port", DEFAULT_SERVICE_PORT);
+    settings._dbPath = settingsJson.value("dbPath", "");
+    settings._certificatePath = settingsJson.value("certificatePath", "");
+    settings._keyPath = settingsJson.value("keyPath", "");
+    settings._authPath = settingsJson.value("authPath", "");
     return settings;
 }

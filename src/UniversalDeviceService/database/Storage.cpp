@@ -34,8 +34,8 @@ int SelectCallback(void* data, int columnsInRow, char** rowData, char** columnNa
     return 0;
 }
 
-Storage::Storage() {
-    sqlite3_open(PathHelper::AppDbPath().c_str(), &_connection);
+Storage::Storage(const std::filesystem::path& dbPath) {
+    sqlite3_open(PathHelper::FullFilePath(dbPath).c_str(), &_connection);
     InitializeDb();
 }
 

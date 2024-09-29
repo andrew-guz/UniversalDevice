@@ -16,9 +16,8 @@ void WidgetHelper::SetUsualButtonSize(WPushButton* button) {
     button->setMaximumSize(100, 50);
 }
 
-std::tuple<WDialog*, WGridLayout*, WLineEdit*, Wt::WLineEdit*, WSpinBox*, Wt::WPushButton*>
-WidgetHelper::CreateBaseSettingsDialog(WContainerWidget* parent, int height, const WString& name, const Wt::WString& group, float period,
-                                       bool useDefaultValidation) {
+std::tuple<WDialog*, WGridLayout*, WLineEdit*, Wt::WLineEdit*, WSpinBox*, Wt::WPushButton*> WidgetHelper::CreateBaseSettingsDialog(
+    WContainerWidget* parent, int height, const WString& name, const Wt::WString& group, float period, bool useDefaultValidation) {
     auto dialog = parent->addChild(std::make_unique<WDialog>("Настройки"));
     auto layout = dialog->contents()->setLayout(std::make_unique<WGridLayout>());
     dialog->setMinimumSize(400, height);

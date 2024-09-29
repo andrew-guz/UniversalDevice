@@ -1,4 +1,8 @@
 {
-  "servicePort" : 7315,
-  "frontendPort" : 7316
+  "servicePort": 7315,
+  "frontendPort": 7316,
+  "certificatePath": "./ssl/frontend.crt",
+  "keyPath": "./ssl/frontend.key",
+  "dhPath": "./ssl/dhparam.pem",
+  "authPath": "authentication.json"
 }

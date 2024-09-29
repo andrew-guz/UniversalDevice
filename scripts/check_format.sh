@@ -1,4 +1,4 @@
-/usr/bin/clang-format-17 --dry-run --verbose Universal*/**/*.cpp Universal*/**/*.hpp && 
+/usr/bin/clang-format-17 --dry-run --verbose src/**/*.cpp src/**/*.hpp && 
 
 exit_code_clang_format=$?
 

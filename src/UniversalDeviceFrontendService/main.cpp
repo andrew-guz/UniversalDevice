@@ -1,9 +1,14 @@
 #include <exception>
+#include <memory>
+#include <vector>
 
 #include <fmt/format.h>
 
+#include "AccountManager.hpp"
+#include "AccountManagerInitializer.hpp"
 #include "Application.hpp"
 #include "Logger.hpp"
+#include "PathHelper.hpp"
 #include "Version.hpp"
 
 int main(int argc, char** argv) {
@@ -21,7 +26,17 @@ int main(int argc, char** argv) {
 
         auto settings = Settings::ReadSettings();
 
-        result = Wt::WRun(argc, argv, [&](const Wt::WEnvironment& env) { return std::make_unique<Application>(settings, env); });
+        AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializer>(PathHelper::FullFilePath(settings._authPath)));
+
+        std::vector<std::string> arguments{
+            "--docroot",         ".",
+            "--https-listen",    fmt::format("0.0.0.0:{}", settings._frontendPort),
+            "--ssl-certificate", PathHelper::FullFilePath(settings._certificatePath),
+            "--ssl-private-key", PathHelper::FullFilePath(settings._keyPath),
+            "--ssl-tmp-dh",      PathHelper::FullFilePath(settings._dhPath),
+        };
+
+        result = Wt::WRun(argv[0], arguments, [&](const Wt::WEnvironment& env) { return std::make_unique<Application>(settings, env); });
 
         LOG_INFO_MSG("Stopping Client service");
     } catch (const std::exception& ex) {

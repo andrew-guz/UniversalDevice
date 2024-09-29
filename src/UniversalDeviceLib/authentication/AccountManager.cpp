@@ -6,9 +6,9 @@
 #include "Enums.hpp"
 #include "Logger.hpp"
 
-AccountManager::AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer) :
-    _initializer(initializer) {
-    _initializer->Initialize(_accounts);
+void AccountManager::Init(std::shared_ptr<IAccountManagerInitializer> initializer) {
+    _initializer = initializer;
+    initializer->Initialize(_accounts);
 }
 
 bool AccountManager::IsValidUser(const std::string& login, const std::string& password) {

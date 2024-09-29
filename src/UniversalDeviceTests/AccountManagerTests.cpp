@@ -21,27 +21,27 @@ public:
 };
 
 TEST_CASE("IsValidUser") {
-    AccountManager am{ std::make_shared<AccountManagerInitializerStub>() };
-    REQUIRE_FALSE(am.IsValidUser("login1", "password1"));
-    REQUIRE(am.IsValidUser("login2", "password2"));
-    REQUIRE_FALSE(am.IsValidUser("login2", "password23"));
-    REQUIRE_FALSE(am.IsValidUser("Basic "s + Base64Helper::ToBase64("login1:password1")));
-    REQUIRE(am.IsValidUser("Basic "s + Base64Helper::ToBase64("login2:password2")));
-    REQUIRE_FALSE(am.IsValidUser("Basic "s + Base64Helper::ToBase64("login2:password23")));
+    AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializerStub>());
+    REQUIRE_FALSE(AccountManager::Instance()->IsValidUser("login1", "password1"));
+    REQUIRE(AccountManager::Instance()->IsValidUser("login2", "password2"));
+    REQUIRE_FALSE(AccountManager::Instance()->IsValidUser("login2", "password23"));
+    REQUIRE_FALSE(AccountManager::Instance()->IsValidUser("Basic "s + Base64Helper::ToBase64("login1:password1")));
+    REQUIRE(AccountManager::Instance()->IsValidUser("Basic "s + Base64Helper::ToBase64("login2:password2")));
+    REQUIRE_FALSE(AccountManager::Instance()->IsValidUser("Basic "s + Base64Helper::ToBase64("login2:password23")));
 }
 
 TEST_CASE("GetAuthString") {
-    AccountManager am{ std::make_shared<AccountManagerInitializerStub>() };
-    REQUIRE(am.GetAuthString("login1") == "login1:password1"s);
-    REQUIRE(am.GetAuthString("login6") == std::string{});
+    AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializerStub>());
+    REQUIRE(AccountManager::Instance()->GetAuthString("login1") == "login1:password1"s);
+    REQUIRE(AccountManager::Instance()->GetAuthString("login6") == std::string{});
 }
 
 TEST_CASE("CheckAccountTypes") {
-    AccountManager am{ std::make_shared<AccountManagerInitializerStub>() };
-    REQUIRE(am.GetUserType("login1") == AccountType::Undefined);
-    REQUIRE(am.GetUserType("login2") == AccountType::Viewer);
-    REQUIRE(am.GetUserType("login3") == AccountType::User);
-    REQUIRE(am.GetUserType("login4") == AccountType::Admin);
-    REQUIRE(am.GetUserType("login5") == AccountType::Internal);
-    REQUIRE(am.GetUserType("login6") == AccountType::Undefined);
+    AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializerStub>());
+    REQUIRE(AccountManager::Instance()->GetUserType("login1") == AccountType::Undefined);
+    REQUIRE(AccountManager::Instance()->GetUserType("login2") == AccountType::Viewer);
+    REQUIRE(AccountManager::Instance()->GetUserType("login3") == AccountType::User);
+    REQUIRE(AccountManager::Instance()->GetUserType("login4") == AccountType::Admin);
+    REQUIRE(AccountManager::Instance()->GetUserType("login5") == AccountType::Internal);
+    REQUIRE(AccountManager::Instance()->GetUserType("login6") == AccountType::Undefined);
 }
