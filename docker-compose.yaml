@@ -3,9 +3,12 @@ version: '3'
 services:
   universaldevice:
     build: .
-    image: universaldevice:1.12.2
+    image: universaldevice:1.13.0
     network_mode: bridge
     ports:
       - "7315:7315"
       - "7316:7316"
     restart: unless-stopped
+    volumes:
+      - ./opt:/opt/UniversalDevice
+
