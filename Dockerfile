@@ -17,20 +17,18 @@ RUN ./llvm.sh 17
 # set working dir
 WORKDIR /src
 
-# checkout sources
-RUN git clone --recurse-submodules --depth 1 https://github.com/andrew-guz/UniversalDevice.git .
+# copy source
+COPY ./src ./src
+COPY ./vendor ./vendor
+COPY ./scripts ./scripts
+COPY CMakeLists.txt .
+COPY Version.hpp.in .
 
 # build
 RUN ./scripts/build.sh
 
-# modify configuration
-RUN jq --arg dbPath "/opt/UniversalDevice/UniversalDeviceService.db" '.dbPath=$dbPath' ./bin/UniversalDeviceService.json > ./bin/UniversalDeviceService.json.tmp && mv ./bin/UniversalDeviceService.json.tmp ./bin/UniversalDeviceService.json
-RUN jq --arg certificatePath "/opt/UniversalDevice/ssl/backend.crt" '.certificatePath=$certificatePath' ./bin/UniversalDeviceService.json > ./bin/UniversalDeviceService.json.tmp && mv ./bin/UniversalDeviceService.json.tmp ./bin/UniversalDeviceService.json
-RUN jq --arg keyPath "/opt/UniversalDevice/ssl/backend.key" '.keyPath=$keyPath' ./bin/UniversalDeviceService.json > ./bin/UniversalDeviceService.json.tmp && mv ./bin/UniversalDeviceService.json.tmp ./bin/UniversalDeviceService.json
-RUN jq --arg authPath "/opt/UniversalDevice/authentication.json" '.authPath=$authPath' ./bin/UniversalDeviceService.json > ./bin/UniversalDeviceService.json.tmp && mv ./bin/UniversalDeviceService.json.tmp ./bin/UniversalDeviceService.json
-RUN jq --arg certificatePath "/opt/UniversalDevice/ssl/frontend.crt" '.certificatePath=$certificatePath' ./bin/UniversalDeviceFrontendService.json > ./bin/UniversalDeviceFrontendService.json.tmp && mv ./bin/UniversalDeviceFrontendService.json.tmp ./bin/UniversalDeviceFrontendService.json
-RUN jq --arg keyPath "/opt/UniversalDevice/ssl/frontend.key" '.keyPath=$keyPath' ./bin/UniversalDeviceFrontendService.json > ./bin/UniversalDeviceFrontendService.json.tmp && mv ./bin/UniversalDeviceFrontendService.json.tmp ./bin/UniversalDeviceFrontendService.json
-RUN jq --arg dhPath "/opt/UniversalDevice/ssl/dhparam.pem" '.dhPath=$dhPath' ./bin/UniversalDeviceFrontendService.json > ./bin/UniversalDeviceFrontendService.json.tmp && mv ./bin/UniversalDeviceFrontendService.json.tmp ./bin/UniversalDeviceFrontendService.json
-RUN jq --arg authPath "/opt/UniversalDevice/authentication.json" '.authPath=$authPath' ./bin/UniversalDeviceFrontendService.json > ./bin/UniversalDeviceFrontendService.json.tmp && mv ./bin/UniversalDeviceFrontendService.json.tmp ./bin/UniversalDeviceFrontendService.json
+# create configuration
+RUN echo '{ "port": 7315, "dbPath": "/opt/UniversalDevice/UniversalDeviceService.db", "certificatePath": "/opt/UniversalDevice/ssl/backend.crt", "keyPath": "/opt/UniversalDevice/ssl/backend.key", "authPath": "/opt/UniversalDevice/authentication.json"}' > ./bin/UniversalDeviceService.json
+RUN echo '{ "servicePort": 7315, "frontendPort": 7316, "certificatePath": "/opt/UniversalDevice/ssl/frontend.crt", "keyPath": "/opt/UniversalDevice/ssl/frontend.key", "dhPath": "/opt/UniversalDevice/ssl/dhparam.pem", "authPath": "/opt/UniversalDevice/authentication.json" }' > ./bin/UniversalDeviceFrontendService.json
 
 ENTRYPOINT [ "./scripts/docker_entry_point.sh" ]
