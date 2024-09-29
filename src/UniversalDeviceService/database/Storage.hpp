@@ -7,7 +7,7 @@
 
 class Storage final : public IQueryExecutor {
 public:
-    Storage();
+    Storage(const std::filesystem::path& dbPath);
 
     virtual ~Storage();
 
