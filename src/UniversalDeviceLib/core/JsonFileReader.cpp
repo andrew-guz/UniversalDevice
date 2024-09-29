@@ -2,9 +2,9 @@
 
 #include "Logger.hpp"
 
-nlohmann::json JsonFileReader::ReadJson(const std::string_view fullFileName) {
+nlohmann::json JsonFileReader::ReadJson(const std::filesystem::path& fullFileName) {
     try {
-        std::ifstream settingsFileStream(fullFileName.data());
+        std::ifstream settingsFileStream(fullFileName.native());
         auto settingsJson = nlohmann::json::parse(settingsFileStream);
         return settingsJson;
     } catch (...) {

@@ -1,18 +1,24 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 
 class PathHelper final {
 public:
-    static std::string AppPath();
+    static std::filesystem::path AppPath();
 
-    static std::string AppDirPath();
+    static std::filesystem::path AppDirPath();
 
-    static std::string AppSettingsPath();
+    static std::filesystem::path AppSettingsPath();
 
-    static std::string AppLogPath();
+    static std::filesystem::path AppLogPath();
 
-    static std::string AppDbPath();
+    static void SetAppDbPath(const std::filesystem::path& path);
 
-    static std::string FullFilePath(const std::string& shortFileName);
+    static std::filesystem::path AppDbPath();
+
+    static std::filesystem::path FullFilePath(const std::string& shortFileName);
+
+private:
+    static std::filesystem::path _customDbPath;
 };

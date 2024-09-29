@@ -1,17 +1,25 @@
 #include "PathHelper.hpp"
 
-#include <filesystem>
+namespace {
 
-std::filesystem::path Path() { return std::filesystem::canonical("/proc/self/exe"); }
+    std::filesystem::path Path() { return std::filesystem::canonical("/proc/self/exe"); }
 
-std::string PathHelper::AppPath() { return Path().c_str(); }
+} // namespace
 
-std::string PathHelper::AppDirPath() { return Path().parent_path().c_str(); }
+std::filesystem::path PathHelper::_customDbPath;
 
-std::string PathHelper::AppSettingsPath() { return AppPath() + ".json"; }
+std::filesystem::path PathHelper::AppPath() { return Path().c_str(); }
 
-std::string PathHelper::AppLogPath() { return AppPath() + ".log"; }
+std::filesystem::path PathHelper::AppDirPath() { return Path().parent_path().c_str(); }
 
-std::string PathHelper::AppDbPath() { return AppPath() + ".db"; }
+std::filesystem::path PathHelper::AppSettingsPath() { return AppPath().native() + ".json"; }
 
-std::string PathHelper::FullFilePath(const std::string& shortFileName) { return AppDirPath() + std::string("/") + shortFileName; }
+std::filesystem::path PathHelper::AppLogPath() { return AppPath().native() + ".log"; }
+
+void PathHelper::SetAppDbPath(const std::filesystem::path& path) { _customDbPath = path; }
+
+std::filesystem::path PathHelper::AppDbPath() {
+    return _customDbPath.empty() ? std::filesystem::path{ AppPath().native() + ".db" } : PathHelper::_customDbPath;
+}
+
+std::filesystem::path PathHelper::FullFilePath(const std::string& shortFileName) { return AppDirPath() / shortFileName; }

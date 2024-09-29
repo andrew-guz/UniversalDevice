@@ -1,5 +1,6 @@
 #include <cstring>
 #include <exception>
+#include <filesystem>
 
 #include <crow.h>
 #include <fmt/format.h>
@@ -9,6 +10,7 @@
 #include "Logger.hpp"
 #include "MainService.hpp"
 #include "Middleware.hpp"
+#include "PathHelper.hpp"
 #include "Settings.hpp"
 #include "Storage.hpp"
 #include "Version.hpp"
@@ -17,6 +19,11 @@ int main(int argc, char** argv) {
     if (argc == 2 && strcmp(argv[1], "--version") == 0) {
         std::cout << fmt::format("{}.{}.{}", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH) << std::endl;
         return 0;
+    }
+
+    if (argc == 3 && strcmp(argv[1], "-d") == 0) {
+        std::filesystem::path databasePath = argv[2];
+        PathHelper::SetAppDbPath(databasePath);
     }
 
     try {
