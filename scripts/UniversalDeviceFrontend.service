@@ -1,17 +1,4 @@
 [Unit]
-Description=Universal Device
-After=network.target
-
-[Service]
-StandardOutput=null
-Type=simple
-Restart=always
-ExecStart=/usr/local/bin/UniversalDevice/UniversalDeviceService
-
-[Install]
-WantedBy=multi-user.target
-root@STORAGE:/home/andrew# cat /etc/systemd/system/UniversalDeviceFrontend.service 
-[Unit]
 Description=Universal Device Frontend
 After=network.target
 
