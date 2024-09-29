@@ -2,8 +2,10 @@ version: '3'
 
 services:
   universaldevice:
+    environment:
+      - TZ=Europe/Moscow
     build: .
-    image: universaldevice:1.13.0
+    image: universaldevice:1.13.1
     network_mode: bridge
     ports:
       - "7315:7315"
