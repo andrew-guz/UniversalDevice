@@ -9,6 +9,7 @@ struct Settings {
     std::filesystem::path _dbPath;
     std::filesystem::path _certificatePath;
     std::filesystem::path _keyPath;
+    std::filesystem::path _authPath;
 
     static Settings ReadSettings();
 };

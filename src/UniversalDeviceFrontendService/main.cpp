@@ -1,8 +1,11 @@
 #include <exception>
+#include <memory>
 #include <vector>
 
 #include <fmt/format.h>
 
+#include "AccountManager.hpp"
+#include "AccountManagerInitializer.hpp"
 #include "Application.hpp"
 #include "Logger.hpp"
 #include "PathHelper.hpp"
@@ -22,6 +25,8 @@ int main(int argc, char** argv) {
         LOG_INFO_MSG("Starting Client service...");
 
         auto settings = Settings::ReadSettings();
+
+        AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializer>(PathHelper::FullFilePath(settings._authPath)));
 
         std::vector<std::string> arguments{
             "--docroot",         ".",

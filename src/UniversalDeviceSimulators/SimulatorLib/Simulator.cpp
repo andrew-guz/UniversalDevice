@@ -3,14 +3,19 @@
 #include <fmt/format.h>
 #include <ixwebsocket/IXSocketTLSOptions.h>
 
+#include "AccountManager.hpp"
+#include "AccountManagerInitializer.hpp"
 #include "Defines.hpp"
 #include "Marshaling.hpp"
 #include "MessageHelper.hpp"
+#include "PathHelper.hpp"
 #include "WebSocketAuthentication.hpp"
 
 Simulator::Simulator(const DeviceType type) :
     _type(type) {
     _parameters = BaseParameters::ReadFromFile();
+
+    AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializer>(PathHelper::FullFilePath("authentication.json")));
 
     const auto url = fmt::format("wss://localhost:{}{}", _parameters._port, API_DEVICE_WEBSOCKETS);
 

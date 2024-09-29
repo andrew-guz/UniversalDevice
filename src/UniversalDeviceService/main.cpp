@@ -5,6 +5,7 @@
 #include <crow.h>
 #include <fmt/format.h>
 
+#include "AccountManagerInitializer.hpp"
 #include "ClientService.hpp"
 #include "DeviceService.hpp"
 #include "Logger.hpp"
@@ -27,6 +28,8 @@ int main(int argc, char** argv) {
         LOG_INFO_MSG("Starting Device service...");
 
         auto settings = Settings::ReadSettings();
+
+        AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializer>(PathHelper::FullFilePath(settings._authPath)));
 
         Storage storage(PathHelper::FullFilePath(settings._dbPath));
 

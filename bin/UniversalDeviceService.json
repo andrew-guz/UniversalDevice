@@ -2,5 +2,6 @@
   "port": 7315,
   "dbPath": "UniversalDeviceService.db",
   "certificatePath": "./ssl/backend.crt",
-  "keyPath": "./ssl/backend.key"
+  "keyPath": "./ssl/backend.key",
+  "authPath": "authentication.json"
 }

@@ -10,7 +10,9 @@
 
 class AccountManager final : public Singleton<AccountManager> {
 public:
-    AccountManager(std::shared_ptr<IAccountManagerInitializer> initializer = std::make_shared<AccountManagerInitializer>());
+    AccountManager() = default;
+
+    void Init(std::shared_ptr<IAccountManagerInitializer> initializer);
 
     bool IsValidUser(const std::string& login, const std::string& password);
 
