@@ -9,8 +9,8 @@ services:
       - "7315"
       - "7316"
     ports:
-      - "7315:7315"
-      - "7316:7316"
+      - "0.0.0.0:7315:7315"
+      - "0.0.0.0:7316:7316"
     restart: always
     volumes:
       - ./opt:/opt/UniversalDevice
