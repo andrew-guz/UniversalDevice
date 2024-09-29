@@ -1,10 +1,5 @@
 #!/bin/bash
 
-cd ./bin
+docker-compose build
 
-./UniversalDeviceService &
-
-./UniversalDeviceFrontendService &
-
-# wihtout this will finish container
-/bin/bash
+docker-compose run -d --service-ports universaldevice

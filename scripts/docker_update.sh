@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./scripts/docker_start.sh
+./scripts/docker_stop.sh
 
 git fetch --all
 
