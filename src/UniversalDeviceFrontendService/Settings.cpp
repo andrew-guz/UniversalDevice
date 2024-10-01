@@ -15,5 +15,6 @@ Settings Settings::ReadSettings() {
     settings._keyPath = settingsJson.value("keyPath", "");
     settings._dhPath = settingsJson.value("dhPath", "");
     settings._authPath = settingsJson.value("authPath", "");
+    settings._logPath = settingsJson.value("logPath", "");
     return settings;
 }

@@ -11,6 +11,7 @@ struct Settings {
     std::filesystem::path _keyPath;
     std::filesystem::path _dhPath;
     std::filesystem::path _authPath;
+    std::filesystem::path _logPath;
 
     static Settings ReadSettings();
 };

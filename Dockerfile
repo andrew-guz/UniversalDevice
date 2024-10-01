@@ -31,7 +31,7 @@ RUN ./scripts/build.sh
 COPY ./bin/resources ./bin/resources
 
 # create configuration
-RUN echo '{ "port": 7315, "dbPath": "/opt/UniversalDevice/UniversalDeviceService.db", "certificatePath": "/opt/UniversalDevice/ssl/backend.crt", "keyPath": "/opt/UniversalDevice/ssl/backend.key", "authPath": "/opt/UniversalDevice/authentication.json"}' > ./bin/UniversalDeviceService.json
-RUN echo '{ "servicePort": 7315, "frontendPort": 7316, "certificatePath": "/opt/UniversalDevice/ssl/frontend.crt", "keyPath": "/opt/UniversalDevice/ssl/frontend.key", "dhPath": "/opt/UniversalDevice/ssl/dhparam.pem", "authPath": "/opt/UniversalDevice/authentication.json" }' > ./bin/UniversalDeviceFrontendService.json
+RUN echo '{ "port": 7315, "dbPath": "/opt/UniversalDevice/UniversalDeviceService.db", "certificatePath": "/opt/UniversalDevice/ssl/backend.crt", "keyPath": "/opt/UniversalDevice/ssl/backend.key", "authPath": "/opt/UniversalDevice/authentication.json", "logPath": "/opt/UniversalDevice/UniversalDeviceService.log" }' > ./bin/UniversalDeviceService.json
+RUN echo '{ "servicePort": 7315, "frontendPort": 7316, "certificatePath": "/opt/UniversalDevice/ssl/frontend.crt", "keyPath": "/opt/UniversalDevice/ssl/frontend.key", "dhPath": "/opt/UniversalDevice/ssl/dhparam.pem", "authPath": "/opt/UniversalDevice/authentication.json", "logPath": "/opt/UniversalDevice/UniversalDeviceFrontendService.log" }' > ./bin/UniversalDeviceFrontendService.json
 
 ENTRYPOINT [ "./scripts/docker_entry_point.sh" ]
