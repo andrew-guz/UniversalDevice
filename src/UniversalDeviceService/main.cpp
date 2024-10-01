@@ -23,11 +23,13 @@ int main(int argc, char** argv) {
     }
 
     try {
+        auto settings = Settings::ReadSettings();
+        if (!settings._logPath.empty())
+            PathHelper::SetCustomLogPath(settings._logPath);
+
         Logger::SetLogLevel(LogLevel::INFO);
 
         LOG_INFO_MSG("Starting Device service...");
-
-        auto settings = Settings::ReadSettings();
 
         AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializer>(PathHelper::FullFilePath(settings._authPath)));
 
