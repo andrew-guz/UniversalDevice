@@ -25,6 +25,7 @@ struct PeriodSettings;
 struct RelayCurrentState;
 struct RelayEvent;
 struct RelayState;
+struct Scenario;
 struct ThermometerCurrentValue;
 struct ThermometerEvent;
 struct ThermometerLedBrightness;
@@ -125,6 +126,10 @@ void from_json(const nlohmann::json& json, ExtendedMotionRelayCurrentState& exte
 void to_json(nlohmann::json& json, const ExtendedRelayCurrentState& extendedRelayCurrentState);
 
 void from_json(const nlohmann::json& json, ExtendedRelayCurrentState& extendedRelayCurrentState);
+
+void to_json(nlohmann::json& json, const Scenario& scenario);
+
+void from_json(const nlohmann::json& json, Scenario& scenario);
 
 void to_json(nlohmann::json& json, const ExtendedThermometerCurrentValue& extendedThermometerCurrentValue);
 
