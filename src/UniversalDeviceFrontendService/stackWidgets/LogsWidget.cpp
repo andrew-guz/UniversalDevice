@@ -3,6 +3,8 @@
 #include <Wt/WGridLayout.h>
 #include <Wt/WPushButton.h>
 
+#include "FileUtils.hpp"
+#include "LogInformation.hpp"
 #include "Marshaling.hpp"
 #include "RequestHelper.hpp"
 #include "WidgetHelper.hpp"
@@ -56,8 +58,12 @@ void LogsWidget::Refresh() {
 }
 
 std::vector<LogInformation> LogsWidget::GetLogs() {
+    std::vector<LogInformation> result;
     auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_LOGS }, Constants::LoginService);
-    return !replyJson.is_null() ? replyJson.get<std::vector<LogInformation>>() : std::vector<LogInformation>{};
+    if (!replyJson.is_null())
+        result.push_back(replyJson.get<LogInformation>());
+    result.push_back(ReadApplicationLogFile());
+    return result;
 }
 
 void LogsWidget::OnLogSelected() {

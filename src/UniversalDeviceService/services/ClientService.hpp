@@ -30,7 +30,7 @@ private:
 
     crow::response DeleteEvent(const Event& event);
 
-    crow::response ListLogs();
+    crow::response GetBackendLog();
 
 private:
     friend class BaseServiceExtension;

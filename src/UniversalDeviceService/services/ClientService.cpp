@@ -1,18 +1,19 @@
 #include "ClientService.hpp"
 
-#include <deque>
 #include <filesystem>
-#include <numeric>
 #include <string>
 
+#include "nlohmann/json_fwd.hpp"
 #include <fmt/format.h>
 
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
 #include "EventTableStorageCache.hpp"
 #include "ExtendedComponentDescription.hpp"
+#include "FileUtils.hpp"
 #include "LogInformation.hpp"
 #include "Marshaling.hpp"
+#include "PathHelper.hpp"
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor) {}
@@ -36,7 +37,7 @@ void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &ClientService::AddEvent, "AddEvent"));
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ClientService::UpdateEvent, "UpdateEvent"));
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)(BaseService::bindObject(this, &ClientService::DeleteEvent, "DeleteEvent"));
-    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::ListLogs));
+    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetBackendLog));
 }
 
 crow::response ClientService::ListDevices() {
@@ -216,27 +217,7 @@ crow::response ClientService::DeleteEvent(const Event& event) {
     return crow::response(crow::BAD_REQUEST);
 }
 
-std::string readFileContent(const std::string& filename) {
-    std::deque<std::string> lines;
-    std::ifstream fileStream(filename);
-    std::string str;
-    while (std::getline(fileStream, str))
-        lines.push_front(str);
-    if (lines.size() > LOG_RECORDS_COUT)
-        lines.resize(LOG_RECORDS_COUT);
-    return std::accumulate(lines.begin(), lines.end(), std::string{}, [](const auto& a, const auto& b) { return a + b + "\n"; });
-}
-
-crow::response ClientService::ListLogs() {
-    nlohmann::json result = nlohmann::json::array({});
-    auto logDir = PathHelper::AppDirPath();
-    for (auto entry : std::filesystem::directory_iterator(logDir)) {
-        if (entry.path().extension() == ".log") {
-            LogInformation logInformation;
-            logInformation._fileName = entry.path().filename().string();
-            logInformation._fileContent = readFileContent(entry.path().string());
-            result.push_back(logInformation);
-        }
-    }
-    return crow::response(crow::OK, result.dump());
+crow::response ClientService::GetBackendLog() {
+    const LogInformation logInformation = ReadApplicationLogFile();
+    return crow::response(crow::OK, static_cast<nlohmann::json>(logInformation).dump());
 }
