@@ -5,6 +5,7 @@
 
 #include "BaseStorageCache.hpp"
 #include "Types.hpp"
+#include "Uuid.hpp"
 
 class EventTableStorageCache final : public BaseStorageCache {
 public:
@@ -25,7 +26,7 @@ public:
     static IStorageCache* GetCache(IQueryExecutor* queryExecutor);
 
 private:
-    using Key = std::pair<std::string, ActorType>;
+    using Key = std::pair<Uuid, ActorType>;
 
     std::map<EventTableStorageCache::Key, std::vector<std::string>> _dataCache;
 };

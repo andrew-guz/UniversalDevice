@@ -14,8 +14,8 @@ SimpleTableStorageCache::SimpleTableStorageCache(IQueryExecutor* queryExecutor, 
 StorageCacheProblem SimpleTableStorageCache::Select(const SelectInput& what, SelectOutput& result) {
     const std::lock_guard<std::mutex> lock(_mutex);
 
-    const SimpleTableSelectInput& customWhat = dynamic_cast<const SimpleTableSelectInput&>(what);
-    SimpleTableSelectOutput& customResult = dynamic_cast<SimpleTableSelectOutput&>(result);
+    const SimpleTableSelectInput& customWhat = static_cast<const SimpleTableSelectInput&>(what);
+    SimpleTableSelectOutput& customResult = static_cast<SimpleTableSelectOutput&>(result);
 
     auto iter = _dataCache.find(customWhat._id);
     if (iter != _dataCache.end()) {
@@ -23,7 +23,7 @@ StorageCacheProblem SimpleTableStorageCache::Select(const SelectInput& what, Sel
         return { StorageCacheProblemType::NoProblems, {} };
     }
 
-    const std::string query = fmt::format("SELECT {} FROM {} WHERE id = '{}'", _fieldName, _tableName, customWhat._id);
+    const std::string query = fmt::format("SELECT {} FROM {} WHERE id = '{}'", _fieldName, _tableName, customWhat._id.data());
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(query, data)) {
         if (data.size() == 0)
@@ -50,7 +50,7 @@ StorageCacheProblem SimpleTableStorageCache::SelectAll(SelectAllOutput& result) 
 StorageCacheProblem SimpleTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what) {
     const std::lock_guard<std::mutex> lock(_mutex);
 
-    const SimpleTableInsertOrReplaceInput& customWhat = dynamic_cast<const SimpleTableInsertOrReplaceInput&>(what);
+    const SimpleTableInsertOrReplaceInput& customWhat = static_cast<const SimpleTableInsertOrReplaceInput&>(what);
 
     auto iter = _dataCache.find(customWhat._id);
     if (iter != _dataCache.end())
@@ -60,7 +60,7 @@ StorageCacheProblem SimpleTableStorageCache::InsertOrReplace(const InsertOrRepla
         return { StorageCacheProblemType::Empty, {} };
 
     const std::string query =
-        fmt::format("INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')", _tableName, _fieldName, customWhat._id, customWhat._data);
+        fmt::format("INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')", _tableName, _fieldName, customWhat._id.data(), customWhat._data);
     if (_queryExecutor->Execute(query)) {
         _dataCache.insert(std::make_pair(customWhat._id, customWhat._data));
         return { StorageCacheProblemType::NoProblems, {} };
@@ -78,9 +78,9 @@ StorageCacheProblem SimpleTableStorageCache::Delete(const DeleteInput& what) {
 
     _dataCache.clear();
 
-    const SimpleTableDeleteInput& customWhat = dynamic_cast<const SimpleTableDeleteInput&>(what);
+    const SimpleTableDeleteInput& customWhat = static_cast<const SimpleTableDeleteInput&>(what);
 
-    const std::string query = fmt::format("DELETE FROM {} WHERE id='{}'", _tableName, customWhat._id);
+    const std::string query = fmt::format("DELETE FROM {} WHERE id='{}'", _tableName, customWhat._id.data());
     if (_queryExecutor->Execute(query))
         return { StorageCacheProblemType::NoProblems, {} };
     return { StorageCacheProblemType::SQLError, query };

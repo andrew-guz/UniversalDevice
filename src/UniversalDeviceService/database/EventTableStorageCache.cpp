@@ -14,8 +14,8 @@ EventTableStorageCache::EventTableStorageCache(IQueryExecutor* queryExecutor) :
 StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, SelectOutput& result) {
     const std::lock_guard<std::mutex> lock(_mutex);
 
-    const EventTableSelectInput& customWhat = dynamic_cast<const EventTableSelectInput&>(what);
-    EventTableSelectOutput& customResult = dynamic_cast<EventTableSelectOutput&>(result);
+    const EventTableSelectInput& customWhat = static_cast<const EventTableSelectInput&>(what);
+    EventTableSelectOutput& customResult = static_cast<EventTableSelectOutput&>(result);
 
     auto iter = _dataCache.find(std::make_pair(customWhat._id, customWhat._type));
     if (iter != _dataCache.end()) {
@@ -24,7 +24,7 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
     }
 
     const std::string query = fmt::format("SELECT event FROM Events WHERE providerId = '{}' AND providerType = '{}' AND active = 1",
-                                          customWhat._id,
+                                          customWhat._id.data(),
                                           ActorTypeToString(customWhat._type));
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(query, data)) {
@@ -44,7 +44,7 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
 StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
     const std::lock_guard<std::mutex> lock(_mutex);
 
-    EventTableSelectAllOutput& customResult = dynamic_cast<EventTableSelectAllOutput&>(result);
+    EventTableSelectAllOutput& customResult = static_cast<EventTableSelectAllOutput&>(result);
 
     static const std::string query = "SELECT event FROM Events";
     std::vector<std::vector<std::string>> data;
@@ -66,10 +66,10 @@ StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplac
 
     _dataCache.clear();
 
-    const EventTableInsertOrReplaceInput& customWhat = dynamic_cast<const EventTableInsertOrReplaceInput&>(what);
+    const EventTableInsertOrReplaceInput& customWhat = static_cast<const EventTableInsertOrReplaceInput&>(what);
 
     const std::string query = fmt::format("INSERT INTO Events (id, active, providerId, providerType, event) VALUES ('{}', {}, '{}', '{}', '{}')",
-                                          customWhat._id,
+                                          customWhat._id.data(),
                                           (customWhat._active ? "1" : "0"),
                                           customWhat._providerId.data(),
                                           ActorTypeToString(customWhat._providerType),
@@ -84,14 +84,14 @@ StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
 
     _dataCache.clear();
 
-    const EventTableUpdateInput& customWhat = dynamic_cast<const EventTableUpdateInput&>(what);
+    const EventTableUpdateInput& customWhat = static_cast<const EventTableUpdateInput&>(what);
 
     const std::string query = fmt::format("UPDATE Events SET active = {}, providerId = '{}', providerType = '{}', event = '{}' WHERE id = '{}'",
                                           (customWhat._active ? "1" : "0"),
-                                          customWhat._providerId,
+                                          customWhat._providerId.data(),
                                           ActorTypeToString(customWhat._providerType),
                                           customWhat._event,
-                                          customWhat._id);
+                                          customWhat._id.data());
     if (_queryExecutor->Execute(query))
         return { StorageCacheProblemType::NoProblems, {} };
     return { StorageCacheProblemType::SQLError, query };
@@ -102,9 +102,9 @@ StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
 
     _dataCache.clear();
 
-    const EventTableDeleteInput& customWhat = dynamic_cast<const EventTableDeleteInput&>(what);
+    const EventTableDeleteInput& customWhat = static_cast<const EventTableDeleteInput&>(what);
 
-    const std::string query = fmt::format("DELETE FROM Events WHERE id='{}'", customWhat._id);
+    const std::string query = fmt::format("DELETE FROM Events WHERE id='{}'", customWhat._id.data());
     if (_queryExecutor->Execute(query))
         return { StorageCacheProblemType::NoProblems, {} };
     return { StorageCacheProblemType::SQLError, query };

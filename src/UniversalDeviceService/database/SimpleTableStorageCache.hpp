@@ -3,6 +3,7 @@
 #include <map>
 
 #include "BaseStorageCache.hpp"
+#include "Uuid.hpp"
 
 class SimpleTableStorageCache final : public BaseStorageCache {
 public:
@@ -27,5 +28,5 @@ public:
 private:
     std::string _tableName;
     std::string _fieldName;
-    std::map<std::string, std::string> _dataCache;
+    std::map<Uuid, std::string> _dataCache;
 };

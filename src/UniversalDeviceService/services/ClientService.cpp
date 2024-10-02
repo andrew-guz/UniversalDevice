@@ -151,12 +151,13 @@ crow::response ClientService::GetEvents() {
 
 crow::response ClientService::AddEvent(const Event& event, const std::string& eventString) {
     auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-    EventTableInsertOrReplaceInput what;
-    what._id = event._id.data();
-    what._active = event._active;
-    what._providerId = event._provider._id.data();
-    what._providerType = event._provider._type;
-    what._event = eventString;
+    EventTableInsertOrReplaceInput what{
+        ._id = event._id,
+        ._active = event._active,
+        ._providerId = event._provider._id,
+        ._providerType = event._provider._type,
+        ._event = eventString,
+    };
     auto problem = storageCache->InsertOrReplace(what);
     switch (problem._type) {
         case StorageCacheProblemType::NoProblems:
@@ -175,12 +176,13 @@ crow::response ClientService::AddEvent(const Event& event, const std::string& ev
 
 crow::response ClientService::UpdateEvent(const Event& event, const std::string& eventString) {
     auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-    EventTableUpdateInput what;
-    what._id = event._id.data();
-    what._active = event._active;
-    what._providerId = event._provider._id.data();
-    what._providerType = event._provider._type;
-    what._event = eventString;
+    EventTableUpdateInput what{
+        ._id = event._id,
+        ._active = event._active,
+        ._providerId = event._provider._id,
+        ._providerType = event._provider._type,
+        ._event = eventString,
+    };
     auto problem = storageCache->Update(what);
     switch (problem._type) {
         case StorageCacheProblemType::NoProblems:
@@ -199,8 +201,9 @@ crow::response ClientService::UpdateEvent(const Event& event, const std::string&
 
 crow::response ClientService::DeleteEvent(const Event& event) {
     auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-    EventTableDeleteInput what;
-    what._id = event._id.data();
+    EventTableDeleteInput what{
+        ._id = event._id,
+    };
     auto problem = storageCache->Delete(what);
     switch (problem._type) {
         case StorageCacheProblemType::NoProblems:
