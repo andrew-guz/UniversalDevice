@@ -12,6 +12,7 @@ struct Scenario {
     std::set<Uuid> _deactivateEvent;
 
     bool operator==(const Scenario& other) const {
-        return std::tie(_id, _name, _activateEvent, _deactivateEvent) == std::tie(other._id, other._name, other._activateEvent, other._deactivateEvent);
+        return std::tie(_id, _name, _activateEvent, _deactivateEvent) ==
+               std::tie(other._id, other._name, other._activateEvent, other._deactivateEvent);
     }
 };
