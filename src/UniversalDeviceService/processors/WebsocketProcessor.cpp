@@ -34,8 +34,9 @@ nlohmann::json WebSocketProcessor::ProcessMessage(const std::chrono::system_cloc
 nlohmann::json WebSocketProcessor::ProcessWebSocketGetSettingsMessage(const std::chrono::system_clock::time_point& timestamp,
                                                                       const Message& message) {
     auto storageCache = SimpleTableStorageCache::GetSettingsCache(_queryExecutor);
-    SimpleTableSelectInput what;
-    what._id = message._header._description._id.data();
+    SimpleTableSelectInput what{
+        ._id = message._header._description._id,
+    };
     SimpleTableSelectOutput result;
     auto problem = storageCache->Select(what, result);
     switch (problem._type) {
@@ -61,8 +62,9 @@ nlohmann::json WebSocketProcessor::ProcessWebSocketGetSettingsMessage(const std:
 nlohmann::json WebSocketProcessor::ProcessWebSocketGetCommandsMessage(const std::chrono::system_clock::time_point& timestamp,
                                                                       const Message& message) {
     auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
-    SimpleTableSelectInput what;
-    what._id = message._header._description._id.data();
+    SimpleTableSelectInput what{
+        ._id = message._header._description._id,
+    };
     SimpleTableSelectOutput result;
     auto problem = storageCache->Select(what, result);
     switch (problem._type) {
