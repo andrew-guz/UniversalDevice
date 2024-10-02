@@ -12,7 +12,7 @@ SimpleTableStorageCache::SimpleTableStorageCache(IQueryExecutor* queryExecutor, 
     _fieldName(fieldName) {}
 
 StorageCacheProblem SimpleTableStorageCache::Select(const SelectInput& what, SelectOutput& result) {
-    std::lock_guard<std::mutex> lock(_mutex);
+    const std::lock_guard<std::mutex> lock(_mutex);
 
     const SimpleTableSelectInput& customWhat = dynamic_cast<const SimpleTableSelectInput&>(what);
     SimpleTableSelectOutput& customResult = dynamic_cast<SimpleTableSelectOutput&>(result);
@@ -48,7 +48,7 @@ StorageCacheProblem SimpleTableStorageCache::SelectAll(SelectAllOutput& result) 
 }
 
 StorageCacheProblem SimpleTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what) {
-    std::lock_guard<std::mutex> lock(_mutex);
+    const std::lock_guard<std::mutex> lock(_mutex);
 
     const SimpleTableInsertOrReplaceInput& customWhat = dynamic_cast<const SimpleTableInsertOrReplaceInput&>(what);
 
@@ -74,7 +74,7 @@ StorageCacheProblem SimpleTableStorageCache::Update(const UpdateInput& what) {
 }
 
 StorageCacheProblem SimpleTableStorageCache::Delete(const DeleteInput& what) {
-    std::lock_guard<std::mutex> lock(_mutex);
+    const std::lock_guard<std::mutex> lock(_mutex);
 
     _dataCache.clear();
 

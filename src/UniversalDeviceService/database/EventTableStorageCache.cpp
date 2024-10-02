@@ -12,7 +12,7 @@ EventTableStorageCache::EventTableStorageCache(IQueryExecutor* queryExecutor) :
     BaseStorageCache(queryExecutor) {}
 
 StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, SelectOutput& result) {
-    std::lock_guard<std::mutex> lock(_mutex);
+    const std::lock_guard<std::mutex> lock(_mutex);
 
     const EventTableSelectInput& customWhat = dynamic_cast<const EventTableSelectInput&>(what);
     EventTableSelectOutput& customResult = dynamic_cast<EventTableSelectOutput&>(result);
@@ -42,7 +42,7 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
 }
 
 StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
-    std::lock_guard<std::mutex> lock(_mutex);
+    const std::lock_guard<std::mutex> lock(_mutex);
 
     EventTableSelectAllOutput& customResult = dynamic_cast<EventTableSelectAllOutput&>(result);
 
@@ -62,7 +62,7 @@ StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
 }
 
 StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplaceInput& what) {
-    std::lock_guard<std::mutex> lock(_mutex);
+    const std::lock_guard<std::mutex> lock(_mutex);
 
     _dataCache.clear();
 
@@ -80,7 +80,7 @@ StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplac
 }
 
 StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
-    std::lock_guard<std::mutex> lock(_mutex);
+    const std::lock_guard<std::mutex> lock(_mutex);
 
     _dataCache.clear();
 
@@ -98,7 +98,7 @@ StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
 }
 
 StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
-    std::lock_guard<std::mutex> lock(_mutex);
+    const std::lock_guard<std::mutex> lock(_mutex);
 
     _dataCache.clear();
 
