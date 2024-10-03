@@ -29,13 +29,15 @@ struct SimpleTableSelectInput final : public SelectInput {
     Uuid _id;
 };
 
+template<typename T>
 struct SimpleTableSelectOutput final : public SelectOutput {
-    std::string _data;
+    T _data;
 };
 
+template<typename T>
 struct SimpleTableInsertOrReplaceInput final : public InsertOrReplaceInput {
     Uuid _id;
-    std::string _data;
+    T _data;
 };
 
 struct SimpleTableDeleteInput final : public DeleteInput {

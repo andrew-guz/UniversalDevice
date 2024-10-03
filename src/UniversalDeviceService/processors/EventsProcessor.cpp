@@ -133,7 +133,7 @@ void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEv
 
 void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString) {
     try {
-        auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
+        auto storageCache = GetCommandsCache(_queryExecutor);
         SimpleTableInsertOrReplaceInput what{
             ._id = id,
             ._data = commandString,

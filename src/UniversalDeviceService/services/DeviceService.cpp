@@ -58,11 +58,11 @@ void DeviceService::Initialize(CrowApp& app) {
 
 crow::response DeviceService::GetSettings(const std::string& idString) {
     try {
-        auto storageCache = SimpleTableStorageCache::GetSettingsCache(_queryExecutor);
+        auto storageCache = GetSettingsCache(_queryExecutor);
         SimpleTableSelectInput what{
             ._id = Uuid{ idString },
         };
-        SimpleTableSelectOutput result;
+        SimpleTableSelectOutput<std::string> result;
         auto problem = storageCache->Select(what, result);
         switch (problem._type) {
             case StorageCacheProblemType::NoProblems:
@@ -91,7 +91,7 @@ crow::response DeviceService::GetSettings(const std::string& idString) {
 crow::response DeviceService::SetSettings(const crow::request& request, const std::string& idString) {
     try {
         auto settingsString = request.body;
-        auto storageCache = SimpleTableStorageCache::GetSettingsCache(_queryExecutor);
+        auto storageCache = GetSettingsCache(_queryExecutor);
         SimpleTableInsertOrReplaceInput what{
             ._id = Uuid{ idString },
             ._data = settingsString,
@@ -123,11 +123,11 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
 
 crow::response DeviceService::GetCommands(const std::string& idString) {
     try {
-        auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
+        auto storageCache = GetCommandsCache(_queryExecutor);
         SimpleTableSelectInput what{
             ._id = Uuid{ idString },
         };
-        SimpleTableSelectOutput result;
+        SimpleTableSelectOutput<std::string> result;
         auto problem = storageCache->Select(what, result);
         switch (problem._type) {
             case StorageCacheProblemType::NoProblems:
@@ -156,7 +156,7 @@ crow::response DeviceService::GetCommands(const std::string& idString) {
 crow::response DeviceService::SetCommands(const crow::request& request, const std::string& idString) {
     try {
         auto commandsString = request.body;
-        auto storageCache = SimpleTableStorageCache::GetCommandsCache(_queryExecutor);
+        auto storageCache = GetCommandsCache(_queryExecutor);
         SimpleTableInsertOrReplaceInput what{
             ._id = Uuid{ idString },
             ._data = commandsString,
@@ -200,12 +200,12 @@ crow::response DeviceService::DeleteDevice(const std::string& idString) {
             SimpleTableDeleteInput what{
                 ._id = Uuid{ idString },
             };
-            if (SimpleTableStorageCache::GetSettingsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
+            if (GetSettingsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
 
                 LOG_ERROR_MSG(fmt::format("Failed to delete device {} from Settings", idString));
                 return crow::response(crow::BAD_REQUEST);
             }
-            if (SimpleTableStorageCache::GetCommandsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
+            if (GetCommandsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
                 LOG_ERROR_MSG(fmt::format("Failed to delete device {} from Commands", idString));
                 return crow::response(crow::BAD_REQUEST);
             }
