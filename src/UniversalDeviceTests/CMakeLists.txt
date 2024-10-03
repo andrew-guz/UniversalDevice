@@ -12,6 +12,8 @@ include_directories(./../UniversalDeviceLib/structures/commands)
 include_directories(./../UniversalDeviceLib/structures/inform)
 include_directories(./../UniversalDeviceLib/structures/settings)
 include_directories(./../UniversalDeviceLib/utils)
+include_directories(./../UniversalDeviceServiceLib/interfaces)
+include_directories(./../UniversalDeviceServiceLib/database)
 
 # unit tests section
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/tests)
@@ -23,7 +25,8 @@ file(GLOB_RECURSE TEST_SOURCES *.cpp)
 foreach(TEST_TARGET ${TEST_SOURCES})
   get_filename_component(EXECUTABLE_NAME ${TEST_TARGET} NAME_WE)
   add_executable(${EXECUTABLE_NAME} ${TEST_TARGET})
-  target_link_libraries(${EXECUTABLE_NAME} Catch2WithMain UniversalDeviceLib)
+  target_link_libraries(${EXECUTABLE_NAME} Catch2WithMain UniversalDeviceLib
+                        UniversalDeviceServiceLib)
   add_test(NAME ${EXECUTABLE_NAME} COMMAND ${EXECUTABLE_NAME})
 endforeach()
 
