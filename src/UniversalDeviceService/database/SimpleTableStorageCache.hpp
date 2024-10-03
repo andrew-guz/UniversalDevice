@@ -2,11 +2,14 @@
 
 #include <map>
 
+#include <nlohmann/json_fwd.hpp>
+
 #include "BaseStorageCache.hpp"
+#include "Marshaling.hpp"
 #include "Uuid.hpp"
 
 template<typename T>
-class SimpleTableStorageCache final : public BaseStorageCache {
+class SimpleTableStorageCache : public BaseStorageCache {
 public:
     SimpleTableStorageCache(IQueryExecutor* queryExecutor, const std::string& tableName, const std::string& fieldName) :
         BaseStorageCache(queryExecutor),
@@ -35,8 +38,9 @@ public:
             else if (data.size() == 1) {
                 auto dataString = data[0][1];
                 if (!dataString.empty()) {
-                    customResult._data = dataString;
-                    _dataCache.insert(std::make_pair(customWhat._id, dataString));
+                    T object = nlohmann::json::parse(dataString).get<T>();
+                    customResult._data = object;
+                    _dataCache.insert(std::make_pair(customWhat._id, object));
                     return { StorageCacheProblemType::NoProblems, {} };
                 }
                 return { StorageCacheProblemType::Empty, {} };
@@ -60,11 +64,15 @@ public:
         if (iter != _dataCache.end())
             _dataCache.erase(iter);
 
-        if (customWhat._data.empty())
+        const std::string customWhatDataString= static_cast<nlohmann::json>(customWhat._data).dump();
+        if (customWhatDataString.empty())
             return { StorageCacheProblemType::Empty, {} };
 
-        const std::string query =
-            fmt::format("INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')", _tableName, _fieldName, customWhat._id.data(), customWhat._data);
+        const std::string query = fmt::format("INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')",
+                                              _tableName,
+                                              _fieldName,
+                                              customWhat._id.data(),
+                                              customWhatDataString);
         if (_queryExecutor->Execute(query)) {
             _dataCache.insert(std::make_pair(customWhat._id, customWhat._data));
             return { StorageCacheProblemType::NoProblems, {} };
