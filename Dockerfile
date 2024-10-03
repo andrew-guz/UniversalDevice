@@ -6,6 +6,9 @@ EXPOSE 7316
 # update
 RUN apt-get update && apt-get upgrade -y
 
+# set timezone
+RUN ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+
 # install all needed for build
 RUN apt-get install -y wget lsb-release wget software-properties-common gnupg make cmake libasio-dev libboost-all-dev libcurl4-openssl-dev uuid-dev libsqlite3-dev git jq
 
