@@ -23,6 +23,7 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
         return { StorageCacheProblemType::NoProblems, {} };
     }
 
+    /// TODO: why select only active?
     const std::string query = fmt::format("SELECT event FROM Events WHERE providerId = '{}' AND providerType = '{}' AND active = 1",
                                           customWhat._id.data(),
                                           ActorTypeToString(customWhat._type));
@@ -41,6 +42,7 @@ StorageCacheProblem EventTableStorageCache::Select(const SelectInput& what, Sele
     return { StorageCacheProblemType::SQLError, query };
 }
 
+/// TODO: fullfil cache?
 StorageCacheProblem EventTableStorageCache::SelectAll(SelectAllOutput& result) {
     const std::lock_guard<std::mutex> lock(_mutex);
 
@@ -82,6 +84,7 @@ StorageCacheProblem EventTableStorageCache::InsertOrReplace(const InsertOrReplac
 StorageCacheProblem EventTableStorageCache::Update(const UpdateInput& what) {
     const std::lock_guard<std::mutex> lock(_mutex);
 
+    /// TODO: why clear cache here?
     _dataCache.clear();
 
     const EventTableUpdateInput& customWhat = static_cast<const EventTableUpdateInput&>(what);

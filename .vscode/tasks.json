@@ -11,6 +11,9 @@
             "group": {
                 "kind": "none",
                 "isDefault": false
+            },
+            "presentation": {
+                "clear": true
             }
         },
         {
@@ -21,6 +24,9 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+            "presentation": {
+                "clear": true
             }
         },
         {
@@ -31,6 +37,9 @@
             "group": {
                 "kind": "none",
                 "isDefault": false
+            },
+            "presentation": {
+                "clear": true
             }
         },
         {
@@ -41,7 +50,10 @@
                 "kind": "none",
                 "isDefault": false
             },
-            "problemMatcher": []
+            "problemMatcher": [],
+            "presentation": {
+                "clear": true
+            }
         }
     ]
 }
