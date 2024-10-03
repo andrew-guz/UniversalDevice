@@ -1,11 +1,15 @@
 #pragma once
 
 #include <map>
+#include <string>
 
+#include "fmt/format.h"
 #include <nlohmann/json_fwd.hpp>
 
 #include "BaseStorageCache.hpp"
+#include "DbExtension.hpp"
 #include "Marshaling.hpp"
+#include "StorageCacheSharedData.hpp"
 #include "Uuid.hpp"
 
 template<typename T>
@@ -51,8 +55,29 @@ public:
     }
 
     virtual StorageCacheProblem SelectAll(SelectAllOutput& result) override {
-        throw std::logic_error("Invalid function call");
-        return { StorageCacheProblemType::Empty, "Invalid function call" };
+        const std::lock_guard<std::mutex> lock(_mutex);
+
+        _dataCache.clear();
+
+        SimpleTableSelectAllOutput<T>& customResult = static_cast<SimpleTableSelectAllOutput<T>&>(result);
+
+        static const std::string query = fmt::format("SELECT id, {} FROM {}", _fieldName, _tableName);
+        std::vector<std::vector<std::string>> data;
+        if (_queryExecutor->Select(query, data)) {
+            std::vector<T> resultData;
+            for (auto& row : data) {
+                const auto id = DbExtension::FindValueByName<Uuid>(row, "id");
+                const auto dataString = DbExtension::FindValueByName<std::string>(row, _fieldName);
+                if (id.has_value() && dataString.has_value()) {
+                    T object = nlohmann::json::parse(dataString.value()).get<T>();
+                    resultData.push_back(object);
+                    _dataCache.try_emplace(id.value(), object);
+                }
+            }
+            customResult._data = resultData;
+            return { StorageCacheProblemType::NoProblems, {} };
+        }
+        return { StorageCacheProblemType::SQLError, query };
     }
 
     virtual StorageCacheProblem InsertOrReplace(const InsertOrReplaceInput& what) override {
@@ -64,15 +89,12 @@ public:
         if (iter != _dataCache.end())
             _dataCache.erase(iter);
 
-        const std::string customWhatDataString= static_cast<nlohmann::json>(customWhat._data).dump();
+        const std::string customWhatDataString = static_cast<nlohmann::json>(customWhat._data).dump();
         if (customWhatDataString.empty())
             return { StorageCacheProblemType::Empty, {} };
 
-        const std::string query = fmt::format("INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')",
-                                              _tableName,
-                                              _fieldName,
-                                              customWhat._id.data(),
-                                              customWhatDataString);
+        const std::string query = fmt::format(
+            "INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')", _tableName, _fieldName, customWhat._id.data(), customWhatDataString);
         if (_queryExecutor->Execute(query)) {
             _dataCache.insert(std::make_pair(customWhat._id, customWhat._data));
             return { StorageCacheProblemType::NoProblems, {} };
@@ -81,8 +103,22 @@ public:
     }
 
     virtual StorageCacheProblem Update(const UpdateInput& what) override {
-        throw std::logic_error("Invalid function call");
-        return { StorageCacheProblemType::Empty, "Invalid function call" };
+        const std::lock_guard<std::mutex> lock(_mutex);
+
+        const SimpleTableUpdateInput<T>& customWhat = static_cast<const SimpleTableUpdateInput<T>&>(what);
+
+        auto iter = _dataCache.find(customWhat._id);
+        if (iter == _dataCache.end()) {
+            return { StorageCacheProblemType::NotExists, {} };
+        }
+
+        const std::string query = fmt::format(
+            "UPDATE {} SET {} = '{}' id = '{}'", _tableName, _fieldName, static_cast<nlohmann::json>(customWhat._data).dump(), customWhat._id.data());
+        if (_queryExecutor->Execute(query)) {
+            _dataCache[customWhat._id] = customWhat._data;
+            return { StorageCacheProblemType::NoProblems, {} };
+        }
+        return { StorageCacheProblemType::SQLError, query };
     }
 
     virtual StorageCacheProblem Delete(const DeleteInput& what) override {
@@ -107,3 +143,5 @@ private:
 IStorageCache* GetSettingsCache(IQueryExecutor* queryExecutor);
 
 IStorageCache* GetCommandsCache(IQueryExecutor* queryExecutor);
+
+IStorageCache* GetScenariosCache(IQueryExecutor* queryExecutor);

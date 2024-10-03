@@ -1,5 +1,6 @@
 #include "SimpleTableStorageCache.hpp"
 
+#include "Scenario.hpp"
 #include "StorageCacheFactory.hpp"
 
 IStorageCache* GetSettingsCache(IQueryExecutor* queryExecutor) {
@@ -8,4 +9,8 @@ IStorageCache* GetSettingsCache(IQueryExecutor* queryExecutor) {
 
 IStorageCache* GetCommandsCache(IQueryExecutor* queryExecutor) {
     return StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache<std::string>>(queryExecutor, "Commands", "commands");
+}
+
+IStorageCache* GetScenariosCache(IQueryExecutor* queryExecutor) {
+    return StorageCacheFactory::Instance()->GetStorageCache<SimpleTableStorageCache<Scenario>>(queryExecutor, "Scenarios", "scenarios");
 }

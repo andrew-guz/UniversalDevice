@@ -30,12 +30,23 @@ struct SimpleTableSelectInput final : public SelectInput {
 };
 
 template<typename T>
+struct SimpleTableSelectAllOutput final : public SelectAllOutput {
+    std::vector<T> _data;
+};
+
+template<typename T>
 struct SimpleTableSelectOutput final : public SelectOutput {
     T _data;
 };
 
 template<typename T>
 struct SimpleTableInsertOrReplaceInput final : public InsertOrReplaceInput {
+    Uuid _id;
+    T _data;
+};
+
+template<typename T>
+struct SimpleTableUpdateInput final : public UpdateInput {
     Uuid _id;
     T _data;
 };
