@@ -33,13 +33,9 @@ DeviceService::DeviceService(IQueryExecutor* queryExecutor) :
 
 void DeviceService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DeviceService::GetSettings));
-    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) {
-        return SetSettings(request, idString);
-    });
+    CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DeviceService::SetSettings));
     CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DeviceService::GetCommands));
-    CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) {
-        return SetCommands(request, idString);
-    });
+    CROW_ROUTE(app, API_DEVICE_COMMANDS).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DeviceService::SetCommands));
     CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &DeviceService::DeleteDevice));
     CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
         .onopen([&](crow::websocket::connection& connection) { LOG_INFO_MSG(fmt::format("Incoming ip - {}", connection.get_remote_ip())); })
@@ -56,7 +52,7 @@ void DeviceService::Initialize(CrowApp& app) {
     timingThread->detach();
 }
 
-crow::response DeviceService::GetSettings(const std::string& idString) {
+crow::response DeviceService::GetSettings(const std::string& idString) const {
     try {
         auto storageCache = GetSettingsCache(_queryExecutor);
         SimpleTableSelectInput what{
@@ -121,7 +117,7 @@ crow::response DeviceService::SetSettings(const crow::request& request, const st
     return crow::response(crow::BAD_REQUEST);
 }
 
-crow::response DeviceService::GetCommands(const std::string& idString) {
+crow::response DeviceService::GetCommands(const std::string& idString) const {
     try {
         auto storageCache = GetCommandsCache(_queryExecutor);
         SimpleTableSelectInput what{

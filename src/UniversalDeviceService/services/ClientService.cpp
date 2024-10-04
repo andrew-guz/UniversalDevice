@@ -1,10 +1,11 @@
 #include "ClientService.hpp"
 
-#include <filesystem>
 #include <string>
 
-#include "nlohmann/json_fwd.hpp"
+#include <crow/common.h>
+#include <crow/http_response.h>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
@@ -13,7 +14,9 @@
 #include "FileUtils.hpp"
 #include "LogInformation.hpp"
 #include "Marshaling.hpp"
-#include "PathHelper.hpp"
+#include "Scenario.hpp"
+#include "SimpleTableStorageCache.hpp"
+#include "StorageCacheSharedData.hpp"
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor) {}
@@ -37,10 +40,11 @@ void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &ClientService::AddEvent, "AddEvent"));
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ClientService::UpdateEvent, "UpdateEvent"));
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)(BaseService::bindObject(this, &ClientService::DeleteEvent, "DeleteEvent"));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetScenarios));
     CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetBackendLog));
 }
 
-crow::response ClientService::ListDevices() {
+crow::response ClientService::ListDevices() const {
     nlohmann::json result;
     try {
         std::vector<std::vector<std::string>> data;
@@ -56,7 +60,7 @@ crow::response ClientService::ListDevices() {
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) {
+crow::response ClientService::GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) const {
     nlohmann::json result;
     try {
         const std::string query = fmt::format("SELECT {} FROM Devices WHERE id = '{}'", field, idString);
@@ -114,7 +118,7 @@ crow::response ClientService::GetDeviceInfo(const crow::request& request) {
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::GetEvents() {
+crow::response ClientService::GetEvents() const {
     nlohmann::json result = nlohmann::json::array({});
     try {
         std::vector<std::string> eventStrings;
@@ -220,7 +224,35 @@ crow::response ClientService::DeleteEvent(const Event& event) {
     return crow::response(crow::BAD_REQUEST);
 }
 
-crow::response ClientService::GetBackendLog() {
+crow::response ClientService::GetScenarios() const {
+    try {
+        auto storageCache = GetScenariosCache(_queryExecutor);
+        SimpleTableSelectAllOutput<Scenario> scenariosResult;
+        const StorageCacheProblem problem = storageCache->SelectAll(scenariosResult);
+        switch (problem._type) {
+            case StorageCacheProblemType::NoProblems:
+                return crow::response{
+                    crow::OK,
+                    static_cast<nlohmann::json>(scenariosResult._data),
+                };
+            case StorageCacheProblemType::Empty:
+            case StorageCacheProblemType::NotExists:
+            case StorageCacheProblemType::TooMany:
+                break;
+            case StorageCacheProblemType::SQLError:
+                LOG_SQL_ERROR(problem._message);
+                break;
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::GetScenarios");
+    }
+    return crow::response{
+        crow::OK,
+        nlohmann::json::array().dump(),
+    };
+}
+
+crow::response ClientService::GetBackendLog() const {
     const LogInformation logInformation = ReadApplicationLogFile();
     return crow::response(crow::OK, static_cast<nlohmann::json>(logInformation).dump());
 }
