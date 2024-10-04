@@ -6,7 +6,13 @@
 #include "Types.hpp"
 #include "Uuid.hpp"
 
-enum StorageCacheProblemType { NoProblems, Empty, NotExists, TooMany, SQLError };
+enum class StorageCacheProblemType {
+    NoProblems,
+    Empty,
+    NotExists,
+    TooMany,
+    SQLError,
+};
 
 struct StorageCacheProblem {
     StorageCacheProblemType _type;
