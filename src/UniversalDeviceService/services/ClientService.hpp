@@ -14,15 +14,15 @@ protected:
     virtual void Initialize(CrowApp& app) override;
 
 private:
-    crow::response ListDevices();
+    crow::response ListDevices() const;
 
-    crow::response GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field);
+    crow::response GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) const;
 
     crow::response SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty);
 
     crow::response GetDeviceInfo(const crow::request& request);
 
-    crow::response GetEvents();
+    crow::response GetEvents() const;
 
     crow::response AddEvent(const Event& event, const std::string& eventString);
 
@@ -30,7 +30,9 @@ private:
 
     crow::response DeleteEvent(const Event& event);
 
-    crow::response GetBackendLog();
+    crow::response GetScenarios() const;
+
+    crow::response GetBackendLog() const;
 
 private:
     friend class BaseServiceExtension;

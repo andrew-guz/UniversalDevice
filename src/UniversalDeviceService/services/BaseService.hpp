@@ -31,6 +31,11 @@ protected:
         return [service, func](Args... args) { return (service->*func)(std::forward<Args>(args)...); };
     }
 
+    template<typename ServiceType, typename... Args>
+    static auto bind(ServiceType* service, crow::response (ServiceType::*func)(Args...) const) {
+        return [service, func](Args... args) { return (service->*func)(std::forward<Args>(args)...); };
+    }
+
     template<typename ServiceType, typename Object>
     static auto bindObject(ServiceType* service, crow::response (ServiceType::*func)(const Object&), const std::string_view functionName) {
         return [service, func, functionName = std::move(functionName)](const crow::request& request) {
