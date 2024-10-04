@@ -112,8 +112,11 @@ public:
             return { StorageCacheProblemType::NotExists, {} };
         }
 
-        const std::string query = fmt::format(
-            "UPDATE {} SET {} = '{}' id = '{}'", _tableName, _fieldName, static_cast<nlohmann::json>(customWhat._data).dump(), customWhat._id.data());
+        const std::string query = fmt::format("UPDATE {} SET {} = '{}' WHERE id = '{}'",
+                                              _tableName,
+                                              _fieldName,
+                                              static_cast<nlohmann::json>(customWhat._data).dump(),
+                                              customWhat._id.data());
         if (_queryExecutor->Execute(query)) {
             _dataCache[customWhat._id] = customWhat._data;
             return { StorageCacheProblemType::NoProblems, {} };

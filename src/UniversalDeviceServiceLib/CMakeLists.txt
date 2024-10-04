@@ -34,9 +34,6 @@ include_directories(./../UniversalDeviceLib/structures/inform)
 include_directories(./../UniversalDeviceLib/structures/settings)
 include_directories(./../UniversalDeviceLib/utils)
 
-# set variable where to put ouput file
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin)
-
 # where to search for libraries
 link_directories(/usr/local/library)
 link_directories(./../bin/)
