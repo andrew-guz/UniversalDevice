@@ -2,6 +2,7 @@
 
 #include "BaseService.hpp"
 #include "Event.hpp"
+#include "Scenario.hpp"
 
 class ClientService final : public BaseService {
 protected:
@@ -31,6 +32,12 @@ private:
     crow::response DeleteEvent(const Event& event);
 
     crow::response GetScenarios() const;
+
+    crow::response AddScenario(Scenario& scenario);
+
+    crow::response UpdateScenario(Scenario& scenario);
+
+    crow::response DeleteScenario(const std::string& scenarioId);
 
     crow::response GetBackendLog() const;
 
