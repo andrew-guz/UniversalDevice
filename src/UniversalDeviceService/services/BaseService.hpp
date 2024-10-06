@@ -37,6 +37,22 @@ protected:
     }
 
     template<typename ServiceType, typename Object>
+    static auto bindObject(ServiceType* service, crow::response (ServiceType::*func)(Object&), const std::string_view functionName) {
+        return [service, func, functionName = std::move(functionName)](const crow::request& request) {
+            try {
+                auto bodyJson = nlohmann::json::parse(request.body);
+                auto object = bodyJson.get<Object>();
+                return (service->*func)(object);
+            } catch (std::exception& ex) {
+                LOG_ERROR_MSG(fmt::format("Error to execute {}: {}", functionName, ex.what()));
+            } catch (...) {
+                LOG_ERROR_MSG(fmt::format("Error to execute {}: unknown exception", functionName));
+            }
+            return crow::response(crow::BAD_REQUEST);
+        };
+    }
+
+    template<typename ServiceType, typename Object>
     static auto bindObject(ServiceType* service, crow::response (ServiceType::*func)(const Object&), const std::string_view functionName) {
         return [service, func, functionName = std::move(functionName)](const crow::request& request) {
             try {

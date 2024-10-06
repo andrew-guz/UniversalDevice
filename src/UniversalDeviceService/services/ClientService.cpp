@@ -1,6 +1,8 @@
 #include "ClientService.hpp"
 
+#include <algorithm>
 #include <string>
+#include <vector>
 
 #include <crow/common.h>
 #include <crow/http_response.h>
@@ -9,14 +11,44 @@
 
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
+#include "Event.hpp"
 #include "EventTableStorageCache.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "FileUtils.hpp"
+#include "IQueryExecutor.hpp"
+#include "IStorageCache.hpp"
 #include "LogInformation.hpp"
 #include "Marshaling.hpp"
 #include "Scenario.hpp"
 #include "SimpleTableStorageCache.hpp"
 #include "StorageCacheSharedData.hpp"
+#include "Uuid.hpp"
+
+namespace {
+
+    void CleanupScenario(Scenario& scenario, IQueryExecutor* queryExecutor) {
+        IStorageCache* eventsStorageCache = EventTableStorageCache::GetCache(queryExecutor);
+        EventTableSelectAllOutput allEvents;
+        const StorageCacheProblem selectAllEventsProblem = eventsStorageCache->SelectAll(allEvents);
+        if (selectAllEventsProblem._type != StorageCacheProblemType::NoProblems)
+            return;
+        std::set<Uuid> eventIds;
+        for (const std::string& eventString : allEvents._data) {
+            eventIds.insert(nlohmann::json::parse(eventString).at("id").get<Uuid>());
+        }
+        const auto removeNotExistingEvents = [](std::set<Uuid>& ids, const std::set<Uuid>& eventIds) {
+            for (auto iter = ids.begin(); iter != ids.end();) {
+                if (eventIds.count(*iter) == 0)
+                    iter = ids.erase(iter);
+                else
+                    ++iter;
+            }
+        };
+        removeNotExistingEvents(scenario._activateEvent, eventIds);
+        removeNotExistingEvents(scenario._activateEvent, eventIds);
+    }
+
+} // namespace
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor) {}
@@ -41,6 +73,10 @@ void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ClientService::UpdateEvent, "UpdateEvent"));
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)(BaseService::bindObject(this, &ClientService::DeleteEvent, "DeleteEvent"));
     CROW_ROUTE(app, API_CLIENT_SCENARIOS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetScenarios));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS).methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &ClientService::AddScenario, "AddScenario"));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS)
+        .methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ClientService::UpdateScenario, "UpdateScenario"));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &ClientService::DeleteScenario));
     CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetBackendLog));
 }
 
@@ -250,6 +286,90 @@ crow::response ClientService::GetScenarios() const {
         crow::OK,
         nlohmann::json::array().dump(),
     };
+}
+
+crow::response ClientService::AddScenario(Scenario& scenario) {
+    try {
+        CleanupScenario(scenario, _queryExecutor);
+
+        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
+        const StorageCacheProblem problem = scenariosStorageCache->InsertOrReplace(SimpleTableInsertOrReplaceInput<Scenario>{
+            ._id = scenario._id,
+            ._data = scenario,
+        });
+
+        switch (problem._type) {
+            case StorageCacheProblemType::NoProblems:
+                return crow::response{
+                    crow::OK,
+                };
+            case StorageCacheProblemType::Empty:
+            case StorageCacheProblemType::NotExists:
+            case StorageCacheProblemType::TooMany:
+                break;
+            case StorageCacheProblemType::SQLError:
+                LOG_SQL_ERROR(problem._message);
+                break;
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::AddScenario");
+    }
+    return crow::response{ crow::BAD_REQUEST };
+}
+
+crow::response ClientService::UpdateScenario(Scenario& scenario) {
+    try {
+        CleanupScenario(scenario, _queryExecutor);
+
+        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
+        const StorageCacheProblem problem = scenariosStorageCache->Update(SimpleTableUpdateInput<Scenario>{
+            ._id = scenario._id,
+            ._data = scenario,
+        });
+
+        switch (problem._type) {
+            case StorageCacheProblemType::NoProblems:
+                return crow::response{
+                    crow::OK,
+                };
+            case StorageCacheProblemType::Empty:
+            case StorageCacheProblemType::NotExists:
+            case StorageCacheProblemType::TooMany:
+                break;
+            case StorageCacheProblemType::SQLError:
+                LOG_SQL_ERROR(problem._message);
+                break;
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::UpdateScenario");
+    }
+    return crow::response{ crow::BAD_REQUEST };
+}
+
+crow::response ClientService::DeleteScenario(const std::string& scenarioId) {
+    try {
+        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
+        const StorageCacheProblem problem = scenariosStorageCache->Delete(SimpleTableDeleteInput{
+            ._id = Uuid(scenarioId),
+        });
+
+        switch (problem._type) {
+            case StorageCacheProblemType::NoProblems:
+                return crow::response{
+                    crow::OK,
+                };
+            case StorageCacheProblemType::Empty:
+            case StorageCacheProblemType::NotExists:
+            case StorageCacheProblemType::TooMany:
+                break;
+            case StorageCacheProblemType::SQLError:
+                LOG_SQL_ERROR(problem._message);
+                break;
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::DeleteScenario");
+    }
+    return crow::response{ crow::BAD_REQUEST };
 }
 
 crow::response ClientService::GetBackendLog() const {
