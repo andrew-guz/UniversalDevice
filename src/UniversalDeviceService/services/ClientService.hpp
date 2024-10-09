@@ -39,6 +39,8 @@ private:
 
     crow::response DeleteScenario(const std::string& scenarioId);
 
+    crow::response ActivateScenario(const std::string& scenarioId);
+
     crow::response GetBackendLog() const;
 
 private:

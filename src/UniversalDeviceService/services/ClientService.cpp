@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <crow/common.h>
@@ -18,6 +19,7 @@
 #include "IQueryExecutor.hpp"
 #include "IStorageCache.hpp"
 #include "LogInformation.hpp"
+#include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "Scenario.hpp"
 #include "SimpleTableStorageCache.hpp"
@@ -48,6 +50,64 @@ namespace {
         removeNotExistingEvents(scenario._activateEvent, eventIds);
     }
 
+    bool ActivateScenario(const Scenario& scenario, IQueryExecutor* queryExecutor) {
+        IStorageCache* eventsStorageCache = EventTableStorageCache::GetCache(queryExecutor);
+        EventTableSelectAllOutput allEventsOutput;
+        const StorageCacheProblem selectAllEventsProblem = eventsStorageCache->SelectAll(allEventsOutput);
+        if (selectAllEventsProblem._type != StorageCacheProblemType::NoProblems)
+            return false;
+        std::map<Uuid, std::pair<Event, nlohmann::json>> events;
+        for (const std::string& eventString : allEventsOutput._data) {
+            const nlohmann::json eventJson = nlohmann::json::parse(eventString);
+            const Event event = eventJson.get<Event>();
+            events.try_emplace(event._id, std::make_pair(event, eventJson));
+        }
+        std::map<Uuid, std::pair<Event, nlohmann::json>> modifiedEvents;
+        for (auto& [eventId, eventPair] : events) {
+            auto& [event, eventJson] = eventPair;
+            if (scenario._activateEvent.contains(eventId)) {
+                event._active = true;
+                eventJson["active"] = true;
+                modifiedEvents.try_emplace(eventId, std::make_pair(event, eventJson));
+            }
+            if (scenario._deactivateEvent.contains(eventId)) {
+                event._active = false;
+                eventJson["active"] = false;
+                modifiedEvents.try_emplace(eventId, std::make_pair(event, eventJson));
+            }
+        }
+        if (!queryExecutor->Begin()) {
+            LOG_ERROR_MSG("Failed to update events for scenario: failed to start transaction");
+            return false;
+        }
+        for (const auto& [eventId, eventPair] : modifiedEvents) {
+            auto& [event, eventJson] = eventPair;
+            const StorageCacheProblem problem = eventsStorageCache->Update(EventTableUpdateInput{ ._id = eventId,
+                                                                                                  ._active = event._active,
+                                                                                                  ._providerId = event._provider._id,
+                                                                                                  ._providerType = event._provider._type,
+                                                                                                  ._event = eventJson.dump() });
+            switch (problem._type) {
+                case StorageCacheProblemType::NoProblems:
+                    break;
+                case StorageCacheProblemType::Empty:
+                case StorageCacheProblemType::NotExists:
+                case StorageCacheProblemType::TooMany:
+                    LOG_ERROR_MSG(fmt::format("Failed to update events for scenario: {}", eventJson.dump()));
+                    return false;
+                    break;
+                case StorageCacheProblemType::SQLError:
+                    LOG_SQL_ERROR(problem._message);
+                    return false;
+                    break;
+            }
+        }
+        if (!queryExecutor->Commit()) {
+            LOG_ERROR_MSG("Failed to update events for scenario: failed to end transaction");
+            return false;
+        }
+        return true;
+    }
 } // namespace
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) :
@@ -77,6 +137,7 @@ void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_SCENARIOS)
         .methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ClientService::UpdateScenario, "UpdateScenario"));
     CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &ClientService::DeleteScenario));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::PATCH)(BaseService::bind(this, &ClientService::ActivateScenario));
     CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetBackendLog));
 }
 
@@ -370,6 +431,38 @@ crow::response ClientService::DeleteScenario(const std::string& scenarioId) {
         LOG_ERROR_MSG("Something went wrong in ClientService::DeleteScenario");
     }
     return crow::response{ crow::BAD_REQUEST };
+}
+
+crow::response ClientService::ActivateScenario(const std::string& scenarioId) {
+    try {
+        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
+        SimpleTableSelectOutput<Scenario> scenarioOutput;
+        const StorageCacheProblem problem = scenariosStorageCache->Select(
+            SimpleTableSelectInput{
+                ._id = Uuid(scenarioId),
+            },
+            scenarioOutput);
+
+        switch (problem._type) {
+            case StorageCacheProblemType::NoProblems:
+                if (::ActivateScenario(scenarioOutput._data, _queryExecutor))
+                    return crow::response{
+                        crow::OK,
+                    };
+            case StorageCacheProblemType::Empty:
+            case StorageCacheProblemType::NotExists:
+            case StorageCacheProblemType::TooMany:
+                break;
+            case StorageCacheProblemType::SQLError:
+                LOG_SQL_ERROR(problem._message);
+                break;
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::ActivateScenario");
+    }
+    return crow::response{
+        crow::BAD_REQUEST,
+    };
 }
 
 crow::response ClientService::GetBackendLog() const {
