@@ -18,9 +18,6 @@ set(CMAKE_BUILD_TYPE Debug)
 project(${PROJECT_NAME})
 
 # where to search headers
-include_directories(./database)
-include_directories(./processors)
-include_directories(./services)
 include_directories(./settings)
 include_directories(./../UniversalDeviceLib/authentication)
 include_directories(./../UniversalDeviceLib/component)
@@ -37,6 +34,8 @@ include_directories(./../UniversalDeviceLib/structures/settings)
 include_directories(./../UniversalDeviceLib/utils)
 include_directories(./../UniversalDeviceServiceLib/interfaces)
 include_directories(./../UniversalDeviceServiceLib/database)
+include_directories(./../UniversalDeviceServiceLib/processors)
+include_directories(./../UniversalDeviceServiceLib/services)
 
 # set variable where to put ouput file
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin)
@@ -63,8 +62,7 @@ file(GLOB_RECURSE SRC_FILES *.cpp)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 # make sure that this project will be build after some targets
-add_dependencies(${PROJECT_NAME} Crow::Crow UniversalDeviceLib
-                 UniversalDeviceServiceLib)
+add_dependencies(${PROJECT_NAME} UniversalDeviceLib UniversalDeviceServiceLib)
 
 # executable needs libraries - so link to installed libs
 target_link_libraries(${PROJECT_NAME} -lssl -lcrypto Crow::Crow

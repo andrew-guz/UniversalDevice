@@ -20,6 +20,8 @@ project(${PROJECT_NAME})
 # where to search headers
 include_directories(./database)
 include_directories(./interfaces)
+include_directories(./processors)
+include_directories(./services)
 include_directories(./../UniversalDeviceLib/authentication)
 include_directories(./../UniversalDeviceLib/component)
 include_directories(./../UniversalDeviceLib/core)
@@ -59,7 +61,8 @@ add_library(${PROJECT_NAME} STATIC ${SRC_FILES})
 add_dependencies(${PROJECT_NAME} UniversalDeviceLib)
 
 # executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} -lpthread -lsqlite3 UniversalDeviceLib)
+target_link_libraries(${PROJECT_NAME} -lpthread -lsqlite3 Crow::Crow
+                      UniversalDeviceLib)
 
 # install section
 install(TARGETS ${PROJECT_NAME})
