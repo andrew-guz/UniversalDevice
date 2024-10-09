@@ -11,6 +11,8 @@ public:
 
     virtual ~Storage();
 
+    virtual bool Begin() override;
+
     virtual bool Execute(std::string_view query) override;
 
     virtual bool Execute(std::string_view query, int (*callback)(void*, int, char**, char**)) override;
@@ -18,6 +20,8 @@ public:
     virtual bool Select(std::string_view query, std::vector<std::vector<std::string>>& data) override;
 
     virtual bool Delete(std::string query) override;
+
+    virtual bool Commit() override;
 
     virtual std::vector<std::string> GetAllTables() const override;
 

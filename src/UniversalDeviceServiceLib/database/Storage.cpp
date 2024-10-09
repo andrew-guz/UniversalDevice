@@ -42,6 +42,8 @@ Storage::Storage(const std::filesystem::path& dbPath) {
 
 Storage::~Storage() { sqlite3_close(_connection); }
 
+bool Storage::Begin() { return Execute("BEGIN TRANSACTION;"); }
+
 bool Storage::Execute(const std::string_view query) { return Execute(query, NoActionCallback); }
 
 bool Storage::Execute(const std::string_view query, int (*callback)(void*, int, char**, char**)) { return InternalExecute(query, callback, this); }
@@ -51,6 +53,8 @@ bool Storage::Select(const std::string_view query, std::vector<std::vector<std::
 }
 
 bool Storage::Delete(std::string query) { return Execute(query, NoActionCallback); }
+
+bool Storage::Commit() { return Execute("COMMIT;"); }
 
 std::vector<std::string> Storage::GetAllTables() const {
     return { "Devices", "Settings", "Commands", "Events", "Thermometers", "Relays", "MotionRelays" };
