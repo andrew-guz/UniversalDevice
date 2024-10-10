@@ -14,6 +14,9 @@ include_directories(./../UniversalDeviceLib/structures/settings)
 include_directories(./../UniversalDeviceLib/utils)
 include_directories(./../UniversalDeviceServiceLib/interfaces)
 include_directories(./../UniversalDeviceServiceLib/database)
+include_directories(./../UniversalDeviceServiceLib/processors)
+include_directories(./../UniversalDeviceServiceLib/services)
+include_directories(./../UniversalDeviceServiceLib/utils)
 
 # unit tests section
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/tests)

@@ -113,6 +113,12 @@ StorageCacheProblem EventTableStorageCache::Delete(const DeleteInput& what) {
     return { StorageCacheProblemType::SQLError, query };
 }
 
+void EventTableStorageCache::Cleanup() {
+    const std::lock_guard<std::mutex> lock(_mutex);
+
+    _dataCache.clear();
+}
+
 IStorageCache* EventTableStorageCache::GetCache(IQueryExecutor* queryExecutor) {
     return StorageCacheFactory::Instance()->GetStorageCache<EventTableStorageCache, false>(queryExecutor, "Events");
 }

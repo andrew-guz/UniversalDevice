@@ -23,6 +23,8 @@ public:
 
     virtual StorageCacheProblem Delete(const DeleteInput& what) override;
 
+    virtual void Cleanup() override;
+
     static IStorageCache* GetCache(IQueryExecutor* queryExecutor);
 
 private:

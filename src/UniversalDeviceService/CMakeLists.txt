@@ -36,6 +36,7 @@ include_directories(./../UniversalDeviceServiceLib/interfaces)
 include_directories(./../UniversalDeviceServiceLib/database)
 include_directories(./../UniversalDeviceServiceLib/processors)
 include_directories(./../UniversalDeviceServiceLib/services)
+include_directories(./../UniversalDeviceServiceLib/utils)
 
 # set variable where to put ouput file
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin)
