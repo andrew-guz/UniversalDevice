@@ -15,4 +15,6 @@ public:
     virtual StorageCacheProblem Update(const UpdateInput& what) = 0;
 
     virtual StorageCacheProblem Delete(const DeleteInput& what) = 0;
+
+    virtual void Cleanup() = 0;
 };

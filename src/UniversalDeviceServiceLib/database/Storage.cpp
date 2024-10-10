@@ -15,7 +15,8 @@ static std::map<std::string, std::string> Tables = {
     { "Relays", "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp INTEGER, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))" },
     { "MotionRelays",
       "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY "
-      "KEY(idx AUTOINCREMENT))" }
+      "KEY(idx AUTOINCREMENT))" },
+    { "Scenarios", "CREATE TABLE IF NOT EXISTS Scenarios  (id TEXT, scenarios TEXT, PRIMARY KEY(id))" },
 };
 
 int NoActionCallback(void* data, int columnsInRow, char** rowData, char** columnNames) { return 0; }
@@ -41,6 +42,8 @@ Storage::Storage(const std::filesystem::path& dbPath) {
 
 Storage::~Storage() { sqlite3_close(_connection); }
 
+bool Storage::Begin() { return Execute("BEGIN TRANSACTION;"); }
+
 bool Storage::Execute(const std::string_view query) { return Execute(query, NoActionCallback); }
 
 bool Storage::Execute(const std::string_view query, int (*callback)(void*, int, char**, char**)) { return InternalExecute(query, callback, this); }
@@ -50,6 +53,8 @@ bool Storage::Select(const std::string_view query, std::vector<std::vector<std::
 }
 
 bool Storage::Delete(std::string query) { return Execute(query, NoActionCallback); }
+
+bool Storage::Commit() { return Execute("COMMIT;"); }
 
 std::vector<std::string> Storage::GetAllTables() const {
     return { "Devices", "Settings", "Commands", "Events", "Thermometers", "Relays", "MotionRelays" };

@@ -12,7 +12,7 @@ class StorageCacheFactory final : public Singleton<StorageCacheFactory> {
 public:
     template<typename T>
     IStorageCache* GetStorageCache(IQueryExecutor* queryExecutor, const std::string& tableName, const std::string& fieldName) {
-        std::lock_guard<std::mutex> lock(_mutex);
+        const std::lock_guard<std::mutex> lock(_mutex);
 
         auto key = CreateKey(tableName, fieldName);
         auto iter = _cache.find(key);
@@ -27,7 +27,7 @@ public:
 
     template<typename T, bool useTableName>
     IStorageCache* GetStorageCache(IQueryExecutor* queryExecutor, const std::string& tableName) {
-        std::lock_guard<std::mutex> lock(_mutex);
+        const std::lock_guard<std::mutex> lock(_mutex);
 
         auto key = CreateKey(tableName, {});
         auto iter = _cache.find(key);
