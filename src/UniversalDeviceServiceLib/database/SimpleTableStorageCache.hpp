@@ -137,6 +137,12 @@ public:
         return { StorageCacheProblemType::SQLError, query };
     }
 
+    virtual void Cleanup() override {
+        const std::lock_guard<std::mutex> lock(_mutex);
+
+        _dataCache.clear();
+    }
+
 private:
     std::string _tableName;
     std::string _fieldName;

@@ -1,6 +1,5 @@
-#include "catch2/catch_test_macros.hpp"
-#include "nlohmann/json_fwd.hpp"
 #include <catch2/catch_all.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Marshaling.hpp"
 #include "Scenario.hpp"
