@@ -55,7 +55,7 @@ file(GLOB_RECURSE SRC_FILES *.cpp)
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 # executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} b64 curlpp fmt::fmt
+target_link_libraries(${PROJECT_NAME} b64 ixwebsocket fmt::fmt
                       nlohmann_json::nlohmann_json -luuid)
 
 # install section

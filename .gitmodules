@@ -10,9 +10,6 @@
 [submodule "b64"]
 	path = vendor/b64
 	url = https://github.com/hsorby/libb64.git
-[submodule "curlpp"]
-	path = vendor/curlpp
-	url = https://github.com/jpbarrette/curlpp.git
 [submodule "nlohmann_json"]
 	path = vendor/nlohmann_json
 	url = https://github.com/nlohmann/json.git

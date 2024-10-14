@@ -20,5 +20,5 @@ public:
 
 private:
     static int DoRequest(
-        const std::string& method, const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json, std::ostream* response);
+        const std::string& method, const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json, std::ostream* responseStream);
 };

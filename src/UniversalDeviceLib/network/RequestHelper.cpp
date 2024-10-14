@@ -2,41 +2,34 @@
 
 #include <sstream>
 
-#include <curlpp/Easy.hpp>
-#include <curlpp/Infos.hpp>
-#include <curlpp/Options.hpp>
-#include <curlpp/cURLpp.hpp>
 #include <fmt/format.h>
+#include <ixwebsocket/IXHttp.h>
+#include <ixwebsocket/IXHttpClient.h>
+#include <ixwebsocket/IXSocketTLSOptions.h>
 
 #include "AccountManager.hpp"
+#include "Base64Helper.hpp"
 #include "Logger.hpp"
 
 nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress, const std::string_view login) {
     try {
-        std::string url = requestAddress.BuildUrl();
+        const std::string url = requestAddress.BuildUrl();
         LOG_DEBUG_MSG(fmt::format("GET {}", url));
 
-        cURLpp::Cleanup cleaner;
-        cURLpp::Easy request;
+        ix::HttpClient client;
+        ix::SocketTLSOptions options;
+        options.caFile = "NONE";
+        options.disable_hostname_validation = true;
+        client.setTLSOptions(options);
+        ix::HttpRequestArgsPtr args = client.createRequest(url, "GET");
+        args->extraHeaders.emplace("Authorization",
+                                   fmt::format("Basic {}", Base64Helper::ToBase64(AccountManager::Instance()->GetAuthString(login))));
+        const ix::HttpResponsePtr response = client.request(url, "GET", {}, args);
 
-        request.setOpt(new cURLpp::options::Url(url));
-        request.setOpt(new cURLpp::options::Verbose(true));
+        if (response->statusCode != 200)
+            LOG_ERROR_MSG(fmt::format("GET request failed : {}", response->statusCode));
 
-        request.setOpt(curlpp::options::SslVerifyPeer(false));
-        request.setOpt(curlpp::options::SslVerifyHost(false));
-
-        request.setOpt(new curlpp::options::UserPwd(AccountManager::Instance()->GetAuthString(login)));
-
-        std::ostringstream response;
-        request.setOpt(new curlpp::options::WriteStream(&response));
-
-        request.perform();
-
-        auto returnCode = curlpp::infos::ResponseCode::get(request);
-        if (returnCode != 200)
-            LOG_ERROR_MSG(fmt::format("GET request failed : {}", returnCode));
-
-        auto body = response.str();
+        const std::string& body = response->body;
         if (body.empty())
             return {};
         try {
@@ -84,7 +77,7 @@ int RequestHelper::DoRequest(const std::string& method,
                              const RequestAddress& requestAddress,
                              const std::string_view login,
                              const nlohmann::json& json,
-                             std::ostream* response) {
+                             std::ostream* responseStream) {
     if (method != "POST" && method != "PUT" && method != "DELETE")
         throw new std::bad_function_call();
     try {
@@ -93,37 +86,26 @@ int RequestHelper::DoRequest(const std::string& method,
 
         LOG_DEBUG_MSG(fmt::format("{} {} {}", method, url, sendingString));
 
-        cURLpp::Cleanup cleaner;
-        cURLpp::Easy request;
+        ix::HttpClient client;
+        ix::SocketTLSOptions options;
+        options.caFile = "NONE";
+        options.disable_hostname_validation = true;
+        client.setTLSOptions(options);
+        ix::HttpRequestArgsPtr args = client.createRequest(url, ix::HttpClient::kGet);
+        args->extraHeaders.emplace("Authorization",
+                                   fmt::format("Basic {}", Base64Helper::ToBase64(AccountManager::Instance()->GetAuthString(login))));
+        args->extraHeaders.emplace("Content-Type", "application/json");
+        if (method == "DELETE")
+            client.setForceBody(true);
+        const ix::HttpResponsePtr response = client.request(url, method, sendingString, args);
 
-        request.setOpt(new cURLpp::options::Url(url));
-        request.setOpt(new cURLpp::options::Verbose(true));
+        if (response->statusCode != 200)
+            LOG_ERROR_MSG(fmt::format("{} request failed: {} {}", method, response->statusCode, response->errorMsg));
 
-        request.setOpt(curlpp::options::SslVerifyPeer(false));
-        request.setOpt(curlpp::options::SslVerifyHost(false));
+        if (responseStream)
+            *responseStream << response->body;
 
-        std::list<std::string> header;
-        header.push_back("Content-Type: application/json");
-        request.setOpt(new curlpp::options::HttpHeader(header));
-
-        request.setOpt(new curlpp::options::UserPwd(AccountManager::Instance()->GetAuthString(login)));
-
-        if (method == "PUT" || method == "DELETE")
-            request.setOpt(new curlpp::options::CustomRequest(method));
-
-        request.setOpt(new curlpp::options::PostFields(sendingString));
-        request.setOpt(new curlpp::options::PostFieldSize(sendingString.size()));
-
-        if (response)
-            request.setOpt(new curlpp::options::WriteStream(response));
-
-        request.perform();
-
-        auto returnCode = curlpp::infos::ResponseCode::get(request);
-        if (returnCode != 200)
-            LOG_ERROR_MSG(fmt::format("{} request failed: {}", method, returnCode));
-
-        return returnCode;
+        return response->statusCode;
     } catch (...) {
         LOG_ERROR_MSG(fmt::format("{} request failed ({})", method, requestAddress.BuildUrl()));
     }

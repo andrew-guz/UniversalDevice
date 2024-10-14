@@ -17,8 +17,6 @@ add_subdirectory(ixwebsocket)
 
 add_subdirectory(b64 EXCLUDE_FROM_ALL)
 
-add_subdirectory(curlpp)
-
 add_subdirectory(nlohmann_json)
 
 add_subdirectory(catch2)
