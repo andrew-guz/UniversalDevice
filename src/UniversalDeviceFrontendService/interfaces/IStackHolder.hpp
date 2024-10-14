@@ -6,6 +6,7 @@ enum class StackWidgetType : std::uint8_t {
     Login,
     Devices,
     Events,
+    Scenarios,
     Logs,
     Thermometer,
     Relay,

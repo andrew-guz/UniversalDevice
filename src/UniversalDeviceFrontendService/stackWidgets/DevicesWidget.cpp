@@ -53,11 +53,15 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     WidgetHelper::SetUsualButtonSize(eventsButton);
     eventsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Events, {}); });
 
-    auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, 2, AlignmentFlag::Center);
+    auto scenariosButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Сценарии"), 0, 2, AlignmentFlag::Center);
+    WidgetHelper::SetUsualButtonSize(scenariosButton);
+    scenariosButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Scenarios, {}); });
+
+    auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, 3, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(logsButton);
     logsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Logs, {}); });
 
-    auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 3, AlignmentFlag::Right);
+    auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 4, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
     refreshButton->clicked().connect([this]() { Refresh(); });
 
