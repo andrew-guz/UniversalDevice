@@ -17,6 +17,10 @@ RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x ./llvm.sh
 RUN ./llvm.sh 17
 
+# add links
+RUN ln -s /usr/bin/clang++-17 /usr/bin/clang++
+RUN ln -s /usr/bin/clang-format-17 /usr/bin/clang-format
+
 # set working dir
 WORKDIR /src
 

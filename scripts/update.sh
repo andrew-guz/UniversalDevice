@@ -20,7 +20,7 @@ mkdir -p build
 
 cd build 
 
-cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-17 --fresh ..
+cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ --fresh ..
 
 cmake --build . -j 12 
 
