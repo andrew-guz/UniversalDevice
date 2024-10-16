@@ -4,11 +4,11 @@
 #include <memory>
 #include <vector>
 
-#include "Wt/WGridLayout.h"
-#include "Wt/WPushButton.h"
 #include <Wt/Http/Cookie.h>
+#include <Wt/WGridLayout.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WPopupMenu.h>
+#include <Wt/WPushButton.h>
 #include <fmt/format.h>
 
 #include "Constants.hpp"
@@ -223,8 +223,11 @@ void DevicesWidget::AddScenarioButton(WGridLayout* layout, const Scenario& scena
     button->clicked().connect([this, scenario]() {
         const auto result = RequestHelper::DoPatchRequest(
             { BACKEND_IP, _settings._servicePort, fmt::format("{}/{}", API_CLIENT_SCENARIOS, scenario._id.data()) }, Constants::LoginService, {});
-        if (result != 200)
+        if (result != 200) {
             LOG_ERROR_MSG(fmt::format("Error while activating Scenario {}", scenario._name));
+            WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Ошибка активации сценария!");
+        } else
+            WidgetHelper::ShowSimpleMessage(this, "Информация", "Сценарий активирован!", 5000);
     });
     ++column;
     if (column == 5) {

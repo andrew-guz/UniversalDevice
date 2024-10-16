@@ -55,9 +55,6 @@ private:
 private:
     std::vector<ExtendedComponentDescription> _devices;
     Wt::WGridLayout* _mainLayout;
-    Wt::WPushButton* _deleteButton;
-    Wt::WPushButton* _addButton;
-    Wt::WPushButton* _updateButton;
     std::shared_ptr<EventsTableModel> _eventsTableModel;
     Wt::WTableView* _eventsTable;
     Wt::WComboBox* _eventType;

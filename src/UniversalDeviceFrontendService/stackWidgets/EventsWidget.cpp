@@ -1,6 +1,6 @@
 #include "EventsWidget.hpp"
 
-#include "Wt/WGlobal.h"
+#include <Wt/WGlobal.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WText.h>
 #include <fmt/format.h>
@@ -10,19 +10,15 @@
 #include "Enums.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
-#include "MessageHelper.hpp"
 #include "RelayEvent.hpp"
 #include "RelayEventEditor.hpp"
-#include "RelayState.hpp"
 #include "RequestHelper.hpp"
 #include "ThermometerEvent.hpp"
 #include "ThermometerEventEditor.hpp"
-#include "ThermometerLedBrightness.hpp"
 #include "ThermostatEvent.hpp"
 #include "ThermostatEventEditor.hpp"
 #include "TimerEvent.hpp"
 #include "TimerEventEditor.hpp"
-#include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
 
 EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) :
@@ -40,9 +36,9 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     auto tableCanvas = _mainLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 1, 0);
     auto tableLayout = tableCanvas->setLayout(std::make_unique<Wt::WGridLayout>());
 
-    _deleteButton = tableLayout->addWidget(std::make_unique<Wt::WPushButton>("Удалить"), 0, 0, Wt::AlignmentFlag::Left);
-    WidgetHelper::SetUsualButtonSize(_deleteButton);
-    _deleteButton->clicked().connect([&] { DeleteEvent(); });
+    auto deleteButton = tableLayout->addWidget(std::make_unique<Wt::WPushButton>("Удалить"), 0, 0, Wt::AlignmentFlag::Left);
+    WidgetHelper::SetUsualButtonSize(deleteButton);
+    deleteButton->clicked().connect([&] { DeleteEvent(); });
 
     _eventsTableModel = std::make_shared<EventsTableModel>();
 
@@ -64,13 +60,13 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     auto editorCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 1);
     auto editLayout = editorCanvas->setLayout(std::make_unique<Wt::WGridLayout>());
 
-    _addButton = editLayout->addWidget(std::make_unique<Wt::WPushButton>("Добавить"), 0, 0, Wt::AlignmentFlag::Left);
-    WidgetHelper::SetUsualButtonSize(_addButton);
-    _addButton->clicked().connect([&] { AddEvent(); });
+    auto addButton = editLayout->addWidget(std::make_unique<Wt::WPushButton>("Добавить"), 0, 0, Wt::AlignmentFlag::Left);
+    WidgetHelper::SetUsualButtonSize(addButton);
+    addButton->clicked().connect([&] { AddEvent(); });
 
-    _updateButton = editLayout->addWidget(std::make_unique<Wt::WPushButton>("Применить"), 0, 1, Wt::AlignmentFlag::Right);
-    WidgetHelper::SetUsualButtonSize(_updateButton);
-    _updateButton->clicked().connect([&] { UpdateEvent(); });
+    auto updateButton = editLayout->addWidget(std::make_unique<Wt::WPushButton>("Обновить"), 0, 1, Wt::AlignmentFlag::Right);
+    WidgetHelper::SetUsualButtonSize(updateButton);
+    updateButton->clicked().connect([&] { UpdateEvent(); });
 
     auto eventGroup = editLayout->addWidget(std::make_unique<Wt::WGroupBox>("Событие"), 1, 0, 1, 2, Wt::AlignmentFlag::Top);
     auto eventLayout = eventGroup->setLayout(std::make_unique<Wt::WGridLayout>());
@@ -264,4 +260,4 @@ Uuid EventsWidget::GetSelectedEventIdFromTable() const {
     return selectedEventJson.get<Event>()._id;
 }
 
-void EventsWidget::ShowIncorrectEventMsgBox() { WidgetHelper::ShowSimpleErrorMessage(this, "Ошибка", "Неверно заполнены поля редактора событий!"); }
+void EventsWidget::ShowIncorrectEventMsgBox() { WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Неверно заполнены поля редактора событий!"); }

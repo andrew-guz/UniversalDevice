@@ -1,6 +1,6 @@
 #include "TimerEventEditor.hpp"
 
-#include "Wt/WGlobal.h"
+#include <Wt/WGlobal.h>
 
 #include "Constants.hpp"
 #include "Enums.hpp"
