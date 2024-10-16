@@ -245,7 +245,7 @@ crow::response ClientService::GetScenarios() const {
             case StorageCacheProblemType::NoProblems:
                 return crow::response{
                     crow::OK,
-                    static_cast<nlohmann::json>(scenariosResult._data),
+                    static_cast<nlohmann::json>(scenariosResult._data).dump(),
                 };
             case StorageCacheProblemType::Empty:
             case StorageCacheProblemType::NotExists:

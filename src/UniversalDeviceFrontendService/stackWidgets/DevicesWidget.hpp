@@ -5,6 +5,7 @@
 
 #include "BaseStackWidget.hpp"
 #include "ExtendedComponentDescription.hpp"
+#include "Scenario.hpp"
 #include "Settings.hpp"
 
 class DeviceButton;
@@ -22,7 +23,9 @@ private:
 
     void Refresh();
 
-    DeviceButton* AddButtonToLayout(Wt::WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column);
+    DeviceButton* AddDeviceButton(Wt::WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column);
+
+    void AddScenarioButton(Wt::WGridLayout* layout, const Scenario& scenario, int& row, int& column);
 
 private:
     Wt::WGridLayout* _mainLayout;

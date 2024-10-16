@@ -1,3 +1,5 @@
+#include <vector>
+
 #include <catch2/catch_all.hpp>
 #include <nlohmann/json_fwd.hpp>
 
@@ -34,4 +36,18 @@ TEST_CASE("ScenarioJson") {
 
     const Scenario scenarioFromJson = expectedJson.get<Scenario>();
     REQUIRE(scenarioFromJson == scenario);
+
+    std::vector<Scenario> scenarios;
+    const nlohmann::json scenariosVectorJson1 = static_cast<nlohmann::json>(scenarios);
+    REQUIRE(scenariosVectorJson1.dump() == "[]");
+
+    Scenario vectorScenario{
+        ._name = "test",
+    };
+    scenarios.push_back(vectorScenario);
+    const nlohmann::json scenariosVectorJson2 = static_cast<nlohmann::json>(scenarios);
+    const nlohmann::json expectedScenariosJson = nlohmann::json::array_t{
+        static_cast<nlohmann::json>(vectorScenario),
+    };
+    REQUIRE(scenariosVectorJson2 == expectedScenariosJson);
 }
