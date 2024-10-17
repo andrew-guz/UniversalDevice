@@ -1,6 +1,7 @@
 #include "ScenariosWidget.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <iterator>
 #include <memory>
 #include <set>
@@ -48,6 +49,7 @@ ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const Settings& sett
 
     _scenariosList = scenariosLayout->addWidget(std::make_unique<WSelectionBox>(), 1, 0);
     _scenariosList->setSelectionMode(SelectionMode::Single);
+    _scenariosList->activated().connect([this](int index) { OnSelection(index); });
 
     auto editCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 1, AlignmentFlag::Top);
     auto editLayout = editCanvas->setLayout(std::make_unique<WGridLayout>());
@@ -132,7 +134,55 @@ void ScenariosWidget::AddScenario() {
     Refresh();
 }
 
-void ScenariosWidget::UpdateScenario() {}
+void ScenariosWidget::OnSelection(int index) {
+    const int selectedIndex = _scenariosList->currentIndex();
+    if (selectedIndex == -1)
+        return;
+
+    const Scenario& scenario = _scenarios.at(selectedIndex);
+
+    _nameEditor->setText(scenario._name);
+    std::set<std::size_t> activatedIndexes;
+    std::set<std::size_t> deactivatedIndexes;
+    for (std::size_t index = 0; index < _events.size(); ++index) {
+        const Uuid& eventId = _events.at(index)._id;
+        if (scenario._activateEvent.contains(eventId))
+            activatedIndexes.insert(index);
+        if (scenario._deactivateEvent.contains(eventId))
+            deactivatedIndexes.insert(index);
+    }
+    SetSelectedEventIndexes(_activatedEvents, activatedIndexes);
+    SetSelectedEventIndexes(_deactivatedEvents, deactivatedIndexes);
+}
+
+void ScenariosWidget::UpdateScenario() {
+    const int selectedIndex = _scenariosList->currentIndex();
+    if (selectedIndex == -1)
+        return;
+
+    if (IsUiValid() == false) {
+        WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Неверно заполнены поля редактора сценариев!");
+        return;
+    }
+
+    const Uuid scenarioId = _scenarios.at(selectedIndex)._id;
+
+    Scenario scenario{
+        ._id = scenarioId,
+        ._name = _nameEditor->text().toUTF8(),
+        ._activateEvent = GetSelectedEventIndexes(_activatedEvents),
+        ._deactivateEvent = GetSelectedEventIndexes(_deactivatedEvents),
+    };
+    const auto scenarioJson = static_cast<nlohmann::json>(scenario);
+    const auto result =
+        RequestHelper::DoPutRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_SCENARIOS }, Constants::LoginService, scenarioJson);
+    if (result != 200) {
+        LOG_ERROR_MSG(fmt::format("Error while updating Scenario {}", scenarioJson.dump()));
+        WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Ошибка обновления сценария!");
+    }
+
+    Refresh();
+}
 
 void ScenariosWidget::DeleteScenario() {
     const int selectedIndex = _scenariosList->currentIndex();
@@ -162,6 +212,12 @@ std::set<Uuid> ScenariosWidget::GetSelectedEventIndexes(const std::vector<Wt::WC
     return result;
 }
 
+void ScenariosWidget::SetSelectedEventIndexes(const std::vector<Wt::WCheckBox*>& container, const std::set<std::size_t>& indexes) {
+    for (std::size_t index = 0; index < container.size(); ++index) {
+        container.at(index)->setChecked(indexes.contains(index));
+    }
+}
+
 bool ScenariosWidget::IsUiValid() const {
     const auto selectedActivated = GetSelectedEventIndexes(_activatedEvents);
     const auto selectedDeactivated = GetSelectedEventIndexes(_deactivatedEvents);
@@ -172,5 +228,5 @@ bool ScenariosWidget::IsUiValid() const {
                           selectedDeactivated.end(),
                           std::inserter(intersection, intersection.begin()));
 
-    return !_nameEditor->text().empty() && selectedActivated.size() > 0 && selectedDeactivated.size() > 0 && intersection.size() == 0;
+    return !_nameEditor->text().empty() && (selectedActivated.size() > 0 || selectedDeactivated.size() > 0) && intersection.size() == 0;
 }

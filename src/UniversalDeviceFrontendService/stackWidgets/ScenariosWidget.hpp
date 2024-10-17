@@ -29,11 +29,15 @@ private:
 
     void AddScenario();
 
+    void OnSelection(int index);
+
     void UpdateScenario();
 
     void DeleteScenario();
 
     std::set<Uuid> GetSelectedEventIndexes(const std::vector<Wt::WCheckBox*>& container) const;
+
+    void SetSelectedEventIndexes(const std::vector<Wt::WCheckBox*>& container, const std::set<std::size_t>& indexes);
 
     bool IsUiValid() const;
 
