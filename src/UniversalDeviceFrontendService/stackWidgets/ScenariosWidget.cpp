@@ -15,6 +15,7 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WSelectionBox.h>
 #include <Wt/WText.h>
+#include <Wt/WVBoxLayout.h>
 
 #include "Defines.hpp"
 #include "Event.hpp"
@@ -58,11 +59,9 @@ ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const Settings& sett
     _mainLayout->addWidget(std::make_unique<WText>("Имя:"), 2, 2, 1, 2);
     _nameEditor = _mainLayout->addWidget(std::make_unique<WLineEdit>(), 3, 2, 1, 2);
 
-    auto activateEventsGroup = _mainLayout->addWidget(std::make_unique<WGroupBox>("Активировать:"), 4, 2);
-    _activateEventsLayout = activateEventsGroup->setLayout(std::make_unique<WGridLayout>());
+    _activateEventsGroup = _mainLayout->addWidget(std::make_unique<WGroupBox>("Активировать:"), 4, 2);
 
-    auto deactivateEventsGroup = _mainLayout->addWidget(std::make_unique<WGroupBox>("Деактивировать:"), 4, 3);
-    _deactivateEventsLayout = deactivateEventsGroup->setLayout(std::make_unique<WGridLayout>());
+    _deactivateEventsGroup = _mainLayout->addWidget(std::make_unique<WGroupBox>("Деактивировать:"), 4, 3);
 
     _mainLayout->setRowStretch(4, 1);
 }
@@ -75,6 +74,10 @@ void ScenariosWidget::Clear() {
     _scenariosList->clear();
     _nameEditor->setText({});
     _events.clear();
+    for (auto activateCheckBox : _activatedEvents)
+        _activateEventsGroup->removeWidget(activateCheckBox);
+    for (auto deactivateCheckBox : _deactivatedEvents)
+        _deactivateEventsGroup->removeWidget(deactivateCheckBox);
     _activatedEvents.clear();
     _deactivatedEvents.clear();
 }
@@ -96,11 +99,14 @@ void ScenariosWidget::Refresh() {
         _scenariosList->addItem(scenario._name);
     }
 
-    int eventRow = 0;
     for (const auto& event : _events) {
-        _activatedEvents.push_back(_activateEventsLayout->addWidget(std::make_unique<WCheckBox>(event._name), eventRow, 0, AlignmentFlag::Top));
-        _deactivatedEvents.push_back(_deactivateEventsLayout->addWidget(std::make_unique<WCheckBox>(event._name), eventRow, 0, AlignmentFlag::Top));
-        ++eventRow;
+        auto activateCheckBox = _activateEventsGroup->addWidget(std::make_unique<WCheckBox>(event._name));
+        activateCheckBox->setInline(false);
+        _activatedEvents.push_back(activateCheckBox);
+
+        auto deactivateCheckBox = _deactivateEventsGroup->addWidget(std::make_unique<WCheckBox>(event._name));
+        deactivateCheckBox->setInline(false);
+        _deactivatedEvents.push_back(deactivateCheckBox);
     }
 }
 

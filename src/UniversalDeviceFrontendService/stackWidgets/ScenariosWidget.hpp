@@ -8,6 +8,7 @@
 #include <Wt/WGridLayout.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WSelectionBox.h>
+#include <Wt/WVBoxLayout.h>
 
 #include "BaseStackWidget.hpp"
 #include "Event.hpp"
@@ -45,8 +46,8 @@ private:
     Wt::WGridLayout* _mainLayout;
     Wt::WSelectionBox* _scenariosList;
     Wt::WLineEdit* _nameEditor;
-    Wt::WGridLayout* _activateEventsLayout;
-    Wt::WGridLayout* _deactivateEventsLayout;
+    Wt::WGroupBox* _activateEventsGroup;
+    Wt::WGroupBox* _deactivateEventsGroup;
     std::vector<Wt::WCheckBox*> _activatedEvents;
     std::vector<Wt::WCheckBox*> _deactivatedEvents;
     std::vector<Scenario> _scenarios;
