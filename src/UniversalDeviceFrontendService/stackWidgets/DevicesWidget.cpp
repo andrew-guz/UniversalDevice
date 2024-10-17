@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <Wt/Http/Cookie.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WPopupMenu.h>
@@ -93,7 +94,7 @@ void DevicesWidget::Refresh() {
     LOG_DEBUG_MSG(fmt::format("{} descriptions found", allDescriptions.size()));
 
     if (scenarios.size()) {
-        auto scenariosWidget = _mainLayout->addWidget(std::make_unique<WGroupBox>("Сценарии"), 2, 0, 1, 5);
+        auto scenariosWidget = _mainLayout->addWidget(std::make_unique<WGroupBox>("Сценарии"), 2, 0, 1, 5, AlignmentFlag::Top);
         auto scenariosLayout = scenariosWidget->setLayout(std::make_unique<WGridLayout>());
         int scenarioRow = 0;
         int scenarioColumn = 0;
@@ -137,7 +138,7 @@ void DevicesWidget::Refresh() {
     }
     std::function<void(Wt::WGridLayout*, int&, const std::shared_ptr<Group>&)> addGroup =
         [&](Wt::WGridLayout* layout, int& row, const std::shared_ptr<Group>& group) -> void {
-        auto groupGroupBox = layout->addWidget(std::make_unique<WGroupBox>(group->_name), row++, 0, 1, 5);
+        auto groupGroupBox = layout->addWidget(std::make_unique<WGroupBox>(group->_name), row++, 0, 1, 5, AlignmentFlag::Top);
         auto groupLayout = groupGroupBox->setLayout(std::make_unique<WGridLayout>());
 
         int subRow = 0;

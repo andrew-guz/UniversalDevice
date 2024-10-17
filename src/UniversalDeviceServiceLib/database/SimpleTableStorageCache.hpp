@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include <type_traits>
 
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
@@ -42,7 +43,12 @@ public:
             else if (data.size() == 1) {
                 auto dataString = data[0][1];
                 if (!dataString.empty()) {
-                    T object = nlohmann::json::parse(dataString).get<T>();
+                    T object;
+                    if constexpr (std::is_same_v<T, std::string>) {
+                        object = dataString;
+                    } else {
+                        T object = nlohmann::json::parse(dataString).get<T>();
+                    }
                     customResult._data = object;
                     _dataCache.insert(std::make_pair(customWhat._id, object));
                     return { StorageCacheProblemType::NoProblems, {} };
@@ -69,7 +75,12 @@ public:
                 const auto id = DbExtension::FindValueByName<Uuid>(row, "id");
                 const auto dataString = DbExtension::FindValueByName<std::string>(row, _fieldName);
                 if (id.has_value() && dataString.has_value()) {
-                    T object = nlohmann::json::parse(dataString.value()).get<T>();
+                    T object;
+                    if constexpr (std::is_same_v<T, std::string>) {
+                        object = dataString.value();
+                    } else {
+                        object = nlohmann::json::parse(dataString.value()).get<T>();
+                    }
                     resultData.push_back(object);
                     _dataCache.try_emplace(id.value(), object);
                 }
