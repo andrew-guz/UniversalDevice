@@ -1,6 +1,6 @@
 #include "WidgetHelper.hpp"
 
-#include "Wt/WApplication.h"
+#include <Wt/WApplication.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WRegExpValidator.h>
 #include <Wt/WSpinBox.h>

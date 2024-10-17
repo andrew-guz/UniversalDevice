@@ -7,8 +7,6 @@
 #include <set>
 #include <vector>
 
-#include "fmt/format.h"
-#include "nlohmann/json_fwd.hpp"
 #include <Wt/WCheckBox.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WGroupBox.h>
@@ -16,6 +14,8 @@
 #include <Wt/WSelectionBox.h>
 #include <Wt/WText.h>
 #include <Wt/WVBoxLayout.h>
+#include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Defines.hpp"
 #include "Event.hpp"
