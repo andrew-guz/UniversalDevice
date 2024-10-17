@@ -59,5 +59,5 @@ void LoginWidget::Login() {
         _stackHolder->SetWidget(StackWidgetType::Devices, {});
         return;
     }
-    WidgetHelper::ShowSimpleErrorMessage(this, "Ошибка", "Неизвестный пользователь!");
+    WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Неизвестный пользователь!");
 }

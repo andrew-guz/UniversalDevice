@@ -1,19 +1,29 @@
 #include "ClientService.hpp"
 
-#include <filesystem>
 #include <string>
+#include <vector>
 
-#include "nlohmann/json_fwd.hpp"
+#include <crow/common.h>
+#include <crow/http_response.h>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
+#include "Event.hpp"
 #include "EventTableStorageCache.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "FileUtils.hpp"
+#include "IQueryExecutor.hpp"
+#include "IStorageCache.hpp"
 #include "LogInformation.hpp"
+#include "Logger.hpp"
 #include "Marshaling.hpp"
-#include "PathHelper.hpp"
+#include "Scenario.hpp"
+#include "ScenarioUtils.hpp"
+#include "SimpleTableStorageCache.hpp"
+#include "StorageCacheSharedData.hpp"
+#include "Uuid.hpp"
 
 ClientService::ClientService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor) {}
@@ -37,10 +47,16 @@ void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &ClientService::AddEvent, "AddEvent"));
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ClientService::UpdateEvent, "UpdateEvent"));
     CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)(BaseService::bindObject(this, &ClientService::DeleteEvent, "DeleteEvent"));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetScenarios));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS).methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &ClientService::AddScenario, "AddScenario"));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS)
+        .methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ClientService::UpdateScenario, "UpdateScenario"));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &ClientService::DeleteScenario));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::PATCH)(BaseService::bind(this, &ClientService::ActivateScenario));
     CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetBackendLog));
 }
 
-crow::response ClientService::ListDevices() {
+crow::response ClientService::ListDevices() const {
     nlohmann::json result;
     try {
         std::vector<std::vector<std::string>> data;
@@ -56,7 +72,7 @@ crow::response ClientService::ListDevices() {
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) {
+crow::response ClientService::GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) const {
     nlohmann::json result;
     try {
         const std::string query = fmt::format("SELECT {} FROM Devices WHERE id = '{}'", field, idString);
@@ -114,7 +130,7 @@ crow::response ClientService::GetDeviceInfo(const crow::request& request) {
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response ClientService::GetEvents() {
+crow::response ClientService::GetEvents() const {
     nlohmann::json result = nlohmann::json::array({});
     try {
         std::vector<std::string> eventStrings;
@@ -151,12 +167,13 @@ crow::response ClientService::GetEvents() {
 
 crow::response ClientService::AddEvent(const Event& event, const std::string& eventString) {
     auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-    EventTableInsertOrReplaceInput what;
-    what._id = event._id.data();
-    what._active = event._active;
-    what._providerId = event._provider._id.data();
-    what._providerType = event._provider._type;
-    what._event = eventString;
+    EventTableInsertOrReplaceInput what{
+        ._id = event._id,
+        ._active = event._active,
+        ._providerId = event._provider._id,
+        ._providerType = event._provider._type,
+        ._event = eventString,
+    };
     auto problem = storageCache->InsertOrReplace(what);
     switch (problem._type) {
         case StorageCacheProblemType::NoProblems:
@@ -175,12 +192,13 @@ crow::response ClientService::AddEvent(const Event& event, const std::string& ev
 
 crow::response ClientService::UpdateEvent(const Event& event, const std::string& eventString) {
     auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-    EventTableUpdateInput what;
-    what._id = event._id.data();
-    what._active = event._active;
-    what._providerId = event._provider._id.data();
-    what._providerType = event._provider._type;
-    what._event = eventString;
+    EventTableUpdateInput what{
+        ._id = event._id,
+        ._active = event._active,
+        ._providerId = event._provider._id,
+        ._providerType = event._provider._type,
+        ._event = eventString,
+    };
     auto problem = storageCache->Update(what);
     switch (problem._type) {
         case StorageCacheProblemType::NoProblems:
@@ -199,8 +217,9 @@ crow::response ClientService::UpdateEvent(const Event& event, const std::string&
 
 crow::response ClientService::DeleteEvent(const Event& event) {
     auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-    EventTableDeleteInput what;
-    what._id = event._id.data();
+    EventTableDeleteInput what{
+        ._id = event._id,
+    };
     auto problem = storageCache->Delete(what);
     switch (problem._type) {
         case StorageCacheProblemType::NoProblems:
@@ -217,7 +236,125 @@ crow::response ClientService::DeleteEvent(const Event& event) {
     return crow::response(crow::BAD_REQUEST);
 }
 
-crow::response ClientService::GetBackendLog() {
+crow::response ClientService::GetScenarios() const {
+    try {
+        auto storageCache = GetScenariosCache(_queryExecutor);
+        SimpleTableSelectAllOutput<Scenario> scenariosResult;
+        const StorageCacheProblem problem = storageCache->SelectAll(scenariosResult);
+        switch (problem._type) {
+            case StorageCacheProblemType::NoProblems:
+                return crow::response{
+                    crow::OK,
+                    static_cast<nlohmann::json>(scenariosResult._data).dump(),
+                };
+            case StorageCacheProblemType::Empty:
+            case StorageCacheProblemType::NotExists:
+            case StorageCacheProblemType::TooMany:
+                break;
+            case StorageCacheProblemType::SQLError:
+                LOG_SQL_ERROR(problem._message);
+                break;
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::GetScenarios");
+    }
+    return crow::response{
+        crow::OK,
+        nlohmann::json::array().dump(),
+    };
+}
+
+crow::response ClientService::AddScenario(Scenario& scenario) {
+    try {
+        CleanupScenario(scenario, _queryExecutor);
+
+        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
+        const StorageCacheProblem problem = scenariosStorageCache->InsertOrReplace(SimpleTableInsertOrReplaceInput<Scenario>{
+            ._id = scenario._id,
+            ._data = scenario,
+        });
+
+        switch (problem._type) {
+            case StorageCacheProblemType::NoProblems:
+                return crow::response{
+                    crow::OK,
+                };
+            case StorageCacheProblemType::Empty:
+            case StorageCacheProblemType::NotExists:
+            case StorageCacheProblemType::TooMany:
+                break;
+            case StorageCacheProblemType::SQLError:
+                LOG_SQL_ERROR(problem._message);
+                break;
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::AddScenario");
+    }
+    return crow::response{ crow::BAD_REQUEST };
+}
+
+crow::response ClientService::UpdateScenario(Scenario& scenario) {
+    try {
+        CleanupScenario(scenario, _queryExecutor);
+
+        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
+        const StorageCacheProblem problem = scenariosStorageCache->Update(SimpleTableUpdateInput<Scenario>{
+            ._id = scenario._id,
+            ._data = scenario,
+        });
+
+        switch (problem._type) {
+            case StorageCacheProblemType::NoProblems:
+                return crow::response{
+                    crow::OK,
+                };
+            case StorageCacheProblemType::Empty:
+            case StorageCacheProblemType::NotExists:
+            case StorageCacheProblemType::TooMany:
+                break;
+            case StorageCacheProblemType::SQLError:
+                LOG_SQL_ERROR(problem._message);
+                break;
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::UpdateScenario");
+    }
+    return crow::response{ crow::BAD_REQUEST };
+}
+
+crow::response ClientService::DeleteScenario(const std::string& scenarioId) {
+    try {
+        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
+        const StorageCacheProblem problem = scenariosStorageCache->Delete(SimpleTableDeleteInput{
+            ._id = Uuid(scenarioId),
+        });
+
+        switch (problem._type) {
+            case StorageCacheProblemType::NoProblems:
+                return crow::response{
+                    crow::OK,
+                };
+            case StorageCacheProblemType::Empty:
+            case StorageCacheProblemType::NotExists:
+            case StorageCacheProblemType::TooMany:
+                break;
+            case StorageCacheProblemType::SQLError:
+                LOG_SQL_ERROR(problem._message);
+                break;
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::DeleteScenario");
+    }
+    return crow::response{ crow::BAD_REQUEST };
+}
+
+crow::response ClientService::ActivateScenario(const std::string& scenarioId) {
+    return crow::response{
+        ::ActivateScenario(_queryExecutor, Uuid{ scenarioId }) ? crow::OK : crow::BAD_REQUEST,
+    };
+}
+
+crow::response ClientService::GetBackendLog() const {
     const LogInformation logInformation = ReadApplicationLogFile();
     return crow::response(crow::OK, static_cast<nlohmann::json>(logInformation).dump());
 }

@@ -1,5 +1,6 @@
 #include "Marshaling.hpp"
 
+#include <set>
 #include <string>
 
 #include <fmt/format.h>
@@ -26,6 +27,7 @@
 #include "RelayCurrentState.hpp"
 #include "RelayEvent.hpp"
 #include "RelayState.hpp"
+#include "Scenario.hpp"
 #include "ThermometerCurrentValue.hpp"
 #include "ThermometerEvent.hpp"
 #include "ThermometerLedBrightness.hpp"
@@ -349,6 +351,22 @@ void to_json(nlohmann::json& json, const ExtendedRelayCurrentState& extendedRela
 void from_json(const nlohmann::json& json, ExtendedRelayCurrentState& extendedRelayCurrentState) {
     from_json(json, (RelayCurrentState&)extendedRelayCurrentState);
     extendedRelayCurrentState._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+}
+
+void to_json(nlohmann::json& json, const Scenario& scenario) {
+    json = {
+        { "id", scenario._id },
+        { "name", scenario._name },
+        { "activate", scenario._activateEvent },
+        { "deactivate", scenario._deactivateEvent },
+    };
+}
+
+void from_json(const nlohmann::json& json, Scenario& scenario) {
+    scenario._id = json.at("id").get<Uuid>();
+    scenario._name = json.at("name").get<std::string>();
+    scenario._activateEvent = json.at("activate").get<std::set<Uuid>>();
+    scenario._deactivateEvent = json.at("deactivate").get<std::set<Uuid>>();
 }
 
 void to_json(nlohmann::json& json, const ExtendedThermometerCurrentValue& extendedThermometerCurrentValue) {

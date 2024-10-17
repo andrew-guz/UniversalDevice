@@ -14,11 +14,11 @@ public:
 protected:
     virtual void Initialize(CrowApp& app) override;
 
-    crow::response GetSettings(const std::string& idString);
+    crow::response GetSettings(const std::string& idString) const;
 
     crow::response SetSettings(const crow::request& request, const std::string& idString);
 
-    crow::response GetCommands(const std::string& idString);
+    crow::response GetCommands(const std::string& idString) const;
 
     crow::response SetCommands(const crow::request& request, const std::string& idString);
 

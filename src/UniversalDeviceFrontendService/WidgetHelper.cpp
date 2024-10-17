@@ -1,9 +1,11 @@
 #include "WidgetHelper.hpp"
 
+#include <Wt/WApplication.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WRegExpValidator.h>
 #include <Wt/WSpinBox.h>
 #include <Wt/WText.h>
+#include <Wt/WTimer.h>
 
 using namespace Wt;
 
@@ -62,14 +64,24 @@ std::tuple<WDialog*, WGridLayout*, WLineEdit*, Wt::WLineEdit*, WSpinBox*, Wt::WP
     return std::make_tuple(dialog, layout, nameEdit, groupEdit, periodEdit, ok);
 }
 
-void WidgetHelper::ShowSimpleErrorMessage(Wt::WWidget* parent, const std::string& header, const std::string& message) {
+void WidgetHelper::ShowSimpleMessage(Wt::WWidget* parent, const std::string& header, const std::string& message, int timeout) {
     auto dialog = parent->addChild(std::make_unique<WDialog>(header));
     auto layout = dialog->contents()->setLayout(std::make_unique<WGridLayout>());
     dialog->setMinimumSize(200, 100);
-    dialog->setClosable(true);
+    dialog->setClosable(timeout == 0);
     dialog->setResizable(false);
-    dialog->rejectWhenEscapePressed(true);
+    if (timeout == 0)
+        dialog->rejectWhenEscapePressed(true);
     dialog->enterPressed().connect([&dialog]() { dialog->accept(); });
     layout->addWidget(std::make_unique<WText>(message), 0, 0, AlignmentFlag::Center);
+    if (timeout != 0) {
+        auto timer = parent->addChild(std::make_unique<Wt::WTimer>());
+        timer->setInterval(std::chrono::seconds(2));
+        timer->timeout().connect([&]() {
+            dialog->accept();
+            parent->removeChild(timer);
+        });
+        timer->start();
+    }
     dialog->exec();
 }

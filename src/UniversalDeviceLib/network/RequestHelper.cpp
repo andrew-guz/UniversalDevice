@@ -69,6 +69,10 @@ int RequestHelper::DoPutRequest(const RequestAddress& requestAddress, const std:
     return DoRequest("PUT", requestAddress, login, json, nullptr);
 }
 
+int RequestHelper::DoPatchRequest(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json) {
+    return DoRequest("PATCH", requestAddress, login, json, nullptr);
+}
+
 int RequestHelper::DoDeleteRequest(const RequestAddress& requestAddress, const std::string_view login, const nlohmann::json& json) {
     return DoRequest("DELETE", requestAddress, login, json, nullptr);
 }
@@ -78,7 +82,7 @@ int RequestHelper::DoRequest(const std::string& method,
                              const std::string_view login,
                              const nlohmann::json& json,
                              std::ostream* responseStream) {
-    if (method != "POST" && method != "PUT" && method != "DELETE")
+    if (method != "POST" && method != "PUT" && method != "PATCH" && method != "DELETE")
         throw new std::bad_function_call();
     try {
         std::string url = requestAddress.BuildUrl();

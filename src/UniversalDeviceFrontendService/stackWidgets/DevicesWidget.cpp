@@ -4,10 +4,11 @@
 #include <memory>
 #include <vector>
 
-#include "Wt/WGridLayout.h"
 #include <Wt/Http/Cookie.h>
+#include <Wt/WGridLayout.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WPopupMenu.h>
+#include <Wt/WPushButton.h>
 #include <fmt/format.h>
 
 #include "Constants.hpp"
@@ -19,6 +20,7 @@
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RequestHelper.hpp"
+#include "Scenario.hpp"
 #include "String.hpp"
 #include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
@@ -53,11 +55,15 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     WidgetHelper::SetUsualButtonSize(eventsButton);
     eventsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Events, {}); });
 
-    auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, 2, AlignmentFlag::Center);
+    auto scenariosButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Сценарии"), 0, 2, AlignmentFlag::Center);
+    WidgetHelper::SetUsualButtonSize(scenariosButton);
+    scenariosButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Scenarios, {}); });
+
+    auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, 3, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(logsButton);
     logsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Logs, {}); });
 
-    auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 3, AlignmentFlag::Right);
+    auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 4, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
     refreshButton->clicked().connect([this]() { Refresh(); });
 
@@ -75,12 +81,26 @@ void DevicesWidget::Clear() {
 
 void DevicesWidget::Refresh() {
     Clear();
-    auto replyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
-    auto allDescriptions =
-        !replyJson.is_null() ? replyJson.get<std::vector<ExtendedComponentDescription>>() : std::vector<ExtendedComponentDescription>{};
+    const auto scenariosReplyJson =
+        RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_SCENARIOS }, Constants::LoginService);
+    const auto scenarios = !scenariosReplyJson.is_null() ? scenariosReplyJson.get<std::vector<Scenario>>() : std::vector<Scenario>{};
+
+    const auto devicesReplyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
+    const auto allDescriptions =
+        !devicesReplyJson.is_null() ? devicesReplyJson.get<std::vector<ExtendedComponentDescription>>() : std::vector<ExtendedComponentDescription>{};
     if (allDescriptions.empty())
         return;
     LOG_DEBUG_MSG(fmt::format("{} descriptions found", allDescriptions.size()));
+
+    if (scenarios.size()) {
+        auto scenariosWidget = _mainLayout->addWidget(std::make_unique<WGroupBox>("Сценарии"), 2, 0, 1, 5);
+        auto scenariosLayout = scenariosWidget->setLayout(std::make_unique<WGridLayout>());
+        int scenarioRow = 0;
+        int scenarioColumn = 0;
+        for (const auto& scenario : scenarios) {
+            AddScenarioButton(scenariosLayout, scenario, scenarioRow, scenarioColumn);
+        }
+    }
 
     std::set<std::string> groups;
     std::vector<ExtendedComponentDescription> descriptionsWithoutGroup;
@@ -92,7 +112,7 @@ void DevicesWidget::Refresh() {
         } else
             descriptionsWithoutGroup.push_back(d);
     });
-    auto groupRow = 2;
+    auto groupRow = 3;
     // add buttons in groups
     auto topLevelGroup = std::make_shared<Group>();
     for (const auto& description : descriptionsWithGroup) {
@@ -128,7 +148,7 @@ void DevicesWidget::Refresh() {
         std::sort(
             group->_descriptions.begin(), group->_descriptions.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
         for (auto& description : group->_descriptions) {
-            auto button = AddButtonToLayout(groupLayout, description, subRow, subColumn);
+            auto button = AddDeviceButton(groupLayout, description, subRow, subColumn);
             _deviceWidgets.insert(std::make_pair(button, groupLayout));
         }
     };
@@ -143,12 +163,12 @@ void DevicesWidget::Refresh() {
     std::sort(
         descriptionsWithoutGroup.begin(), descriptionsWithoutGroup.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
     for (const auto& description : descriptionsWithoutGroup) {
-        auto button = AddButtonToLayout(_mainLayout, description, buttonRow, buttonColumn);
+        auto button = AddDeviceButton(_mainLayout, description, buttonRow, buttonColumn);
         _deviceWidgets.insert(std::make_pair(button, _mainLayout));
     }
 }
 
-DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column) {
+DeviceButton* DevicesWidget::AddDeviceButton(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column) {
     auto button =
         layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Left);
     button->clicked().connect([this, description]() {
@@ -195,4 +215,23 @@ DeviceButton* DevicesWidget::AddButtonToLayout(WGridLayout* layout, const Extend
         column = 0;
     }
     return button;
+}
+
+void DevicesWidget::AddScenarioButton(WGridLayout* layout, const Scenario& scenario, int& row, int& column) {
+    auto button = layout->addWidget(std::make_unique<WPushButton>(scenario._name), row, column, AlignmentFlag::Top | AlignmentFlag::Left);
+    WidgetHelper::SetUsualButtonSize(button);
+    button->clicked().connect([this, scenario]() {
+        const auto result = RequestHelper::DoPatchRequest(
+            { BACKEND_IP, _settings._servicePort, fmt::format("{}/{}", API_CLIENT_SCENARIOS, scenario._id.data()) }, Constants::LoginService, {});
+        if (result != 200) {
+            LOG_ERROR_MSG(fmt::format("Error while activating Scenario {}", scenario._name));
+            WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Ошибка активации сценария!");
+        } else
+            WidgetHelper::ShowSimpleMessage(this, "Информация", "Сценарий активирован!", 5000);
+    });
+    ++column;
+    if (column == 5) {
+        ++row;
+        column = 0;
+    }
 }
