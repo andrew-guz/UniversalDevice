@@ -10,6 +10,8 @@ function(check_library lib_name)
 endfunction()
 check_library(pthread)
 check_library(sqlite3)
+check_library(ssl)
+check_library(crypto)
 
 # build in Debug mode
 set(CMAKE_BUILD_TYPE Debug)
@@ -18,10 +20,12 @@ set(CMAKE_BUILD_TYPE Debug)
 project(${PROJECT_NAME})
 
 # where to search headers
+include_directories(./)
 include_directories(./database)
 include_directories(./interfaces)
 include_directories(./processors)
 include_directories(./services)
+include_directories(./settings)
 include_directories(./utils)
 include_directories(./../UniversalDeviceLib/authentication)
 include_directories(./../UniversalDeviceLib/component)
@@ -42,7 +46,7 @@ link_directories(/usr/local/library)
 link_directories(./../bin/)
 
 # set compiler flags
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -DCROW_ENABLE_SSL")
 
 # set for linker path where libraries are
 set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS}
@@ -55,8 +59,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # this will search for *.cpp in source recursively
 file(GLOB_RECURSE SRC_FILES *.cpp)
 
-# create static library from source
-add_library(${PROJECT_NAME} STATIC ${SRC_FILES})
+# create shared library from source
+add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 
 # make sure that this project will be build after some targets
 add_dependencies(${PROJECT_NAME} UniversalDeviceLib)
