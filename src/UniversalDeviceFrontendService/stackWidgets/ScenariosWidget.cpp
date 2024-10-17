@@ -35,44 +35,36 @@ ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const Settings& sett
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Devices, {}); });
 
-    auto refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 1, AlignmentFlag::Right);
+    auto refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 3, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
     refreshButton->clicked().connect([this]() { Refresh(); });
 
-    auto scenariosCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 0, AlignmentFlag::Top);
-    scenariosCanvas->setStyleClass("background-color: red;");
-    auto scenariosLayout = scenariosCanvas->setLayout(std::make_unique<WGridLayout>());
-
-    auto deleteButton = scenariosLayout->addWidget(std::make_unique<WPushButton>("Удалить"), 0, 0, AlignmentFlag::Left);
+    auto deleteButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Удалить"), 1, 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(deleteButton);
     deleteButton->clicked().connect([this]() { DeleteScenario(); });
 
-    _scenariosList = scenariosLayout->addWidget(std::make_unique<WSelectionBox>(), 1, 0);
+    _scenariosList = _mainLayout->addWidget(std::make_unique<WSelectionBox>(), 2, 0, 3, 2);
     _scenariosList->setSelectionMode(SelectionMode::Single);
     _scenariosList->activated().connect([this](int index) { OnSelection(index); });
 
-    auto editCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 1, AlignmentFlag::Top);
-    auto editLayout = editCanvas->setLayout(std::make_unique<WGridLayout>());
-
-    auto addButton = editLayout->addWidget(std::make_unique<WPushButton>("Добавить"), 0, 0, AlignmentFlag::Left);
+    auto addButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Добавить"), 1, 2, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(addButton);
     addButton->clicked().connect([this]() { AddScenario(); });
 
-    auto updateButton = editLayout->addWidget(std::make_unique<WPushButton>("Обновить"), 0, 1, AlignmentFlag::Right);
+    auto updateButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить"), 1, 3, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(updateButton);
     updateButton->clicked().connect([this]() { UpdateScenario(); });
 
-    auto scenarioGroup = editLayout->addWidget(std::make_unique<WGroupBox>("Событие"), 1, 0, 1, 2);
-    auto scenarioLayout = scenarioGroup->setLayout(std::make_unique<WGridLayout>());
+    _mainLayout->addWidget(std::make_unique<WText>("Имя:"), 2, 2, 1, 2);
+    _nameEditor = _mainLayout->addWidget(std::make_unique<WLineEdit>(), 3, 2, 1, 2);
 
-    scenarioLayout->addWidget(std::make_unique<WText>("Имя:"), 0, 0);
-    _nameEditor = scenarioLayout->addWidget(std::make_unique<WLineEdit>(), 1, 0, 1, 2);
-
-    auto activateEventsGroup = scenarioLayout->addWidget(std::make_unique<WGroupBox>("Активировать:"), 2, 0);
+    auto activateEventsGroup = _mainLayout->addWidget(std::make_unique<WGroupBox>("Активировать:"), 4, 2);
     _activateEventsLayout = activateEventsGroup->setLayout(std::make_unique<WGridLayout>());
 
-    auto deactivateEventsGroup = scenarioLayout->addWidget(std::make_unique<WGroupBox>("Деактивировать:"), 2, 1);
+    auto deactivateEventsGroup = _mainLayout->addWidget(std::make_unique<WGroupBox>("Деактивировать:"), 4, 3);
     _deactivateEventsLayout = deactivateEventsGroup->setLayout(std::make_unique<WGridLayout>());
+
+    _mainLayout->setRowStretch(4, 1);
 }
 
 void ScenariosWidget::Initialize(const std::string& data) { Refresh(); }
@@ -106,8 +98,8 @@ void ScenariosWidget::Refresh() {
 
     int eventRow = 0;
     for (const auto& event : _events) {
-        _activatedEvents.push_back(_activateEventsLayout->addWidget(std::make_unique<WCheckBox>(event._name), eventRow, 0));
-        _deactivatedEvents.push_back(_deactivateEventsLayout->addWidget(std::make_unique<WCheckBox>(event._name), eventRow, 0));
+        _activatedEvents.push_back(_activateEventsLayout->addWidget(std::make_unique<WCheckBox>(event._name), eventRow, 0, AlignmentFlag::Top));
+        _deactivatedEvents.push_back(_deactivateEventsLayout->addWidget(std::make_unique<WCheckBox>(event._name), eventRow, 0, AlignmentFlag::Top));
         ++eventRow;
     }
 }
