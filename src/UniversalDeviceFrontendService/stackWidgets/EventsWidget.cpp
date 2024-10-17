@@ -64,7 +64,7 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     WidgetHelper::SetUsualButtonSize(addButton);
     addButton->clicked().connect([&] { AddEvent(); });
 
-    auto updateButton = editLayout->addWidget(std::make_unique<Wt::WPushButton>("Обновить"), 0, 1, Wt::AlignmentFlag::Right);
+    auto updateButton = editLayout->addWidget(std::make_unique<Wt::WPushButton>("Применить"), 0, 1, Wt::AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(updateButton);
     updateButton->clicked().connect([&] { UpdateEvent(); });
 

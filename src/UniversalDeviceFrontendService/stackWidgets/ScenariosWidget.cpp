@@ -51,7 +51,7 @@ ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const Settings& sett
     WidgetHelper::SetUsualButtonSize(addButton);
     addButton->clicked().connect([this]() { AddScenario(); });
 
-    auto updateButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить"), 1, 3, AlignmentFlag::Right);
+    auto updateButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Применить"), 1, 3, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(updateButton);
     updateButton->clicked().connect([this]() { UpdateScenario(); });
 
