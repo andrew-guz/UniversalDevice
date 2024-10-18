@@ -271,7 +271,7 @@ void to_json(nlohmann::json& json, const ComponentDescription& componentDescript
 
 void from_json(const nlohmann::json& json, ComponentDescription& componentDescription) {
     componentDescription._type = json["type"].get<ActorType>();
-    componentDescription._id = Uuid(json.value("id", ""));
+    componentDescription._id = json["id"].get<Uuid>();
 }
 
 void to_json(nlohmann::json& json, const CurrentTime& currentTime) {
@@ -285,12 +285,12 @@ void from_json(const nlohmann::json& json, CurrentTime& currentTime) {
 }
 
 void to_json(nlohmann::json& json, const DeviceInformationDescription& deviceInformationDescription) {
-    to_json(json, (const ComponentDescription&)deviceInformationDescription);
+    json = (const ComponentDescription&)deviceInformationDescription;
     json += { "seconds", deviceInformationDescription._seconds };
 }
 
 void from_json(const nlohmann::json& json, DeviceInformationDescription& deviceInformationDescription) {
-    from_json(json, (ComponentDescription&)deviceInformationDescription);
+    (ComponentDescription&)deviceInformationDescription = json.get<ComponentDescription>();
     deviceInformationDescription._seconds = json.value("seconds", (uint64_t)0);
 }
 
@@ -310,7 +310,7 @@ void to_json(nlohmann::json& json, const Event& event) {
 }
 
 void from_json(const nlohmann::json& json, Event& event) {
-    event._id = Uuid(json.value("id", ""));
+    event._id = json["id"].get<Uuid>();
     event._name = json.value("name", "");
     event._active = json.value("active", true);
     event._type = json["type"].get<EventType>();
@@ -320,36 +320,36 @@ void from_json(const nlohmann::json& json, Event& event) {
 }
 
 void to_json(nlohmann::json& json, const ExtendedComponentDescription& extendedComponentDescription) {
-    to_json(json, (const ComponentDescription&)extendedComponentDescription);
+    json = (const ComponentDescription&)extendedComponentDescription;
     json += { "name", extendedComponentDescription._name };
     json += { "grp", extendedComponentDescription._group };
     json += { "timestamp", TimeHelper::TimeToInt(extendedComponentDescription._timestamp) };
 }
 
 void from_json(const nlohmann::json& json, ExtendedComponentDescription& extendedComponentDescription) {
-    from_json(json, (ComponentDescription&)extendedComponentDescription);
+    (ComponentDescription&)extendedComponentDescription = json.get<ComponentDescription>();
     extendedComponentDescription._name = json.value("name", "");
     extendedComponentDescription._group = json.value("grp", "");
     extendedComponentDescription._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const ExtendedMotionRelayCurrentState& extendedMotionRelayCurrentState) {
-    to_json(json, (const MotionRelayCurrentState&)extendedMotionRelayCurrentState);
+    json = (const MotionRelayCurrentState&)extendedMotionRelayCurrentState;
     json += { "timestamp", TimeHelper::TimeToInt(extendedMotionRelayCurrentState._timestamp) };
 }
 
 void from_json(const nlohmann::json& json, ExtendedMotionRelayCurrentState& extendedMotionRelayCurrentState) {
-    from_json(json, (MotionRelayCurrentState&)extendedMotionRelayCurrentState);
+    (MotionRelayCurrentState&)extendedMotionRelayCurrentState = json.get<MotionRelayCurrentState>();
     extendedMotionRelayCurrentState._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const ExtendedRelayCurrentState& extendedRelayCurrentState) {
-    to_json(json, (const RelayCurrentState&)extendedRelayCurrentState);
+    json = (const RelayCurrentState&)extendedRelayCurrentState;
     json += { "timestamp", TimeHelper::TimeToInt(extendedRelayCurrentState._timestamp) };
 }
 
 void from_json(const nlohmann::json& json, ExtendedRelayCurrentState& extendedRelayCurrentState) {
-    from_json(json, (RelayCurrentState&)extendedRelayCurrentState);
+    (RelayCurrentState&)extendedRelayCurrentState = json.get<RelayCurrentState>();
     extendedRelayCurrentState._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
@@ -370,12 +370,12 @@ void from_json(const nlohmann::json& json, Scenario& scenario) {
 }
 
 void to_json(nlohmann::json& json, const ExtendedThermometerCurrentValue& extendedThermometerCurrentValue) {
-    to_json(json, (const ThermometerCurrentValue&)extendedThermometerCurrentValue);
+    json = (const ThermometerCurrentValue&)extendedThermometerCurrentValue;
     json += { "timestamp", TimeHelper::TimeToInt(extendedThermometerCurrentValue._timestamp) };
 }
 
 void from_json(const nlohmann::json& json, ExtendedThermometerCurrentValue& extendedThermometerCurrentValue) {
-    from_json(json, (ThermometerCurrentValue&)extendedThermometerCurrentValue);
+    (ThermometerCurrentValue&)extendedThermometerCurrentValue = json.get<ThermometerCurrentValue>();
     extendedThermometerCurrentValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
@@ -432,12 +432,12 @@ void from_json(const nlohmann::json& json, MotionRelayCurrentState& motionRelayC
 }
 
 void to_json(nlohmann::json& json, const MotionRelaySettings& motionRelaySettings) {
-    to_json(json, (const PeriodSettings&)motionRelaySettings);
+    json = (const PeriodSettings&)motionRelaySettings;
     json += { "activityTime", motionRelaySettings._activityTime };
 }
 
 void from_json(const nlohmann::json& json, MotionRelaySettings& motionRelaySettings) {
-    from_json(json, (PeriodSettings&)motionRelaySettings);
+    (PeriodSettings&)motionRelaySettings = json.get<PeriodSettings>();
     motionRelaySettings._activityTime = json.value("activityTime", DEFAULT_ACTIVITY_TIME);
 }
 
@@ -460,12 +460,12 @@ void from_json(const nlohmann::json& json, RelayCurrentState& relayCurrentState)
 }
 
 void to_json(nlohmann::json& json, const RelayEvent& relayEvent) {
-    to_json(json, (const Event&)relayEvent);
+    json = (const Event&)relayEvent;
     json += { "state", relayEvent._state };
 }
 
 void from_json(const nlohmann::json& json, RelayEvent& relayEvent) {
-    from_json(json, (Event&)relayEvent);
+    (Event&)relayEvent = json.get<Event>();
     relayEvent._state = json.value("state", 0);
 }
 
@@ -498,37 +498,37 @@ void from_json(const nlohmann::json& json, ThermometerCurrentValue& thermometerC
 }
 
 void to_json(nlohmann::json& json, const ThermometerEvent& thermometerEvent) {
-    to_json(json, (const Event&)thermometerEvent);
+    json = (const Event&)thermometerEvent;
     json += { "temperature", thermometerEvent._temperature };
     json += { "lower", thermometerEvent._lower };
 }
 
 void from_json(const nlohmann::json& json, ThermometerEvent& thermometerEvent) {
-    from_json(json, (Event&)thermometerEvent);
+    (Event&)thermometerEvent = json.get<Event>();
     thermometerEvent._temperature = json.value("temperature", std::numeric_limits<float>::min());
     thermometerEvent._lower = json.value("lower", true);
 }
 
 void to_json(nlohmann::json& json, const ThermostatEvent& thermostatEvent) {
-    to_json(json, (const Event&)thermostatEvent);
+    json = (const Event&)thermostatEvent;
     json += { "temperature", thermostatEvent._temperature };
     json += { "delta", thermostatEvent._delta };
 }
 
 void from_json(const nlohmann::json& json, ThermostatEvent& thermostatEvent) {
-    from_json(json, (Event&)thermostatEvent);
+    (Event&)thermostatEvent = json.get<Event>();
     thermostatEvent._temperature = json.value("temperature", std::numeric_limits<float>::min());
     thermostatEvent._delta = json.value("delta", 0.5f);
 }
 
 void to_json(nlohmann::json& json, const TimerEvent& timerEvent) {
-    to_json(json, (const Event&)timerEvent);
+    json = (const Event&)timerEvent;
     json += { "hour", timerEvent._hour };
     json += { "minute", timerEvent._minute };
 }
 
 void from_json(const nlohmann::json& json, TimerEvent& timerEvent) {
-    from_json(json, (Event&)timerEvent);
+    (Event&)timerEvent = json.get<Event>();
     timerEvent._hour = json.value("hour", 0);
     timerEvent._minute = json.value("minute", 0);
 }
