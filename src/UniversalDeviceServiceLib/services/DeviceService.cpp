@@ -207,7 +207,9 @@ crow::response DeviceService::DeleteDevice(const std::string& idString) {
             }
         }
         // TODO: Clean event table. Right now deleted id is not a column of event table...
-        return crow::response{ crow::status::OK };
+        return crow::response{
+            crow::OK,
+        };
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in DeviceService::DeleteDevice");
     }

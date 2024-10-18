@@ -43,6 +43,8 @@ private:
 
     crow::response GetBackendLog() const;
 
+    crow::response ClearBackendLog() const;
+
 private:
     friend class BaseServiceExtension;
 };

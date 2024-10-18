@@ -54,6 +54,7 @@ void ClientService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &ClientService::DeleteScenario));
     CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::PATCH)(BaseService::bind(this, &ClientService::ActivateScenario));
     CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ClientService::GetBackendLog));
+    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &ClientService::ClearBackendLog));
 }
 
 crow::response ClientService::ListDevices() const {
@@ -290,7 +291,9 @@ crow::response ClientService::AddScenario(Scenario& scenario) {
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::AddScenario");
     }
-    return crow::response{ crow::BAD_REQUEST };
+    return crow::response{
+        crow::BAD_REQUEST,
+    };
 }
 
 crow::response ClientService::UpdateScenario(Scenario& scenario) {
@@ -319,7 +322,9 @@ crow::response ClientService::UpdateScenario(Scenario& scenario) {
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::UpdateScenario");
     }
-    return crow::response{ crow::BAD_REQUEST };
+    return crow::response{
+        crow::BAD_REQUEST,
+    };
 }
 
 crow::response ClientService::DeleteScenario(const std::string& scenarioId) {
@@ -345,7 +350,9 @@ crow::response ClientService::DeleteScenario(const std::string& scenarioId) {
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::DeleteScenario");
     }
-    return crow::response{ crow::BAD_REQUEST };
+    return crow::response{
+        crow::BAD_REQUEST,
+    };
 }
 
 crow::response ClientService::ActivateScenario(const std::string& scenarioId) {
@@ -357,4 +364,11 @@ crow::response ClientService::ActivateScenario(const std::string& scenarioId) {
 crow::response ClientService::GetBackendLog() const {
     const LogInformation logInformation = ReadApplicationLogFile();
     return crow::response(crow::OK, static_cast<nlohmann::json>(logInformation).dump());
+}
+
+crow::response ClientService::ClearBackendLog() const {
+    Logger::Cleanup();
+    return crow::response{
+        crow::OK,
+    };
 }

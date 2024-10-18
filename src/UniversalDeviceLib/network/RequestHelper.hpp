@@ -18,7 +18,7 @@ public:
 
     static int DoPatchRequest(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json);
 
-    static int DoDeleteRequest(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json);
+    static int DoDeleteRequest(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json = {});
 
 private:
     static int DoRequest(const std::string& method,

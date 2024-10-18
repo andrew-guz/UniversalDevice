@@ -5,6 +5,7 @@
 
 #include "FileUtils.hpp"
 #include "LogInformation.hpp"
+#include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RequestHelper.hpp"
 #include "WidgetHelper.hpp"
@@ -19,16 +20,20 @@ LogsWidget::LogsWidget(IStackHolder* stackHolder, const Settings& settings) :
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Devices, {}); });
 
-    auto refreshButton = mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 1, AlignmentFlag::Right);
+    auto cleanupButton = mainLayout->addWidget(std::make_unique<WPushButton>("Очистить логи"), 0, 1, AlignmentFlag::Center);
+    WidgetHelper::SetUsualButtonSize(cleanupButton);
+    cleanupButton->clicked().connect([this]() { CleanupLogs(); });
+
+    auto refreshButton = mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 2, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
     refreshButton->clicked().connect([this]() { Refresh(); });
 
-    _logFiles = mainLayout->addWidget(std::make_unique<WComboBox>(), 1, 0, 1, 2);
+    _logFiles = mainLayout->addWidget(std::make_unique<WComboBox>(), 1, 0, 1, 3);
     _logFiles->setMinimumSize(_logFiles->minimumWidth(), 50);
     _logFiles->setMaximumSize(_logFiles->maximumWidth(), 50);
     _logFiles->changed().connect([this]() { OnLogSelected(); });
 
-    _logContent = mainLayout->addWidget(std::make_unique<WTextArea>(), 2, 0, 1, 2);
+    _logContent = mainLayout->addWidget(std::make_unique<WTextArea>(), 2, 0, 1, 3);
     _logContent->setReadOnly(true);
 
     mainLayout->setRowStretch(0, 0);
@@ -55,6 +60,14 @@ void LogsWidget::Refresh() {
         _logFiles->setCurrentIndex(0);
         OnLogSelected();
     }
+}
+
+void LogsWidget::CleanupLogs() {
+    const int response = RequestHelper::DoDeleteRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_LOGS }, Constants::LoginService);
+    if (response != 200)
+        LOG_ERROR_MSG("Failed to cleanup backend logs");
+    else
+        Logger::Cleanup();
 }
 
 std::vector<LogInformation> LogsWidget::GetLogs() {
