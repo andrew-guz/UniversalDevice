@@ -1,8 +1,10 @@
 #pragma once
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <mutex>
 #include <string>
 
 #include "PathHelper.hpp"
@@ -15,27 +17,32 @@ protected:
 public:
     ~FileStreamWrapper() = default;
 
-    static std::ostream& Stream(const std::string& path);
+    static std::ostream& Stream(const std::filesystem::path& path);
 
     static std::ostream& NullStream();
 
+    static void Cleanup();
+
 private:
-    static std::map<std::string, std::fstream*> _fileStreams;
+    static std::map<std::filesystem::path, std::fstream*> _fileStreams;
     static std::ostream _nullStream;
+    static std::mutex _mutex;
 };
 
 enum class LogLevel { DEBUG, INFO, ERROR };
 
 class Logger final {
 protected:
-    Logger(LogLevel logLevel, const std::string& path);
+    Logger(LogLevel logLevel, const std::filesystem::path& path);
 
 public:
     ~Logger() = default;
 
-    static Logger& Instance(LogLevel logLevel, const std::string& path);
+    static Logger& Instance(LogLevel logLevel, const std::filesystem::path& path);
 
     static void SetLogLevel(LogLevel minLogLevel);
+
+    static void Cleanup();
 
     template<typename T>
     std::ostream& operator<<(const T& data) {

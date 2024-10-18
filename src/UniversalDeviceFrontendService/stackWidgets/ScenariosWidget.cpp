@@ -191,8 +191,7 @@ void ScenariosWidget::DeleteScenario() {
 
     const auto result = RequestHelper::DoDeleteRequest(
         { BACKEND_IP, _settings._servicePort, fmt::format("{}/{}", std::string{ API_CLIENT_SCENARIOS }, scenarioId.data()) },
-        Constants::LoginService,
-        {});
+        Constants::LoginService);
     if (result != 200) {
         LOG_ERROR_MSG(fmt::format("Error while deleting Scenario {}", scenarioId.data()));
         WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Ошибка удаления сценария!");

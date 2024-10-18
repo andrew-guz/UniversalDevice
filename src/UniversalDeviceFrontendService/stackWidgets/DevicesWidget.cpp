@@ -199,9 +199,7 @@ DeviceButton* DevicesWidget::AddDeviceButton(WGridLayout* layout, const Extended
             auto deleteItem = popup->addItem("Удалить...");
             deleteItem->triggered().connect([this, &description]() {
                 auto result = RequestHelper::DoDeleteRequest(
-                    { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", description._id.data()) },
-                    Constants::LoginService,
-                    {});
+                    { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", description._id.data()) }, Constants::LoginService);
                 if (result == 200)
                     Refresh();
                 else

@@ -21,6 +21,8 @@ private:
 
     void Refresh();
 
+    void CleanupLogs();
+
     std::vector<LogInformation> GetLogs();
 
     void OnLogSelected();
