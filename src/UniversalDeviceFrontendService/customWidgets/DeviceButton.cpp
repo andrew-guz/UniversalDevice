@@ -56,7 +56,8 @@ void DeviceButton::Refresh() {
                     auto values = replyJson.get<std::vector<ExtendedThermometerCurrentValue>>();
                     if (values.size()) {
                         const auto& value = values[0];
-                        additionalData = fmt::format("{}{:.1f}°C", WidgetHelper::TextWithFontSize("🌡", 40), value._value);
+                        additionalData = fmt::format(
+                            "<img src='resources/thermometer-{}.png'/><br/><b>{:.1f}°C</b>", value._value > 0.0f ? "hot" : "cold", value._value);
                         timestamp = value._timestamp;
                     }
                 } break;
@@ -64,7 +65,7 @@ void DeviceButton::Refresh() {
                     auto values = replyJson.get<std::vector<ExtendedRelayCurrentState>>();
                     if (values.size()) {
                         const auto& value = values[0];
-                        additionalData = fmt::format("{}{}", WidgetHelper::TextWithFontSize("⏻", 40), value._state == 1 ? "ON" : "OFF");
+                        additionalData = fmt::format("<img src='resources/relay-{}.png'/>", value._state == 1 ? "on" : "off");
                         timestamp = value._timestamp;
                     }
                 } break;
@@ -72,7 +73,7 @@ void DeviceButton::Refresh() {
                     auto values = replyJson.get<std::vector<ExtendedMotionRelayCurrentState>>();
                     if (values.size()) {
                         const auto& value = values[0];
-                        additionalData = fmt::format("{}{}", WidgetHelper::TextWithFontSize("⏻", 40), value._motion == 1 ? "Движение" : "...");
+                        additionalData = fmt::format("<img src='resources/motion-relay.png'/><br/>{}", value._motion == 1 ? "Движение" : "...");
                         timestamp = value._timestamp;
                     }
                 } break;
