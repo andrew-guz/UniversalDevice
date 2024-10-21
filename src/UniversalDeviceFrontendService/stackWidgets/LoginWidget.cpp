@@ -1,9 +1,9 @@
 #include "LoginWidget.hpp"
 
-#include "Wt/WGlobal.h"
 #include <Wt/Http/Cookie.h>
 #include <Wt/WApplication.h>
 #include <Wt/WDialog.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WPushButton.h>
