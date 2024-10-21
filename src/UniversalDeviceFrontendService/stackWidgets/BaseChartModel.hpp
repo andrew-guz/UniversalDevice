@@ -8,7 +8,7 @@
 #include <Wt/WModelIndex.h>
 #include <Wt/cpp17/any.hpp>
 
-template<typename T>
+template<typename T, typename U>
 class BaseChartModel : public Wt::WAbstractItemModel {
 public:
     BaseChartModel(const std::vector<T>& data = {}) :
@@ -50,11 +50,13 @@ public:
                 return Wt::WDateTime::fromTime_t(updatedTime_t);
             }
             if (index.column() == 1)
-                return _data[index.row()]._value;
+                return GetValue(index.row());
         }
         return {};
     }
 
-private:
+protected:
+    virtual const U GetValue(const int index) const = 0;
+
     std::vector<T> _data;
 };

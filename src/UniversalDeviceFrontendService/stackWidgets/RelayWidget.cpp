@@ -7,6 +7,7 @@
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "Logger.hpp"
+#include "PeriodSettings.hpp"
 #include "RelayState.hpp"
 #include "WidgetHelper.hpp"
 
@@ -24,18 +25,56 @@ RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
     _stateButton->setMaximumSize(200, 200);
     _stateButton->clicked().connect([this]() { OnStateButton(); });
 
-    _mainLayout->setRowStretch(3, 1);
-    _mainLayout->setRowStretch(4, 1);
+    _model = std::make_shared<RelayChartModel>();
+    _chart = _mainLayout->addWidget(std::make_unique<Chart::WCartesianChart>(), 5, 0, 1, 3);
+    _chart->setModel(_model);
+    _chart->setXSeriesColumn(0);
+    _chart->setType(Chart::ChartType::Scatter);
+    _chart->axis(Chart::Axis::X).setScale(Chart::AxisScale::DateTime);
+    _chart->axis(Chart::Axis::Y).autoLimits();
+    auto series = std::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Line, Chart::Axis::Y);
+    series->setPen(WPen(WColor(255, 0, 0, 255)));
+    series->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+    _chart->addSeries(std::move(series));
+    _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 6, 1, AlignmentFlag::Center);
+    _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 7, 1, AlignmentFlag::Center);
+    _seconds->changed().connect([this]() {
+        _cachedValues.clear();
+        BaseDeviceWidget::Initialize(_deviceId.data());
+    });
+
+    _mainLayout->setRowStretch(3, 0);
+    _mainLayout->setRowStretch(4, 0);
+    _mainLayout->setRowStretch(5, 1);
+    _mainLayout->setRowStretch(6, 0);
+    _mainLayout->setRowStretch(7, 0);
+}
+
+void RelayWidget::OnBack() {
+    _seconds->setCurrentIndex(1);
+    _cachedValues.clear();
+    BaseDeviceWidget::OnBack();
 }
 
 void RelayWidget::Initialize() {
-    auto stateValues = GetValues<ExtendedRelayCurrentState>(DeviceType::Relay);
-    if (stateValues.size()) {
-        _deviceState = stateValues.begin()->_state;
+    const uint64_t seconds = _seconds->GetSeconds();
+    if (_cachedValues.empty())
+        _cachedValues = GetValues<ExtendedRelayCurrentState>(DeviceType::Relay, seconds);
+    else {
+        auto lastValues = GetValues<ExtendedRelayCurrentState>(DeviceType::Relay, 0);
+        if (lastValues.empty() ||
+            lastValues[0]._timestamp != std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) {
+                                            return a._timestamp < b._timestamp;
+                                        })->_timestamp)
+            _cachedValues = GetValues<ExtendedRelayCurrentState>(DeviceType::Relay, seconds);
+    }
+    if (_cachedValues.size()) {
+        _deviceState = _cachedValues.begin()->_state;
         _stateText->setText(WidgetHelper::TextWithFontSize(_deviceState ? "Включено" : "Выключено", 80));
         _stateButton->setText(WidgetHelper::TextWithFontSize(_deviceState ? "Выключить" : "Включить", 32));
-        auto timestamp = stateValues.begin()->_timestamp;
+        auto timestamp = _cachedValues.begin()->_timestamp;
         _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
+        _model->UpdateData(_cachedValues);
     } else
         Clear(BaseDeviceWidget::ClearType::Data);
     _stateButton->setEnabled(true);
@@ -45,6 +84,7 @@ void RelayWidget::ClearData() {
     _timeText->setText(WidgetHelper::TextWithFontSize("", 20));
     _stateText->setText(WidgetHelper::TextWithFontSize("Выключено", 80));
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
+    _model->UpdateData({});
 }
 
 void RelayWidget::OnSettingsButton() {

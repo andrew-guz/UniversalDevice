@@ -2,6 +2,7 @@
 
 #include <fmt/format.h>
 
+#include "BaseDeviceWidget.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "Logger.hpp"
@@ -44,6 +45,7 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
 void ThermometerWidget::OnBack() {
     _seconds->setCurrentIndex(1);
     _cachedValues.clear();
+    BaseDeviceWidget::OnBack();
 }
 
 void ThermometerWidget::Initialize() {
