@@ -3,6 +3,7 @@
 #include <Wt/Http/Cookie.h>
 #include <Wt/WApplication.h>
 #include <Wt/WDialog.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WPushButton.h>
@@ -16,7 +17,7 @@ using namespace Wt;
 LoginWidget::LoginWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseStackWidget(stackHolder, settings) {
     auto mainLayout = setLayout(std::make_unique<WGridLayout>());
-    auto box = mainLayout->addWidget(std::make_unique<WGroupBox>(), 0, 0, AlignmentFlag::Center);
+    auto box = mainLayout->addWidget(std::make_unique<WGroupBox>(), 0, 0, AlignmentFlag::Center | AlignmentFlag::Top);
     box->setTitle("Вход");
     auto boxLayout = box->setLayout(std::make_unique<WGridLayout>());
     boxLayout->addWidget(std::make_unique<WText>("Логин:"), 0, 0, AlignmentFlag::Left);

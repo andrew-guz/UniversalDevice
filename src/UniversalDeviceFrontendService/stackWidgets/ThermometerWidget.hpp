@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Wt/Chart/WCartesianChart.h>
-#include <Wt/WComboBox.h>
 
 #include "BaseDeviceWidget.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
 #include "PeriodSettings.hpp"
+#include "SecondsComboBox.hpp"
 #include "TemperatureChartModel.hpp"
 #include "ThermometerLedBrightness.hpp"
 
@@ -30,6 +30,6 @@ private:
     Wt::WText* _temperatureText;
     Wt::Chart::WCartesianChart* _chart;
     std::shared_ptr<TemperatureChartModel> _model;
-    Wt::WComboBox* _seconds;
+    SecondsComboBox* _seconds;
     std::vector<ExtendedThermometerCurrentValue> _cachedValues;
 };

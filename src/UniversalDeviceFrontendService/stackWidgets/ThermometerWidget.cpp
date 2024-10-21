@@ -2,10 +2,12 @@
 
 #include <fmt/format.h>
 
+#include "BaseDeviceWidget.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "SecondsComboBox.hpp"
 #include "WidgetHelper.hpp"
 
 using namespace Wt;
@@ -28,15 +30,7 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
     series->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
     _chart->addSeries(std::move(series));
     _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 5, 1, AlignmentFlag::Center);
-    _seconds = _mainLayout->addWidget(std::make_unique<WComboBox>(), 6, 1, AlignmentFlag::Center);
-    _seconds->setMinimumSize(200, 50);
-    _seconds->setMaximumSize(200, 50);
-    _seconds->addItem("1 час");
-    _seconds->addItem("2 часа");
-    _seconds->addItem("12 часов");
-    _seconds->addItem("1 день");
-    _seconds->addItem("1 неделя");
-    _seconds->setCurrentIndex(1);
+    _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 6, 1, AlignmentFlag::Center);
     _seconds->changed().connect([this]() {
         _cachedValues.clear();
         BaseDeviceWidget::Initialize(_deviceId.data());
@@ -51,27 +45,11 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
 void ThermometerWidget::OnBack() {
     _seconds->setCurrentIndex(1);
     _cachedValues.clear();
+    BaseDeviceWidget::OnBack();
 }
 
 void ThermometerWidget::Initialize() {
-    uint64_t seconds = 7200;
-    switch (_seconds->currentIndex()) {
-        case 0:
-            seconds = 3600;
-            break;
-        case 1:
-            seconds = 7200;
-            break;
-        case 2:
-            seconds = 43200;
-            break;
-        case 3:
-            seconds = 86400;
-            break;
-        case 4:
-            seconds = 604800;
-            break;
-    }
+    const uint64_t seconds = _seconds->GetSeconds();
     if (_cachedValues.empty())
         _cachedValues = GetValues<ExtendedThermometerCurrentValue>(DeviceType::Thermometer, seconds);
     else {

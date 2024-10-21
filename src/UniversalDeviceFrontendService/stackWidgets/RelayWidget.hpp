@@ -1,8 +1,11 @@
 #pragma once
 
+#include <Wt/Chart/WCartesianChart.h>
+
 #include "BaseDeviceWidget.hpp"
 #include "ExtendedRelayCurrentState.hpp"
-#include "PeriodSettings.hpp"
+#include "RelayChartModel.hpp"
+#include "SecondsComboBox.hpp"
 
 class RelayWidget final : public BaseDeviceWidget {
 public:
@@ -12,6 +15,8 @@ public:
 
 protected:
     using BaseStackWidget::Initialize;
+
+    virtual void OnBack() override;
 
     virtual void Initialize() override;
 
@@ -25,4 +30,8 @@ private:
     Wt::WText* _stateText;
     Wt::WPushButton* _stateButton;
     int _deviceState = 0;
+    Wt::Chart::WCartesianChart* _chart;
+    std::shared_ptr<RelayChartModel> _model;
+    SecondsComboBox* _seconds;
+    std::vector<ExtendedRelayCurrentState> _cachedValues;
 };
