@@ -26,8 +26,8 @@ jobs:
           sudo apt-get update
           wget https://apt.llvm.org/llvm.sh
           chmod u+x llvm.sh
-          sudo ./llvm.sh 17
-          sudo apt-get -y install clang-format-17 cmake-format libasio-dev libboost-all-dev
+          sudo ./llvm.sh 19
+          sudo apt-get -y install clang-format-19 cmake-format libasio-dev libboost-all-dev
 
       - name: Check format
         run: ${{github.workspace}}/scripts/check_format.sh

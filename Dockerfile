@@ -15,11 +15,11 @@ RUN apt-get install -y wget lsb-release wget software-properties-common gnupg ma
 # get clang 17
 RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x ./llvm.sh
-RUN ./llvm.sh 17
+RUN ./llvm.sh 19
 
 # add links
-RUN ln -s /usr/bin/clang++-17 /usr/bin/clang++
-RUN ln -s /usr/bin/clang-format-17 /usr/bin/clang-format
+RUN ln -s /usr/bin/clang++-19 /usr/bin/clang++
+RUN ln -s /usr/bin/clang-format-19 /usr/bin/clang-format
 
 # set working dir
 WORKDIR /src
