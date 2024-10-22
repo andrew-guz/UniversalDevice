@@ -1,5 +1,7 @@
 #include "RelayWidget.hpp"
 
+#include <algorithm>
+
 #include <Wt/WEvent.h>
 #include <Wt/WTimer.h>
 #include <fmt/format.h>
@@ -70,7 +72,11 @@ void RelayWidget::Initialize() {
     }
     if (_cachedValues.size()) {
         _deviceState = _cachedValues.begin()->_state;
-        _stateText->setText(WidgetHelper::TextWithFontSize(_deviceState ? "Включено" : "Выключено", 80));
+        const int activeCount =
+            std::count_if(_cachedValues.begin(), _cachedValues.end(), [](const ExtendedRelayCurrentState& state) -> bool { return state._state; });
+        const std::string text =
+            fmt::format("{} ({:.2f})", _deviceState ? "Включено" : "Выключено", (float)activeCount / (float)_cachedValues.size());
+        _stateText->setText(WidgetHelper::TextWithFontSize(text, 80));
         _stateButton->setText(WidgetHelper::TextWithFontSize(_deviceState ? "Выключить" : "Включить", 32));
         auto timestamp = _cachedValues.begin()->_timestamp;
         _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
