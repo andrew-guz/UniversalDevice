@@ -1,0 +1,28 @@
+#pragma once
+
+#include "BaseService.hpp"
+
+class DevicesService final : public BaseService {
+protected:
+    DevicesService(IQueryExecutor* queryExecutor);
+
+public:
+    virtual ~DevicesService() = default;
+
+protected:
+    virtual void Initialize(CrowApp& app) override;
+
+private:
+    crow::response ListDevices() const;
+
+    crow::response GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) const;
+
+    crow::response SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty);
+
+    crow::response GetDeviceInfo(const crow::request& request);
+
+    crow::response DeleteDevice(const std::string& idString);
+
+private:
+    friend class BaseServiceExtension;
+};
