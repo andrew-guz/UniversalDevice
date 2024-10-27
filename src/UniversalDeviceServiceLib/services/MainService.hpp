@@ -12,6 +12,12 @@ public:
 protected:
     virtual void Initialize(CrowApp& app) override;
 
+    crow::response GetVersion() const;
+
+    crow::response Quit();
+
 private:
+    CrowApp* _application = nullptr;
+
     friend class BaseServiceExtension;
 };

@@ -10,20 +10,11 @@ DevicesService::DevicesService(IQueryExecutor* queryExecutor) :
 
 void DevicesService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DevicesService::ListDevices));
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) {
-        return GetDeviceProperty(request, idString, "name");
-    });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) {
-        return SetDeviceProperty(request, idString, "name", false);
-    });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::GET)([&](const crow::request& request, const std::string& idString) {
-        return GetDeviceProperty(request, idString, "grp");
-    });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::POST)([&](const crow::request& request, const std::string& idString) {
-        return SetDeviceProperty(request, idString, "grp", true);
-    });
-    CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)([&](const crow::request& request) { return GetDeviceInfo(request); });
-
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DevicesService::GetDeviceName));
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::SetDeviceName));
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DevicesService::GetDeviceGroup));
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::SetDeviceGroup));
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::GetDeviceInfo));
     CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &DevicesService::DeleteDevice));
 }
 
@@ -68,6 +59,14 @@ crow::response DevicesService::GetDeviceProperty(const crow::request& request, c
     return crow::response(crow::OK, result.dump());
 }
 
+crow::response DevicesService::GetDeviceName(const crow::request& request, const std::string& idString) const {
+    return GetDeviceProperty(request, idString, "name");
+}
+
+crow::response DevicesService::GetDeviceGroup(const crow::request& request, const std::string& idString) const {
+    return GetDeviceProperty(request, idString, "grp");
+}
+
 crow::response
 DevicesService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty) {
     try {
@@ -86,6 +85,14 @@ DevicesService::SetDeviceProperty(const crow::request& request, const std::strin
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::BAD_REQUEST);
+}
+
+crow::response DevicesService::SetDeviceName(const crow::request& request, const std::string& idString) {
+    return SetDeviceProperty(request, idString, "name", false);
+}
+
+crow::response DevicesService::SetDeviceGroup(const crow::request& request, const std::string& idString) {
+    return SetDeviceProperty(request, idString, "grp", true);
 }
 
 crow::response DevicesService::GetDeviceInfo(const crow::request& request) {

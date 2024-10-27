@@ -17,7 +17,15 @@ private:
 
     crow::response GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) const;
 
+    crow::response GetDeviceName(const crow::request& request, const std::string& idString) const;
+
+    crow::response GetDeviceGroup(const crow::request& request, const std::string& idString) const;
+
     crow::response SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty);
+
+    crow::response SetDeviceName(const crow::request& request, const std::string& idString);
+
+    crow::response SetDeviceGroup(const crow::request& request, const std::string& idString);
 
     crow::response GetDeviceInfo(const crow::request& request);
 
