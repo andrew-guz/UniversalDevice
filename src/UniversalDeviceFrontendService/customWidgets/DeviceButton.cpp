@@ -12,7 +12,6 @@
 #include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
-#include "WidgetHelper.hpp"
 
 using namespace Wt;
 

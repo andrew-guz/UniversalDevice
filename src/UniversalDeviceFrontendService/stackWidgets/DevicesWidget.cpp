@@ -16,12 +16,14 @@
 #include "Defines.hpp"
 #include "DeviceButton.hpp"
 #include "Enums.hpp"
+#include "Event.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RequestHelper.hpp"
 #include "Scenario.hpp"
+#include "ScenarioButton.hpp"
 #include "String.hpp"
 #include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
@@ -217,17 +219,7 @@ DeviceButton* DevicesWidget::AddDeviceButton(WGridLayout* layout, const Extended
 }
 
 void DevicesWidget::AddScenarioButton(WGridLayout* layout, const Scenario& scenario, int& row, int& column) {
-    auto button = layout->addWidget(std::make_unique<WPushButton>(scenario._name), row, column, AlignmentFlag::Top | AlignmentFlag::Left);
-    WidgetHelper::SetUsualButtonSize(button);
-    button->clicked().connect([this, scenario]() {
-        const auto result = RequestHelper::DoPatchRequest(
-            { BACKEND_IP, _settings._servicePort, fmt::format("{}/{}", API_CLIENT_SCENARIOS, scenario._id.data()) }, Constants::LoginService, {});
-        if (result != 200) {
-            LOG_ERROR_MSG(fmt::format("Error while activating Scenario {}", scenario._name));
-            WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Ошибка активации сценария!");
-        } else
-            WidgetHelper::ShowSimpleMessage(this, "Информация", "Сценарий активирован!", 5000);
-    });
+    layout->addWidget(std::make_unique<ScenarioButton>(_settings._servicePort, scenario), row, column, AlignmentFlag::Top | AlignmentFlag::Left);
     ++column;
     if (column == 5) {
         ++row;
