@@ -117,6 +117,9 @@ void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEv
         LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessThermostatEvent");
         return;
     }
+    if (std::abs(thermometerCurrentValue._value - ThermometerCurrentValue::InvalidTemperature) < 0.1f) {
+        return;
+    }
     std::string command;
     if (thermometerCurrentValue._value <= thermostatEvent._temperature - thermostatEvent._delta) {
         // on
