@@ -93,6 +93,9 @@ void EventsProcessor::ProcessThermometerEvent(const ThermometerEvent& thermomete
         LOG_ERROR_MSG("Invalid value in EventsProcessor::ProcessThermometerEvent");
         return;
     }
+    if (std::abs(thermometerCurrentValue._value - ThermometerCurrentValue::InvalidTemperature) < 0.1f) {
+        return;
+    }
     if ((thermometerEvent._lower == true && thermometerCurrentValue._value <= thermometerEvent._temperature) ||
         (thermometerEvent._lower == false && thermometerCurrentValue._value >= thermometerEvent._temperature))
         SendCommand(thermometerEvent._receiver._id, thermometerEvent._command.dump());

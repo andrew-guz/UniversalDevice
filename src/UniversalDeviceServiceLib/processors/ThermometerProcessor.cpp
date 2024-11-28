@@ -39,7 +39,7 @@ nlohmann::json ThermometerProcessor::ProcessThermometerCurrentValueMessage(const
         return {};
     }
     auto& description = message._header._description;
-    if (std::abs(currentValue._value - -127.0f) < 0.1f) {
+    if (std::abs(currentValue._value - ThermometerCurrentValue::InvalidTemperature) < 0.1f) {
         LOG_INFO_MSG(fmt::format("-127.0 found - no sensor connected to {}", description._id.data()));
         return {};
     }
