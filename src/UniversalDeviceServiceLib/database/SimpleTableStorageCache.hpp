@@ -100,7 +100,12 @@ public:
         if (iter != _dataCache.end())
             _dataCache.erase(iter);
 
-        const std::string customWhatDataString = static_cast<nlohmann::json>(customWhat._data).dump();
+        std::string customWhatDataString;
+        if constexpr (std::is_same_v<T, std::string>) {
+            customWhatDataString = customWhat._data;
+        } else {
+            customWhatDataString = static_cast<nlohmann::json>(customWhat._data).dump();
+        }
         if (customWhatDataString.empty())
             return { StorageCacheProblemType::Empty, {} };
 
@@ -123,11 +128,17 @@ public:
             return { StorageCacheProblemType::NotExists, {} };
         }
 
-        const std::string query = fmt::format("UPDATE {} SET {} = '{}' WHERE id = '{}'",
-                                              _tableName,
-                                              _fieldName,
-                                              static_cast<nlohmann::json>(customWhat._data).dump(),
-                                              customWhat._id.data());
+        std::string customWhatDataString;
+        if constexpr (std::is_same_v<T, std::string>) {
+            customWhatDataString = customWhat._data;
+        } else {
+            customWhatDataString = static_cast<nlohmann::json>(customWhat._data).dump();
+        }
+        if (customWhatDataString.empty())
+            return { StorageCacheProblemType::Empty, {} };
+
+        const std::string query =
+            fmt::format("UPDATE {} SET {} = '{}' WHERE id = '{}'", _tableName, _fieldName, customWhatDataString, customWhat._id.data());
         if (_queryExecutor->Execute(query)) {
             _dataCache[customWhat._id] = customWhat._data;
             return { StorageCacheProblemType::NoProblems, {} };
