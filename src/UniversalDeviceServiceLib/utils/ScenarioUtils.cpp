@@ -2,6 +2,7 @@
 
 #include "Event.hpp"
 #include "EventTableStorageCache.hpp"
+#include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "Scenario.hpp"
 #include "SimpleTableStorageCache.hpp"
@@ -84,6 +85,7 @@ bool ActivateScenario(const Scenario& scenario, IQueryExecutor* queryExecutor) {
         LOG_ERROR_MSG("Failed to update events for scenario: failed to end transaction");
         return false;
     }
+    LOG_INFO_MSG(fmt::format("Scenario '{}' activated!", scenario._name));
     return true;
 }
 
