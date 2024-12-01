@@ -42,13 +42,14 @@ nlohmann::json ThermometerProcessor::ProcessThermometerCurrentValueMessage(const
     if (std::abs(currentValue._value - ThermometerCurrentValue::InvalidTemperature) < 0.1f) {
         std::string deviceName = "Unknown";
 
-        const std::string selectQuery = fmt::format("SELECT name FROM Devices WHERE id = '{}'", description._id.data());
+        const std::string selectQuery = fmt::format("SELECT name, grp FROM Devices WHERE id = '{}'", description._id.data());
         std::vector<std::vector<std::string>> data;
         if (_queryExecutor->Select(selectQuery, data)) {
             if (data.size()) {
                 std::optional<std::string> name = DbExtension::FindValueByName<std::string>(data[0], "name");
-                if (name.has_value())
-                    deviceName = std::move(name.value());
+                std::optional<std::string> grp = DbExtension::FindValueByName<std::string>(data[0], "grp");
+                if (name.has_value() && grp.has_value())
+                    deviceName = fmt::format("{} ({})", std::move(name.value()), std::move(grp.value()));
             }
         } else
             LOG_SQL_ERROR(selectQuery);
