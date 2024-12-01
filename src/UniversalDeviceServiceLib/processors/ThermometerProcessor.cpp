@@ -40,7 +40,20 @@ nlohmann::json ThermometerProcessor::ProcessThermometerCurrentValueMessage(const
     }
     auto& description = message._header._description;
     if (std::abs(currentValue._value - ThermometerCurrentValue::InvalidTemperature) < 0.1f) {
-        LOG_INFO_MSG(fmt::format("-127.0 found - no sensor connected to {}", description._id.data()));
+        std::string deviceName = "Unknown";
+
+        const std::string selectQuery = fmt::format("SELECT name FROM Devices WHERE id = '{}'", description._id.data());
+        std::vector<std::vector<std::string>> data;
+        if (_queryExecutor->Select(selectQuery, data)) {
+            if (data.size()) {
+                std::optional<std::string> name = DbExtension::FindValueByName<std::string>(data[0], "name");
+                if (name.has_value())
+                    deviceName = std::move(name.value());
+            }
+        } else
+            LOG_SQL_ERROR(selectQuery);
+
+        LOG_INFO_MSG(fmt::format("-127.0 found - no sensor connected to '{}' ({})", deviceName, description._id.data()));
         return {};
     }
     const std::string query = fmt::format("INSERT INTO Thermometers (id, timestamp, value) VALUES ('{}', {}, '{}')",
