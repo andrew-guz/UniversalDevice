@@ -4,8 +4,8 @@
 // uuid of current UniversalDevice
 #define DEVICE_UUID ""
 
-// #define WIFI_ESP32
-// #define WIFI_ESP8266
+// #define BOARD_ESP32
+// #define BOARD_ESP8266
 
 // currently device can be either thermometer with/without led, relay or motion relay
 // main features
@@ -44,15 +44,15 @@
 #endif
 
 // wifi networks and passwords - specify before upload
-#define SSID_MAIN "xxx"
-#define SSID_ADDITIONAL "xxx"
-#define PASSWORD_MAIN "xxx"
+#define SSID_MAIN           "xxx"
+#define SSID_ADDITIONAL     "xxx"
+#define PASSWORD_MAIN       "xxx"
 #define PASSWORD_ADDITIONAL "xxx"
-#define AUTHORIZATION_STR "xxx"
+#define AUTHORIZATION_STR   "xxx"
 
 // api
-#define API_IP "x.x.x.x"
-#define API_PORT 7315
-#define API_WS "/api/device/ws"
+#define API_IP              "x.x.x.x"
+#define API_PORT            7315
+#define API_WS              "/api/device/ws"
 
 #endif //_DEFINES_H_
