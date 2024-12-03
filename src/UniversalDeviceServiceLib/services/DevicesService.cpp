@@ -1,9 +1,15 @@
 #include "DevicesService.hpp"
 
+#include "fmt/format.h"
+
 #include "DbExtension.hpp"
+#include "Defines.hpp"
 #include "DeviceProperty.hpp"
 #include "ExtendedComponentDescription.hpp"
+#include "Logger.hpp"
 #include "SimpleTableStorageCache.hpp"
+#include "Uuid.hpp"
+#include "WebsocketsCache.hpp"
 
 DevicesService::DevicesService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor) {}
@@ -16,6 +22,7 @@ void DevicesService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::SetDeviceGroup));
     CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::GetDeviceInfo));
     CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &DevicesService::DeleteDevice));
+    CROW_ROUTE(app, API_CLIENT_RESTART_DEVICE).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::RestartDevice));
 }
 
 crow::response DevicesService::ListDevices() const {
@@ -139,5 +146,16 @@ crow::response DevicesService::DeleteDevice(const std::string& idString) {
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in DeviceService::DeleteDevice");
     }
+    return crow::response(crow::BAD_REQUEST);
+}
+
+crow::response DevicesService::RestartDevice(const std::string& idString) {
+    auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid{ idString });
+    if (connection) {
+        LOG_INFO_MSG(fmt::format("Restarting device {}", idString));
+        connection->send_text("{ \"restart\" : true }");
+        return crow::response(crow::OK);
+    }
+    LOG_ERROR_MSG(fmt::format("Failed to restart device {} - not connected", idString));
     return crow::response(crow::BAD_REQUEST);
 }

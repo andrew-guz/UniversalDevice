@@ -119,3 +119,12 @@ void BaseDeviceWidget::SetNewGroup(const std::string& newGroup) {
     if (SetDeviceProperty(API_CLIENT_DEVICE_GROUP, newGroup, _deviceGroup))
         _nameText->setText(WidgetHelper::TextWithFontSize(CombineNameAndGroup(_deviceName, _deviceGroup), 20));
 }
+
+void BaseDeviceWidget::onRestart() {
+    const auto result = RequestHelper::DoPostRequest(
+        { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_RESTART_DEVICE, "<string>", _deviceId.data()) }, Constants::LoginService, {});
+    if (result == 200)
+        WidgetHelper::ShowSimpleMessage(this, "Информация", "Устройство перезагружено.", 5000);
+    else
+        WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Ошибка перезагрузки устройства.", 5000);
+}

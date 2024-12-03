@@ -1,15 +1,14 @@
 #include "SetupHelper.h"
 #include "UUID.h"
-#include "core_esp8266_features.h"
 #include <Arduino.h>
 #include <algorithm>
 #include <limits>
 #include <map>
-#ifdef WIFI_ESP32
+#ifdef BOARD_ESP32
 #include <HTTPClient.h>
 #include <WiFi.h>
 #endif
-#ifdef WIFI_ESP8266
+#ifdef BOARD_ESP8266
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #endif
@@ -213,6 +212,9 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
             if (doc.containsKey("acknowledge")) {
                 String messageIdStr = doc["acknowledge"].as<String>();
                 ackMessages.erase(messageIdStr);
+            }
+            if (doc.containsKey("restart")) {
+              ESP.restart();
             }
 #ifdef HAS_THERMOMETER
             if (doc.containsKey("period"))
