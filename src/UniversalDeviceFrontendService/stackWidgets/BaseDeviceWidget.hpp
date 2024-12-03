@@ -71,6 +71,8 @@ protected:
 
     virtual void OnSettingsButton() = 0;
 
+    void onRestart();
+
 protected:
     std::mutex _requestMutex;
     Wt::WGridLayout* _mainLayout;

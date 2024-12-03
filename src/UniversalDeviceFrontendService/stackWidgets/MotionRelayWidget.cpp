@@ -59,8 +59,8 @@ void MotionRelayWidget::OnSettingsButton() {
     if (_deviceId.isEmpty())
         return;
     auto settings = GetSettings<MotionRelaySettings>();
-    auto [dialog, layout, nameEdit, groupEdit, periodEdit, ok] =
-        WidgetHelper::CreateBaseSettingsDialog(this, 180, _deviceName, _deviceGroup, settings._period, false);
+    auto [dialog, layout, nameEdit, groupEdit, periodEdit, ok] = WidgetHelper::CreateBaseSettingsDialog(
+        this, 180, _deviceName, _deviceGroup, settings._period, false, std::bind(&MotionRelayWidget::onRestart, this));
     // activityDelay
     layout->addWidget(std::make_unique<WText>("Задержка (мин):"), 3, 0);
     auto activityDelayEdit = layout->addWidget(std::make_unique<WSpinBox>(), 3, 1);

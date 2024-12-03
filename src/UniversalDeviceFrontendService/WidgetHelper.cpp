@@ -1,9 +1,11 @@
 #include "WidgetHelper.hpp"
 
 #include <Wt/WApplication.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WRegExpValidator.h>
 #include <Wt/WSpinBox.h>
+#include <Wt/WString.h>
 #include <Wt/WText.h>
 #include <Wt/WTimer.h>
 
@@ -18,8 +20,14 @@ void WidgetHelper::SetUsualButtonSize(WPushButton* button) {
     button->setMaximumSize(100, 50);
 }
 
-std::tuple<WDialog*, WGridLayout*, WLineEdit*, Wt::WLineEdit*, WSpinBox*, Wt::WPushButton*> WidgetHelper::CreateBaseSettingsDialog(
-    WContainerWidget* parent, int height, const WString& name, const Wt::WString& group, float period, bool useDefaultValidation) {
+std::tuple<WDialog*, WGridLayout*, WLineEdit*, Wt::WLineEdit*, WSpinBox*, Wt::WPushButton*>
+WidgetHelper::CreateBaseSettingsDialog(WContainerWidget* parent,
+                                       int height,
+                                       const WString& name,
+                                       const Wt::WString& group,
+                                       float period,
+                                       bool useDefaultValidation,
+                                       std::function<void(void)> restartFunction) {
     auto dialog = parent->addChild(std::make_unique<WDialog>("Настройки"));
     auto layout = dialog->contents()->setLayout(std::make_unique<WGridLayout>());
     dialog->setMinimumSize(400, height);
@@ -46,6 +54,12 @@ std::tuple<WDialog*, WGridLayout*, WLineEdit*, Wt::WLineEdit*, WSpinBox*, Wt::WP
     periodEdit->setMinimum(1);
     periodEdit->setMaximum(600);
     periodEdit->setValue(period / 1000);
+    // restart button
+    auto restart = dialog->footer()->addWidget(std::make_unique<WPushButton>("Перезагрузить"));
+    restart->setDefault(false);
+    restart->clicked().connect(restartFunction);
+    // separator
+    dialog->footer()->addWidget(std::make_unique<WText>("|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|"));
     // ok button
     auto ok = dialog->footer()->addWidget(std::make_unique<WPushButton>("Ok"));
     ok->setDefault(true);

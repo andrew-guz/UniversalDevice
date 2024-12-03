@@ -31,6 +31,8 @@ private:
 
     crow::response DeleteDevice(const std::string& idString);
 
+    crow::response RestartDevice(const std::string& idString);
+
 private:
     friend class BaseServiceExtension;
 };
