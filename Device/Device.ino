@@ -1,9 +1,11 @@
-#include "SetupHelper.h"
-#include "UUID.h"
 #include <Arduino.h>
 #include <algorithm>
 #include <limits>
 #include <map>
+
+#include "Defines/Defines.h"
+#include "SetupHelper.h"
+#include "UUID.h"
 #ifdef BOARD_ESP32
 #include <HTTPClient.h>
 #include <WiFi.h>
@@ -12,8 +14,9 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #endif
-#include "MessageHelper.h"
 #include <WebSocketsClient.h>
+
+#include "MessageHelper.h"
 #ifdef HAS_THERMOMETER
 #include "TemperatureHelper.h"
 #endif
@@ -214,7 +217,7 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
                 ackMessages.erase(messageIdStr);
             }
             if (doc.containsKey("restart")) {
-              ESP.restart();
+                ESP.restart();
             }
 #ifdef HAS_THERMOMETER
             if (doc.containsKey("period"))

@@ -3,7 +3,7 @@
 
 #include <assert.h>
 
-#include "Defines.h"
+#include "Defines/Defines.h"
 
 void CheckDefines() {
 // check that variables are set
@@ -30,7 +30,7 @@ void CheckDefines() {
 #ifndef AUTHORIZATION_STR
     static_assert(false, "No AUTHORIZATION_STR")
 #endif
-    static_assert(sizeof(AUTHORIZATION_STR) > 0, "No AUTHORIZATION_STR");
+        static_assert(sizeof(AUTHORIZATION_STR) > 0, "No AUTHORIZATION_STR");
 #if !defined HAS_THERMOMETER && !defined HAS_RELAY && !defined HAS_MOTION_RELAY
     static_assert(false, "No HAS_ type selection");
 #endif
