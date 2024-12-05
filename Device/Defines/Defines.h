@@ -1,6 +1,8 @@
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
+#define FIRMWARE_VERSION "1.0.0"
+
 #include "NetworkDefines.h"
 
 // uncomment real device

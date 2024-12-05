@@ -180,6 +180,9 @@ void authorizeAndGetSettings() {
     auto authMessage =
         CreateSimpleMessage(type, DEVICE_UUID, String(UUID{}.toCharArray()), "websocket_authorization", "authString", AUTHORIZATION_STR);
     websocketClient.sendTXT(authMessage);
+    auto firmwareMessage =
+        CreateSimpleMessage(type, DEVICE_UUID, String(UUID{}.toCharArray()), "websocket_firmware_version", "firmware", FIRMWARE_VERSION);
+    websocketClient.sendTXT(firmwareMessage);
     auto settingsMessage = CreateSimpleMessage(type, DEVICE_UUID, String(UUID{}.toCharArray()), "websocket_get_settings");
     websocketClient.sendTXT(settingsMessage);
     auto commandsMessage = CreateSimpleMessage(type, DEVICE_UUID, String(UUID{}.toCharArray()), "websocket_get_commands");
