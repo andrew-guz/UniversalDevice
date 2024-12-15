@@ -66,6 +66,8 @@ set(CMAKE_INSTALL_PREFIX /usr/local/bin/UniversalDevice)
 install(TARGETS ${PROJECT_NAME} DESTINATION /usr/local/bin/UniversalDevice)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/${PROJECT_NAME}.json
         DESTINATION /usr/local/bin/UniversalDevice)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/wt_config.xml
+        DESTINATION /usr/local/bin/UniversalDevice)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/authentication.json
         DESTINATION /usr/local/bin/UniversalDevice)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin/ssl
