@@ -62,13 +62,14 @@ WidgetHelper::CreateBaseSettingsDialog(WContainerWidget* parent,
     dialog->footer()->addWidget(std::make_unique<WText>("Загрузка прошивки:"));
     auto firmwarePath = dialog->footer()->addWidget(std::make_unique<WFileUpload>());
     auto firmwareButton = dialog->footer()->addWidget(std::make_unique<WPushButton>("Прошить"));
-    firmwareButton->setDisabled(true);
+    firmwareButton->disable();
     firmwareButton->setDefault(false);
     firmwarePath->changed().connect(firmwarePath, &WFileUpload::upload);
     firmwarePath->uploaded().connect([firmwareButton]() { firmwareButton->enable(); });
-    firmwareButton->clicked().connect([firmwarePath, uploadFirmwareFunction]() {
+    firmwareButton->clicked().connect([firmwarePath, uploadFirmwareFunction, firmwareButton]() {
         const std::filesystem::path filePath = firmwarePath->spoolFileName();
         uploadFirmwareFunction(filePath);
+        firmwareButton->disable();
     });
     // separator
     dialog->footer()->addWidget(std::make_unique<WText>("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));

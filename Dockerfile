@@ -36,6 +36,7 @@ RUN ./scripts/build.sh
 
 # copy WT resources
 COPY ./bin/resources ./bin/resources
+COPY ./bin/wt_config.xml ./bin/wt_config.xml
 
 # create configuration
 RUN echo '{ "port": 7315, "dbPath": "/opt/UniversalDevice/UniversalDeviceService.db", "certificatePath": "/opt/UniversalDevice/ssl/backend.crt", "keyPath": "/opt/UniversalDevice/ssl/backend.key", "authPath": "/opt/UniversalDevice/authentication.json", "logPath": "/opt/UniversalDevice/UniversalDeviceService.log", "firmwarePath": "/opt/UniversalDevice/firmware" }' > ./bin/UniversalDeviceService.json
