@@ -1,6 +1,9 @@
 #include "WidgetHelper.hpp"
 
+#include <filesystem>
+
 #include <Wt/WApplication.h>
+#include <Wt/WFileUpload.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WRegExpValidator.h>
@@ -27,6 +30,7 @@ WidgetHelper::CreateBaseSettingsDialog(WContainerWidget* parent,
                                        const Wt::WString& group,
                                        float period,
                                        bool useDefaultValidation,
+                                       std::function<void(std::filesystem::path)> uploadFirmwareFunction,
                                        std::function<void(void)> restartFunction) {
     auto dialog = parent->addChild(std::make_unique<WDialog>("Настройки"));
     auto layout = dialog->contents()->setLayout(std::make_unique<WGridLayout>());
@@ -54,6 +58,20 @@ WidgetHelper::CreateBaseSettingsDialog(WContainerWidget* parent,
     periodEdit->setMinimum(1);
     periodEdit->setMaximum(600);
     periodEdit->setValue(period / 1000);
+    // upload firmware button
+    dialog->footer()->addWidget(std::make_unique<WText>("Загрузка прошивки:"));
+    auto firmwarePath = dialog->footer()->addWidget(std::make_unique<WFileUpload>());
+    auto firmwareButton = dialog->footer()->addWidget(std::make_unique<WPushButton>("Прошить"));
+    firmwareButton->setDisabled(true);
+    firmwareButton->setDefault(false);
+    firmwarePath->changed().connect(firmwarePath, &WFileUpload::upload);
+    firmwarePath->uploaded().connect([firmwareButton]() { firmwareButton->enable(); });
+    firmwareButton->clicked().connect([firmwarePath, uploadFirmwareFunction]() {
+        const std::filesystem::path filePath = firmwarePath->spoolFileName();
+        uploadFirmwareFunction(filePath);
+    });
+    // separator
+    dialog->footer()->addWidget(std::make_unique<WText>("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
     // restart button
     auto restart = dialog->footer()->addWidget(std::make_unique<WPushButton>("Перезагрузить"));
     restart->setDefault(false);

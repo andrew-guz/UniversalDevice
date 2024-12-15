@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <functional>
 #include <string>
 #include <tuple>
@@ -39,6 +40,7 @@ public:
                              const Wt::WString& group,
                              float period,
                              bool useDefaultValidation,
+                             std::function<void(std::filesystem::path)> uploadFirmwareFunction,
                              std::function<void(void)> restartFunction);
 
     static void ShowSimpleMessage(Wt::WWidget* parent, const std::string& header, const std::string& message, int timeout = 0);

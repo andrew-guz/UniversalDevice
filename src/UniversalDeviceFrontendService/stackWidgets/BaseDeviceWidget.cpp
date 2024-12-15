@@ -120,6 +120,15 @@ void BaseDeviceWidget::SetNewGroup(const std::string& newGroup) {
         _nameText->setText(WidgetHelper::TextWithFontSize(CombineNameAndGroup(_deviceName, _deviceGroup), 20));
 }
 
+void BaseDeviceWidget::onUploadFirmware(std::filesystem::path firmwarePath) {
+    const auto result = RequestHelper::DoPostRequest(
+        { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_FIRMWARE, "<string>", _deviceId.data()) }, Constants::LoginService, {});
+    if (result == 204)
+        WidgetHelper::ShowSimpleMessage(this, "Информация", "Прошивка загружена.", 5000);
+    else
+        WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Ошибка загрузки прошивки.", 5000);
+}
+
 void BaseDeviceWidget::onRestart() {
     const auto result = RequestHelper::DoPostRequest(
         { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_RESTART_DEVICE, "<string>", _deviceId.data()) }, Constants::LoginService, {});

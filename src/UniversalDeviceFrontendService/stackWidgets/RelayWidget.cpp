@@ -97,8 +97,15 @@ void RelayWidget::OnSettingsButton() {
     if (_deviceId.isEmpty())
         return;
     auto settings = GetSettings<PeriodSettings>();
-    auto [dialog, layout, nameEdit, groupEdit, periodEdit, ok] = WidgetHelper::CreateBaseSettingsDialog(
-        this, 180, _deviceName, _deviceGroup, settings._period, true, std::bind(&RelayWidget::onRestart, this));
+    auto [dialog, layout, nameEdit, groupEdit, periodEdit, ok] =
+        WidgetHelper::CreateBaseSettingsDialog(this,
+                                               180,
+                                               _deviceName,
+                                               _deviceGroup,
+                                               settings._period,
+                                               true,
+                                               std::bind(&RelayWidget::onUploadFirmware, this, std::placeholders::_1),
+                                               std::bind(&RelayWidget::onRestart, this));
     // execute
     if (dialog->exec() != DialogCode::Accepted)
         return;

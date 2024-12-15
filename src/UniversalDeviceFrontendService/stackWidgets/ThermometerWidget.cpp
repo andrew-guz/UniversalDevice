@@ -91,8 +91,15 @@ ThermometerLedBrightness ThermometerWidget::GetBrightness() {
 void ThermometerWidget::OnSettingsButton() {
     if (_deviceId.isEmpty())
         return;
-    auto [dialog, layout, nameEdit, groupEdit, periodEdit, ok] = WidgetHelper::CreateBaseSettingsDialog(
-        this, 210, _deviceName, _deviceGroup, GetSettings<PeriodSettings>()._period, false, std::bind(&ThermometerWidget::onRestart, this));
+    auto [dialog, layout, nameEdit, groupEdit, periodEdit, ok] =
+        WidgetHelper::CreateBaseSettingsDialog(this,
+                                               210,
+                                               _deviceName,
+                                               _deviceGroup,
+                                               GetSettings<PeriodSettings>()._period,
+                                               false,
+                                               std::bind(&ThermometerWidget::onUploadFirmware, this, std::placeholders::_1),
+                                               std::bind(&ThermometerWidget::onRestart, this));
     // brightness
     layout->addWidget(std::make_unique<WText>("Яркость:"), 3, 0);
     auto brightnessEdit = layout->addWidget(std::make_unique<WSpinBox>(), 3, 1);

@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
             "--ssl-certificate", PathHelper::FullFilePath(settings._certificatePath),
             "--ssl-private-key", PathHelper::FullFilePath(settings._keyPath),
             "--ssl-tmp-dh",      PathHelper::FullFilePath(settings._dhPath),
+            "--config",          "./wt_config.xml",
         };
 
         result = Wt::WRun(argv[0], arguments, [&](const Wt::WEnvironment& env) { return std::make_unique<Application>(settings, env); });

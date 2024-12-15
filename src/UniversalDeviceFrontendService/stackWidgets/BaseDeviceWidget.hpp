@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <mutex>
 
 #include <Wt/WContainerWidget.h>
@@ -70,6 +71,8 @@ protected:
     void SetNewGroup(const std::string& newGroup);
 
     virtual void OnSettingsButton() = 0;
+
+    void onUploadFirmware(std::filesystem::path firmwarePath);
 
     void onRestart();
 
