@@ -38,7 +38,7 @@ crow::response ScenariosService::GetScenarios() const {
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::GetScenarios");
+        LOG_ERROR_MSG("Something went wrong in ScenariosService::GetScenarios");
     }
     return crow::response{
         crow::OK,
@@ -70,7 +70,7 @@ crow::response ScenariosService::AddScenario(Scenario& scenario) {
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::AddScenario");
+        LOG_ERROR_MSG("Something went wrong in ScenariosService::AddScenario");
     }
     return crow::response{
         crow::BAD_REQUEST,
@@ -101,7 +101,7 @@ crow::response ScenariosService::UpdateScenario(Scenario& scenario) {
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::UpdateScenario");
+        LOG_ERROR_MSG("Something went wrong in ScenariosService::UpdateScenario");
     }
     return crow::response{
         crow::BAD_REQUEST,
@@ -129,7 +129,7 @@ crow::response ScenariosService::DeleteScenario(const std::string& scenarioId) {
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::DeleteScenario");
+        LOG_ERROR_MSG("Something went wrong in ScenariosService::DeleteScenario");
     }
     return crow::response{
         crow::BAD_REQUEST,

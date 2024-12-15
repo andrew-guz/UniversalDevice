@@ -53,7 +53,7 @@ void DeviceWebsocketsService::OnWebSocketMessage(crow::websocket::connection& co
             }
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in DeviceService::OnWebSocketMessage");
+        LOG_ERROR_MSG("Something went wrong in DeviceWebsocketsService::OnWebSocketMessage");
     }
 }
 

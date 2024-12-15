@@ -35,7 +35,7 @@ crow::response DevicesService::ListDevices() const {
         else
             LOG_SQL_ERROR(query);
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::ListDevices");
+        LOG_ERROR_MSG("Something went wrong in DevicesService::ListDevices");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::OK, result.dump());
@@ -60,7 +60,7 @@ crow::response DevicesService::GetDeviceProperty(const crow::request& request, c
         } else
             LOG_SQL_ERROR(query);
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::GetDeviceProperty");
+        LOG_ERROR_MSG("Something went wrong in DevicesService::GetDeviceProperty");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::OK, result.dump());
@@ -88,7 +88,7 @@ DevicesService::SetDeviceProperty(const crow::request& request, const std::strin
         } else
             LOG_ERROR_MSG(fmt::format("Invalid device {} {}", field, request.body));
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::SetDeviceProperty");
+        LOG_ERROR_MSG("Something went wrong in DevicesService::SetDeviceProperty");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::BAD_REQUEST);
@@ -110,7 +110,7 @@ crow::response DevicesService::GetDeviceInfo(const crow::request& request) {
         auto message = BaseServiceExtension::GetMessageFromRequest(request);
         result = CallProcessorsJsonResult(timestamp, message);
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::GetDeviceInfo");
+        LOG_ERROR_MSG("Something went wrong in DevicesService::GetDeviceInfo");
     }
     return crow::response(crow::OK, result.dump());
 }
@@ -144,7 +144,7 @@ crow::response DevicesService::DeleteDevice(const std::string& idString) {
             crow::OK,
         };
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in DeviceService::DeleteDevice");
+        LOG_ERROR_MSG("Something went wrong in DevicesService::DeleteDevice");
     }
     return crow::response(crow::BAD_REQUEST);
 }

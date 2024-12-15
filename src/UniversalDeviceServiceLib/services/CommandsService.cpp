@@ -37,7 +37,7 @@ crow::response CommandsService::GetCommands(const std::string& idString) const {
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in DeviceService::GetCommands");
+        LOG_ERROR_MSG("Something went wrong in CommandsService::GetCommands");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::OK, std::string());
@@ -71,7 +71,7 @@ crow::response CommandsService::SetCommands(const crow::request& request, const 
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in DeviceService::SetCommands");
+        LOG_ERROR_MSG("Something went wrong in CommandsService::SetCommands");
     }
     return crow::response(crow::BAD_REQUEST);
 }

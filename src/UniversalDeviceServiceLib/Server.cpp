@@ -9,6 +9,7 @@
 #include "DeviceWebsocketsService.hpp"
 #include "DevicesService.hpp"
 #include "EventsService.hpp"
+#include "FirmwareService.hpp"
 #include "Logger.hpp"
 #include "MainService.hpp"
 #include "Middleware.hpp"
@@ -44,6 +45,7 @@ int Server::run() {
         BaseServiceExtension::Create<DevicesService>(app, &storage);
         BaseServiceExtension::Create<DeviceWebsocketsService>(app, &storage);
         BaseServiceExtension::Create<TimerService>(app, &storage);
+        BaseServiceExtension::Create<FirmwareService>(app, &storage, settings);
 
         app.ssl_file(PathHelper::FullFilePath(settings._certificatePath).native(), PathHelper::FullFilePath(settings._keyPath).native())
             .port(settings._port)

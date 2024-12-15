@@ -112,7 +112,7 @@ bool ActivateScenario(IQueryExecutor* queryExecutor, const Uuid& scenarioId) {
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::ActivateScenario");
+        LOG_ERROR_MSG("Something went wrong in ScenariosService::ActivateScenario");
     }
     return false;
 }

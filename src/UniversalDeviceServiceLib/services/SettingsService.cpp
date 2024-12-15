@@ -37,7 +37,7 @@ crow::response SettingsService::GetSettings(const std::string& idString) const {
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in DeviceService::GetSettings");
+        LOG_ERROR_MSG("Something went wrong in SettingsService::GetSettings");
         return crow::response(crow::BAD_REQUEST);
     }
     return crow::response(crow::OK, std::string());
@@ -71,7 +71,7 @@ crow::response SettingsService::SetSettings(const crow::request& request, const 
                 break;
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in DeviceService::SetSettings");
+        LOG_ERROR_MSG("Something went wrong in SettingsService::SetSettings");
     }
     return crow::response(crow::BAD_REQUEST);
 }

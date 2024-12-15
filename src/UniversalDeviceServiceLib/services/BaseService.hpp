@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string_view>
+#include <utility>
 
 #include <crow.h>
 #include <fmt/format.h>
@@ -95,9 +96,9 @@ public:
 
     ~BaseServiceExtension() = default;
 
-    template<typename ServiceType>
-    static ServiceType* Create(CrowApp& app, IQueryExecutor* queryExecutor) {
-        auto service = new ServiceType(queryExecutor);
+    template<typename ServiceType, typename... Args>
+    static auto Create(CrowApp& app, IQueryExecutor* queryExecutor, const Args&... args) {
+        auto service = new ServiceType(queryExecutor, std::forward<const Args&>(args)...);
         service->Initialize(app);
         return service;
     }

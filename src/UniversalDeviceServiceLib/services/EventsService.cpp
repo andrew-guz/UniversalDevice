@@ -44,7 +44,7 @@ crow::response EventsService::GetEvents() const {
             }
         }
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::GetEvents");
+        LOG_ERROR_MSG("Something went wrong in EventsService::GetEvents");
     }
     return crow::response(crow::OK, result.dump());
 }
