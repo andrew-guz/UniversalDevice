@@ -45,7 +45,7 @@ int Server::run() {
         BaseServiceExtension::Create<DevicesService>(app, &storage);
         BaseServiceExtension::Create<DeviceWebsocketsService>(app, &storage);
         BaseServiceExtension::Create<TimerService>(app, &storage);
-        BaseServiceExtension::Create<FirmwareService>(app, &storage, settings);
+        BaseServiceExtension::Create<FirmwareService>(app, &storage);
 
         app.ssl_file(PathHelper::FullFilePath(settings._certificatePath).native(), PathHelper::FullFilePath(settings._keyPath).native())
             .port(settings._port)

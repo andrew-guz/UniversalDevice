@@ -4,11 +4,11 @@
 #include <fstream>
 
 #include "Defines.hpp"
-#include "WebsocketsCache.hpp"
+#include "Logger.hpp"
+#include "Settings.hpp"
 
-FirmwareService::FirmwareService(IQueryExecutor* queryExecutor, const Settings& settings) :
-    BaseService(queryExecutor),
-    _settings(settings) {}
+FirmwareService::FirmwareService(IQueryExecutor* queryExecutor) :
+    BaseService(queryExecutor) {}
 
 void FirmwareService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_FIRMWARE).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &FirmwareService::UploadFirmware));
@@ -16,7 +16,16 @@ void FirmwareService::Initialize(CrowApp& app) {
 
 crow::response FirmwareService::UploadFirmware(const crow::request& request, const std::string& idString) const {
     try {
-        const std::filesystem::path firmwarePath = _settings._firmwarePath / idString / "firmware.bin";
+        const Settings settings = Settings::ReadSettings();
+
+        const std::filesystem::path firmwarePath = settings._firmwarePath / idString / "firmware.bin";
+        if (settings._firmwarePath.empty()) {
+            LOG_ERROR_MSG("No firmware path provided");
+            return crow::response{
+                crow::BAD_REQUEST,
+            };
+        }
+
         if (!std::filesystem::exists(firmwarePath.parent_path()))
             std::filesystem::create_directories(firmwarePath.parent_path());
         { //

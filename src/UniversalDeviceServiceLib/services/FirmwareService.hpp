@@ -1,11 +1,10 @@
 #pragma once
 
 #include "BaseService.hpp"
-#include "Settings.hpp"
 
 class FirmwareService final : public BaseService {
 protected:
-    FirmwareService(IQueryExecutor* queryExecutor, const Settings& settings);
+    FirmwareService(IQueryExecutor* queryExecutor);
 
 public:
     virtual ~FirmwareService() = default;
@@ -15,9 +14,6 @@ protected:
 
 private:
     crow::response UploadFirmware(const crow::request& request, const std::string& idString) const;
-
-private:
-    const Settings& _settings;
 
 private:
     friend class BaseServiceExtension;
