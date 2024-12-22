@@ -5,6 +5,8 @@
 
 // uncomment real device
 
+// #include "Devices/TestThermometer.h"
+
 // #include "Devices/OutdoorMasterBedroomThermometer.h"
 // #include "Devices/OutdoorMasterBedroomRelay.h"
 
