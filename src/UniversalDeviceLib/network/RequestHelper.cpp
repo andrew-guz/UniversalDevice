@@ -49,6 +49,10 @@ int RequestHelper::DoPostRequest(const RequestAddress& requestAddress, const std
     return DoRequest("POST", requestAddress, login, json, nullptr);
 }
 
+int RequestHelper::DoPostRequest(const RequestAddress& requestAddress, std::string_view login, const std::string& data) {
+    return DoRequest("POST", requestAddress, login, data, nullptr);
+}
+
 nlohmann::json
 RequestHelper::DoPostRequestWithAnswer(const RequestAddress& requestAddress, const std::string_view login, const nlohmann::json& json) {
     std::ostringstream response;
@@ -79,14 +83,14 @@ int RequestHelper::DoDeleteRequest(const RequestAddress& requestAddress, const s
 
 int RequestHelper::DoRequest(const std::string& method,
                              const RequestAddress& requestAddress,
-                             const std::string_view login,
-                             const nlohmann::json& json,
+                             std::string_view login,
+                             const std::string& sendingString,
                              std::ostream* responseStream) {
     if (method != "POST" && method != "PUT" && method != "PATCH" && method != "DELETE")
         throw new std::bad_function_call();
+
     try {
         std::string url = requestAddress.BuildUrl();
-        auto sendingString = json.dump();
 
         LOG_DEBUG_MSG(fmt::format("{} {} {}", method, url, sendingString));
 
@@ -113,5 +117,14 @@ int RequestHelper::DoRequest(const std::string& method,
     } catch (...) {
         LOG_ERROR_MSG(fmt::format("{} request failed ({})", method, requestAddress.BuildUrl()));
     }
+
     return 400;
+}
+
+int RequestHelper::DoRequest(const std::string& method,
+                             const RequestAddress& requestAddress,
+                             const std::string_view login,
+                             const nlohmann::json& json,
+                             std::ostream* responseStream) {
+    return RequestHelper::DoRequest(method, requestAddress, login, json.dump(), responseStream);
 }

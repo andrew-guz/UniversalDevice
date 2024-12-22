@@ -12,6 +12,8 @@ public:
 
     static int DoPostRequest(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json);
 
+    static int DoPostRequest(const RequestAddress& requestAddress, std::string_view login, const std::string& data);
+
     static nlohmann::json DoPostRequestWithAnswer(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json);
 
     static int DoPutRequest(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json);
@@ -21,6 +23,12 @@ public:
     static int DoDeleteRequest(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json = {});
 
 private:
+    static int DoRequest(const std::string& method,
+                         const RequestAddress& requestAddress,
+                         std::string_view login,
+                         const std::string& sendingString,
+                         std::ostream* responseStream);
+
     static int DoRequest(const std::string& method,
                          const RequestAddress& requestAddress,
                          std::string_view login,

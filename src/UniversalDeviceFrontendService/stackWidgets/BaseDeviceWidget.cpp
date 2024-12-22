@@ -1,5 +1,8 @@
 #include "BaseDeviceWidget.hpp"
 
+#include <fstream>
+#include <sstream>
+
 #include <Wt/WDialog.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
@@ -121,8 +124,13 @@ void BaseDeviceWidget::SetNewGroup(const std::string& newGroup) {
 }
 
 void BaseDeviceWidget::onUploadFirmware(std::filesystem::path firmwarePath) {
-    const auto result = RequestHelper::DoPostRequest(
-        { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_FIRMWARE, "<string>", _deviceId.data()) }, Constants::LoginService, {});
+    std::ifstream file{ firmwarePath, std::ios::binary };
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    const auto result =
+        RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_FIRMWARE, "<string>", _deviceId.data()) },
+                                     Constants::LoginService,
+                                     buffer.str());
     if (result == 204)
         WidgetHelper::ShowSimpleMessage(this, "Информация", "Прошивка загружена.", 5000);
     else
@@ -130,8 +138,10 @@ void BaseDeviceWidget::onUploadFirmware(std::filesystem::path firmwarePath) {
 }
 
 void BaseDeviceWidget::onRestart() {
-    const auto result = RequestHelper::DoPostRequest(
-        { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_RESTART_DEVICE, "<string>", _deviceId.data()) }, Constants::LoginService, {});
+    const auto result =
+        RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_RESTART_DEVICE, "<string>", _deviceId.data()) },
+                                     Constants::LoginService,
+                                     std::string{});
     if (result == 200)
         WidgetHelper::ShowSimpleMessage(this, "Информация", "Устройство перезагружено.", 5000);
     else
