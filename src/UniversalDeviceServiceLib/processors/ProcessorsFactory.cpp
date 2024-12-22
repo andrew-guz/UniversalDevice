@@ -1,9 +1,8 @@
 #include "ProcessorsFactory.hpp"
 
-#include "Constants.hpp"
 #include "DeviceRegistrationProcessor.hpp"
 #include "EventsProcessor.hpp"
-#include "Logger.hpp"
+#include "FirmwareProcessor.hpp"
 #include "MotionRelayProcessor.hpp"
 #include "RelayProcessor.hpp"
 #include "ThermometerProcessor.hpp"
@@ -18,6 +17,8 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         case Subject::TimerEvent:
             // process events due to timer
             processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor)));
+            // maybe update firmware
+            processors.push_back(std::shared_ptr<IProcessor>(new FirmwareProcessor(queryExecutor)));
             break;
         case Subject::GetDeviceInformation:
             // we need information about device - here we should call all device processors maybe some one will return data
