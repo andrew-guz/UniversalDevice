@@ -127,10 +127,8 @@ void BaseDeviceWidget::onUploadFirmware(std::filesystem::path firmwarePath) {
     std::ifstream file{ firmwarePath, std::ios::binary };
     std::stringstream buffer;
     buffer << file.rdbuf();
-    const auto result =
-        RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_CLIENT_FIRMWARE, "<string>", _deviceId.data()) },
-                                     Constants::LoginService,
-                                     buffer.str());
+    const auto result = RequestHelper::DoPostRequest(
+        { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_FIRMWARE, "<string>", _deviceId.data()) }, Constants::LoginService, buffer.str());
     if (result == 204)
         WidgetHelper::ShowSimpleMessage(this, "Информация", "Прошивка загружена.", 5000);
     else

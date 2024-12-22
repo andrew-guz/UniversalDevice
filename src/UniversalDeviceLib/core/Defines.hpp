@@ -34,5 +34,6 @@
 #define API_CLIENT_SCENARIOS       "/api/client/scenarios"
 #define API_CLIENT_SCENARIOS_ID    "/api/client/scenarios/<string>"
 #define API_CLIENT_LOGS            "/api/client/backendLog"
-#define API_CLIENT_FIRMWARE        "/api/client/firmware/<string>"
 #define API_CLIENT_RESTART_DEVICE  "/api/client/restart/<string>"
+// common for client and device
+#define API_FIRMWARE               "/api/client/firmware/<string>"

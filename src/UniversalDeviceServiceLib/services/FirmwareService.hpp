@@ -15,6 +15,8 @@ protected:
 private:
     crow::response UploadFirmware(const crow::request& request, const std::string& idString) const;
 
+    crow::response ProvideFirmware(const std::string& idString) const;
+
 private:
     friend class BaseServiceExtension;
 };
