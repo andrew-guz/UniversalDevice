@@ -8,11 +8,13 @@
 #include "UUID.h"
 #ifdef BOARD_ESP32
 #include <HTTPClient.h>
+#include <HTTPUpdate.h>
 #include <WiFi.h>
 #endif
 #ifdef BOARD_ESP8266
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266httpUpdate.h>
 #endif
 #include <WebSocketsClient.h>
 
@@ -186,6 +188,13 @@ void authorizeAndGetSettings() {
     websocketClient.sendTXT(commandsMessage);
 }
 
+void updateFirmware() {
+#ifdef BOARD_ESP8266
+#endif
+#ifdef BOARD_ESP8266
+#endif
+}
+
 char websocketBuffer[256];
 bool websocketConnected = false;
 
@@ -218,6 +227,9 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
             }
             if (doc.containsKey("restart")) {
                 ESP.restart();
+            }
+            if (doc.containsKey("update_firmware")) {
+                updateFirmware();
             }
 #ifdef HAS_THERMOMETER
             if (doc.containsKey("period"))
