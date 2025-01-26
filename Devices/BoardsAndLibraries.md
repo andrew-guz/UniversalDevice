@@ -11,5 +11,6 @@
 - ArduinoJson
 - DallasTemperature
 - OneWire
+- TM1637TinyDisplay
 - UUID
 - WebSockets
