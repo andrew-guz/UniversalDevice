@@ -10,6 +10,7 @@
 
 - ArduinoJson
 - DallasTemperature
+- ESPPing
 - OneWire
 - TM1637TinyDisplay
 - UUID
