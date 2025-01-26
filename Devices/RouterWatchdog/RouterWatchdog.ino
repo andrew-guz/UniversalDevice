@@ -52,7 +52,7 @@ void resetRelay() {
 void loop() {
     if (!wifiExists()) {
         resetRelay();
-        // if relay was resetted - sleep 5 seconds
+        // if relay was resetted - sleep 5 minutes
         delay(5 * 60 * 1000);
     } else {
         // wifi is OK - sleep longer - 10 minutes
