@@ -379,16 +379,19 @@ void loop() {
 #ifdef RELAY_AS_THERMOSTAT
     if (websocketConnected == false) {
         auto currentTemperature = temperatureSensor.GetTemperature();
-        if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA) {
-            if (relayHelper.State() == 0) {
-                relayHelper.On();
-                sendRelayState();
+        if (currentTemperature < -126.0f) {
+            // broken sensor
+            relayHelper.Off();
+        } else {
+            if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA) {
+                if (relayHelper.State() == 0) {
+                    relayHelper.On();
+                }
             }
-        }
-        if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA) {
-            if (relayHelper.State() == 1) {
-                relayHelper.Off();
-                sendRelayState();
+            if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA) {
+                if (relayHelper.State() == 1) {
+                    relayHelper.Off();
+                }
             }
         }
     }
