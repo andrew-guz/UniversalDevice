@@ -9,7 +9,7 @@
 #define RELAY_AS_THERMOSTAT
 #define RELAY_THERMOSTAT_VALUE 2.5f
 #define RELAY_THERMOSTAT_DELTA 0.5f
-#define RELAY_PIN              D5
-#define RELAY_THERMOSTAT_PIN   D6
+#define RELAY_PIN              D6
+#define RELAY_THERMOSTAT_PIN   D7
 
 #endif //_DEVICE_H_
