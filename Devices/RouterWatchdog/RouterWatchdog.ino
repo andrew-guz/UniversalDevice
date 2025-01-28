@@ -12,6 +12,10 @@ void setup() {
 
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
+    pinMode(LED_BUILTIN, OUTPUT);
+    // beware - ESP built in led is off by HIGHT level
+    digitalWrite(LED_BUILTIN, HIGH);
+
     pinMode(RELAY_PIN, OUTPUT);
     digitalWrite(RELAY_PIN, LOW);
 }
@@ -51,10 +55,12 @@ void resetRelay() {
 
 void loop() {
     if (!wifiExists()) {
+        digitalWrite(LED_BUILTIN, LOW);
         resetRelay();
         // if relay was resetted - sleep 5 minutes
         delay(5 * 60 * 1000);
     } else {
+        digitalWrite(LED_BUILTIN, HIGH);
         // wifi is OK - sleep longer - 10 minutes
         delay(10 * 60 * 1000);
     }
