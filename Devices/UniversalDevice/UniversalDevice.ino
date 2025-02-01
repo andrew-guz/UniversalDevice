@@ -301,13 +301,20 @@ void loop() {
     if (!checkWiFi()) {
 #if defined HAS_RELAY && defined RELAY_AS_THERMOSTAT
         auto currentTemperature = temperatureSensor.GetTemperature();
-        if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA) {
-            if (relayHelper.State() == 0)
-                relayHelper.On();
-        }
-        if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA) {
-            if (relayHelper.State() == 1)
-                relayHelper.Off();
+        Serial.print("Themperature: ");
+        Serial.println(currentTemperature);
+        if (currentTemperature < -126.0f) {
+            // broken sensor
+            relayHelper.Off();
+        } else {
+            if (currentTemperature < RELAY_THERMOSTAT_VALUE - RELAY_THERMOSTAT_DELTA) {
+                if (relayHelper.State() == 0)
+                    relayHelper.On();
+            }
+            if (currentTemperature > RELAY_THERMOSTAT_VALUE + RELAY_THERMOSTAT_DELTA) {
+                if (relayHelper.State() == 1)
+                    relayHelper.Off();
+            }
         }
 #endif
         delay(1000);
@@ -379,6 +386,8 @@ void loop() {
 #ifdef RELAY_AS_THERMOSTAT
     if (websocketConnected == false) {
         auto currentTemperature = temperatureSensor.GetTemperature();
+        Serial.print("Themperature: ");
+        Serial.println(currentTemperature);
         if (currentTemperature < -126.0f) {
             // broken sensor
             relayHelper.Off();
