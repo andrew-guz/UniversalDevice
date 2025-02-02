@@ -2,6 +2,7 @@
 #define _DEVICE_H_
 
 #define DEVICE_UUID "26ad2731-5472-4d2d-95c2-daffca8d2992"
+#define DEVICE_NAME "Bedroom_Relay"
 
 #define BOARD_ESP8266
 
