@@ -2,6 +2,7 @@
 #define _DEVICE_H_
 
 #define DEVICE_UUID "516d484f-db9e-4279-9ccc-78fa512ed039"
+#define DEVICE_NAME "Older_Thermometer"
 
 #define BOARD_ESP8266
 

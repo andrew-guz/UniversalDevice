@@ -2,6 +2,7 @@
 #define _DEVICE_H_
 
 #define DEVICE_UUID "24aded7a-f90a-446c-a04b-24fcb630ff41"
+#define DEVICE_NAME "Room_Thermometer"
 
 #define BOARD_ESP8266
 

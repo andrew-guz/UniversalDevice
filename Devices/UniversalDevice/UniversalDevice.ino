@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <ArduinoOTA.h>
 #include <algorithm>
 #include <limits>
 #include <map>
@@ -294,6 +295,10 @@ void setup() {
     websocketClient.enableHeartbeat(5000, 5000, 3);
     websocketClient.setReconnectInterval(500);
     websocketClient.onEvent(WebSocketEvent);
+
+    ArduinoOTA.setHostname(DEVICE_NAME);
+    ArduinoOTA.setPasswordHash(OTA_PASSWORD);
+    ArduinoOTA.begin();
 }
 
 void loop() {
@@ -322,6 +327,8 @@ void loop() {
     }
 
     websocketClient.loop();
+
+    ArduinoOTA.handle();
 
     auto currentTime = millis();
 

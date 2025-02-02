@@ -13,4 +13,7 @@
 #define API_PORT            7315
 #define API_WS              "/api/device/ws"
 
+// OTA
+#define OTA_PASSWORD        "xxx"
+
 #endif //_NETWORK_DEFINES_H_

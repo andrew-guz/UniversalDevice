@@ -2,6 +2,7 @@
 #define _DEVICE_H_
 
 #define DEVICE_UUID "12e269e8-ff47-41c3-a889-a7ab35cd0896"
+#define DEVICE_NAME "Older_Relay"
 
 #define BOARD_ESP8266
 
