@@ -47,6 +47,9 @@ I2CTemperatureSensor temperatureSensor;
 unsigned long temperatureStartTime;
 int temperatureMeasurementDelay = 5000;
 #ifdef HAS_DISPLAY
+unsigned long displayStartTime;
+int displaySwitchDelay = 5000;
+Display::State displayCurrentState = Display::State::Temperature;
 #ifdef TM1637_DISPLAY
 TM1637Display display(LED_CLK_PIN, LED_DIO_PIN);
 #endif
@@ -231,6 +234,13 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
                 displayBrightness = doc["brightness"].as<int>();
                 display.SetBrightness(displayBrightness);
             }
+            if (doc.containsKey("date-time")) {
+                String dateTime = doc["date-time"].as<String>();
+                const int delimeterIndex = dateTime.indexOf(" ");
+                String date = dateTime.substring(0, delimeterIndex);
+                String time = dateTime.substring(delimeterIndex + 1);
+                display.SetDateTime(date, time);
+            }
 #endif // HAS_DISPLAY
 #endif // HAS_THERMOMETER
 #ifdef HAS_RELAY
@@ -359,6 +369,12 @@ void loop() {
         temperatureStartTime = millis();
         return;
     }
+#ifdef HAS_DISPLAY
+    if (currentTime <= displayStartTime) {
+        displayStartTime = millis();
+        return;
+    }
+#endif // HAS_DISPLAY
 #endif // HAS_THERMOMTER
 
 #ifdef HAS_RELAY
@@ -381,11 +397,30 @@ void loop() {
         // last for 500 ms
         auto temperature = temperatureSensor.GetTemperature();
 #ifdef HAS_DISPLAY
-        display.ShowTemperature(temperature);
+        display.SetTemperature(temperature);
 #endif
         sendTemperature(temperature);
         temperatureStartTime = currentTime;
     }
+#ifdef HAS_DISPLAY
+    if ((int)(currentTime - displayStartTime) >= displaySwitchDelay) {
+        display.ShowState(displayCurrentState);
+        displayStartTime = currentTime;
+        switch (displayCurrentState) {
+            case Display::State::Temperature:
+                displayCurrentState = Display::State::Time;
+                break;
+            case Display::State::Time:
+                displayCurrentState = Display::State::Date;
+                break;
+            case Display::State::Date:
+                displayCurrentState = Display::State::Temperature;
+                break;
+            default:
+                break;
+        }
+    }
+#endif // HAS_DISPLAY
 #endif // HAS_THERMOMETER
 
 #ifdef HAS_RELAY

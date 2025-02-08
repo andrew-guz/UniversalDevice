@@ -26,19 +26,29 @@ public:
 
     virtual void SetBrightness(int value) = 0;
 
+    void SetTemperature(float value) { _temperature = value; }
+
+    void SetDateTime(const String& date, const String& time) {
+        _date = date;
+        _time = time;
+    }
+
     enum class State {
         Hello,
         Connecting,
         Connected,
         Error,
+        Temperature,
+        Time,
+        Date,
     };
 
     virtual void ShowState(State state) = 0;
 
-    virtual void ShowTemperature(float value) = 0;
-
 protected:
-    virtual void ShowString(const String& str) = 0;
+    float _temperature;
+    String _date;
+    String _time;
 };
 
 #ifdef TM1637_DISPLAY
@@ -62,24 +72,24 @@ public:
     virtual void ShowState(State state) override {
         switch (state) {
             case State::Hello:
-                ShowString("HELO");
+                _display.showString("HELO");
                 break;
             case State::Connecting:
-                ShowString("CON-");
+                _display.showString("CON-");
                 break;
             case State::Connected:
-                ShowString("CONN");
+                _display.showString("CONN");
                 break;
             case State::Error:
-                ShowString("EROR");
+                _display.showString("EROR");
+                break;
+            case State::Temperature:
+            case State::Time:
+            case State::Date:
+                _display.showNumber(_temperature, 1);
                 break;
         }
     }
-
-    virtual void ShowTemperature(float value) override { _display.showNumber(value, 1); }
-
-protected:
-    virtual void ShowString(const String& str) override { _display.showString(str.c_str()); }
 
 private:
     TM1637TinyDisplay _display(LED_CLK_PIN, LED_DIO_PIN);
@@ -133,16 +143,33 @@ public:
                 _display.setFont(&FreeSans18pt7b);
                 ShowString("Error");
                 break;
+            case State::Temperature:
+                _display.setFont(&FreeSans18pt7b);
+                ShowString(String(_temperature, 1) + String(" C"));
+                break;
+            case State::Time:
+                if (!_time.length()) {
+                    _display.setFont(&FreeSans18pt7b);
+                    ShowString(String(_temperature, 1) + String(" C"));
+                } else {
+                    _display.setFont(&FreeSans12pt7b);
+                    ShowString(_time);
+                }
+                break;
+            case State::Date:
+                if (!_date.length()) {
+                    _display.setFont(&FreeSans18pt7b);
+                    ShowString(String(_temperature, 1) + String(" C"));
+                } else {
+                    _display.setFont(&FreeSans12pt7b);
+                    ShowString(_date);
+                }
+                break;
         }
     }
 
-    virtual void ShowTemperature(float value) override {
-        _display.setFont(&FreeSans18pt7b);
-        ShowString(String(value, 1) + String(" C"));
-    }
-
 protected:
-    virtual void ShowString(const String& str) override {
+    void ShowString(const String& str) {
         _display.clearDisplay();
         if (_brightness == 0) {
             _display.display();
