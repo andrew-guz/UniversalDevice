@@ -1,6 +1,7 @@
 #include "DevicesService.hpp"
 
-#include "fmt/format.h"
+#include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
 #include "DbExtension.hpp"
 #include "Defines.hpp"
@@ -153,7 +154,10 @@ crow::response DevicesService::RestartDevice(const std::string& idString) {
     auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid{ idString });
     if (connection) {
         LOG_INFO_MSG(fmt::format("Restarting device {}", idString));
-        connection->send_text("{ \"restart\" : true }");
+        connection->send_text(nlohmann::json{
+            { "restart", true },
+        }
+                                  .dump());
         return crow::response(crow::OK);
     }
     LOG_ERROR_MSG(fmt::format("Failed to restart device {} - not connected", idString));
