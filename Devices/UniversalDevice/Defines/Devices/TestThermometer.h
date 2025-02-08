@@ -8,9 +8,7 @@
 
 #define HAS_THERMOMETER
 #define I2C_TEMPERATURE_SENSOR
-// #define THERMOMETER_PIN D5
-// #define HAS_LED
-// #define LED_CLK_PIN     D6
-// #define LED_DIO_PIN     D7
+#define HAS_DISPLAY
+#define OLED_DISPLAY
 
 #endif //_DEVICE_H_

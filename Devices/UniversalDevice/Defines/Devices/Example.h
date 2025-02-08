@@ -16,7 +16,11 @@
 #ifdef HAS_THERMOMETER
 // #define ONE_WIRE_TEMPERATURE_SENSOR
 // #define I2C_TEMPERATURE_SENSOR
-// #define HAS_LED
+// #define HAS_DISPLAY
+// #ifdef HAS_DISPLAY
+// #define TM1637_DISPLAY
+// #define OLED_DISPLAY
+// #endif // HAS_DISPLAY
 #endif
 #if defined HAS_RELAY || defined HAS_MOTION_RELAY
 // #define RELAY_SWITCH_ON_BY_LOW_LEVEL
@@ -30,7 +34,7 @@
 #ifdef HAS_THERMOMETER
 // #define THERMOMETER_PIN
 #endif
-#ifdef HAS_LED
+#ifdef HAS_DISPLAY
 // #define LED_CLK_PIN
 // #define LED_DIO_PIN
 #endif

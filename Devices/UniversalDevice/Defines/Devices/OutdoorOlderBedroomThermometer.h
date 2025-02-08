@@ -8,7 +8,7 @@
 
 #define HAS_THERMOMETER
 #define ONE_WIRE_TEMPERATURE_SENSOR
-#define HAS_LED
+#define HAS_DISPLAY
 #define THERMOMETER_PIN D5
 #define LED_CLK_PIN     D6
 #define LED_DIO_PIN     D7

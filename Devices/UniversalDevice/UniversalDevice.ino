@@ -10,30 +10,30 @@
 #ifdef BOARD_ESP32
 #include <HTTPClient.h>
 #include <WiFi.h>
-#endif
+#endif // BOARD_ESP32
 #ifdef BOARD_ESP8266
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
-#endif
+#endif // BOARD_ESP8266
 #include <WebSocketsClient.h>
 
 #include "MessageHelper.h"
 #ifdef HAS_THERMOMETER
 #include "TemperatureHelper.h"
-#endif
-#ifdef HAS_LED
-#include <TM1637TinyDisplay.h>
-#endif
+#ifdef HAS_DISPLAY
+#include "DisplayHelper.h"
+#endif // HAS_DISPLAY
+#endif // HAS_THERMOMETER
 #ifdef HAS_RELAY
 #include "RelayHelper.h"
 #ifdef RELAY_AS_THERMOSTAT
 #include "TemperatureHelper.h"
-#endif
-#endif
+#endif // RELAY_AS_THERMOSTAT
+#endif // HAS_RELAY
 #ifdef HAS_MOTION_RELAY
 #include "MotionHelper.h"
 #include "RelayHelper.h"
-#endif
+#endif // HAS_MOTION_RELAY
 
 WebSocketsClient websocketClient;
 std::map<String, unsigned long> ackMessages;
@@ -46,10 +46,15 @@ I2CTemperatureSensor temperatureSensor;
 #endif
 unsigned long temperatureStartTime;
 int temperatureMeasurementDelay = 5000;
-#ifdef HAS_LED
-TM1637TinyDisplay ledDisplay(LED_CLK_PIN, LED_DIO_PIN);
-int ledBrightness = BRIGHT_7;
+#ifdef HAS_DISPLAY
+#ifdef TM1637_DISPLAY
+TM1637Display display(LED_CLK_PIN, LED_DIO_PIN);
 #endif
+#ifdef OLED_DISPLAY
+OLEDDisplay display;
+#endif
+int displayBrightness = DISPLAY_MAX_BRIGHTNESS;
+#endif // HAS_DISPLAY
 #endif // HAS_THERMOMETER
 #ifdef HAS_RELAY
 RelayHelper relayHelper(RELAY_PIN);
@@ -89,19 +94,6 @@ void sendTemperature(float temperature) {
     auto message = CreateSimpleMessage("thermometer", DEVICE_UUID, generateMessageId(), "thermometer_current_value", "value", temperature);
     websocketClient.sendTXT(message);
 }
-
-#ifdef HAS_LED
-void ledSetBrightness(int value) {
-    if (value != BRIGHT_0)
-        ledDisplay.setBrightness(value, true);
-    else
-        ledDisplay.setBrightness(value, false);
-}
-
-void ledShowString(const String& str) { ledDisplay.showString(str.c_str()); }
-
-void ledShowTemperature(float temperature) { ledDisplay.showNumber(temperature, 1); }
-#endif // HAS_LED
 #endif // HAS_THERMOMETER
 
 #ifdef HAS_RELAY
@@ -136,15 +128,15 @@ void reconnectWebSocket() {
 
 bool connectToWiFi(const String& ssid, const String& password) {
     Serial.print("Connecting " + ssid + " ");
-#ifdef HAS_LED
-    ledShowString("CON-");
+#ifdef HAS_DISPLAY
+    display.ShowString("CON-");
 #endif
     WiFi.begin(ssid, password);
     for (auto i = 0; i < 30; ++i) {
         if (WiFi.status() == WL_CONNECTED) {
             Serial.println(" Connected");
-#ifdef HAS_LED
-            ledShowString("CONN");
+#ifdef HAS_DISPLAY
+            display.ShowString("CONN");
 #endif
             return true;
         }
@@ -152,8 +144,8 @@ bool connectToWiFi(const String& ssid, const String& password) {
         delay(500);
     }
     Serial.println(" Failed");
-#ifdef HAS_LED
-    ledShowString("EROR");
+#ifdef HAS_DISPLAY
+    display.ShowString("EROR");
 #endif
     return false;
 }
@@ -233,12 +225,12 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
 #ifdef HAS_THERMOMETER
             if (doc.containsKey("period"))
                 temperatureMeasurementDelay = doc["period"].as<int>();
-#ifdef HAS_LED
+#ifdef HAS_DISPLAY
             if (doc.containsKey("brightness")) {
-                ledBrightness = doc["brightness"].as<int>();
-                ledSetBrightness(ledBrightness);
+                displayBrightness = doc["brightness"].as<int>();
+                display.SetBrightness(displayBrightness);
             }
-#endif // HAS_LED
+#endif // HAS_DISPLAY
 #endif // HAS_THERMOMETER
 #ifdef HAS_RELAY
             if (doc.containsKey("period"))
@@ -280,10 +272,11 @@ void setup() {
 #ifdef HAS_THERMOMETER
     temperatureSensor.Setup();
 
-#ifdef HAS_LED
-    ledSetBrightness(ledBrightness);
-    ledShowString("HELO");
-#endif // HAS_LED
+#ifdef HAS_DISPLAY
+    display.Setup();
+    display.SetBrightness(displayBrightness);
+    display.ShowString("HELO");
+#endif // HAS_DISPLAY
 #endif // HAS_THERMOMETER
 
 #ifdef HAS_RELAY
@@ -386,8 +379,8 @@ void loop() {
     if ((int)(currentTime - temperatureStartTime) >= temperatureMeasurementDelay - 500) {
         // last for 500 ms
         auto temperature = temperatureSensor.GetTemperature();
-#ifdef HAS_LED
-        ledShowTemperature(temperature);
+#ifdef HAS_DISPLAY
+        display.ShowTemperature(temperature);
 #endif
         sendTemperature(temperature);
         temperatureStartTime = currentTime;

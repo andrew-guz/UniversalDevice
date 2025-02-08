@@ -14,7 +14,7 @@
 // #define HAS_MOTION_RELAY
 // additional features
 #ifdef HAS_THERMOMETER
-// #define HAS_LED
+// #define HAS_DISPLAY
 #endif
 #if defined HAS_RELAY || defined HAS_MOTION_RELAY
 // #define RELAY_SWITCH_ON_BY_LOW_LEVEL
@@ -28,7 +28,7 @@
 #ifdef HAS_THERMOMETER
 // #define THERMOMETER_PIN
 #endif
-#ifdef HAS_LED
+#ifdef HAS_DISPLAY
 // #define LED_CLK_PIN
 // #define LED_DIO_PIN
 #endif
