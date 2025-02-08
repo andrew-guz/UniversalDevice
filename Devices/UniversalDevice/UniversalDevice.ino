@@ -89,7 +89,6 @@ void sendTemperature(float temperature) {
     auto message = CreateSimpleMessage("thermometer", DEVICE_UUID, generateMessageId(), "thermometer_current_value", "value", temperature);
     websocketClient.sendTXT(message);
 }
-#endif
 
 #ifdef HAS_LED
 void ledSetBrightness(int value) {
@@ -102,14 +101,15 @@ void ledSetBrightness(int value) {
 void ledShowString(const String& str) { ledDisplay.showString(str.c_str()); }
 
 void ledShowTemperature(float temperature) { ledDisplay.showNumber(temperature, 1); }
-#endif
+#endif // HAS_LED
+#endif // HAS_THERMOMETER
 
 #ifdef HAS_RELAY
 void sendRelayState() {
     auto message = CreateSimpleMessage("relay", DEVICE_UUID, generateMessageId(), "relay_current_state", "state", relayHelper.State());
     websocketClient.sendTXT(message);
 }
-#endif
+#endif // HAS_RELAY
 
 #ifdef HAS_MOTION_RELAY
 void sendMotionRelayState() {
@@ -127,7 +127,7 @@ void setRelayState() {
     else
         relayHelper.Off();
 }
-#endif
+#endif // HAS_MOTION_RELAY
 
 void reconnectWebSocket() {
     websocketClient.disconnect();
@@ -238,8 +238,8 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
                 ledBrightness = doc["brightness"].as<int>();
                 ledSetBrightness(ledBrightness);
             }
-#endif
-#endif
+#endif // HAS_LED
+#endif // HAS_THERMOMETER
 #ifdef HAS_RELAY
             if (doc.containsKey("period"))
                 relayCheckStateDelay = doc["period"].as<int>();
@@ -248,7 +248,7 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
                 relayStateFromCommand ? relayHelper.On() : relayHelper.Off();
                 sendRelayState();
             }
-#endif
+#endif // HAS_RELAY
 #ifdef HAS_MOTION_RELAY
             if (doc.containsKey("period"))
                 relayCheckStateDelay = doc["period"].as<int>();
@@ -258,7 +258,7 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
                 relayStateFromCommand = doc["state"].as<int>();
                 setRelayState();
             }
-#endif
+#endif // HAS_MOTION_RELAY
         } break;
         case WStype_BIN:
             Serial.println("Incoming binary");
@@ -279,19 +279,19 @@ void setup() {
 
 #ifdef HAS_THERMOMETER
     temperatureSensor.Setup();
-#endif
 
 #ifdef HAS_LED
     ledSetBrightness(ledBrightness);
     ledShowString("HELO");
-#endif
+#endif // HAS_LED
+#endif // HAS_THERMOMETER
 
 #ifdef HAS_RELAY
     relayHelper.Off();
 #ifdef RELAY_AS_THERMOSTAT
     temperatureSensor.Setup();
 #endif
-#endif
+#endif // HAS_RELAY
 
 #ifdef HAS_MOTION_RELAY
     relayHelper.Off();
@@ -299,7 +299,7 @@ void setup() {
     Serial.println("Initializing motion sensor...");
     delay(60000);
     Serial.println("Motion sensor initializes...");
-#endif
+#endif // HAS_MOTION_RELAY
 
     websocketClient.beginSSL(API_IP, API_PORT, API_WS);
     websocketClient.enableHeartbeat(5000, 5000, 3);
@@ -331,7 +331,7 @@ void loop() {
                     relayHelper.Off();
             }
         }
-#endif
+#endif // defined HAS_RELAY && defined RELAY_AS_THERMOSTAT
         delay(1000);
         return;
     }
@@ -365,21 +365,21 @@ void loop() {
         temperatureStartTime = millis();
         return;
     }
-#endif
+#endif // HAS_THERMOMTER
 
 #ifdef HAS_RELAY
     if (currentTime <= relayStartTime) {
         relayStartTime = millis();
         return;
     }
-#endif
+#endif // HAS_RELAY
 
 #ifdef HAS_MOTION_RELAY
     if (currentTime <= relayStartTime) {
         relayStartTime = millis();
         return;
     }
-#endif
+#endif // HAS_MOTION_RELAY
 
 #ifdef HAS_THERMOMETER
     // 500 for measure time
@@ -392,7 +392,7 @@ void loop() {
         sendTemperature(temperature);
         temperatureStartTime = currentTime;
     }
-#endif
+#endif // HAS_THERMOMETER
 
 #ifdef HAS_RELAY
     if (currentTime - relayStartTime >= relayCheckStateDelay - 530) {
@@ -421,8 +421,8 @@ void loop() {
             }
         }
     }
-#endif
-#endif
+#endif // RELAY_AS_THERMOSTAT
+#endif // HAS_RELAY
 
 #ifdef HAS_MOTION_RELAY
     if (currentTime - relayStartTime >= relayCheckStateDelay) {
@@ -443,5 +443,5 @@ void loop() {
             sendMotionRelayState();
         }
     }
-#endif
+#endif // HAS_MOTION_RELAY
 }
