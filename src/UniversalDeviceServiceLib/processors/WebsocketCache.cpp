@@ -20,7 +20,7 @@ std::vector<crow::websocket::connection*> WebsocketsCache::ListWebSocketConnecti
     std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
     std::vector<crow::websocket::connection*> result;
     result.reserve(_webSocketConnections.size());
-    for (auto iter = _webSocketConnections.begin(); iter != _webSocketConnections.end();) {
+    for (auto iter = _webSocketConnections.begin(); iter != _webSocketConnections.end(); ++iter) {
         result.push_back(iter->second);
     }
     return result;
