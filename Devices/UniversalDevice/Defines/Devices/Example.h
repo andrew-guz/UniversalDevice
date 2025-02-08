@@ -14,6 +14,8 @@
 // #define HAS_MOTION_RELAY
 // additional features
 #ifdef HAS_THERMOMETER
+// #define ONE_WIRE_TEMPERATURE_SENSOR
+// #define I2C_TEMPERATURE_SENSOR
 // #define HAS_LED
 #endif
 #if defined HAS_RELAY || defined HAS_MOTION_RELAY

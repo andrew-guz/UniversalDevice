@@ -8,6 +8,7 @@
 
 # Libraries
 
+- Adafruit BMP085
 - ArduinoJson
 - DallasTemperature
 - ESPPing

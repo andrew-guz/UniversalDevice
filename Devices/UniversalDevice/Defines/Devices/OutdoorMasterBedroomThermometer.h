@@ -7,6 +7,7 @@
 #define BOARD_ESP8266
 
 #define HAS_THERMOMETER
+#define ONE_WIRE_TEMPERATURE_SENSOR
 #define HAS_LED
 #define THERMOMETER_PIN D5
 #define LED_CLK_PIN     D6

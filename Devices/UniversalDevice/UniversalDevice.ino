@@ -38,23 +38,33 @@
 WebSocketsClient websocketClient;
 std::map<String, unsigned long> ackMessages;
 #ifdef HAS_THERMOMETER
-SingleTemperatureSensor temperatureSensor(THERMOMETER_PIN);
+#ifdef ONE_WIRE_TEMPERATURE_SENSOR
+OneWireTemperatureSensor temperatureSensor(THERMOMETER_PIN);
+#endif
+#ifdef I2C_TEMPERATURE_SENSOR
+I2CTemperatureSensor temperatureSensor;
+#endif
 unsigned long temperatureStartTime;
 int temperatureMeasurementDelay = 5000;
-#endif
 #ifdef HAS_LED
 TM1637TinyDisplay ledDisplay(LED_CLK_PIN, LED_DIO_PIN);
 int ledBrightness = BRIGHT_7;
 #endif
+#endif // HAS_THERMOMETER
 #ifdef HAS_RELAY
 RelayHelper relayHelper(RELAY_PIN);
 unsigned long relayStartTime;
 int relayCheckStateDelay = 5000;
 int relayStateFromCommand = 0;
 #ifdef RELAY_AS_THERMOSTAT
-SingleTemperatureSensor temperatureSensor(RELAY_THERMOSTAT_PIN);
+#ifdef ONE_WIRE_TEMPERATURE_SENSOR
+OneWireTemperatureSensor temperatureSensor(RELAY_THERMOSTAT_PIN);
 #endif
+#ifdef I2C_TEMPERATURE_SENSOR
+I2CTemperatureSensor temperatureSensor;
 #endif
+#endif // RELAY_AS_THERMOSTAT
+#endif // HAS_RELAY
 #ifdef HAS_MOTION_RELAY
 MotionHelper motionHelper(MOTION_RELAY_DETECTOR_PIN);
 RelayHelper relayHelper(MOTION_RELAY_RELAY_PIN);
@@ -64,7 +74,7 @@ int motionActivityDelay = 60000;
 int relayStateFromCommand = 0;
 bool motionState = false;
 unsigned long motionStartTime;
-#endif
+#endif // HAS_MOTION_RELAY
 
 String generateMessageId() {
     UUID messageId;
