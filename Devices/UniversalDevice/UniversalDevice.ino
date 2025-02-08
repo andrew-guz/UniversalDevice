@@ -129,14 +129,15 @@ void reconnectWebSocket() {
 bool connectToWiFi(const String& ssid, const String& password) {
     Serial.print("Connecting " + ssid + " ");
 #ifdef HAS_DISPLAY
-    display.ShowString("CON-");
+    display.ShowState(Display::State::Connecting);
 #endif
     WiFi.begin(ssid, password);
     for (auto i = 0; i < 30; ++i) {
         if (WiFi.status() == WL_CONNECTED) {
             Serial.println(" Connected");
 #ifdef HAS_DISPLAY
-            display.ShowString("CONN");
+            display.ShowState(Display::State::Connected);
+            ;
 #endif
             return true;
         }
@@ -145,7 +146,7 @@ bool connectToWiFi(const String& ssid, const String& password) {
     }
     Serial.println(" Failed");
 #ifdef HAS_DISPLAY
-    display.ShowString("EROR");
+    display.ShowState(Display::State::Error);
 #endif
     return false;
 }
@@ -275,7 +276,7 @@ void setup() {
 #ifdef HAS_DISPLAY
     display.Setup();
     display.SetBrightness(displayBrightness);
-    display.ShowString("HELO");
+    display.ShowState(Display::State::Hello);
 #endif // HAS_DISPLAY
 #endif // HAS_THERMOMETER
 

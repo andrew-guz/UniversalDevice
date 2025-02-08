@@ -13,6 +13,7 @@
 #include <SPI.h>
 #include <Wire.h>
 
+#include <Fonts/FreeSans12pt7b.h>
 #include <Fonts/FreeSans18pt7b.h>
 #endif
 
@@ -20,13 +21,24 @@ class Display {
 protected:
     Display() = default;
 
+public:
     virtual void Setup() = 0;
 
     virtual void SetBrightness(int value) = 0;
 
-    virtual void ShowString(const String& str) = 0;
+    enum class State {
+        Hello,
+        Connecting,
+        Connected,
+        Error,
+    };
+
+    virtual void ShowState(State state) = 0;
 
     virtual void ShowTemperature(float value) = 0;
+
+protected:
+    virtual void ShowString(const String& str) = 0;
 };
 
 #ifdef TM1637_DISPLAY
@@ -47,9 +59,27 @@ public:
             -display.setBrightness(value, false);
     }
 
-    virtual void ShowString(const String& str) override { _display.showString(str.c_str()); }
+    virtual void ShowState(State state) override {
+        switch (state) {
+            case State::Hello:
+                ShowString("HELO");
+                break;
+            case State::Connecting:
+                ShowString("CON-");
+                break;
+            case State::Connected:
+                ShowString("CONN");
+                break;
+            case State::Error:
+                ShowString("EROR");
+                break;
+        }
+    }
 
     virtual void ShowTemperature(float value) override { _display.showNumber(value, 1); }
+
+protected:
+    virtual void ShowString(const String& str) override { _display.showString(str.c_str()); }
 
 private:
     TM1637TinyDisplay _display(LED_CLK_PIN, LED_DIO_PIN);
@@ -73,7 +103,6 @@ public:
         _display.setTextSize(1);
         _display.setTextColor(SSD1306_WHITE);
         _display.cp437(true);
-        _display.setFont(&FreeSans18pt7b);
     }
 
     virtual void SetBrightness(int value) override {
@@ -86,6 +115,33 @@ public:
             _display.clearDisplay();
     }
 
+    virtual void ShowState(State state) override {
+        switch (state) {
+            case State::Hello:
+                _display.setFont(&FreeSans18pt7b);
+                ShowString("Hello");
+                break;
+            case State::Connecting:
+                _display.setFont(&FreeSans12pt7b);
+                ShowString("Connecting");
+                break;
+            case State::Connected:
+                _display.setFont(&FreeSans12pt7b);
+                ShowString("Connected");
+                break;
+            case State::Error:
+                _display.setFont(&FreeSans18pt7b);
+                ShowString("Error");
+                break;
+        }
+    }
+
+    virtual void ShowTemperature(float value) override {
+        _display.setFont(&FreeSans18pt7b);
+        ShowString(String(value, 1) + String(" C"));
+    }
+
+protected:
     virtual void ShowString(const String& str) override {
         _display.clearDisplay();
         if (_brightness == 0) {
@@ -99,8 +155,6 @@ public:
         _display.println(str);
         _display.display();
     }
-
-    virtual void ShowTemperature(float value) override { ShowString(String(value, 1) + String(" C")); }
 
 private:
     Adafruit_SSD1306 _display;
