@@ -1,6 +1,7 @@
 #include "DeviceWebsocketsService.hpp"
 
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
 #include "AccountManager.hpp"
 #include "Defines.hpp"
@@ -37,7 +38,10 @@ void DeviceWebsocketsService::OnWebSocketMessage(crow::websocket::connection& co
             else {
                 LOG_ERROR_MSG("Not authorized connection");
                 // ask for authorization again
-                connection.send_text("{ \"reauthorize\" : true }");
+                connection.send_text(nlohmann::json{
+                    { "reauthorize", true },
+                }
+                                         .dump());
             }
         } else {
             auto knownConnection = WebsocketsCache::Instance()->GetWebSocketConnection(message._header._description._id);
@@ -49,7 +53,10 @@ void DeviceWebsocketsService::OnWebSocketMessage(crow::websocket::connection& co
             } else {
                 LOG_ERROR_MSG("Not authorized connection");
                 // ask for authorization again
-                connection.send_text("{ \"reauthorize\" : true }");
+                connection.send_text(nlohmann::json{
+                    { "reauthorize", true },
+                }
+                                         .dump());
             }
         }
     } catch (...) {

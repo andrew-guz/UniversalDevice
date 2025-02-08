@@ -7,6 +7,7 @@
 #include "MotionRelayProcessor.hpp"
 #include "RelayProcessor.hpp"
 #include "ThermometerProcessor.hpp"
+#include "TimeProcessor.hpp"
 #include "WebsocketProcessor.hpp"
 
 Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExecutor* queryExecutor) {
@@ -18,6 +19,8 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         case Subject::TimerEvent:
             // process events due to timer
             processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor)));
+            // send time to devices
+            processors.push_back(std::shared_ptr<IProcessor>(new TimeProcessor(queryExecutor)));
             break;
         case Subject::GetDeviceInformation:
             // we need information about device - here we should call all device processors maybe some one will return data

@@ -16,6 +16,16 @@ crow::websocket::connection* WebsocketsCache::GetWebSocketConnection(const Uuid&
     return nullptr;
 }
 
+std::vector<crow::websocket::connection*> WebsocketsCache::ListWebSocketConnections() {
+    std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
+    std::vector<crow::websocket::connection*> result;
+    result.reserve(_webSocketConnections.size());
+    for (auto iter = _webSocketConnections.begin(); iter != _webSocketConnections.end();) {
+        result.push_back(iter->second);
+    }
+    return result;
+}
+
 void WebsocketsCache::DeleteWebSocketConnection(crow::websocket::connection& connection) {
     std::lock_guard<std::mutex> lock(_webSocketConnectionsMutex);
     for (auto iter = _webSocketConnections.begin(); iter != _webSocketConnections.end();) {
