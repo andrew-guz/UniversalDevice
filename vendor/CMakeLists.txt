@@ -9,6 +9,7 @@ set(BUILD_EXAMPLES off)
 set(ENABLE_LIBWTTEST off)
 set(ENABLE_LIBWTDBO off)
 set(SHARED_LIBS off)
+set(WT_ASIO_IMPLEMENTATION "standalone")
 add_subdirectory(wt)
 
 set(USE_TLS on)
