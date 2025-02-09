@@ -54,5 +54,5 @@ std::tuple<int, int> TimeHelper::GetHourMinute(const std::chrono::system_clock::
 std::tuple<int, int, int, int, int> TimeHelper::GetHourMinuteDayMonthYear(const std::chrono::system_clock::time_point& time) {
     auto time_t = std::chrono::system_clock::to_time_t(time);
     auto tm = std::localtime(&time_t);
-    return std::make_tuple(tm->tm_hour, tm->tm_min, tm->tm_mday, tm->tm_mon, tm->tm_year);
+    return std::make_tuple(tm->tm_hour, tm->tm_min, tm->tm_mday, tm->tm_mon + 1, tm->tm_year);
 }
