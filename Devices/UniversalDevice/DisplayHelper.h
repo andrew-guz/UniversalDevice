@@ -28,9 +28,12 @@ public:
 
     void SetTemperature(float value) { _temperature = value; }
 
-    void SetDateTime(const String& date, const String& time) {
-        _date = date;
-        _time = time;
+    void SetDateTime(const int hour, const int minute, const int day, const int month, const int year) {
+        _hour = hour;
+        _minute = minute;
+        _day = day;
+        _month = month;
+        _year = year;
     }
 
     enum class State {
@@ -47,8 +50,11 @@ public:
 
 protected:
     float _temperature;
-    String _date;
-    String _time;
+    int _hour = -1;
+    int _minute = -1;
+    int _day = -1;
+    int _month = -1;
+    int _year = -1;
 };
 
 #ifdef TM1637_DISPLAY
@@ -148,21 +154,33 @@ public:
                 ShowString(String(_temperature, 1) + String(" C"));
                 break;
             case State::Time:
-                if (!_time.length()) {
-                    _display.setFont(&FreeSans18pt7b);
-                    ShowString(String(_temperature, 1) + String(" C"));
+                if (_hour == -1) {
+                    ShowState(State::Temperature);
                 } else {
-                    _display.setFont(&FreeSans12pt7b);
-                    ShowString(_time);
+                    _display.setFont(&FreeSans18pt7b);
+                    String timeString;
+                    timeString += _hour < 10 ? "0" : "";
+                    timeString += String(_hour);
+                    timeString += ":";
+                    timeString += _minute < 10 ? "0" : "";
+                    timeString += String(_minute);
+                    ShowString(timeString);
                 }
                 break;
             case State::Date:
-                if (!_date.length()) {
-                    _display.setFont(&FreeSans18pt7b);
-                    ShowString(String(_temperature, 1) + String(" C"));
+                if (_day == -1) {
+                    ShowState(State::Temperature);
                 } else {
-                    _display.setFont(&FreeSans12pt7b);
-                    ShowString(_date);
+                    _display.setFont(&FreeSans18pt7b);
+                    static String months[] = {
+                        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec",
+                    };
+                    String dateString;
+                    dateString += _day < 10 ? "0" : "";
+                    dateString += String(_day);
+                    dateString += " ";
+                    dateString += months[_month - 1];
+                    ShowString(dateString);
                 }
                 break;
         }

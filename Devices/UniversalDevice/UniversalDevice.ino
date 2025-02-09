@@ -235,11 +235,12 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
                 display.SetBrightness(displayBrightness);
             }
             if (doc.containsKey("date-time")) {
-                String dateTime = doc["date-time"].as<String>();
-                const int delimeterIndex = dateTime.indexOf(" ");
-                String date = dateTime.substring(0, delimeterIndex);
-                String time = dateTime.substring(delimeterIndex + 1);
-                display.SetDateTime(date, time);
+                int hour = doc["hour"].as<int>();
+                int minute = doc["minute"].as<int>();
+                int day = doc["day"].as<int>();
+                int month = doc["month"].as<int>();
+                int year = doc["year"].as<int>();
+                display.SetDateTime(hour, minute, day, month, year);
             }
 #endif // HAS_DISPLAY
 #endif // HAS_THERMOMETER
