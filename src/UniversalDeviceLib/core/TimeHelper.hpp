@@ -22,5 +22,9 @@ public:
 
     static std::chrono::system_clock::time_point TimeFromString(std::string_view string);
 
+    static std::tuple<int, int, int> GetDayMonthYear(const std::chrono::system_clock::time_point& time);
+
     static std::tuple<int, int> GetHourMinute(const std::chrono::system_clock::time_point& time);
+
+    static std::tuple<int, int, int, int, int> GetHourMinuteDayMonthYear(const std::chrono::system_clock::time_point& time);
 };

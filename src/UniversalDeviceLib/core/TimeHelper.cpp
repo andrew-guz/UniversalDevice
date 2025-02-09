@@ -39,8 +39,20 @@ std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::stri
     return std::chrono::system_clock::from_time_t(time_t);
 }
 
+std::tuple<int, int, int> TimeHelper::GetDayMonthYear(const std::chrono::system_clock::time_point& time) {
+    auto time_t = std::chrono::system_clock::to_time_t(time);
+    auto tm = std::localtime(&time_t);
+    return std::make_tuple(tm->tm_mday, tm->tm_mon, tm->tm_year);
+}
+
 std::tuple<int, int> TimeHelper::GetHourMinute(const std::chrono::system_clock::time_point& time) {
     auto time_t = std::chrono::system_clock::to_time_t(time);
     auto tm = std::localtime(&time_t);
     return std::make_tuple(tm->tm_hour, tm->tm_min);
+}
+
+std::tuple<int, int, int, int, int> TimeHelper::GetHourMinuteDayMonthYear(const std::chrono::system_clock::time_point& time) {
+    auto time_t = std::chrono::system_clock::to_time_t(time);
+    auto tm = std::localtime(&time_t);
+    return std::make_tuple(tm->tm_hour, tm->tm_min, tm->tm_mday, tm->tm_mon, tm->tm_year);
 }
