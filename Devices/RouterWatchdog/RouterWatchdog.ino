@@ -7,9 +7,10 @@
 #define RELAY_PIN
 
 // Define network properties
-#define WIFI_SSID     ""
-#define WIFI_PASSWORD ""
-#define CHECK_URL     ""
+#define WIFI_SSID      ""
+#define WIFI_PASSWORD  ""
+#define SERVER_IP_PORT ""
+#define ADDITIONAL_URL ""
 
 int failCount = 0;
 
@@ -26,27 +27,37 @@ void setup() {
     digitalWrite(RELAY_PIN, LOW);
 }
 
+bool checkOneUrl(const String& url) {
+    WiFiClientSecure client;
+    client.setInsecure();
+    HTTPClient https;
+    https.begin(client, url);
+    const int result = https.GET();
+    Serial.print("Get result: ");
+    Serial.println(result);
+    return result == 200;
+}
+
 bool wifiExists() {
     Serial.println("Checking WiFi...");
 
     for (int i = 0; i < 30; ++i) {
         if (WiFi.status() == WL_CONNECTED) {
             Serial.println("WiFi connected.");
-
-            WiFiClientSecure client;
-            client.setInsecure();
-            HTTPClient https;
-            const String url = "https://" + String(CHECK_URL) + "/api/version";
-            https.begin(client, url);
-            const int getResult = https.GET();
-            Serial.print("Get result: ");
-            Serial.println(getResult);
-            if (getResult == 200) {
+            const int serverResult = checkOneUrl("https://" + String(SERVER_IP_PORT) + "/api/version");
+            if (serverResult == 200) {
                 Serial.println("Server is available.");
                 return true;
             } else {
                 Serial.println("Server is not available.");
-                return false;
+                const int siteResult = checkOneUrl(ADDITIONAL_URL);
+                if (siteResult == 200) {
+                    Serial.println("Additional url is available.");
+                    return true;
+                } else {
+                    Serial.println("Additional url is not available.");
+                    return false;
+                }
             }
         }
         delay(500);
