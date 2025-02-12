@@ -1,11 +1,17 @@
+#include <Arduino.h>
+#include <ESP8266HTTPClient.h>
+#include <ESP8266WiFi.h>
+#include <WiFiClientSecureBearSSL.h>
+
 // Setup relay - pin will be set to hight level that will break relay
 #define RELAY_PIN
 
 // Define network properties
 #define WIFI_SSID     ""
 #define WIFI_PASSWORD ""
+#define CHECK_URL     ""
 
-#include <ESPping.h>
+int failCount = 0;
 
 void setup() {
     Serial.begin(115200);
@@ -27,13 +33,21 @@ bool wifiExists() {
         if (WiFi.status() == WL_CONNECTED) {
             Serial.println("WiFi connected.");
 
-            // ya.ru
-            static const IPAddress ip(8, 8, 8, 8);
-            const bool ping = Ping.ping(ip) > 0;
-
-            Serial.println("Ping result - " + String(ping ? "TRUE" : "FALSE") + ".");
-
-            return ping;
+            WiFiClientSecure client;
+            client.setInsecure();
+            HTTPClient https;
+            const String url = "https://" + String(CHECK_URL) + "/api/version";
+            https.begin(client, url);
+            const int getResult = https.GET();
+            Serial.print("Get result: ");
+            Serial.println(getResult);
+            if (getResult == 200) {
+                Serial.println("Server is available.");
+                return true;
+            } else {
+                Serial.println("Server is not available.");
+                return false;
+            }
         }
         delay(500);
     }
@@ -56,8 +70,12 @@ void resetRelay() {
 void loop() {
     if (!wifiExists()) {
         digitalWrite(LED_BUILTIN, LOW);
-        resetRelay();
-        // if relay was resetted - sleep 5 minutes
+        ++failCount;
+        if (failCount > 3) {
+            resetRelay();
+            failCount = 0;
+        }
+        // if wi fi has problems - sleep only 5 minutes
         delay(5 * 60 * 1000);
     } else {
         digitalWrite(LED_BUILTIN, HIGH);
