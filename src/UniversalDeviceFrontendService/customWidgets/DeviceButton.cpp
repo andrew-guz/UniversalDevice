@@ -76,6 +76,9 @@ void DeviceButton::Refresh() {
                         timestamp = value._timestamp;
                     }
                 } break;
+                case DeviceType::UniversalDevice:
+                    // TODO
+                    break;
             }
         } else
             LOG_ERROR_MSG("Unknown device type");

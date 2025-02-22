@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 
 #include "DeviceInformationDescription.hpp"
+#include "Enums.hpp"
 #include "ExtendedMotionRelayCurrentState.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
@@ -25,6 +26,7 @@ nlohmann::json MotionRelayProcessor::ProcessMessage(const std::chrono::system_cl
         case Subject::WebSocketAuthorization:
         case Subject::WebSocketGetSettings:
         case Subject::WebSocketGetCommands:
+        case Subject::UniversalDeviceCurrentState:
             return {};
     }
     LOG_ERROR_MSG(fmt::format("Unknown subject to process in MotionRelayProcessor: {}", static_cast<int>(message._header._subject)));

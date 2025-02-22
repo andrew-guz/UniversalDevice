@@ -25,6 +25,7 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
         case Subject::WebSocketAuthorization:
         case Subject::WebSocketGetSettings:
         case Subject::WebSocketGetCommands:
+        case Subject::UniversalDeviceCurrentState:
             return {};
     }
     LOG_ERROR_MSG(fmt::format("Unknown subject to process in RelayProcessor: {}", static_cast<int>(message._header._subject)));

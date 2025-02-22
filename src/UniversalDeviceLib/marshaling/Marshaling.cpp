@@ -93,6 +93,8 @@ std::string EnumToString(DeviceType enumType) {
             return "relay";
         case DeviceType::MotionRelay:
             return "motion_relay";
+        case DeviceType::UniversalDevice:
+            return "universal_device";
     }
     LOG_ERROR_MSG(fmt::format("Invalid DeviceType: {}", static_cast<int>(enumType)));
     return {};
@@ -107,6 +109,8 @@ DeviceType DeviceTypeFromString(const std::string& str) {
         return DeviceType::Relay;
     if (str == "motion_relay")
         return DeviceType::MotionRelay;
+    if (str == "universal_device")
+        return DeviceType::UniversalDevice;
     return DeviceType::Undefined;
 }
 
@@ -177,6 +181,8 @@ std::string EnumToString(Subject enumType) {
             return "websocket_get_settings";
         case Subject::WebSocketGetCommands:
             return "websocket_get_commands";
+        case Subject::UniversalDeviceCurrentState:
+            return "universal_device_current_state";
     }
     LOG_ERROR_MSG(fmt::format("Invalid SubjectType: {}", static_cast<int>(enumType)));
     return {};
@@ -200,6 +206,8 @@ Subject EnumFromString(const std::string& str) {
         return Subject::WebSocketGetSettings;
     if (str == "websocket_get_commands")
         return Subject::WebSocketGetCommands;
+    if (str == "universal_device_current_state")
+        return Subject::UniversalDeviceCurrentState;
     LOG_ERROR_MSG(fmt::format("Invalid SubjectType: {}", str));
     return Subject::Undefined;
 }
