@@ -24,7 +24,7 @@ namespace {
 TimerService::TimerService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor) {}
 
-void TimerService::Initialize(CrowApp& app) {
+void TimerService::Initialize(CrowApp& /* app */) {
     // also start thread for timer events
     auto timerFunction = std::bind(&TimerService::TimerFunction, this);
     auto timingThread = new std::thread(TimerThreadFunction, timerFunction);

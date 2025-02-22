@@ -9,6 +9,7 @@ TimeProcessor::TimeProcessor(IQueryExecutor* queryExecutor) :
     BaseProcessorWithQueryExecutor(queryExecutor) {}
 
 nlohmann::json TimeProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
+    // Notify all devices about current time
     const std::string dateTimeString = TimeHelper::TimeToString(timestamp);
     const auto [hour, minute, day, month, year] = TimeHelper::GetHourMinuteDayMonthYear(timestamp);
     for (const auto& connection : WebsocketsCache::Instance()->ListWebSocketConnections()) {
@@ -22,5 +23,9 @@ nlohmann::json TimeProcessor::ProcessMessage(const std::chrono::system_clock::ti
         }
                                   .dump());
     }
+
+    // Maybe it's time to cleanup database
+    _queryExecutor->CleanupOldData(timestamp);
+
     return {};
 }

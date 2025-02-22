@@ -1,8 +1,14 @@
 #include "Storage.hpp"
 
+#include <chrono>
+
 #include <fmt/format.h>
 
 #include "Logger.hpp"
+
+namespace {
+    constexpr std::chrono::weeks oldDataDelta = std::chrono::weeks{ 2 };
+}
 
 static std::map<std::string, std::string> Tables = {
     { "Devices", "CREATE TABLE IF NOT EXISTS Devices (id TEXT UNIQUE, type TEXT, name TEXT, grp TEXT, timestamp INTEGER, PRIMARY KEY(id, type))" },
@@ -16,7 +22,7 @@ static std::map<std::string, std::string> Tables = {
     { "MotionRelays",
       "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY "
       "KEY(idx AUTOINCREMENT))" },
-    { "Scenarios", "CREATE TABLE IF NOT EXISTS Scenarios  (id TEXT, scenarios TEXT, PRIMARY KEY(id))" },
+    { "Scenarios", "CREATE TABLE IF NOT EXISTS Scenarios (id TEXT, scenarios TEXT, PRIMARY KEY(id))" },
 };
 
 int NoActionCallback(void* data, int columnsInRow, char** rowData, char** columnNames) { return 0; }
@@ -57,10 +63,35 @@ bool Storage::Delete(std::string query) { return Execute(query, NoActionCallback
 bool Storage::Commit() { return Execute("COMMIT;"); }
 
 std::vector<std::string> Storage::GetAllTables() const {
-    return { "Devices", "Settings", "Commands", "Events", "Thermometers", "Relays", "MotionRelays" };
+    return {
+        "Devices", "Settings", "Commands", "Events", "Thermometers", "Relays", "MotionRelays", "Scenarios",
+    };
 }
 
-std::vector<std::string> Storage::GetDeviceRelatedTables() const { return { "Devices", "Thermometers", "Relays", "MotionRelays" }; }
+std::vector<std::string> Storage::GetDeviceRelatedTables() const {
+    return {
+        "Devices",
+        "Thermometers",
+        "Relays",
+        "MotionRelays",
+    };
+}
+
+std::vector<std::string> Storage::GetDataTables() const {
+    return {
+        "Thermometers",
+        "Relays",
+        "MotionRelays",
+    };
+}
+
+void Storage::CleanupOldData(const std::chrono::system_clock::time_point& timestamp) {
+    const std::chrono::system_clock::time_point oldTimestamp = timestamp - oldDataDelta;
+    for (const std::string& table : GetDataTables()) {
+        const std::string query = fmt::format("DELETE FROM {} WHERE timestamp < {}", table, TimeHelper::TimeToInt(oldTimestamp));
+        Delete(query);
+    }
+}
 
 bool Storage::InternalExecute(const std::string_view query, int (*callback)(void*, int, char**, char**), void* data) {
     std::lock_guard<std::mutex> lockGuard(_mutex);
