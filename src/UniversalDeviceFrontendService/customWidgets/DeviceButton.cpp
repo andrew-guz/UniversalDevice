@@ -8,6 +8,7 @@
 #include "ExtendedMotionRelayCurrentState.hpp"
 #include "ExtendedRelayCurrentState.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
+#include "ExtendedUniversalDeviceCurrentValues.hpp"
 #include "FrontendDefines.hpp"
 #include "Marshaling.hpp"
 #include "MessageHelper.hpp"
@@ -76,9 +77,14 @@ void DeviceButton::Refresh() {
                         timestamp = value._timestamp;
                     }
                 } break;
-                case DeviceType::UniversalDevice:
-                    // TODO
-                    break;
+                case DeviceType::UniversalDevice: {
+                    auto values = replyJson.get<std::vector<ExtendedUniversalDeviceCurrentValues>>();
+                    if (values.size()) {
+                        const auto& value = values[0];
+                        additionalData = "<img src='resources/universal-device.png'/>";
+                        timestamp = value._timestamp;
+                    }
+                } break;
             }
         } else
             LOG_ERROR_MSG("Unknown device type");

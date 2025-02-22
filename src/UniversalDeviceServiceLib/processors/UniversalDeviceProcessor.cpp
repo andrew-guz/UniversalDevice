@@ -64,7 +64,7 @@ nlohmann::json UniversalDeviceProcessor::ProcessGetDeviceInformationMessage(cons
         auto now = std::chrono::system_clock::now();
         now -= std::chrono::seconds(description._seconds);
         const std::string query =
-            fmt::format("SELECT timestamp, 'values' FROM UniversalDevices WHERE id = '{}' AND timestamp >= {} ORDER BY idx DESC",
+            fmt::format("SELECT timestamp, \"values\" FROM UniversalDevices WHERE id = '{}' AND timestamp >= {} ORDER BY idx DESC",
                         description._id.data(),
                         TimeHelper::TimeToInt(now));
         std::vector<std::vector<std::string>> data;
@@ -75,7 +75,7 @@ nlohmann::json UniversalDeviceProcessor::ProcessGetDeviceInformationMessage(cons
     }
     if (extendedUniversalDeviceCurrentValues.size() == 0) {
         const std::string query =
-            fmt::format("SELECT timestamp, 'values' FROM UniversalDevices WHERE id = '{}' ORDER BY idx DESC LIMIT 1", description._id.data());
+            fmt::format("SELECT timestamp, \"values\" FROM UniversalDevices WHERE id = '{}' ORDER BY idx DESC LIMIT 1", description._id.data());
         std::vector<std::vector<std::string>> data;
         if (_queryExecutor->Select(query, data))
             extendedUniversalDeviceCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedUniversalDeviceCurrentValues>(data);
