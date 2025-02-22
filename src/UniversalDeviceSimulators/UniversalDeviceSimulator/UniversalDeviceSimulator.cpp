@@ -19,7 +19,7 @@ namespace {
 } // namespace
 
 UniversalDeviceSimulator::UniversalDeviceSimulator() :
-    Simulator(DeviceType::Relay),
+    Simulator(DeviceType::UniversalDevice),
     values{ std::map<std::string, UniversalData>{
         { "param_bool", UniversalData{ false } },
         { "param_int", UniversalData{ 42 } },
@@ -40,8 +40,8 @@ void UniversalDeviceSimulator::SendValues() {
         stringValue += static_cast<char>(string_distribution(random_generator));
     }
     values._values.at("param_string") = stringValue;
-    auto stateMessage = MessageHelper::Create(GetType(), GetId(), Subject::RelayCurrentState, values);
-    SendMessage(stateMessage);
+    auto valuesMessage = MessageHelper::Create(GetType(), GetId(), Subject::UniversalDeviceCurrentState, values);
+    SendMessage(valuesMessage);
 }
 
 void UniversalDeviceSimulator::OnMessage(const ix::WebSocketMessagePtr& message) {

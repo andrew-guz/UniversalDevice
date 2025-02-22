@@ -41,10 +41,10 @@ nlohmann::json UniversalDeviceProcessor::ProcessUniversalDeviceCurrentStateMessa
         return {};
     }
     auto& description = message._header._description;
-    const std::string query = fmt::format("INSERT INTO UniversalDevices (id, timestamp, values) VALUES ('{}', {}, '{}')",
+    const std::string query = fmt::format("INSERT INTO UniversalDevices (id, timestamp, 'values') VALUES ('{}', {}, '{}')",
                                           description._id.data(),
                                           TimeHelper::TimeToInt(timestamp),
-                                          nlohmann::json{ currentValues }.dump());
+                                          message._data.dump());
     if (!_queryExecutor->Execute(query)) {
         LOG_SQL_ERROR(query);
         return {};
@@ -63,9 +63,10 @@ nlohmann::json UniversalDeviceProcessor::ProcessGetDeviceInformationMessage(cons
     if (description._seconds != 0) {
         auto now = std::chrono::system_clock::now();
         now -= std::chrono::seconds(description._seconds);
-        const std::string query = fmt::format("SELECT timestamp, values FROM UniversalDevices WHERE id = '{}' AND timestamp >= {} ORDER BY idx DESC",
-                                              description._id.data(),
-                                              TimeHelper::TimeToInt(now));
+        const std::string query =
+            fmt::format("SELECT timestamp, 'values' FROM UniversalDevices WHERE id = '{}' AND timestamp >= {} ORDER BY idx DESC",
+                        description._id.data(),
+                        TimeHelper::TimeToInt(now));
         std::vector<std::vector<std::string>> data;
         if (_queryExecutor->Select(query, data))
             extendedUniversalDeviceCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedUniversalDeviceCurrentValues>(data);
@@ -74,7 +75,7 @@ nlohmann::json UniversalDeviceProcessor::ProcessGetDeviceInformationMessage(cons
     }
     if (extendedUniversalDeviceCurrentValues.size() == 0) {
         const std::string query =
-            fmt::format("SELECT timestamp, values FROM UniversalDevices WHERE id = '{}' ORDER BY idx DESC LIMIT 1", description._id.data());
+            fmt::format("SELECT timestamp, 'values' FROM UniversalDevices WHERE id = '{}' ORDER BY idx DESC LIMIT 1", description._id.data());
         std::vector<std::vector<std::string>> data;
         if (_queryExecutor->Select(query, data))
             extendedUniversalDeviceCurrentValues = DbExtension::CreateVectorFromDbStrings<ExtendedUniversalDeviceCurrentValues>(data);
