@@ -1,9 +1,12 @@
 #include "Marshaling.hpp"
 
+#include <optional>
 #include <set>
 #include <string>
+#include <variant>
 
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Account.hpp"
 #include "Base64Helper.hpp"
@@ -17,6 +20,7 @@
 #include "ExtendedMotionRelayCurrentState.hpp"
 #include "ExtendedRelayCurrentState.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
+#include "ExtendedUniversalDeviceCurrentValues.hpp"
 #include "LogInformation.hpp"
 #include "Logger.hpp"
 #include "Message.hpp"
@@ -34,6 +38,8 @@
 #include "ThermostatEvent.hpp"
 #include "TimerEvent.hpp"
 #include "Types.hpp"
+#include "UniversalData.hpp"
+#include "UniversalDeviceCurrentValues.hpp"
 #include "Uuid.hpp"
 #include "WebSocketAuthentication.hpp"
 
@@ -353,22 +359,6 @@ void from_json(const nlohmann::json& json, ExtendedRelayCurrentState& extendedRe
     extendedRelayCurrentState._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
-void to_json(nlohmann::json& json, const Scenario& scenario) {
-    json = {
-        { "id", scenario._id },
-        { "name", scenario._name },
-        { "activate", scenario._activateEvent },
-        { "deactivate", scenario._deactivateEvent },
-    };
-}
-
-void from_json(const nlohmann::json& json, Scenario& scenario) {
-    scenario._id = json.at("id").get<Uuid>();
-    scenario._name = json.at("name").get<std::string>();
-    scenario._activateEvent = json.at("activate").get<std::set<Uuid>>();
-    scenario._deactivateEvent = json.at("deactivate").get<std::set<Uuid>>();
-}
-
 void to_json(nlohmann::json& json, const ExtendedThermometerCurrentValue& extendedThermometerCurrentValue) {
     json = (const ThermometerCurrentValue&)extendedThermometerCurrentValue;
     json += { "timestamp", TimeHelper::TimeToInt(extendedThermometerCurrentValue._timestamp) };
@@ -377,6 +367,16 @@ void to_json(nlohmann::json& json, const ExtendedThermometerCurrentValue& extend
 void from_json(const nlohmann::json& json, ExtendedThermometerCurrentValue& extendedThermometerCurrentValue) {
     (ThermometerCurrentValue&)extendedThermometerCurrentValue = json.get<ThermometerCurrentValue>();
     extendedThermometerCurrentValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+}
+
+void to_json(nlohmann::json& json, const ExtendedUniversalDeviceCurrentValues& extendedUniversalDeviceCurrentValues) {
+    json = (const UniversalDeviceCurrentValues&)extendedUniversalDeviceCurrentValues;
+    json += { "timestamp", TimeHelper::TimeToInt(extendedUniversalDeviceCurrentValues._timestamp) };
+}
+
+void from_json(const nlohmann::json& json, ExtendedUniversalDeviceCurrentValues& extendedUniversalDeviceCurrentValues) {
+    (UniversalDeviceCurrentValues&)extendedUniversalDeviceCurrentValues = json.get<UniversalDeviceCurrentValues>();
+    extendedUniversalDeviceCurrentValues._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const LogInformation& logInformation) {
@@ -477,6 +477,22 @@ void to_json(nlohmann::json& json, const RelayState& relayState) {
 
 void from_json(const nlohmann::json& json, RelayState& relayState) { relayState._state = json.value("state", std::numeric_limits<float>::min()); }
 
+void to_json(nlohmann::json& json, const Scenario& scenario) {
+    json = {
+        { "id", scenario._id },
+        { "name", scenario._name },
+        { "activate", scenario._activateEvent },
+        { "deactivate", scenario._deactivateEvent },
+    };
+}
+
+void from_json(const nlohmann::json& json, Scenario& scenario) {
+    scenario._id = json.at("id").get<Uuid>();
+    scenario._name = json.at("name").get<std::string>();
+    scenario._activateEvent = json.at("activate").get<std::set<Uuid>>();
+    scenario._deactivateEvent = json.at("deactivate").get<std::set<Uuid>>();
+}
+
 void to_json(nlohmann::json& json, const ThermometerLedBrightness& thermometerLedBrightness) {
     json = {
         { "brightness", thermometerLedBrightness._brightness },
@@ -531,6 +547,92 @@ void from_json(const nlohmann::json& json, TimerEvent& timerEvent) {
     (Event&)timerEvent = json.get<Event>();
     timerEvent._hour = json.value("hour", 0);
     timerEvent._minute = json.value("minute", 0);
+}
+
+template<typename UniversalDataType>
+nlohmann::json toJson(const UniversalDataType& data) = delete;
+
+template<>
+nlohmann::json toJson(const std::nullopt_t& data) {
+    return nlohmann::json{
+        { "type", "empty" },
+    };
+}
+
+template<>
+nlohmann::json toJson(const bool& data) {
+    return nlohmann::json{
+        { "type", "boolean" },
+        { "value", data },
+    };
+}
+
+template<>
+nlohmann::json toJson(const int& data) {
+    return nlohmann::json{
+        { "type", "integer" },
+        { "value", data },
+    };
+}
+
+template<>
+nlohmann::json toJson(const double& data) {
+    return nlohmann::json{
+        { "type", "double" },
+        { "value", data },
+    };
+}
+
+template<>
+nlohmann::json toJson(const std::string& data) {
+    return nlohmann::json{
+        { "type", "string" },
+        { "value", data },
+    };
+}
+
+namespace nlohmann {
+    template<>
+    struct adl_serializer<UniversalData> {
+        static void to_json(json& json, const UniversalData& universalData) {
+            json = std::visit([](const auto& data) { return toJson(data); }, universalData);
+        }
+
+        static UniversalData from_json(const json& json) {
+            if (json.contains("type")) {
+                const std::string type = json.at("type").get<std::string>();
+                if (type == "empty") {
+                    return std::nullopt;
+                } else if (type == "boolean") {
+                    return json.at("value").get<bool>();
+                } else if (type == "integer") {
+                    return json.at("value").get<int>();
+                } else if (type == "double") {
+                    return json.at("value").get<double>();
+                } else if (type == "string") {
+                    return json.at("value").get<std::string>();
+                } else {
+                    LOG_ERROR_MSG(fmt::format("Invalid UniversalData type: {}", type));
+                }
+            } else {
+                LOG_ERROR_MSG("Invalid UniversalData type");
+            }
+            return std::nullopt;
+        };
+    };
+} // namespace nlohmann
+
+void to_json(nlohmann::json& json, const UniversalDeviceCurrentValues& universalDeviceCurrentValues) {
+    json = nlohmann::json{
+        { "values", universalDeviceCurrentValues._values },
+    };
+}
+
+void from_json(const nlohmann::json& json, UniversalDeviceCurrentValues& universalDeviceCurrentValues) {
+    const nlohmann::json& values = json.at("values");
+    for (auto iter = values.begin(); iter != values.end(); ++iter) {
+        universalDeviceCurrentValues._values.try_emplace(iter.key(), iter.value().get<UniversalData>());
+    }
 }
 
 void to_json(nlohmann::json& json, const WebSocketAuthentication& webSocketAuthentication) {
