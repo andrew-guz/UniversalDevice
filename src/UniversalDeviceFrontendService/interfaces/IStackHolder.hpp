@@ -11,6 +11,7 @@ enum class StackWidgetType : std::uint8_t {
     Thermometer,
     Relay,
     MotionRelay,
+    UniversalDevice,
 };
 
 class IStackHolder {
