@@ -27,7 +27,7 @@ void setup() {
     digitalWrite(RELAY_PIN, LOW);
 }
 
-bool checkOneUrl(const String& url) {
+int checkOneUrl(const String& url) {
     WiFiClientSecure client;
     client.setInsecure();
     HTTPClient https;
@@ -35,7 +35,7 @@ bool checkOneUrl(const String& url) {
     const int result = https.GET();
     Serial.print("Get result: ");
     Serial.println(result);
-    return result == 200;
+    return result;
 }
 
 bool wifiExists() {
