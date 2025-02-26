@@ -44,6 +44,7 @@ int SelectCallback(void* data, int columnsInRow, char** rowData, char** columnNa
 }
 
 Storage::Storage(const std::filesystem::path& dbPath) {
+    _dbPath = dbPath;
     sqlite3_open(PathHelper::FullFilePath(dbPath).c_str(), &_connection);
     InitializeDb();
 }
@@ -93,15 +94,28 @@ void Storage::CleanupOldData(const std::chrono::system_clock::time_point& timest
     }
 }
 
-bool Storage::InternalExecute(const std::string_view query, int (*callback)(void*, int, char**, char**), void* data) {
-    std::lock_guard<std::mutex> lockGuard(_mutex);
+bool Storage::InternalExecute(const std::string_view query, int (*callback)(void*, int, char**, char**), void* data, const int repeatCount) {
+    _mutex.lock();
     char* error = nullptr;
     int result = sqlite3_exec(_connection, query.data(), callback, data, &error);
     if (result != SQLITE_OK) {
         LOG_ERROR_MSG(fmt::format("SQL error: {} for query {}", error, query));
         sqlite3_free(error);
+
+        if (result == SQLITE_CANTOPEN && repeatCount == 0) {
+            // let's close and reopen connection and try again
+            LOG_ERROR_MSG("Reconnecting to database...");
+            sqlite3_close(_connection);
+            sqlite3_open(PathHelper::FullFilePath(_dbPath).c_str(), &_connection);
+            _mutex.unlock();
+            return InternalExecute(query, callback, data, 1);
+        }
+
+        _mutex.unlock();
         return false;
     }
+
+    _mutex.unlock();
     return true;
 }
 

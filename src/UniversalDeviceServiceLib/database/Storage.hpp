@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <filesystem>
 #include <mutex>
 #include <sqlite3.h>
 
@@ -33,11 +34,12 @@ public:
     virtual void CleanupOldData(const std::chrono::system_clock::time_point& timestamp) override;
 
 private:
-    bool InternalExecute(std::string_view query, int (*callback)(void*, int, char**, char**), void* data);
+    bool InternalExecute(std::string_view query, int (*callback)(void*, int, char**, char**), void* data, int repeatCount = 0);
 
     void InitializeDb();
 
 private:
     sqlite3* _connection = nullptr;
+    std::filesystem::path _dbPath;
     std::mutex _mutex;
 };
