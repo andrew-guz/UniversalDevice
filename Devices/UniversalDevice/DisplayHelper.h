@@ -62,6 +62,9 @@ protected:
 
 class TM1637Display : public Display {
 public:
+    TM1637Display(int clk_pin, int dio_pin) :
+        _display(clk_pin, dio_pin) {}
+
     virtual void Setup() override {}
 
     void SetBrightness(int value) {
@@ -72,7 +75,7 @@ public:
         if (value != BRIGHT_0)
             _display.setBrightness(value, true);
         else
-            -display.setBrightness(value, false);
+            _display.setBrightness(value, false);
     }
 
     virtual void ShowState(State state) override {
@@ -98,7 +101,7 @@ public:
     }
 
 private:
-    TM1637TinyDisplay _display(LED_CLK_PIN, LED_DIO_PIN);
+    TM1637TinyDisplay _display;
 };
 #endif // TM1637_DISPLAY
 
