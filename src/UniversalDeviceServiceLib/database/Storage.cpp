@@ -1,6 +1,7 @@
 #include "Storage.hpp"
 
 #include <chrono>
+#include <sqlite3.h>
 
 #include <fmt/format.h>
 
@@ -104,9 +105,12 @@ bool Storage::InternalExecute(const std::string_view query, int (*callback)(void
 
         if (result == SQLITE_CANTOPEN && repeatCount == 0) {
             // let's close and reopen connection and try again
-            LOG_ERROR_MSG("Reconnecting to database...");
-            sqlite3_close(_connection);
-            sqlite3_open(PathHelper::FullFilePath(_dbPath).c_str(), &_connection);
+            LOG_INFO_MSG("Reconnecting to database...");
+            int result = sqlite3_close(_connection);
+            LOG_INFO_MSG(fmt::format("Close result: {}", result));
+            _connection = nullptr;
+            result = sqlite3_open(PathHelper::FullFilePath(_dbPath).c_str(), &_connection);
+            LOG_INFO_MSG(fmt::format("Open result: {}", result));
             _mutex.unlock();
             return InternalExecute(query, callback, data, 1);
         }
