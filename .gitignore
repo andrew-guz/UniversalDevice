@@ -49,6 +49,7 @@ TODO
 
 #Arduino specific
 **/RealDefines.h
+Devices/**/.vscode
 
 #Service specific
 **/authentication.json
