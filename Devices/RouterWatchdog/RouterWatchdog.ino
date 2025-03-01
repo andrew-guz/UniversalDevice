@@ -12,8 +12,6 @@
 #define SERVER_IP_PORT ""
 #define ADDITIONAL_URL ""
 
-int failCount = 0;
-
 void setup() {
     Serial.begin(115200);
 
@@ -81,11 +79,7 @@ void resetRelay() {
 void loop() {
     if (!wifiExists()) {
         digitalWrite(LED_BUILTIN, LOW);
-        ++failCount;
-        if (failCount > 3) {
-            resetRelay();
-            failCount = 0;
-        }
+        resetRelay();
         // if wi fi has problems - sleep only 5 minutes
         delay(5 * 60 * 1000);
     } else {
