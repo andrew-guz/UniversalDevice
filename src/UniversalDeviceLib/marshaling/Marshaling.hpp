@@ -16,6 +16,7 @@ struct ExtendedComponentDescription;
 struct ExtendedMotionRelayCurrentState;
 struct ExtendedRelayCurrentState;
 struct ExtendedThermometerCurrentValue;
+struct ExtendedUniversalDeviceCurrentValues;
 struct LogInformation;
 struct Message;
 struct MessageHeader;
@@ -31,6 +32,7 @@ struct ThermometerEvent;
 struct ThermometerLedBrightness;
 struct ThermostatEvent;
 struct TimerEvent;
+struct UniversalDeviceCurrentValues;
 struct WebSocketAuthentication;
 
 template<typename EnumType>
@@ -62,6 +64,12 @@ std::string EnumToString(Subject enumType);
 
 template<>
 Subject EnumFromString(const std::string& str);
+
+template<>
+std::string EnumToString(UniversalDataType enumType);
+
+template<>
+UniversalDataType EnumFromString(const std::string& str);
 
 std::string ActorTypeToString(const ActorType& type);
 
@@ -127,13 +135,13 @@ void to_json(nlohmann::json& json, const ExtendedRelayCurrentState& extendedRela
 
 void from_json(const nlohmann::json& json, ExtendedRelayCurrentState& extendedRelayCurrentState);
 
-void to_json(nlohmann::json& json, const Scenario& scenario);
-
-void from_json(const nlohmann::json& json, Scenario& scenario);
-
 void to_json(nlohmann::json& json, const ExtendedThermometerCurrentValue& extendedThermometerCurrentValue);
 
 void from_json(const nlohmann::json& json, ExtendedThermometerCurrentValue& extendedThermometerCurrentValue);
+
+void to_json(nlohmann::json& json, const ExtendedUniversalDeviceCurrentValues& extendedUniversalDeviceCurrentValues);
+
+void from_json(const nlohmann::json& json, ExtendedUniversalDeviceCurrentValues& extendedUniversalDeviceCurrentValues);
 
 void to_json(nlohmann::json& json, const LogInformation& logInformation);
 
@@ -171,6 +179,10 @@ void to_json(nlohmann::json& json, const RelayState& relayState);
 
 void from_json(const nlohmann::json& json, RelayState& relayState);
 
+void to_json(nlohmann::json& json, const Scenario& scenario);
+
+void from_json(const nlohmann::json& json, Scenario& scenario);
+
 void to_json(nlohmann::json& json, const ThermometerLedBrightness& thermometerLedBrightness);
 
 void from_json(const nlohmann::json& json, ThermometerLedBrightness& thermometerLedBrightness);
@@ -190,6 +202,10 @@ void from_json(const nlohmann::json& json, ThermostatEvent& thermostatEvent);
 void to_json(nlohmann::json& json, const TimerEvent& timerEvent);
 
 void from_json(const nlohmann::json& json, TimerEvent& timerEvent);
+
+void to_json(nlohmann::json& json, const UniversalDeviceCurrentValues& universalDeviceCurrentValues);
+
+void from_json(const nlohmann::json& json, UniversalDeviceCurrentValues& universalDeviceCurrentValues);
 
 void to_json(nlohmann::json& json, const WebSocketAuthentication& webSocketAuthentication);
 

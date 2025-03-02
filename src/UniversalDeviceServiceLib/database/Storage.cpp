@@ -23,6 +23,8 @@ static std::map<std::string, std::string> Tables = {
       "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY "
       "KEY(idx AUTOINCREMENT))" },
     { "Scenarios", "CREATE TABLE IF NOT EXISTS Scenarios (id TEXT, scenarios TEXT, PRIMARY KEY(id))" },
+    { "UniversalDevices",
+      "CREATE TABLE IF NOT EXISTS UniversalDevices (idx INTEGER, id TEXT, timestamp INTEGER, 'values' TEXT, PRIMARY KEY(idx AUTOINCREMENT))" },
 };
 
 int NoActionCallback(void* data, int columnsInRow, char** rowData, char** columnNames) { return 0; }
@@ -64,16 +66,13 @@ bool Storage::Commit() { return Execute("COMMIT;"); }
 
 std::vector<std::string> Storage::GetAllTables() const {
     return {
-        "Devices", "Settings", "Commands", "Events", "Thermometers", "Relays", "MotionRelays", "Scenarios",
+        "Devices", "Settings", "Commands", "Events", "Thermometers", "Relays", "MotionRelays", "Scenarios", "UniversalDevices",
     };
 }
 
 std::vector<std::string> Storage::GetDeviceRelatedTables() const {
     return {
-        "Devices",
-        "Thermometers",
-        "Relays",
-        "MotionRelays",
+        "Devices", "Thermometers", "Relays", "MotionRelays", "UniversalDevices",
     };
 }
 
@@ -82,6 +81,7 @@ std::vector<std::string> Storage::GetDataTables() const {
         "Thermometers",
         "Relays",
         "MotionRelays",
+        "UniversalDevices",
     };
 }
 

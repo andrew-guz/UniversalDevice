@@ -1,5 +1,7 @@
 #include "SecondsComboBox.hpp"
 
+#include <cstdint>
+
 SecondsComboBox::SecondsComboBox() {
     setMinimumSize(200, 50);
     setMaximumSize(200, 50);
@@ -11,7 +13,7 @@ SecondsComboBox::SecondsComboBox() {
     setCurrentIndex(1);
 }
 
-uint64_t SecondsComboBox::GetSeconds() const {
+std::uint64_t SecondsComboBox::GetSeconds() const {
     switch (currentIndex()) {
         case 0:
             return 3600;

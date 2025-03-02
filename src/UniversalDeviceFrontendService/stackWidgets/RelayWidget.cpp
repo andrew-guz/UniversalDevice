@@ -1,11 +1,14 @@
 #include "RelayWidget.hpp"
 
 #include <algorithm>
+#include <memory>
 
+#include <Wt/Chart/WCartesianChart.h>
 #include <Wt/WEvent.h>
 #include <Wt/WTimer.h>
 #include <fmt/format.h>
 
+#include "ChartFactory.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "Logger.hpp"
@@ -28,16 +31,12 @@ RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
     _stateButton->clicked().connect([this]() { OnStateButton(); });
 
     _model = std::make_shared<RelayChartModel>();
-    _chart = _mainLayout->addWidget(std::make_unique<Chart::WCartesianChart>(), 5, 0, 1, 3);
-    _chart->setModel(_model);
-    _chart->setXSeriesColumn(0);
-    _chart->setType(Chart::ChartType::Scatter);
-    _chart->axis(Chart::Axis::X).setScale(Chart::AxisScale::DateTime);
-    _chart->axis(Chart::Axis::Y).autoLimits();
-    auto series = std::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Line, Chart::Axis::Y);
-    series->setPen(WPen(WColor(255, 0, 0, 255)));
-    series->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
-    _chart->addSeries(std::move(series));
+    _mainLayout->addWidget(
+        std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(_model, false, Chart::SeriesType::Line, WColor(255, 0, 0, 255))),
+        5,
+        0,
+        1,
+        3);
     _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 6, 1, AlignmentFlag::Center);
     _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 7, 1, AlignmentFlag::Center);
     _seconds->changed().connect([this]() {

@@ -8,11 +8,18 @@
 #include <Wt/WModelIndex.h>
 #include <Wt/cpp17/any.hpp>
 
-template<typename T, typename U>
-class BaseChartModel : public Wt::WAbstractItemModel {
+class IBaseChartModel : public Wt::WAbstractItemModel {
+protected:
+    virtual const Wt::cpp17::any GetValue(const int index) const = 0;
+};
+
+template<typename T>
+class BaseChartModel : public IBaseChartModel {
 public:
     BaseChartModel(const std::vector<T>& data = {}) :
         _data(data) {}
+
+    virtual ~BaseChartModel() = default;
 
     void UpdateData(const std::vector<T>& data) {
         _data = data;
@@ -56,7 +63,5 @@ public:
     }
 
 protected:
-    virtual const U GetValue(const int index) const = 0;
-
     std::vector<T> _data;
 };

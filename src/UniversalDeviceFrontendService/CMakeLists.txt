@@ -15,6 +15,7 @@ include_directories(.)
 include_directories(./interfaces)
 include_directories(./customWidgets)
 include_directories(./stackWidgets)
+include_directories(./utils)
 include_directories(./../UniversalDeviceLib/authentication)
 include_directories(./../UniversalDeviceLib/component)
 include_directories(./../UniversalDeviceLib/core)
@@ -48,6 +49,9 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS}
 # set C++ minimum version
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# set warnings as errors
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 # this will search for *.cpp in source recursively
 file(GLOB_RECURSE SRC_FILES *.cpp)

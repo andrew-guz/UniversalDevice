@@ -1,8 +1,11 @@
 #include "ThermometerWidget.hpp"
 
+#include <memory>
+
 #include <fmt/format.h>
 
 #include "BaseDeviceWidget.hpp"
+#include "ChartFactory.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "Logger.hpp"
@@ -19,16 +22,12 @@ ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& 
     _temperatureText->setMaximumSize(400, 200);
 
     _model = std::make_shared<TemperatureChartModel>();
-    _chart = _mainLayout->addWidget(std::make_unique<Chart::WCartesianChart>(), 4, 0, 1, 3);
-    _chart->setModel(_model);
-    _chart->setXSeriesColumn(0);
-    _chart->setType(Chart::ChartType::Scatter);
-    _chart->axis(Chart::Axis::X).setScale(Chart::AxisScale::DateTime);
-    _chart->axis(Chart::Axis::Y).setGridLinesEnabled(true);
-    auto series = std::make_unique<Chart::WDataSeries>(1, Chart::SeriesType::Curve, Chart::Axis::Y);
-    series->setPen(WPen(WColor(0, 0, 255, 255)));
-    series->setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
-    _chart->addSeries(std::move(series));
+    _chart = _mainLayout->addWidget(
+        std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(_model, true, Chart::SeriesType::Curve, WColor(0, 0, 255, 255))),
+        4,
+        0,
+        1,
+        3);
     _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 5, 1, AlignmentFlag::Center);
     _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 6, 1, AlignmentFlag::Center);
     _seconds->changed().connect([this]() {

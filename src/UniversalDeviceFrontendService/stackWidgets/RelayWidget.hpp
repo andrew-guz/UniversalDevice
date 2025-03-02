@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Wt/Chart/WCartesianChart.h>
-
 #include "BaseDeviceWidget.hpp"
 #include "ExtendedRelayCurrentState.hpp"
 #include "RelayChartModel.hpp"
@@ -30,7 +28,6 @@ private:
     Wt::WText* _stateText;
     Wt::WPushButton* _stateButton;
     int _deviceState = 0;
-    Wt::Chart::WCartesianChart* _chart;
     std::shared_ptr<RelayChartModel> _model;
     SecondsComboBox* _seconds;
     std::vector<ExtendedRelayCurrentState> _cachedValues;
