@@ -21,6 +21,7 @@ nlohmann::json WebSocketProcessor::ProcessMessage(const std::chrono::system_cloc
             case Subject::RelayCurrentState:
             case Subject::MotionRelayCurrentState:
             case Subject::WebSocketAuthorization:
+            case Subject::UniversalDeviceCurrentState:
                 return {};
         }
     } catch (...) {

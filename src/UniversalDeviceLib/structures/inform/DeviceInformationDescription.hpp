@@ -1,9 +1,11 @@
 #pragma once
 
+#include <cstdint>
+
 #include "ComponentDescription.hpp"
 
 struct DeviceInformationDescription final : public ComponentDescription {
-    uint64_t _seconds = 0;
+    std::uint64_t _seconds = 0;
 
     virtual ~DeviceInformationDescription() = default;
 };

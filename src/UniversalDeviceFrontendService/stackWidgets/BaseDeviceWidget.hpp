@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <mutex>
 
 #include <Wt/WContainerWidget.h>
@@ -45,12 +46,12 @@ protected:
     // return 1 last point
     template<typename TValues>
     std::vector<TValues> GetValues(const ActorType type) {
-        return GetValues<TValues>(type, (uint64_t)0);
+        return GetValues<TValues>(type, (std::uint64_t)0);
     }
 
     // return data from last N seconds or at least one last known point
     template<typename TValues>
-    std::vector<TValues> GetValues(const ActorType type, uint64_t seconds) {
+    std::vector<TValues> GetValues(const ActorType type, std::uint64_t seconds) {
         DeviceInformationDescription messageData;
         messageData._type = type;
         messageData._id = _deviceId;

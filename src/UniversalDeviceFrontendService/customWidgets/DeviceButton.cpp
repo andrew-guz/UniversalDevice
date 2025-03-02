@@ -8,6 +8,7 @@
 #include "ExtendedMotionRelayCurrentState.hpp"
 #include "ExtendedRelayCurrentState.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
+#include "ExtendedUniversalDeviceCurrentValues.hpp"
 #include "FrontendDefines.hpp"
 #include "Marshaling.hpp"
 #include "MessageHelper.hpp"
@@ -73,6 +74,14 @@ void DeviceButton::Refresh() {
                     if (values.size()) {
                         const auto& value = values[0];
                         additionalData = fmt::format("<img src='resources/motion-relay.png'/><br/>{}", value._motion == 1 ? "Движение" : "...");
+                        timestamp = value._timestamp;
+                    }
+                } break;
+                case DeviceType::UniversalDevice: {
+                    auto values = replyJson.get<std::vector<ExtendedUniversalDeviceCurrentValues>>();
+                    if (values.size()) {
+                        const auto& value = values[0];
+                        additionalData = "<img src='resources/universal-device.png'/>";
                         timestamp = value._timestamp;
                     }
                 } break;

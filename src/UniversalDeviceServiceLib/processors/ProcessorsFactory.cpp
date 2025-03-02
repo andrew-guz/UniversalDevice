@@ -1,13 +1,13 @@
 #include "ProcessorsFactory.hpp"
 
-#include "Constants.hpp"
 #include "DeviceRegistrationProcessor.hpp"
+#include "Enums.hpp"
 #include "EventsProcessor.hpp"
-#include "Logger.hpp"
 #include "MotionRelayProcessor.hpp"
 #include "RelayProcessor.hpp"
 #include "ThermometerProcessor.hpp"
 #include "TimeProcessor.hpp"
+#include "UniversalDeviceProcessor.hpp"
 #include "WebsocketProcessor.hpp"
 
 Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExecutor* queryExecutor) {
@@ -27,6 +27,7 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
             processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor)));
             processors.push_back(std::shared_ptr<IProcessor>(new RelayProcessor(queryExecutor)));
             processors.push_back(std::shared_ptr<IProcessor>(new MotionRelayProcessor(queryExecutor)));
+            processors.push_back(std::shared_ptr<IProcessor>(new UniversalDeviceProcessor(queryExecutor)));
             break;
         case Subject::ThermometerCurrentValue:
             // register thermometer if needed
@@ -58,6 +59,12 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
         case Subject::WebSocketGetCommands:
             // answer on get settings or command from websocket request
             processors.push_back(std::shared_ptr<IProcessor>(new WebSocketProcessor(queryExecutor)));
+            break;
+        case Subject::UniversalDeviceCurrentState:
+            // register universal device if needed
+            processors.push_back(std::shared_ptr<IProcessor>(new DeviceRegistrationProcessor(queryExecutor)));
+            // since this is universal device - add UniversalDeviceProcessor
+            processors.push_back(std::shared_ptr<IProcessor>(new UniversalDeviceProcessor(queryExecutor)));
             break;
     }
 

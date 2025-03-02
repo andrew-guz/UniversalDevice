@@ -190,6 +190,9 @@ DeviceButton* DevicesWidget::AddDeviceButton(WGridLayout* layout, const Extended
                 case DeviceType::MotionRelay:
                     stackWidgetType = StackWidgetType::MotionRelay;
                     break;
+                case DeviceType::UniversalDevice:
+                    stackWidgetType = StackWidgetType::UniversalDevice;
+                    break;
             }
             if (stackWidgetType != static_cast<StackWidgetType>(-1))
                 _stackHolder->SetWidget(stackWidgetType, description._id.data());

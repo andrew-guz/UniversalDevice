@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include <Wt/WComboBox.h>
 
 class SecondsComboBox : public Wt::WComboBox {
@@ -8,5 +10,5 @@ public:
 
     virtual ~SecondsComboBox() = default;
 
-    uint64_t GetSeconds() const;
+    std::uint64_t GetSeconds() const;
 };

@@ -12,6 +12,7 @@
 #include "RelayWidget.hpp"
 #include "ScenariosWidget.hpp"
 #include "ThermometerWidget.hpp"
+#include "UniversalDeviceWidget.hpp"
 
 using namespace Wt;
 
@@ -30,6 +31,7 @@ Application::Application(const Settings& settings, const WEnvironment& env) :
     _mainStack->addWidget(std::make_unique<ThermometerWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<RelayWidget>(this, settings));
     _mainStack->addWidget(std::make_unique<MotionRelayWidget>(this, settings));
+    _mainStack->addWidget(std::make_unique<UniversalDeviceWidget>(this, settings));
 
     auto authorization = env.getCookie("authorization");
     SetWidget(StackWidgetType::Login, authorization ? *authorization : std::string{});
@@ -46,6 +48,7 @@ void Application::SetWidget(StackWidgetType type, const std::string& data) {
         case StackWidgetType::Thermometer:
         case StackWidgetType::Relay:
         case StackWidgetType::MotionRelay:
+        case StackWidgetType::UniversalDevice:
             const int index = static_cast<int>(type);
             _mainStack->setCurrentIndex(index);
             stackWidget = dynamic_cast<IStackWidget*>(_mainStack->widget(index));
