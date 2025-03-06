@@ -12,6 +12,7 @@
 // #define HAS_THERMOMETER
 // #define HAS_RELAY
 // #define HAS_MOTION_RELAY
+// #define IS_UNIVERSAL
 // additional features
 #ifdef HAS_THERMOMETER
 // #define ONE_WIRE_TEMPERATURE_SENSOR

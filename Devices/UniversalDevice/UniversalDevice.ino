@@ -83,6 +83,10 @@ int relayStateFromCommand = 0;
 bool motionState = false;
 unsigned long motionStartTime;
 #endif // HAS_MOTION_RELAY
+#ifdef IS_UNIVERSAL
+unsigned long universalDeviceStartTime;
+int universalDeviceStateDelay = 5000;
+#endif // IS_UNIVERSAL
 
 String generateMessageId() {
     UUID messageId;
@@ -123,6 +127,14 @@ void setRelayState() {
         relayHelper.Off();
 }
 #endif // HAS_MOTION_RELAY
+
+#ifdef IS_UNIVERSAL
+void sendUniversalState(JsonDocument& doc) {
+    auto message =
+        CreateSimpleMessage("universal_device", DEVICE_UUID, generateMessageId(), "universal_device_current_state", "values", doc.as<JsonObject>());
+    websocketClient.sendTXT(message);
+}
+#endif // IS_UNIVERSAL
 
 void reconnectWebSocket() {
     websocketClient.disconnect();
@@ -263,6 +275,10 @@ void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
                 setRelayState();
             }
 #endif // HAS_MOTION_RELAY
+#ifdef IS_UNIVERSAL
+            if (doc.containsKey("period"))
+                universalDeviceStateDelay = doc["period"].as<int>();
+#endif // IS_UNIVERSAL
         } break;
         case WStype_BIN:
             Serial.println("Incoming binary");
@@ -392,6 +408,13 @@ void loop() {
     }
 #endif // HAS_MOTION_RELAY
 
+#ifdef IS_UNIVERSAL
+    if (currentTime <= universalDeviceStartTime) {
+        universalDeviceStartTime = millis();
+        return;
+    }
+#endif // IS_UNIVERSAL
+
 #ifdef HAS_THERMOMETER
     // 500 for measure time
     if ((int)(currentTime - temperatureStartTime) >= temperatureMeasurementDelay - 500) {
@@ -474,4 +497,16 @@ void loop() {
         }
     }
 #endif // HAS_MOTION_RELAY
+
+#ifdef IS_UNIVERSAL
+    if (currentTime - universalDeviceStartTime >= universalDeviceStateDelay) {
+        DynamicJsonDocument doc(512);
+        // here - read sensors and prepare json
+        // Format:
+        // doc["put_property_name_here"]["type"] = "boolean/integer/double/string";
+        // doc["put_property_name_here"]["value"] = put_value_here;
+        sendUniversalState(doc);
+        universalDeviceStartTime = currentTime;
+    }
+#endif // IS_UNIVERSAL
 }

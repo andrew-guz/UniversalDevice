@@ -47,8 +47,8 @@ void CheckDefines() {
 #endif
         static_assert(sizeof(OTA_PASSWORD) > 0, "No OTA_PASSWORD");
 
-#if !defined HAS_THERMOMETER && !defined HAS_RELAY && !defined HAS_MOTION_RELAY
-    static_assert(false, "No HAS_ type selection");
+#if !defined HAS_THERMOMETER && !defined HAS_RELAY && !defined HAS_MOTION_RELAY && !defined IS_UNIVERSAL
+    static_assert(false, "No HAS_ or IS_ selection");
 #endif
 }
 
