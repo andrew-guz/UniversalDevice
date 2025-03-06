@@ -153,8 +153,12 @@ void UniversalDeviceWidget::Initialize() {
             }
         }
 
+        auto timestamp = _cachedValues.begin()->_timestamp;
+        _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
+
         for (const auto& model : _models)
             model->SetData(_cachedValues);
+
         std::unordered_map<std::string, std::string> texts;
         for (const auto& extendedValue : _cachedValues) {
             for (const auto& [parameter, value] : extendedValue._values) {
@@ -163,6 +167,7 @@ void UniversalDeviceWidget::Initialize() {
                 texts[parameter] += fmt::format("[<i>{}</i>]\t{}<br/>", TimeHelper::TimeToString(extendedValue._timestamp), value.Get<std::string>());
             }
         }
+
         for (const auto& [parameter, text] : _texts) {
             const auto iter = texts.find(parameter);
             if (iter != texts.end())
@@ -175,10 +180,12 @@ void UniversalDeviceWidget::Initialize() {
 }
 
 void UniversalDeviceWidget::ClearData() {
+    _timeText->setText(WidgetHelper::TextWithFontSize("", 20));
     while (_tabWidget->count())
         _tabWidget->removeTab(_tabWidget->widget(0));
     _knownParameters.clear();
     _models.clear();
+    _texts.clear();
 }
 
 void UniversalDeviceWidget::OnSettingsButton() {
