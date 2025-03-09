@@ -116,7 +116,7 @@ void sendMotionRelayState() {
         doc["data"]["motion"] = motionState;
         doc["data"]["state"] = relayHelper.State();
     };
-    auto message = CreateMessage("motion_relay", DEVICE_UUID, generateMessageId(), "motion_relay_current_state", func);
+    auto message = CreateMessage("motion_relay", DEVICE_UUID, "motion_relay_current_state", generateMessageId(), func);
     websocketClient.sendTXT(message);
 }
 
@@ -318,8 +318,8 @@ void setup() {
     relayHelper.Off();
     // sleep for 1 minute to be sure that motion sensor initialized
     Serial.println("Initializing motion sensor...");
-    delay(60000);
-    Serial.println("Motion sensor initializes...");
+    delay(5000);
+    Serial.println("Motion sensor initialized...");
 #endif // HAS_MOTION_RELAY
 
     websocketClient.beginSSL(API_IP, API_PORT, API_WS);
