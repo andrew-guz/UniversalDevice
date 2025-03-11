@@ -44,7 +44,7 @@ nlohmann::json MotionRelayProcessor::ProcessMotionRelayCurrentStateMessage(const
     const std::string query = fmt::format("INSERT INTO MotionRelays (id, timestamp, motion, state) VALUES ('{}', {}, '{}', '{}')",
                                           description._id.data(),
                                           TimeHelper::TimeToInt(timestamp),
-                                          currentState._motion,
+                                          currentState._motion ? 1 : 0,
                                           currentState._state);
     if (!_queryExecutor->Execute(query)) {
         LOG_SQL_ERROR(query);
