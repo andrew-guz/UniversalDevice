@@ -68,6 +68,7 @@ void LogsWidget::CleanupLogs() {
         LOG_ERROR_MSG("Failed to cleanup backend logs");
     else
         Logger::Cleanup();
+    Refresh();
 }
 
 std::vector<LogInformation> LogsWidget::GetLogs() {
