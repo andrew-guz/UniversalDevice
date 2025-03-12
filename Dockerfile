@@ -1,7 +1,5 @@
-FROM debian:stable-slim
-
-EXPOSE 7315
-EXPOSE 7316
+# base image
+FROM debian:stable-slim as base-image
 
 # update
 RUN apt-get update && apt-get upgrade -y
@@ -20,6 +18,13 @@ RUN ./llvm.sh 19
 # add links
 RUN ln -s /usr/bin/clang++-19 /usr/bin/clang++
 RUN ln -s /usr/bin/clang-format-19 /usr/bin/clang-format
+
+# main image
+FROM base-image as universal-device-image
+
+# open ports
+EXPOSE 7315
+EXPOSE 7316
 
 # set working dir
 WORKDIR /src
