@@ -82,14 +82,14 @@ namespace {
                 break;
         }
         canvasLayout->addWidget(
-            std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(model, drawGridLines, seriesType, WColor(255, 165, 0, 255))));
+            std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(model, drawGridLines, seriesType, WColor(255, 165, 0, 255))), 1);
         return canvas;
     }
 
     std::pair<WContainerWidget*, WText*> createText() {
         auto canvas = new WContainerWidget();
-        auto canvasLayout = canvas->setLayout(std::make_unique<WGridLayout>());
-        auto text = canvasLayout->addWidget(std::make_unique<WText>(), 0, 0);
+        auto canvasLayout = canvas->setLayout(std::make_unique<WVBoxLayout>());
+        auto text = canvasLayout->addWidget(std::make_unique<WText>(), 1);
         return std::make_pair(canvas, text);
     }
 } // namespace
