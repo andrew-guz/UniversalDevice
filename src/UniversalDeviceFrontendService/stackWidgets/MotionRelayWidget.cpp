@@ -1,6 +1,7 @@
 #include "MotionRelayWidget.hpp"
 
 #include <Wt/WEvent.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WTimer.h>
 #include <fmt/format.h>
 
@@ -14,22 +15,20 @@ using namespace Wt;
 
 MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
-    _motionText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 1, AlignmentFlag::Center);
+    _motionText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _motionText->setText(WidgetHelper::TextWithFontSize("Нет движения", 80));
 
-    _stateText = _mainLayout->addWidget(std::make_unique<WText>(), 4, 1, AlignmentFlag::Center);
+    _stateText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _stateText->setText(WidgetHelper::TextWithFontSize("Выключено", 80));
 
-    _stateButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 5, 1, AlignmentFlag::Center);
+    _stateButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _stateButton->setTextFormat(TextFormat::XHTML);
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
     _stateButton->setMinimumSize(200, 200);
     _stateButton->setMaximumSize(200, 200);
     _stateButton->clicked().connect([this]() { OnStateButton(); });
 
-    _mainLayout->setRowStretch(3, 1);
-    _mainLayout->setRowStretch(4, 1);
-    _mainLayout->setRowStretch(5, 1);
+    _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 10, AlignmentFlag::Bottom);
 }
 
 void MotionRelayWidget::Initialize() {

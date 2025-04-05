@@ -4,9 +4,9 @@
 #include <mutex>
 
 #include <Wt/WContainerWidget.h>
-#include <Wt/WGridLayout.h>
 #include <Wt/WText.h>
 #include <Wt/WTimer.h>
+#include <Wt/WVBoxLayout.h>
 
 #include "BaseStackWidget.hpp"
 #include "DeviceInformationDescription.hpp"
@@ -76,7 +76,7 @@ protected:
 
 protected:
     std::mutex _requestMutex;
-    Wt::WGridLayout* _mainLayout;
+    Wt::WVBoxLayout* _mainLayout;
     Wt::WText* _nameText;
     Wt::WText* _timeText;
     Uuid _deviceId;

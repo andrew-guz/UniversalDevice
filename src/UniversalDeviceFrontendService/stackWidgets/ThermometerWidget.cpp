@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <Wt/WGlobal.h>
 #include <fmt/format.h>
 
 #include "BaseDeviceWidget.hpp"
@@ -17,28 +18,19 @@ using namespace Wt;
 
 ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
-    _temperatureText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 0, 1, 3, AlignmentFlag::Center);
+    _temperatureText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _temperatureText->setText(WidgetHelper::TextWithFontSize(0.0f, "°C", 80));
     _temperatureText->setMaximumSize(400, 200);
 
     _model = std::make_shared<TemperatureChartModel>();
     _chart = _mainLayout->addWidget(
-        std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(_model, true, Chart::SeriesType::Curve, WColor(0, 0, 255, 255))),
-        4,
-        0,
-        1,
-        3);
-    _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 5, 1, AlignmentFlag::Center);
-    _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 6, 1, AlignmentFlag::Center);
+        std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(_model, true, Chart::SeriesType::Curve, WColor(0, 0, 255, 255))), 1);
+    _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 0, AlignmentFlag::Center | AlignmentFlag::Bottom);
+    _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 0, AlignmentFlag::Center | AlignmentFlag::Bottom);
     _seconds->changed().connect([this]() {
         _cachedValues.clear();
         BaseDeviceWidget::Initialize(_deviceId.data());
     });
-
-    _mainLayout->setRowStretch(3, 0);
-    _mainLayout->setRowStretch(4, 1);
-    _mainLayout->setRowStretch(5, 0);
-    _mainLayout->setRowStretch(6, 0);
 }
 
 void ThermometerWidget::OnBack() {

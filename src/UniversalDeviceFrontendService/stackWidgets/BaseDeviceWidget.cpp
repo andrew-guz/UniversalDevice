@@ -1,10 +1,13 @@
 #include "BaseDeviceWidget.hpp"
 
 #include <Wt/WDialog.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WHBoxLayout.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WRegExpValidator.h>
 #include <Wt/WSpinBox.h>
+#include <Wt/WVBoxLayout.h>
 #include <fmt/format.h>
 
 #include "Constants.hpp"
@@ -29,9 +32,14 @@ namespace {
 BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseStackWidget(stackHolder, settings),
     _deviceId(Uuid::Empty()) {
-    _mainLayout = setLayout(std::make_unique<WGridLayout>());
+    _mainLayout = setLayout(std::make_unique<WVBoxLayout>());
+    _mainLayout->setSpacing(20);
 
-    auto backButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
+    auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
+    auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<WHBoxLayout>());
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto backButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([this]() {
         OnBack();
@@ -39,29 +47,24 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& se
         _deviceId = Uuid::Empty();
     });
 
-    auto settingsButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Настройки"), 0, 1, AlignmentFlag::Center);
+    auto settingsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Настройки"), 0, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(settingsButton);
     settingsButton->clicked().connect([this]() { OnSettingsButton(); });
 
-    auto refresh = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 2, AlignmentFlag::Right);
+    auto refresh = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refresh);
     refresh->clicked().connect([this]() { Initialize(_deviceId.data()); });
 
-    _nameText = _mainLayout->addWidget(std::make_unique<WText>(), 1, 0, 1, 3, AlignmentFlag::Center);
+    _nameText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _nameText->setText(WidgetHelper::TextWithFontSize(CombineNameAndGroup(_deviceName, _deviceGroup), 20));
 
-    _timeText = _mainLayout->addWidget(std::make_unique<WText>(), 2, 0, 1, 3, AlignmentFlag::Center);
+    _timeText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _timeText->setText(WidgetHelper::TextWithFontSize("", 20));
 
     _refreshTimer = addChild(std::make_unique<WTimer>());
     _refreshTimer->setInterval(std::chrono::seconds(5));
     _refreshTimer->timeout().connect([this]() { Initialize(_deviceId.data()); });
     _refreshTimer->start();
-
-    _mainLayout->setVerticalSpacing(20);
-    _mainLayout->setRowStretch(0, 0);
-    _mainLayout->setRowStretch(1, 0);
-    _mainLayout->setRowStretch(2, 0);
 }
 
 void BaseDeviceWidget::Initialize(const std::string& data) {

@@ -5,6 +5,7 @@
 
 #include <Wt/Chart/WCartesianChart.h>
 #include <Wt/WEvent.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WTimer.h>
 #include <fmt/format.h>
 
@@ -20,10 +21,10 @@ using namespace Wt;
 
 RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
-    _stateText = _mainLayout->addWidget(std::make_unique<WText>(), 3, 1, AlignmentFlag::Center);
+    _stateText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _stateText->setText(WidgetHelper::TextWithFontSize("Выключено", 80));
 
-    _stateButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 4, 1, AlignmentFlag::Center);
+    _stateButton = _mainLayout->addWidget(std::make_unique<WPushButton>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _stateButton->setTextFormat(TextFormat::XHTML);
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
     _stateButton->setMinimumSize(200, 200);
@@ -32,23 +33,13 @@ RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
 
     _model = std::make_shared<RelayChartModel>();
     _mainLayout->addWidget(
-        std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(_model, false, Chart::SeriesType::Line, WColor(255, 0, 0, 255))),
-        5,
-        0,
-        1,
-        3);
-    _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 6, 1, AlignmentFlag::Center);
-    _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 7, 1, AlignmentFlag::Center);
+        std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(_model, false, Chart::SeriesType::Line, WColor(255, 0, 0, 255))), 1);
+    _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 0, AlignmentFlag::Center | AlignmentFlag::Bottom);
+    _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 0, AlignmentFlag::Center | AlignmentFlag::Bottom);
     _seconds->changed().connect([this]() {
         _cachedValues.clear();
         BaseDeviceWidget::Initialize(_deviceId.data());
     });
-
-    _mainLayout->setRowStretch(3, 0);
-    _mainLayout->setRowStretch(4, 0);
-    _mainLayout->setRowStretch(5, 1);
-    _mainLayout->setRowStretch(6, 0);
-    _mainLayout->setRowStretch(7, 0);
 }
 
 void RelayWidget::OnBack() {
