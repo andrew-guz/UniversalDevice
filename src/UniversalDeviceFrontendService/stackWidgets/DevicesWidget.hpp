@@ -1,7 +1,10 @@
 #pragma once
 
+#include <utility>
+#include <vector>
+
 #include <Wt/WContainerWidget.h>
-#include <Wt/WGridLayout.h>
+#include <Wt/WHBoxLayout.h>
 
 #include "BaseStackWidget.hpp"
 #include "ExtendedComponentDescription.hpp"
@@ -23,11 +26,11 @@ private:
 
     void Refresh();
 
-    DeviceButton* AddDeviceButton(Wt::WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column);
+    void AddScenarioButton(Wt::WHBoxLayout* layout, const Scenario& scenario);
 
-    void AddScenarioButton(Wt::WGridLayout* layout, const Scenario& scenario, int& row, int& column);
+    void AddDeviceButton(Wt::WHBoxLayout* layout, const ExtendedComponentDescription& description);
 
 private:
-    Wt::WGridLayout* _mainLayout;
-    std::map<Wt::WWidget*, Wt::WLayout*> _deviceWidgets;
+    Wt::WVBoxLayout* _mainLayout = nullptr;
+    std::vector<std::pair<Wt::WWidget*, Wt::WLayout*>> _widgets;
 };

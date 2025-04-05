@@ -6,17 +6,18 @@
 
 #include <Wt/Http/Cookie.h>
 #include <Wt/WGlobal.h>
-#include <Wt/WGridLayout.h>
 #include <Wt/WGroupBox.h>
+#include <Wt/WHBoxLayout.h>
 #include <Wt/WPopupMenu.h>
 #include <Wt/WPushButton.h>
+#include <Wt/WVBoxLayout.h>
+#include <Wt/WWidget.h>
 #include <fmt/format.h>
 
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceButton.hpp"
 #include "Enums.hpp"
-#include "Event.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "IStackHolder.hpp"
 #include "Logger.hpp"
@@ -30,6 +31,8 @@
 
 using namespace Wt;
 
+#define MAX_BUTTONS_IN_A_ROW 5
+
 namespace {
     struct Group {
         Group* _parent;
@@ -41,32 +44,32 @@ namespace {
 
 DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseStackWidget(stackHolder, settings) {
-    _mainLayout = setLayout(std::make_unique<WGridLayout>());
+    _mainLayout = setLayout(std::make_unique<WVBoxLayout>());
 
-    auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, 0, 1, 5);
-    auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<WGridLayout>());
+    auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
+    auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<WHBoxLayout>());
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
 
-    auto exitButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, 0, AlignmentFlag::Left);
+    auto exitButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Выход"), 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(exitButton);
     exitButton->clicked().connect([this]() {
         WApplication::instance()->removeCookie(Http::Cookie{ "authorization" });
         _stackHolder->SetWidget(StackWidgetType::Login, {});
     });
 
-    auto eventsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("События"), 0, 1, AlignmentFlag::Center);
+    auto eventsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("События"), 0, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(eventsButton);
     eventsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Events, {}); });
 
-    auto scenariosButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Сценарии"), 0, 2, AlignmentFlag::Center);
+    auto scenariosButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Сценарии"), 0, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(scenariosButton);
     scenariosButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Scenarios, {}); });
 
-    auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, 3, AlignmentFlag::Center);
+    auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(logsButton);
     logsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Logs, {}); });
 
-    auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 4, AlignmentFlag::Right);
+    auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
     refreshButton->clicked().connect([this]() { Refresh(); });
 
@@ -76,14 +79,19 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
 void DevicesWidget::Initialize(const std::string& data) { Refresh(); }
 
 void DevicesWidget::Clear() {
-    for (auto iter = _deviceWidgets.begin(); iter != _deviceWidgets.end(); ++iter) {
+    for (auto iter = _widgets.rbegin(); iter != _widgets.rend(); ++iter) {
         iter->second->removeWidget(iter->first);
     }
-    _deviceWidgets.clear();
+
+    _widgets.clear();
 }
 
 void DevicesWidget::Refresh() {
     Clear();
+
+    WContainerWidget* buttonsWidget = nullptr;
+    WHBoxLayout* buttonsLayout = nullptr;
+
     const auto scenariosReplyJson =
         RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_SCENARIOS }, Constants::LoginService);
     const auto scenarios = !scenariosReplyJson.is_null() ? scenariosReplyJson.get<std::vector<Scenario>>() : std::vector<Scenario>{};
@@ -95,14 +103,37 @@ void DevicesWidget::Refresh() {
         return;
     LOG_DEBUG_MSG(fmt::format("{} descriptions found", allDescriptions.size()));
 
+    auto initButtonsWidget = [&buttonsWidget, &buttonsLayout, this](WVBoxLayout* layout) {
+        buttonsWidget = layout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
+        _widgets.push_back(std::make_pair<WWidget*, WLayout*>(buttonsWidget, layout));
+        buttonsLayout = buttonsWidget->setLayout(std::make_unique<WHBoxLayout>());
+        buttonsLayout->setContentsMargins(0, 0, 0, 0);
+    };
+
+    auto clearButtonsWidget = [&buttonsWidget, &buttonsLayout]() {
+        buttonsWidget = nullptr;
+        buttonsLayout = nullptr;
+    };
+
     if (scenarios.size()) {
-        auto scenariosWidget = _mainLayout->addWidget(std::make_unique<WGroupBox>("Сценарии"), 2, 0, 1, 5, AlignmentFlag::Top);
-        auto scenariosLayout = scenariosWidget->setLayout(std::make_unique<WGridLayout>());
-        int scenarioRow = 0;
-        int scenarioColumn = 0;
-        for (const auto& scenario : scenarios) {
-            AddScenarioButton(scenariosLayout, scenario, scenarioRow, scenarioColumn);
+        auto scenariosCanvas = _mainLayout->addWidget(std::make_unique<WGroupBox>("Сценарии"), 0, AlignmentFlag::Top);
+        _widgets.push_back(std::make_pair<WWidget*, WLayout*>(scenariosCanvas, _mainLayout));
+        auto scenariosLayout = scenariosCanvas->setLayout(std::make_unique<WVBoxLayout>());
+        scenariosLayout->setContentsMargins(0, 0, 0, 0);
+
+        for (std::size_t i = 0; i < scenarios.size(); ++i) {
+            if (buttonsWidget == nullptr) {
+                initButtonsWidget(scenariosLayout);
+            }
+
+            AddScenarioButton(buttonsLayout, scenarios.at(i));
+
+            if (i % MAX_BUTTONS_IN_A_ROW == MAX_BUTTONS_IN_A_ROW - 1) {
+                clearButtonsWidget();
+            }
         }
+
+        clearButtonsWidget();
     }
 
     std::set<std::string> groups;
@@ -115,7 +146,7 @@ void DevicesWidget::Refresh() {
         } else
             descriptionsWithoutGroup.push_back(d);
     });
-    auto groupRow = 3;
+
     // add buttons in groups
     auto topLevelGroup = std::make_shared<Group>();
     for (const auto& description : descriptionsWithGroup) {
@@ -138,42 +169,64 @@ void DevicesWidget::Refresh() {
                 currentGroup->_descriptions.push_back(description);
         }
     }
-    std::function<void(Wt::WGridLayout*, int&, const std::shared_ptr<Group>&)> addGroup =
-        [&](Wt::WGridLayout* layout, int& row, const std::shared_ptr<Group>& group) -> void {
-        auto groupGroupBox = layout->addWidget(std::make_unique<WGroupBox>(group->_name), row++, 0, 1, 5, AlignmentFlag::Top);
-        auto groupLayout = groupGroupBox->setLayout(std::make_unique<WGridLayout>());
+    std::function<void(Wt::WVBoxLayout*, const std::shared_ptr<Group>&)> addGroup = [&](Wt::WVBoxLayout* layout,
+                                                                                        const std::shared_ptr<Group>& group) -> void {
+        auto groupGroupBox = layout->addWidget(std::make_unique<WGroupBox>(group->_name), 0, AlignmentFlag::Top);
+        _widgets.push_back(std::make_pair<WWidget*, WLayout*>(groupGroupBox, layout));
+        auto groupLayout = groupGroupBox->setLayout(std::make_unique<WVBoxLayout>());
+        groupLayout->setContentsMargins(0, 0, 0, 0);
 
-        int subRow = 0;
-        int subColumn = 0;
         std::sort(group->_children.begin(), group->_children.end(), [](const auto& a, const auto& b) { return a->_name.compare(b->_name) < 0; });
         for (const auto& subGroup : group->_children)
-            addGroup(groupLayout, subRow, subGroup);
+            addGroup(groupLayout, subGroup);
+
+        // add buttons in group
         std::sort(
             group->_descriptions.begin(), group->_descriptions.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
-        for (auto& description : group->_descriptions) {
-            auto button = AddDeviceButton(groupLayout, description, subRow, subColumn);
-            _deviceWidgets.insert(std::make_pair(button, groupLayout));
+
+        for (std::size_t i = 0; i < group->_descriptions.size(); ++i) {
+            if (buttonsWidget == nullptr) {
+                initButtonsWidget(groupLayout);
+            }
+
+            AddDeviceButton(buttonsLayout, group->_descriptions.at(i));
+
+            if (i % MAX_BUTTONS_IN_A_ROW == MAX_BUTTONS_IN_A_ROW - 1) {
+                clearButtonsWidget();
+            }
         }
+
+        clearButtonsWidget();
     };
     std::sort(topLevelGroup->_children.begin(), topLevelGroup->_children.end(), [](const auto& a, const auto& b) {
         return a->_name.compare(b->_name) < 0;
     });
     for (const auto& group : topLevelGroup->_children)
-        addGroup(_mainLayout, groupRow, group);
-    // add buttons without groups
-    auto buttonRow = groupRow;
-    auto buttonColumn = 0;
-    std::sort(
-        descriptionsWithoutGroup.begin(), descriptionsWithoutGroup.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
-    for (const auto& description : descriptionsWithoutGroup) {
-        auto button = AddDeviceButton(_mainLayout, description, buttonRow, buttonColumn);
-        _deviceWidgets.insert(std::make_pair(button, _mainLayout));
+        addGroup(_mainLayout, group);
+
+    // add groups without layout
+    for (std::size_t i = 0; i < descriptionsWithoutGroup.size(); ++i) {
+        if (buttonsWidget == nullptr) {
+            initButtonsWidget(_mainLayout);
+            buttonsLayout->setContentsMargins(0, 0, 0, 0);
+        }
+
+        AddDeviceButton(buttonsLayout, descriptionsWithoutGroup.at(i));
+
+        if (i % MAX_BUTTONS_IN_A_ROW == MAX_BUTTONS_IN_A_ROW - 1) {
+            clearButtonsWidget();
+        }
     }
+
+    clearButtonsWidget();
+
+    auto expander = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 10, AlignmentFlag::Bottom);
+    _widgets.push_back(std::make_pair<WWidget*, WLayout*>(expander, _mainLayout));
 }
 
-DeviceButton* DevicesWidget::AddDeviceButton(WGridLayout* layout, const ExtendedComponentDescription& description, int& row, int& column) {
-    auto button =
-        layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), row, column, AlignmentFlag::Top | AlignmentFlag::Left);
+void DevicesWidget::AddDeviceButton(WHBoxLayout* layout, const ExtendedComponentDescription& description) {
+    DeviceButton* button =
+        layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), 0, AlignmentFlag::Top | AlignmentFlag::Left);
     button->clicked().connect([this, description]() {
         if (description.isDeviceType()) {
             StackWidgetType stackWidgetType = static_cast<StackWidgetType>(-1);
@@ -213,19 +266,11 @@ DeviceButton* DevicesWidget::AddDeviceButton(WGridLayout* layout, const Extended
             popup->exec(event);
         }
     });
-    ++column;
-    if (column == 5) {
-        ++row;
-        column = 0;
-    }
-    return button;
+    _widgets.push_back(std::make_pair<WWidget*, WLayout*>(button, layout));
 }
 
-void DevicesWidget::AddScenarioButton(WGridLayout* layout, const Scenario& scenario, int& row, int& column) {
-    layout->addWidget(std::make_unique<ScenarioButton>(_settings._servicePort, scenario), row, column, AlignmentFlag::Top | AlignmentFlag::Left);
-    ++column;
-    if (column == 5) {
-        ++row;
-        column = 0;
-    }
+void DevicesWidget::AddScenarioButton(WHBoxLayout* layout, const Scenario& scenario) {
+    ScenarioButton* button =
+        layout->addWidget(std::make_unique<ScenarioButton>(_settings._servicePort, scenario), 0, AlignmentFlag::Top | AlignmentFlag::Left);
+    _widgets.push_back(std::make_pair<WWidget*, WLayout*>(button, layout));
 }
