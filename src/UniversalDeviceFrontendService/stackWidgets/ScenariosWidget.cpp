@@ -10,6 +10,7 @@
 #include <Wt/WCheckBox.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WGroupBox.h>
+#include <Wt/WHBoxLayout.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WSelectionBox.h>
 #include <Wt/WText.h>
@@ -30,40 +31,62 @@ using namespace Wt;
 
 ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseStackWidget(stackHolder, settings) {
-    _mainLayout = setLayout(std::make_unique<WGridLayout>());
+    _mainLayout = setLayout(std::make_unique<WVBoxLayout>());
 
-    auto backButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
+    auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
+    auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<WHBoxLayout>());
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto backButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, AlignmentFlag::Left | AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Devices, {}); });
 
-    auto refreshButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 3, AlignmentFlag::Right);
+    auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, AlignmentFlag::Right | AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(refreshButton);
     refreshButton->clicked().connect([this]() { Refresh(); });
 
-    auto deleteButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Удалить"), 1, 0, AlignmentFlag::Left);
+    WContainerWidget* editorCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1);
+    auto editorLayout = editorCanvas->setLayout(std::make_unique<WHBoxLayout>());
+    editorLayout->setContentsMargins(0, 0, 0, 0);
+
+    WContainerWidget* listCanvas = editorLayout->addWidget(std::make_unique<WContainerWidget>(), 1);
+    auto listLayout = listCanvas->setLayout(std::make_unique<WVBoxLayout>());
+    listLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto deleteButton = listLayout->addWidget(std::make_unique<WPushButton>("Удалить"), 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(deleteButton);
     deleteButton->clicked().connect([this]() { DeleteScenario(); });
 
-    _scenariosList = _mainLayout->addWidget(std::make_unique<WSelectionBox>(), 2, 0, 3, 2);
+    _scenariosList = listLayout->addWidget(std::make_unique<WSelectionBox>(), 1);
     _scenariosList->setSelectionMode(SelectionMode::Single);
     _scenariosList->activated().connect([this](int index) { OnSelection(index); });
 
-    auto addButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Добавить"), 1, 2, AlignmentFlag::Left);
+    WContainerWidget* selectionCanvas = editorLayout->addWidget(std::make_unique<WContainerWidget>(), 2);
+    auto selectionLayout = selectionCanvas->setLayout(std::make_unique<WVBoxLayout>());
+    selectionLayout->setContentsMargins(0, 0, 0, 0);
+
+    WContainerWidget* addUpdateCanvas = selectionLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
+    auto addUpdateLayout = addUpdateCanvas->setLayout(std::make_unique<WHBoxLayout>());
+    addUpdateLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto addButton = addUpdateLayout->addWidget(std::make_unique<WPushButton>("Добавить"), 0, AlignmentFlag::Left | AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(addButton);
     addButton->clicked().connect([this]() { AddScenario(); });
 
-    auto updateButton = _mainLayout->addWidget(std::make_unique<WPushButton>("Применить"), 1, 3, AlignmentFlag::Right);
+    auto updateButton = addUpdateLayout->addWidget(std::make_unique<WPushButton>("Применить"), 0, AlignmentFlag::Right | AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(updateButton);
     updateButton->clicked().connect([this]() { UpdateScenario(); });
 
-    _mainLayout->addWidget(std::make_unique<WText>("Имя:"), 2, 2, 1, 2);
-    _nameEditor = _mainLayout->addWidget(std::make_unique<WLineEdit>(), 3, 2, 1, 2);
+    selectionLayout->addWidget(std::make_unique<WText>("Имя:"), 0, AlignmentFlag::Top);
+    _nameEditor = selectionLayout->addWidget(std::make_unique<WLineEdit>(), 0, AlignmentFlag::Top);
 
-    _activateEventsGroup = _mainLayout->addWidget(std::make_unique<WGroupBox>("Активировать:"), 4, 2);
+    WContainerWidget* groupsCanvas = selectionLayout->addWidget(std::make_unique<WContainerWidget>(), 1);
+    auto groupsLayout = groupsCanvas->setLayout(std::make_unique<WHBoxLayout>());
+    groupsLayout->setContentsMargins(0, 0, 0, 0);
 
-    _deactivateEventsGroup = _mainLayout->addWidget(std::make_unique<WGroupBox>("Деактивировать:"), 4, 3);
+    _activateEventsGroup = groupsLayout->addWidget(std::make_unique<WGroupBox>("Активировать:"), 1);
 
-    _mainLayout->setRowStretch(4, 1);
+    _deactivateEventsGroup = groupsLayout->addWidget(std::make_unique<WGroupBox>("Деактивировать:"), 1);
 }
 
 void ScenariosWidget::Initialize(const std::string& data) { Refresh(); }
