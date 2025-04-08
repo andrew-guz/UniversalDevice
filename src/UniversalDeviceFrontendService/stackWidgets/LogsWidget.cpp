@@ -1,7 +1,9 @@
 #include "LogsWidget.hpp"
 
-#include <Wt/WGridLayout.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WHBoxLayout.h>
 #include <Wt/WPushButton.h>
+#include <Wt/WVBoxLayout.h>
 
 #include "FileUtils.hpp"
 #include "LogInformation.hpp"
@@ -14,31 +16,31 @@ using namespace Wt;
 
 LogsWidget::LogsWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseStackWidget(stackHolder, settings) {
-    auto mainLayout = setLayout(std::make_unique<WGridLayout>());
+    auto mainLayout = setLayout(std::make_unique<WVBoxLayout>());
 
-    auto backButton = mainLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, 0, AlignmentFlag::Left);
+    auto buttonsCanvas = mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
+    auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<WHBoxLayout>());
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto backButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Назад..."), 0, AlignmentFlag::Left | AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Devices, {}); });
 
-    auto cleanupButton = mainLayout->addWidget(std::make_unique<WPushButton>("Очистить логи"), 0, 1, AlignmentFlag::Center);
+    auto cleanupButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Очистить логи"), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(cleanupButton);
     cleanupButton->clicked().connect([this]() { CleanupLogs(); });
 
-    auto refreshButton = mainLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, 2, AlignmentFlag::Right);
+    auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, AlignmentFlag::Right | AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(refreshButton);
     refreshButton->clicked().connect([this]() { Refresh(); });
 
-    _logFiles = mainLayout->addWidget(std::make_unique<WComboBox>(), 1, 0, 1, 3);
+    _logFiles = mainLayout->addWidget(std::make_unique<WComboBox>(), 0, AlignmentFlag::Top);
     _logFiles->setMinimumSize(_logFiles->minimumWidth(), 50);
     _logFiles->setMaximumSize(_logFiles->maximumWidth(), 50);
     _logFiles->changed().connect([this]() { OnLogSelected(); });
 
-    _logContent = mainLayout->addWidget(std::make_unique<WTextArea>(), 2, 0, 1, 3);
+    _logContent = mainLayout->addWidget(std::make_unique<WTextArea>(), 1);
     _logContent->setReadOnly(true);
-
-    mainLayout->setRowStretch(0, 0);
-    mainLayout->setRowStretch(1, 0);
-    mainLayout->setRowStretch(2, 1);
 
     Refresh();
 }

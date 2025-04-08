@@ -1,20 +1,28 @@
 #include "ThermometerEventEditor.hpp"
 
-#include "Constants.hpp"
+#include <Wt/WGlobal.h>
+#include <Wt/WHBoxLayout.h>
+
 #include "ThermometerEvent.hpp"
 
 using namespace Wt;
 
 ThermometerEventEditor::ThermometerEventEditor() :
     BaseEventEditor() {
-    _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
-    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
-    _mainLayout->addWidget(std::make_unique<WText>("Температура:"), 4, 0);
-    _temperature = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 4, 1);
+    _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 0, AlignmentFlag::Top);
+    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 0, AlignmentFlag::Top);
+
+    auto temperatureCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
+    auto temperatureLayout = temperatureCanvas->setLayout(std::make_unique<WHBoxLayout>());
+    temperatureLayout->setContentsMargins(0, 0, 0, 0);
+
+    temperatureLayout->addWidget(std::make_unique<WText>("Температура:"), 0, AlignmentFlag::Top);
+    _temperature = temperatureLayout->addWidget(std::make_unique<WSpinBox>(), 1, AlignmentFlag::Top);
     _temperature->setMinimum(-40);
     _temperature->setMaximum(40);
-    _lower = _mainLayout->addWidget(std::make_unique<WCheckBox>("Ниже заданной"), 5, 0, 1, 2);
-    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 6, 0, 1, 2);
+    _lower = temperatureLayout->addWidget(std::make_unique<WCheckBox>("Ниже заданной"), 0, AlignmentFlag::Top);
+
+    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 0, AlignmentFlag::Top);
 }
 
 void ThermometerEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {

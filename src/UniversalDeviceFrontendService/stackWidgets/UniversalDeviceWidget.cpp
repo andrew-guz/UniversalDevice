@@ -12,10 +12,11 @@
 #include <Wt/WAbstractItemModel.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WDialog.h>
-#include <Wt/WGridLayout.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WTabWidget.h>
 #include <Wt/WText.h>
 #include <Wt/WTextArea.h>
+#include <Wt/WVBoxLayout.h>
 #include <Wt/WWidget.h>
 #include <fmt/format.h>
 
@@ -62,7 +63,7 @@ namespace {
 
     std::unique_ptr<WContainerWidget> createChart(const std::shared_ptr<UniversalDeviceChartModel>& model, const UniversalDataType type) {
         auto canvas = std::make_unique<WContainerWidget>();
-        auto canvasLayout = canvas->setLayout(std::make_unique<WGridLayout>());
+        auto canvasLayout = canvas->setLayout(std::make_unique<WVBoxLayout>());
         bool drawGridLines = false;
         Chart::SeriesType seriesType = Chart::SeriesType::Line;
         switch (type) {
@@ -81,31 +82,27 @@ namespace {
                 break;
         }
         canvasLayout->addWidget(
-            std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(model, drawGridLines, seriesType, WColor(255, 165, 0, 255))), 0, 0);
+            std::unique_ptr<Chart::WCartesianChart>(ChartFactory::CreateChart(model, drawGridLines, seriesType, WColor(255, 165, 0, 255))), 1);
         return canvas;
     }
 
     std::pair<WContainerWidget*, WText*> createText() {
         auto canvas = new WContainerWidget();
-        auto canvasLayout = canvas->setLayout(std::make_unique<WGridLayout>());
-        auto text = canvasLayout->addWidget(std::make_unique<WText>(), 0, 0);
+        auto canvasLayout = canvas->setLayout(std::make_unique<WVBoxLayout>());
+        auto text = canvasLayout->addWidget(std::make_unique<WText>(), 1);
         return std::make_pair(canvas, text);
     }
 } // namespace
 
 UniversalDeviceWidget::UniversalDeviceWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
-    _tabWidget = _mainLayout->addWidget(std::make_unique<WTabWidget>(), 3, 0, 1, 3, AlignmentFlag::Center);
-    _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 4, 1, AlignmentFlag::Center);
-    _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 5, 1, AlignmentFlag::Center);
+    _tabWidget = _mainLayout->addWidget(std::make_unique<WTabWidget>(), 1);
+    _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 0, AlignmentFlag::Center | AlignmentFlag::Bottom);
+    _seconds = _mainLayout->addWidget(std::make_unique<SecondsComboBox>(), 0, AlignmentFlag::Center | AlignmentFlag::Bottom);
     _seconds->changed().connect([this]() {
         _cachedValues.clear();
         BaseDeviceWidget::Initialize(_deviceId.data());
     });
-
-    _mainLayout->setRowStretch(3, 1);
-    _mainLayout->setRowStretch(4, 0);
-    _mainLayout->setRowStretch(5, 0);
 }
 
 void UniversalDeviceWidget::OnBack() {

@@ -1,16 +1,18 @@
 #include "RelayEventEditor.hpp"
 
-#include "Constants.hpp"
+#include <Wt/WGlobal.h>
+
 #include "RelayEvent.hpp"
 
 using namespace Wt;
 
 RelayEventEditor::RelayEventEditor() :
     BaseEventEditor() {
-    _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
-    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
-    _state = _mainLayout->addWidget(std::make_unique<WCheckBox>("Включено"), 5, 0, 1, 2);
-    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 6, 0, 1, 2);
+
+    _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 0, AlignmentFlag::Top);
+    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 0, AlignmentFlag::Top);
+    _state = _mainLayout->addWidget(std::make_unique<WCheckBox>("Включено"), 0, AlignmentFlag::Top);
+    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 0, AlignmentFlag::Top);
 }
 
 void RelayEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {

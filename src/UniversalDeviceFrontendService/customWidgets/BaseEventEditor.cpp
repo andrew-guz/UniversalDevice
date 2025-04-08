@@ -1,5 +1,9 @@
 #include "BaseEventEditor.hpp"
 
+#include <Wt/WContainerWidget.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WHBoxLayout.h>
+
 #include "Event.hpp"
 
 using namespace Wt;
@@ -7,12 +11,16 @@ using namespace Wt;
 BaseEventEditor::BaseEventEditor() :
     WContainerWidget(),
     IEventEditorWidget() {
-    _mainLayout = setLayout(std::make_unique<WGridLayout>());
+    _mainLayout = setLayout(std::make_unique<WVBoxLayout>());
     _mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    _mainLayout->addWidget(std::make_unique<WText>("Имя:"), 0, 0);
-    _name = _mainLayout->addWidget(std::make_unique<WLineEdit>(), 0, 1);
-    _active = _mainLayout->addWidget(std::make_unique<WCheckBox>("Активно"), 1, 0, 1, 2);
+    auto commonCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
+    auto commonLayout = commonCanvas->setLayout(std::make_unique<WHBoxLayout>());
+    commonLayout->setContentsMargins(0, 0, 0, 0);
+
+    commonLayout->addWidget(std::make_unique<WText>("Имя:"), 0, AlignmentFlag::Left | AlignmentFlag::Top);
+    _name = commonLayout->addWidget(std::make_unique<WLineEdit>(), 1, AlignmentFlag::Top);
+    _active = commonLayout->addWidget(std::make_unique<WCheckBox>("Активно"), 0, AlignmentFlag::Right | AlignmentFlag::Top);
 }
 
 void BaseEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) { _devices = devices; }

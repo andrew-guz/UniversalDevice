@@ -5,7 +5,6 @@
 
 #include <Wt/WCheckBox.h>
 #include <Wt/WContainerWidget.h>
-#include <Wt/WGridLayout.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WSelectionBox.h>
 #include <Wt/WVBoxLayout.h>
@@ -43,7 +42,7 @@ private:
     bool IsUiValid() const;
 
 private:
-    Wt::WGridLayout* _mainLayout;
+    Wt::WVBoxLayout* _mainLayout;
     Wt::WSelectionBox* _scenariosList;
     Wt::WLineEdit* _nameEditor;
     Wt::WGroupBox* _activateEventsGroup;
