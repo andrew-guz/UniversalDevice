@@ -1,24 +1,32 @@
 #include "ThermostatEventEditor.hpp"
 
-#include "Constants.hpp"
+#include <Wt/WGlobal.h>
+#include <Wt/WHBoxLayout.h>
+
 #include "ThermostatEvent.hpp"
 
 using namespace Wt;
 
 ThermostatEventEditor::ThermostatEventEditor() :
     BaseEventEditor() {
-    _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 2, 0, 1, 2);
-    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 3, 0, 1, 2);
-    _mainLayout->addWidget(std::make_unique<WText>("Температура:"), 4, 0);
-    _temperature = _mainLayout->addWidget(std::make_unique<WSpinBox>(), 4, 1);
+    _mainLayout->addWidget(std::make_unique<WText>("Генератор события:"), 0, AlignmentFlag::Top);
+    _provider = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 0, AlignmentFlag::Top);
+
+    auto temperatureCanvas = _mainLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 0, Wt::AlignmentFlag::Top);
+    auto temperatureLayout = temperatureCanvas->setLayout(std::make_unique<Wt::WHBoxLayout>());
+    temperatureLayout->setContentsMargins(0, 0, 0, 0);
+
+    temperatureLayout->addWidget(std::make_unique<WText>("Температура:"), 0, AlignmentFlag::Top);
+    _temperature = temperatureLayout->addWidget(std::make_unique<WSpinBox>(), 1, AlignmentFlag::Top);
     _temperature->setMinimum(-40);
     _temperature->setMaximum(40);
-    _mainLayout->addWidget(std::make_unique<WText>("Дельта:"), 5, 0);
-    _delta = _mainLayout->addWidget(std::make_unique<WDoubleSpinBox>(), 5, 1);
+    temperatureLayout->addWidget(std::make_unique<WText>("Дельта:"), 0, AlignmentFlag::Top);
+    _delta = temperatureLayout->addWidget(std::make_unique<WDoubleSpinBox>(), 1, AlignmentFlag::Top);
     _delta->setMinimum(0.0f);
     _delta->setMaximum(5.0f);
-    _mainLayout->addWidget(std::make_unique<WText>("Получатель события:"), 6, 0, 1, 2);
-    _receiver = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 7, 0, 1, 2);
+
+    _mainLayout->addWidget(std::make_unique<WText>("Получатель события:"), 0, AlignmentFlag::Top);
+    _receiver = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 0, AlignmentFlag::Top);
 }
 
 void ThermostatEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {

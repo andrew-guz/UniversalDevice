@@ -2,15 +2,13 @@
 
 #include <Wt/WComboBox.h>
 #include <Wt/WContainerWidget.h>
-#include <Wt/WGridLayout.h>
 #include <Wt/WPushButton.h>
-#include <Wt/WStackedWidget.h>
 #include <Wt/WTableView.h>
+#include <Wt/WVBoxLayout.h>
 #include <nlohmann/json.hpp>
 
 #include "BaseEventEditor.hpp"
 #include "BaseStackWidget.hpp"
-#include "Event.hpp"
 #include "EventsTableModel.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "Settings.hpp"
@@ -42,8 +40,6 @@ private:
 
     void OnEventTypeChanged();
 
-    BaseEventEditor* GetCurrentEventEditor() const;
-
     nlohmann::json CreateNewEventFromEditor(BaseEventEditor* eventEditor) const;
 
     nlohmann::json GetSelectedEventJsonFromTable() const;
@@ -54,9 +50,10 @@ private:
 
 private:
     std::vector<ExtendedComponentDescription> _devices;
-    Wt::WGridLayout* _mainLayout;
+    Wt::WVBoxLayout* _mainLayout;
     std::shared_ptr<EventsTableModel> _eventsTableModel;
     Wt::WTableView* _eventsTable;
     Wt::WComboBox* _eventType;
-    Wt::WStackedWidget* _eventEditorsStack;
+    Wt::WVBoxLayout* _eventEditorLayout;
+    BaseEventEditor* _eventEditor;
 };

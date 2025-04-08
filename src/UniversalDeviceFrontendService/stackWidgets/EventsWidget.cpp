@@ -1,8 +1,12 @@
 #include "EventsWidget.hpp"
 
+#include <memory>
+
 #include <Wt/WGlobal.h>
 #include <Wt/WGroupBox.h>
+#include <Wt/WHBoxLayout.h>
 #include <Wt/WText.h>
+#include <Wt/WVBoxLayout.h>
 #include <fmt/format.h>
 
 #include "Constants.hpp"
@@ -23,26 +27,36 @@
 
 EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseStackWidget(stackHolder, settings) {
-    _mainLayout = setLayout(std::make_unique<Wt::WGridLayout>());
+    _mainLayout = setLayout(std::make_unique<Wt::WVBoxLayout>());
 
-    auto backButton = _mainLayout->addWidget(std::make_unique<Wt::WPushButton>("Назад..."), 0, 0, Wt::AlignmentFlag::Left);
+    auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 0, Wt::AlignmentFlag::Top);
+    auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<Wt::WHBoxLayout>());
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto backButton = buttonsLayout->addWidget(std::make_unique<Wt::WPushButton>("Назад..."), 0, Wt::AlignmentFlag::Left | Wt::AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(backButton);
     backButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Devices, {}); });
 
-    auto refreshButton = _mainLayout->addWidget(std::make_unique<Wt::WPushButton>("Обновить..."), 0, 1, Wt::AlignmentFlag::Right);
+    auto refreshButton =
+        buttonsLayout->addWidget(std::make_unique<Wt::WPushButton>("Обновить..."), 0, Wt::AlignmentFlag::Right | Wt::AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(refreshButton);
     refreshButton->clicked().connect([this]() { Refresh(); });
 
-    auto tableCanvas = _mainLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 1, 0);
-    auto tableLayout = tableCanvas->setLayout(std::make_unique<Wt::WGridLayout>());
+    WContainerWidget* mainCanvas = _mainLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 1);
+    auto mainLayout = mainCanvas->setLayout(std::make_unique<Wt::WHBoxLayout>());
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    auto deleteButton = tableLayout->addWidget(std::make_unique<Wt::WPushButton>("Удалить"), 0, 0, Wt::AlignmentFlag::Left);
+    WContainerWidget* tableCanvas = mainLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 1);
+    auto tableLayout = tableCanvas->setLayout(std::make_unique<Wt::WVBoxLayout>());
+    tableLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto deleteButton = tableLayout->addWidget(std::make_unique<Wt::WPushButton>("Удалить"), 0, Wt::AlignmentFlag::Left | Wt::AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(deleteButton);
     deleteButton->clicked().connect([&] { DeleteEvent(); });
 
     _eventsTableModel = std::make_shared<EventsTableModel>();
 
-    _eventsTable = tableLayout->addWidget(std::make_unique<Wt::WTableView>(), 1, 0, Wt::AlignmentFlag::Top);
+    _eventsTable = tableLayout->addWidget(std::make_unique<Wt::WTableView>(), 1, Wt::AlignmentFlag::Top);
     _eventsTable->setColumnResizeEnabled(false);
     _eventsTable->setColumnAlignment(0, Wt::AlignmentFlag::Center);
     _eventsTable->setColumnAlignment(1, Wt::AlignmentFlag::Center);
@@ -54,42 +68,37 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventsTable->setColumnWidth(3, 250);
     _eventsTable->selectionChanged().connect([this]() { OnTableSelectionChanged(); });
 
-    tableLayout->setRowStretch(0, 0);
-    tableLayout->setRowStretch(1, 1);
+    auto editorCanvas = mainLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 1);
+    auto editLayout = editorCanvas->setLayout(std::make_unique<Wt::WVBoxLayout>());
+    editLayout->setContentsMargins(0, 0, 0, 0);
 
-    auto editorCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 1, 1);
-    auto editLayout = editorCanvas->setLayout(std::make_unique<Wt::WGridLayout>());
+    WContainerWidget* addUpdateCanvas = editLayout->addWidget(std::make_unique<WContainerWidget>(), 0, Wt::AlignmentFlag::Top);
+    auto addUpdateLayout = addUpdateCanvas->setLayout(std::make_unique<Wt::WHBoxLayout>());
+    addUpdateLayout->setContentsMargins(0, 0, 0, 0);
 
-    auto addButton = editLayout->addWidget(std::make_unique<Wt::WPushButton>("Добавить"), 0, 0, Wt::AlignmentFlag::Left);
+    auto addButton = addUpdateLayout->addWidget(std::make_unique<Wt::WPushButton>("Добавить"), 0, Wt::AlignmentFlag::Left | Wt::AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(addButton);
     addButton->clicked().connect([&] { AddEvent(); });
 
-    auto updateButton = editLayout->addWidget(std::make_unique<Wt::WPushButton>("Применить"), 0, 1, Wt::AlignmentFlag::Right);
+    auto updateButton =
+        addUpdateLayout->addWidget(std::make_unique<Wt::WPushButton>("Применить"), 0, Wt::AlignmentFlag::Right | Wt::AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(updateButton);
     updateButton->clicked().connect([&] { UpdateEvent(); });
 
-    auto eventGroup = editLayout->addWidget(std::make_unique<Wt::WGroupBox>("Событие"), 1, 0, 1, 2, Wt::AlignmentFlag::Top);
-    auto eventLayout = eventGroup->setLayout(std::make_unique<Wt::WGridLayout>());
+    auto eventGroup = editLayout->addWidget(std::make_unique<Wt::WGroupBox>("Событие"), 1, Wt::AlignmentFlag::Top);
+    auto eventLayout = eventGroup->setLayout(std::make_unique<Wt::WVBoxLayout>());
 
-    eventLayout->addWidget(std::make_unique<Wt::WText>("Тип события:"), 0, 0, 1, 2);
-    _eventType = eventLayout->addWidget(std::make_unique<Wt::WComboBox>(), 1, 0, 1, 2);
+    eventLayout->addWidget(std::make_unique<Wt::WText>("Тип события:"), 0, Wt::AlignmentFlag::Top);
+    _eventType = eventLayout->addWidget(std::make_unique<Wt::WComboBox>(), 0, Wt::AlignmentFlag::Top);
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(EventType::Timer));
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(EventType::Thermometer));
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(EventType::Relay));
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(EventType::Thermostat));
     _eventType->changed().connect([this]() { OnEventTypeChanged(); });
 
-    _eventEditorsStack = eventLayout->addWidget(std::make_unique<Wt::WStackedWidget>(), 2, 0, 1, 2);
-    _eventEditorsStack->addWidget(std::make_unique<TimerEventEditor>());
-    _eventEditorsStack->addWidget(std::make_unique<ThermometerEventEditor>());
-    _eventEditorsStack->addWidget(std::make_unique<RelayEventEditor>());
-    _eventEditorsStack->addWidget(std::make_unique<ThermostatEventEditor>());
-
-    editLayout->setRowStretch(0, 0);
-    editLayout->setRowStretch(1, 1);
-
-    _mainLayout->setRowStretch(0, 0);
-    _mainLayout->setRowStretch(1, 1);
+    auto eventEditorCanvas = eventLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 0, Wt::AlignmentFlag::Top);
+    _eventEditorLayout = eventEditorCanvas->setLayout(std::make_unique<Wt::WVBoxLayout>());
+    _eventEditorLayout->setContentsMargins(0, 0, 0, 0);
 
     Refresh();
 }
@@ -101,11 +110,8 @@ void EventsWidget::Clear() {
     _eventsTableModel->UpdateData({});
     _eventType->setCurrentIndex(0);
     OnEventTypeChanged();
-    for (auto i = 0; i < _eventEditorsStack->count(); ++i) {
-        auto editor = dynamic_cast<IEventEditorWidget*>(_eventEditorsStack->widget(i));
-        editor->SetDevices(_devices);
-        editor->Cleanup();
-    }
+    _eventEditor->SetDevices(_devices);
+    _eventEditor->Cleanup();
 }
 
 void EventsWidget::Refresh() {
@@ -115,10 +121,7 @@ void EventsWidget::Refresh() {
     auto eventJsons = GetEvents();
     _eventsTableModel = std::make_shared<EventsTableModel>(eventJsons);
     _eventsTable->setModel(_eventsTableModel);
-    for (auto i = 0; i < _eventEditorsStack->count(); ++i) {
-        auto editor = dynamic_cast<IEventEditorWidget*>(_eventEditorsStack->widget(i));
-        editor->SetDevices(_devices);
-    }
+    _eventEditor->SetDevices(_devices);
 }
 
 std::vector<nlohmann::json> EventsWidget::GetEvents() {
@@ -127,15 +130,21 @@ std::vector<nlohmann::json> EventsWidget::GetEvents() {
 
 std::vector<ExtendedComponentDescription> EventsWidget::GetDevices() {
     auto resultJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
-    return resultJson.get<std::vector<ExtendedComponentDescription>>();
+    std::vector<ExtendedComponentDescription> devices = resultJson.get<std::vector<ExtendedComponentDescription>>();
+    // right now not all devices can receive events
+    auto newEnd = std::remove_if(devices.begin(), devices.end(), [](const ExtendedComponentDescription& device) {
+        return !device.isDeviceType() || device.getDeviceType() == DeviceType::Undefined || device.getDeviceType() == DeviceType::UniversalDevice;
+    });
+    devices.erase(newEnd, devices.end());
+    return devices;
 }
 
 void EventsWidget::AddEvent() {
-    if (_eventType->currentIndex() < 0 || GetCurrentEventEditor() == nullptr || !GetCurrentEventEditor()->IsValid()) {
+    if (_eventType->currentIndex() < 0 || _eventEditor == nullptr || !_eventEditor->IsValid()) {
         ShowIncorrectEventMsgBox();
         return;
     }
-    auto eventEditor = GetCurrentEventEditor();
+    auto eventEditor = _eventEditor;
     nlohmann::json eventJson = CreateNewEventFromEditor(eventEditor);
     if (!eventJson.is_null()) {
         auto result = RequestHelper::DoPostRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
@@ -157,12 +166,11 @@ void EventsWidget::DeleteEvent() {
 }
 
 void EventsWidget::UpdateEvent() {
-    if (GetSelectedEventIdFromTable().isEmpty() || _eventType->currentIndex() < 0 || GetCurrentEventEditor() == nullptr ||
-        !GetCurrentEventEditor()->IsValid()) {
+    if (GetSelectedEventIdFromTable().isEmpty() || _eventType->currentIndex() < 0 || _eventEditor == nullptr || !_eventEditor->IsValid()) {
         ShowIncorrectEventMsgBox();
         return;
     }
-    auto eventEditor = GetCurrentEventEditor();
+    auto eventEditor = _eventEditor;
     auto eventJson = CreateNewEventFromEditor(eventEditor);
     eventJson["id"] = GetSelectedEventIdFromTable().data();
     if (!eventJson.is_null()) {
@@ -182,7 +190,7 @@ void EventsWidget::OnTableSelectionChanged() {
     const auto applyType = [&](int index, const Event& event) -> void {
         _eventType->setCurrentIndex(index);
         OnEventTypeChanged();
-        GetCurrentEventEditor()->FillUi(event);
+        _eventEditor->FillUi(event);
     };
     switch (simpleEvent._type) {
         case EventType::Undefined:
@@ -204,18 +212,24 @@ void EventsWidget::OnTableSelectionChanged() {
 }
 
 void EventsWidget::OnEventTypeChanged() {
-    _eventEditorsStack->setCurrentIndex(_eventType->currentIndex());
-    for (auto i = 0; i < 4; ++i) {
-        if (i == _eventEditorsStack->currentIndex())
-            continue;
-        dynamic_cast<BaseEventEditor*>(_eventEditorsStack->widget(i))->Cleanup();
+    _eventEditorLayout->removeWidget(_eventEditor);
+    _eventEditor = nullptr;
+    switch (_eventType->currentIndex()) {
+        case 0:
+            _eventEditor = _eventEditorLayout->addWidget(std::make_unique<TimerEventEditor>(), 0, Wt::AlignmentFlag::Top);
+            break;
+        case 1:
+            _eventEditor = _eventEditorLayout->addWidget(std::make_unique<ThermometerEventEditor>(), 0, Wt::AlignmentFlag::Top);
+            break;
+        case 2:
+            _eventEditor = _eventEditorLayout->addWidget(std::make_unique<RelayEventEditor>(), 0, Wt::AlignmentFlag::Top);
+            break;
+        case 3:
+            _eventEditor = _eventEditorLayout->addWidget(std::make_unique<ThermostatEventEditor>(), 0, Wt::AlignmentFlag::Top);
+            break;
     }
-}
-
-BaseEventEditor* EventsWidget::GetCurrentEventEditor() const {
-    if (_eventEditorsStack->currentIndex() < 0)
-        return nullptr;
-    return dynamic_cast<BaseEventEditor*>(_eventEditorsStack->currentWidget());
+    if (_eventEditor)
+        _eventEditor->SetDevices(_devices);
 }
 
 nlohmann::json EventsWidget::CreateNewEventFromEditor(BaseEventEditor* eventEditor) const {

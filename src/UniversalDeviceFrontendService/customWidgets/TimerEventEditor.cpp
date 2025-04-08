@@ -1,6 +1,7 @@
 #include "TimerEventEditor.hpp"
 
 #include <Wt/WGlobal.h>
+#include <Wt/WHBoxLayout.h>
 
 #include "Constants.hpp"
 #include "Enums.hpp"
@@ -9,15 +10,22 @@
 
 TimerEventEditor::TimerEventEditor() :
     BaseEventEditor() {
-    _mainLayout->addWidget(std::make_unique<Wt::WText>("Час:"), 2, 0);
-    _hour = _mainLayout->addWidget(std::make_unique<Wt::WSpinBox>(), 2, 1);
+
+    auto timeCanvas = _mainLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 0, Wt::AlignmentFlag::Top);
+    auto timeLayout = timeCanvas->setLayout(std::make_unique<Wt::WHBoxLayout>());
+    timeLayout->setContentsMargins(0, 0, 0, 0);
+
+    timeLayout->addWidget(std::make_unique<Wt::WText>("Час:"), 0, Wt::AlignmentFlag::Top);
+    _hour = timeLayout->addWidget(std::make_unique<Wt::WSpinBox>(), 1, Wt::AlignmentFlag::Top);
     _hour->setMinimum(0);
     _hour->setMaximum(23);
-    _mainLayout->addWidget(std::make_unique<Wt::WText>("Минута:"), 3, 0);
-    _minute = _mainLayout->addWidget(std::make_unique<Wt::WSpinBox>(), 3, 1);
+
+    timeLayout->addWidget(std::make_unique<Wt::WText>("Минута:"), 0, Wt::AlignmentFlag::Top);
+    _minute = timeLayout->addWidget(std::make_unique<Wt::WSpinBox>(), 1, Wt::AlignmentFlag::Top);
     _minute->setMinimum(0);
     _minute->setMaximum(59);
-    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 4, 0, 1, 2);
+
+    _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 0, Wt::AlignmentFlag::Top);
 }
 
 void TimerEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {

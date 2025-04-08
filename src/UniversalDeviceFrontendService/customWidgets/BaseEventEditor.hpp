@@ -2,8 +2,8 @@
 
 #include <Wt/WCheckBox.h>
 #include <Wt/WContainerWidget.h>
-#include <Wt/WGridLayout.h>
 #include <Wt/WLineEdit.h>
+#include <Wt/WVBoxLayout.h>
 
 #include "Enums.hpp"
 #include "Event.hpp"
@@ -32,7 +32,7 @@ protected:
 
 protected:
     std::vector<ExtendedComponentDescription> _devices;
-    Wt::WGridLayout* _mainLayout;
+    Wt::WVBoxLayout* _mainLayout;
     Wt::WLineEdit* _name;
     Wt::WCheckBox* _active;
 };

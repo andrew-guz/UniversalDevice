@@ -2,9 +2,9 @@
 
 #include <Wt/WCheckBox.h>
 #include <Wt/WContainerWidget.h>
-#include <Wt/WGridLayout.h>
 #include <Wt/WSpinBox.h>
 #include <Wt/WText.h>
+#include <Wt/WVBoxLayout.h>
 
 #include "DeviceComboBox.hpp"
 #include "IEventEditorWidget.hpp"
@@ -29,7 +29,7 @@ private:
     void OnReceiverChanged();
 
 private:
-    Wt::WGridLayout* _mainLayout;
+    Wt::WVBoxLayout* _mainLayout;
     DeviceComboBox* _receivers;
     Wt::WText* _brightnessText;
     Wt::WSpinBox* _brightness;
