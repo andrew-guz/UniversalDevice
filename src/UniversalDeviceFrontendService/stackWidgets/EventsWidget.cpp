@@ -125,12 +125,14 @@ void EventsWidget::Refresh() {
 }
 
 std::vector<nlohmann::json> EventsWidget::GetEvents() {
-    return RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService);
+    nlohmann::json result = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService);
+    return result.is_null() ? std::vector<nlohmann::json>{} : result.get<std::vector<nlohmann::json>>();
 }
 
 std::vector<ExtendedComponentDescription> EventsWidget::GetDevices() {
     auto resultJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
-    std::vector<ExtendedComponentDescription> devices = resultJson.get<std::vector<ExtendedComponentDescription>>();
+    std::vector<ExtendedComponentDescription> devices =
+        resultJson.is_null() ? std::vector<ExtendedComponentDescription>{} : resultJson.get<std::vector<ExtendedComponentDescription>>();
     // right now not all devices can receive events
     auto newEnd = std::remove_if(devices.begin(), devices.end(), [](const ExtendedComponentDescription& device) {
         return !device.isDeviceType() || device.getDeviceType() == DeviceType::Undefined || device.getDeviceType() == DeviceType::UniversalDevice;

@@ -1,6 +1,9 @@
 #include "Application.hpp"
 
 #include <Wt/WEnvironment.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WText.h>
 #include <fmt/format.h>
 
 #include "DevicesWidget.hpp"
@@ -13,11 +16,13 @@
 #include "ScenariosWidget.hpp"
 #include "ThermometerWidget.hpp"
 #include "UniversalDeviceWidget.hpp"
+#include "Version.hpp"
 
 using namespace Wt;
 
 Application::Application(const Settings& settings, const WEnvironment& env) :
     Wt::WApplication(env) {
+    setTitle(fmt::format("Universal device [{}.{}.{}]", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
     setCssTheme("polished");
 
     _mainLayout = root()->setLayout(std::make_unique<WHBoxLayout>());

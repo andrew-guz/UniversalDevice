@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <Wt/Http/Cookie.h>
+#include <Wt/WContainerWidget.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WHBoxLayout.h>
@@ -45,6 +46,7 @@ namespace {
 DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) :
     BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<WVBoxLayout>());
+    setOverflow(Overflow::Scroll, Orientation::Vertical);
 
     auto buttonsCanvas = _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
     auto buttonsLayout = buttonsCanvas->setLayout(std::make_unique<WHBoxLayout>());
