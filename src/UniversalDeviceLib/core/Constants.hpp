@@ -11,4 +11,6 @@ public:
     // predefined ids
     static const Uuid PredefinedIdTimer;
     static const Uuid PredefinedIdClient;
+    static const Uuid PredefinedIdSunrise;
+    static const Uuid PredefinedIdSunset;
 };

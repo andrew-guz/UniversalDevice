@@ -17,6 +17,9 @@
 #include "RelayEvent.hpp"
 #include "RelayEventEditor.hpp"
 #include "RequestHelper.hpp"
+#include "SunriseEvent.hpp"
+#include "SunriseSunsetEditor.hpp"
+#include "SunsetEvent.hpp"
 #include "ThermometerEvent.hpp"
 #include "ThermometerEventEditor.hpp"
 #include "ThermostatEvent.hpp"
@@ -94,6 +97,8 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) 
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(EventType::Thermometer));
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(EventType::Relay));
     _eventType->addItem(EventsTableModel::EventTypeDisplayName(EventType::Thermostat));
+    _eventType->addItem(EventsTableModel::EventTypeDisplayName(EventType::Sunrise));
+    _eventType->addItem(EventsTableModel::EventTypeDisplayName(EventType::Sunset));
     _eventType->changed().connect([this]() { OnEventTypeChanged(); });
 
     auto eventEditorCanvas = eventLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 0, Wt::AlignmentFlag::Top);
@@ -210,6 +215,12 @@ void EventsWidget::OnTableSelectionChanged() {
         case EventType::Thermostat:
             applyType(3, eventJson.get<ThermostatEvent>());
             break;
+        case EventType::Sunrise:
+            applyType(4, eventJson.get<SunriseEvent>());
+            break;
+        case EventType::Sunset:
+            applyType(5, eventJson.get<SunsetEvent>());
+            break;
     }
 }
 
@@ -228,6 +239,12 @@ void EventsWidget::OnEventTypeChanged() {
             break;
         case 3:
             _eventEditor = _eventEditorLayout->addWidget(std::make_unique<ThermostatEventEditor>(), 0, Wt::AlignmentFlag::Top);
+            break;
+        case 4:
+            _eventEditor = _eventEditorLayout->addWidget(std::make_unique<SunriseSunsetEditor>(EventType::Sunrise), 0, Wt::AlignmentFlag::Top);
+            break;
+        case 5:
+            _eventEditor = _eventEditorLayout->addWidget(std::make_unique<SunriseSunsetEditor>(EventType::Sunset), 0, Wt::AlignmentFlag::Top);
             break;
     }
     if (_eventEditor)
@@ -254,6 +271,16 @@ nlohmann::json EventsWidget::CreateNewEventFromEditor(BaseEventEditor* eventEdit
         } break;
         case 3: {
             ThermostatEvent event;
+            eventEditor->FillFromUi(event);
+            eventJson = event;
+        } break;
+        case 4: {
+            SunriseEvent event;
+            eventEditor->FillFromUi(event);
+            eventJson = event;
+        } break;
+        case 5: {
+            SunsetEvent event;
             eventEditor->FillFromUi(event);
             eventJson = event;
         } break;

@@ -26,6 +26,8 @@ nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_cl
         case Subject::WebSocketGetSettings:
         case Subject::WebSocketGetCommands:
         case Subject::UniversalDeviceCurrentState:
+        case Subject::SunriseEvent:
+        case Subject::SunsetEvent:
             return {};
     }
     LOG_ERROR_MSG(fmt::format("Unknown subject to process in ThermometerProcessor: {}", static_cast<int>(message._header._subject)));

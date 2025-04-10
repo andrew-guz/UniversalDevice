@@ -32,6 +32,8 @@ struct ThermometerEvent;
 struct ThermometerLedBrightness;
 struct ThermostatEvent;
 struct TimerEvent;
+struct SunriseEvent;
+struct SunsetEvent;
 struct UniversalDeviceCurrentValues;
 struct WebSocketAuthentication;
 
@@ -202,6 +204,14 @@ void from_json(const nlohmann::json& json, ThermostatEvent& thermostatEvent);
 void to_json(nlohmann::json& json, const TimerEvent& timerEvent);
 
 void from_json(const nlohmann::json& json, TimerEvent& timerEvent);
+
+void to_json(nlohmann::json& json, const SunriseEvent& sunriseEvent);
+
+void from_json(const nlohmann::json& json, SunriseEvent& sunriseEvent);
+
+void to_json(nlohmann::json& json, const SunsetEvent& sunsetEvent);
+
+void from_json(const nlohmann::json& json, SunsetEvent& sunsetEvent);
 
 void to_json(nlohmann::json& json, const UniversalDeviceCurrentValues& universalDeviceCurrentValues);
 

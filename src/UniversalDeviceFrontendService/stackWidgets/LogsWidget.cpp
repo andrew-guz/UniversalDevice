@@ -5,6 +5,7 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WVBoxLayout.h>
 
+#include "Constants.hpp"
 #include "FileUtils.hpp"
 #include "LogInformation.hpp"
 #include "Logger.hpp"

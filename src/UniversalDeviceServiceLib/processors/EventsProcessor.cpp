@@ -1,5 +1,8 @@
 #include "EventsProcessor.hpp"
 
+#include <future>
+
+#include "nlohmann/json_fwd.hpp"
 #include <fmt/format.h>
 
 #include "CurrentTime.hpp"
@@ -9,10 +12,14 @@
 #include "Marshaling.hpp"
 #include "RelayCurrentState.hpp"
 #include "RelayState.hpp"
+#include "RequestHelper.hpp"
 #include "SimpleTableStorageCache.hpp"
+#include "SunriseEvent.hpp"
 #include "ThermometerCurrentValue.hpp"
 #include "TimeHelper.hpp"
 #include "WebsocketsCache.hpp"
+
+EventsProcessor::SunriseSunsetTime EventsProcessor::currentSunriseSunsetTime;
 
 EventsProcessor::EventsProcessor(IQueryExecutor* queryExecutor) :
     BaseProcessorWithQueryExecutor(queryExecutor) {}
@@ -38,6 +45,12 @@ nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::
                 break;
             case EventType::Thermostat:
                 ProcessThermostatEvent(eventJson.get<ThermostatEvent>(), message);
+                break;
+            case EventType::Sunrise:
+                ProcessSunriseEvent(eventJson.get<SunriseEvent>(), message);
+                break;
+            case EventType::Sunset:
+                ProcessSunsetEvent(eventJson.get<SunsetEvent>(), message);
                 break;
         }
     }
@@ -135,6 +148,61 @@ void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEv
     }
     if (command.size())
         SendCommand(thermostatEvent._receiver._id, command);
+}
+
+void EventsProcessor::UpdateSunriseSunsetTime(const CurrentTime& currentTime) const {
+    int day;
+    int month;
+    int year;
+    std::tie(day, month, year) = TimeHelper::GetDayMonthYear(currentTime._timestamp);
+    if (EventsProcessor::currentSunriseSunsetTime.day == day && EventsProcessor::currentSunriseSunsetTime.month == month + 1)
+        return;
+
+    // TODO: Use location
+    [[maybe_unused]] auto future = std::async(std::launch::async, []() {
+        auto [statusCode, data] = RequestHelper::DoGetOutsizeRequest("https://api.sunrisesunset.io/json?lat=59.945673&lng=30.342361&time_format=24");
+        if (statusCode != 200)
+            return;
+
+        try {
+            const nlohmann::json json = nlohmann::json::parse(data);
+            if (json.at("status").get<std::string>() != "OK")
+                return;
+
+            const nlohmann::json results = json.at("results");
+            const std::chrono::system_clock::time_point date = TimeHelper::TimeFromString(results.at("date").get<std::string>(), "%Y-%m-%d");
+            int day;
+            int month;
+            int year;
+            std::tie(day, month, year) = TimeHelper::GetDayMonthYear(date);
+            EventsProcessor::currentSunriseSunsetTime.day = day;
+            EventsProcessor::currentSunriseSunsetTime.month = month + 1;
+            const std::chrono::system_clock::time_point sunrise = TimeHelper::TimeFromString(results.at("sunrise").get<std::string>(), "%H:%M:%S");
+            std::tie(EventsProcessor::currentSunriseSunsetTime.sunriseHour, EventsProcessor::currentSunriseSunsetTime.sunriseMinute) =
+                TimeHelper::GetHourMinute(sunrise);
+            const std::chrono::system_clock::time_point sunset = TimeHelper::TimeFromString(results.at("sunset").get<std::string>(), "%H:%M:%S");
+            std::tie(EventsProcessor::currentSunriseSunsetTime.sunsetHour, EventsProcessor::currentSunriseSunsetTime.sunsetMinute) =
+                TimeHelper::GetHourMinute(sunset);
+        } catch (...) {
+            return;
+        }
+    });
+}
+
+void EventsProcessor::ProcessSunriseEvent(const SunriseEvent& sunriseEvent, const Message& message) {
+    auto currentTime = message._data.get<CurrentTime>();
+    UpdateSunriseSunsetTime(currentTime);
+    auto [hour, minute] = TimeHelper::GetHourMinute(currentTime._timestamp);
+    if (hour == EventsProcessor::currentSunriseSunsetTime.sunsetHour && minute == EventsProcessor::currentSunriseSunsetTime.sunsetMinute)
+        SendCommand(sunriseEvent._receiver._id, sunriseEvent._command.dump());
+}
+
+void EventsProcessor::ProcessSunsetEvent(const SunsetEvent& sunsetEvent, const Message& message) {
+    auto currentTime = message._data.get<CurrentTime>();
+    UpdateSunriseSunsetTime(currentTime);
+    auto [hour, minute] = TimeHelper::GetHourMinute(currentTime._timestamp);
+    if (hour == EventsProcessor::currentSunriseSunsetTime.sunriseHour && minute == EventsProcessor::currentSunriseSunsetTime.sunriseMinute)
+        SendCommand(sunsetEvent._receiver._id, sunsetEvent._command.dump());
 }
 
 void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString) {

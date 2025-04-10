@@ -10,7 +10,6 @@
 
 TimerEventEditor::TimerEventEditor() :
     BaseEventEditor() {
-
     auto timeCanvas = _mainLayout->addWidget(std::make_unique<Wt::WContainerWidget>(), 0, Wt::AlignmentFlag::Top);
     auto timeLayout = timeCanvas->setLayout(std::make_unique<Wt::WHBoxLayout>());
     timeLayout->setContentsMargins(0, 0, 0, 0);

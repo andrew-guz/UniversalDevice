@@ -1,6 +1,7 @@
 #include "TimerService.hpp"
 
 #include "CurrentTime.hpp"
+#include "Enums.hpp"
 #include "MessageHelper.hpp"
 
 namespace {
@@ -34,6 +35,16 @@ void TimerService::Initialize(CrowApp& /* app */) {
 void TimerService::TimerFunction() {
     CurrentTime currentTime;
     currentTime._timestamp = std::chrono::system_clock::now();
-    auto message = MessageHelper::Create(DeviceType::Timer, Constants::PredefinedIdTimer, Subject::TimerEvent, currentTime);
-    CallProcessorsNoResult(std::chrono::system_clock::now(), message);
+    {
+        auto message = MessageHelper::Create(DeviceType::Timer, Constants::PredefinedIdTimer, Subject::TimerEvent, currentTime);
+        CallProcessorsNoResult(std::chrono::system_clock::now(), message);
+    }
+    {
+        auto message = MessageHelper::Create(EventType::Sunrise, Constants::PredefinedIdSunrise, Subject::SunriseEvent, currentTime);
+        CallProcessorsNoResult(std::chrono::system_clock::now(), message);
+    }
+    {
+        auto message = MessageHelper::Create(EventType::Sunset, Constants::PredefinedIdSunset, Subject::SunsetEvent, currentTime);
+        CallProcessorsNoResult(std::chrono::system_clock::now(), message);
+    }
 }

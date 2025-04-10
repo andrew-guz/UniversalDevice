@@ -3,8 +3,10 @@
 #include <vector>
 
 #include "BaseProcessorWithQueryExecutor.hpp"
-#include "Event.hpp"
+#include "CurrentTime.hpp"
 #include "RelayEvent.hpp"
+#include "SunriseEvent.hpp"
+#include "SunsetEvent.hpp"
 #include "ThermometerEvent.hpp"
 #include "ThermostatEvent.hpp"
 #include "TimerEvent.hpp"
@@ -28,5 +30,23 @@ private:
 
     void ProcessThermostatEvent(const ThermostatEvent& thermostatEvent, const Message& message);
 
+    struct SunriseSunsetTime {
+        int day = -1;
+        int month = -1;
+        int sunriseHour = -1;
+        int sunriseMinute = -1;
+        int sunsetHour = -1;
+        int sunsetMinute = -1;
+    };
+
+    void UpdateSunriseSunsetTime(const CurrentTime& currentTime) const;
+
+    void ProcessSunriseEvent(const SunriseEvent& sunriseEvent, const Message& message);
+
+    void ProcessSunsetEvent(const SunsetEvent& sunsetEvent, const Message& message);
+
     void SendCommand(const Uuid& id, const std::string& commandString);
+
+private:
+    static EventsProcessor::SunriseSunsetTime currentSunriseSunsetTime;
 };
