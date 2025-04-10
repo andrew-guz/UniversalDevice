@@ -60,6 +60,7 @@ void EventReceiverWidget::FillUi(const Event& event) {
         auto relayState = event._command.get<RelayState>();
         _relayState->setChecked(relayState._state);
     }
+    OnReceiverChanged();
 }
 
 bool EventReceiverWidget::IsValid() const { return _receivers->IsValid(); }
