@@ -1,6 +1,8 @@
 #include "RequestHelper.hpp"
 
 #include <sstream>
+#include <string>
+#include <utility>
 
 #include <fmt/format.h>
 #include <ixwebsocket/IXHttp.h>
@@ -75,6 +77,23 @@ int RequestHelper::DoPatchRequest(const RequestAddress& requestAddress, std::str
 
 int RequestHelper::DoDeleteRequest(const RequestAddress& requestAddress, const std::string_view login, const nlohmann::json& json) {
     return DoRequest("DELETE", requestAddress, login, json, nullptr);
+}
+
+std::pair<int, std::string> RequestHelper::DoGetOutsizeRequest(const std::string& url) {
+    ix::HttpClient client;
+    ix::SocketTLSOptions options;
+    options.caFile = "NONE";
+    options.disable_hostname_validation = true;
+    client.setTLSOptions(options);
+    ix::HttpRequestArgsPtr args = client.createRequest(url, ix::HttpClient::kGet);
+    const ix::HttpResponsePtr response = client.request(url, "GET", {}, args);
+
+    if (response->statusCode != 200) {
+        LOG_ERROR_MSG(fmt::format("GET request failed: {} {}", response->statusCode, response->errorMsg));
+        return std::make_pair(response->statusCode, response->errorMsg);
+    }
+
+    return std::make_pair(response->statusCode, response->body);
 }
 
 int RequestHelper::DoRequest(const std::string& method,

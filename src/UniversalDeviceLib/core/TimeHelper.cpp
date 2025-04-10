@@ -32,9 +32,13 @@ std::string TimeHelper::TimeToShortString(const std::chrono::system_clock::time_
 }
 
 std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::string_view string) {
+    return TimeHelper::TimeFromString(string, "%d-%m-%Y %T");
+}
+
+std::chrono::system_clock::time_point TimeHelper::TimeFromString(std::string_view string, const std::string_view format) {
     std::tm tm = {};
     std::stringstream sstream(string.data());
-    sstream >> std::get_time(&tm, "%d-%m-%Y %T");
+    sstream >> std::get_time(&tm, format.data());
     auto time_t = std::mktime(&tm);
     return std::chrono::system_clock::from_time_t(time_t);
 }

@@ -1,7 +1,6 @@
 #include "Marshaling.hpp"
 
 #include <cstdint>
-#include <optional>
 #include <set>
 #include <string>
 
@@ -32,6 +31,8 @@
 #include "RelayEvent.hpp"
 #include "RelayState.hpp"
 #include "Scenario.hpp"
+#include "SunriseEvent.hpp"
+#include "SunsetEvent.hpp"
 #include "ThermometerCurrentValue.hpp"
 #include "ThermometerEvent.hpp"
 #include "ThermometerLedBrightness.hpp"
@@ -135,6 +136,10 @@ std::string EnumToString(EventType enumType) {
             return "relay_event";
         case EventType::Thermostat:
             return "thermostat_event";
+        case EventType::Sunrise:
+            return "sunrise_event";
+        case EventType::Sunset:
+            return "sunset_event";
     }
     LOG_ERROR_MSG(fmt::format("Invalid EventType: {}", static_cast<int>(enumType)));
     return {};
@@ -149,6 +154,10 @@ EventType EventTypeFromString(const std::string& str) {
         return EventType::Relay;
     if (str == "thermostat_event")
         return EventType::Thermostat;
+    if (str == "sunrise_event")
+        return EventType::Sunrise;
+    if (str == "sunset_event")
+        return EventType::Sunset;
     return EventType::Undefined;
 }
 
@@ -183,6 +192,10 @@ std::string EnumToString(Subject enumType) {
             return "websocket_get_commands";
         case Subject::UniversalDeviceCurrentState:
             return "universal_device_current_state";
+        case Subject::SunriseEvent:
+            return "sunrise_timeout";
+        case Subject::SunsetEvent:
+            return "sunset_timeout";
     }
     LOG_ERROR_MSG(fmt::format("Invalid SubjectType: {}", static_cast<int>(enumType)));
     return {};
@@ -208,6 +221,10 @@ Subject EnumFromString(const std::string& str) {
         return Subject::WebSocketGetCommands;
     if (str == "universal_device_current_state")
         return Subject::UniversalDeviceCurrentState;
+    if (str == "sunrise_timeout")
+        return Subject::SunriseEvent;
+    if (str == "sunset_timeout")
+        return Subject::SunsetEvent;
     LOG_ERROR_MSG(fmt::format("Invalid SubjectType: {}", str));
     return Subject::Undefined;
 }
@@ -586,6 +603,14 @@ void from_json(const nlohmann::json& json, TimerEvent& timerEvent) {
     timerEvent._hour = json.value("hour", 0);
     timerEvent._minute = json.value("minute", 0);
 }
+
+void to_json(nlohmann::json& json, const SunriseEvent& sunriseEvent) { json = (const Event&)sunriseEvent; }
+
+void from_json(const nlohmann::json& json, SunriseEvent& sunriseEvent) { (Event&)sunriseEvent = json.get<Event>(); }
+
+void to_json(nlohmann::json& json, const SunsetEvent& sunsetEvent) { json = (const Event&)sunsetEvent; }
+
+void from_json(const nlohmann::json& json, SunsetEvent& sunsetEvent) { (Event&)sunsetEvent = json.get<Event>(); }
 
 namespace nlohmann {
     template<>

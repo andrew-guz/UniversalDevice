@@ -2,8 +2,10 @@
 
 #include <string>
 #include <string_view>
+#include <utility>
 
-#include "Message.hpp"
+#include <nlohmann/json.hpp>
+
 #include "RequestAddress.hpp"
 
 class RequestHelper final {
@@ -19,6 +21,8 @@ public:
     static int DoPatchRequest(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json);
 
     static int DoDeleteRequest(const RequestAddress& requestAddress, std::string_view login, const nlohmann::json& json = {});
+
+    static std::pair<int, std::string> DoGetOutsizeRequest(const std::string& url);
 
 private:
     static int DoRequest(const std::string& method,

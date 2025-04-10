@@ -27,6 +27,8 @@ enum class EventType : std::uint8_t {
     Thermometer,
     Relay,
     Thermostat,
+    Sunrise,
+    Sunset,
 };
 
 enum class Subject : std::uint8_t {
@@ -40,6 +42,8 @@ enum class Subject : std::uint8_t {
     WebSocketGetSettings,
     WebSocketGetCommands,
     UniversalDeviceCurrentState,
+    SunriseEvent,
+    SunsetEvent,
 };
 
 enum class UniversalDataType : std::uint8_t {

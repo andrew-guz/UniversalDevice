@@ -109,8 +109,12 @@ std::string EventsTableModel::EventTypeDisplayName(const EventType eventType) {
             return "Рэле";
         case EventType::Thermostat:
             return "Термостат";
-            break;
+        case EventType::Sunrise:
+            return "Восход";
+        case EventType::Sunset:
+            return "Закат";
     }
+
     return {};
 }
 
@@ -135,6 +139,11 @@ std::string EventsTableModel::EventAdditionalInfo(const EventType eventType, con
             const auto thermostatEvent = eventJson.get<ThermostatEvent>();
             return fmt::format("Поддерживает температуру {:.1f}±{:.1f} °C", thermostatEvent._temperature, thermostatEvent._delta);
         };
+        case EventType::Sunrise:
+            return "Сработает с восходом солнца";
+        case EventType::Sunset:
+            return "Сработает с закатом солнца";
     }
+
     return {};
 }

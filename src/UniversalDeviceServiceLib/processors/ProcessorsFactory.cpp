@@ -66,6 +66,14 @@ Processors ProcessorsFactory::CreateProcessors(const Message& message, IQueryExe
             // since this is universal device - add UniversalDeviceProcessor
             processors.push_back(std::shared_ptr<IProcessor>(new UniversalDeviceProcessor(queryExecutor)));
             break;
+        case Subject::SunriseEvent:
+            // process events due to timer
+            processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor)));
+            break;
+        case Subject::SunsetEvent:
+            // process events due to timer
+            processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor)));
+            break;
     }
 
     return processors;

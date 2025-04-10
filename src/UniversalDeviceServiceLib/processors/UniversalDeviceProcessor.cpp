@@ -27,6 +27,8 @@ nlohmann::json UniversalDeviceProcessor::ProcessMessage(const std::chrono::syste
         case Subject::WebSocketAuthorization:
         case Subject::WebSocketGetSettings:
         case Subject::WebSocketGetCommands:
+        case Subject::SunriseEvent:
+        case Subject::SunsetEvent:
             return {};
     }
     LOG_ERROR_MSG(fmt::format("Unknown subject to process in UniversalDeviceProcessor: {}", static_cast<int>(message._header._subject)));
