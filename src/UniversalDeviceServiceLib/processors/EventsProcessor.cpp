@@ -193,7 +193,7 @@ void EventsProcessor::ProcessSunriseEvent(const SunriseEvent& sunriseEvent, cons
     auto currentTime = message._data.get<CurrentTime>();
     UpdateSunriseSunsetTime(currentTime);
     auto [hour, minute] = TimeHelper::GetHourMinute(currentTime._timestamp);
-    if (hour == EventsProcessor::currentSunriseSunsetTime.sunsetHour && minute == EventsProcessor::currentSunriseSunsetTime.sunsetMinute)
+    if (hour == EventsProcessor::currentSunriseSunsetTime.sunriseHour && minute == EventsProcessor::currentSunriseSunsetTime.sunriseMinute)
         SendCommand(sunriseEvent._receiver._id, sunriseEvent._command.dump());
 }
 
@@ -201,7 +201,7 @@ void EventsProcessor::ProcessSunsetEvent(const SunsetEvent& sunsetEvent, const M
     auto currentTime = message._data.get<CurrentTime>();
     UpdateSunriseSunsetTime(currentTime);
     auto [hour, minute] = TimeHelper::GetHourMinute(currentTime._timestamp);
-    if (hour == EventsProcessor::currentSunriseSunsetTime.sunriseHour && minute == EventsProcessor::currentSunriseSunsetTime.sunriseMinute)
+    if (hour == EventsProcessor::currentSunriseSunsetTime.sunsetHour && minute == EventsProcessor::currentSunriseSunsetTime.sunsetMinute)
         SendCommand(sunsetEvent._receiver._id, sunsetEvent._command.dump());
 }
 
