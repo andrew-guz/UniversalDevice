@@ -15,6 +15,7 @@
 // #include "Devices/OutdoorRoomThermometer.h"
 // #include "Devices/OutdoorLampRelay.h"
 // #include "Devices/OutdoorToiletMotionRelay.h"
+// #include "Devices/OutdoorChildrenWarmFloor.h"
 
 // #include "Devices/OutdoorOlderBedroomThermometer.h"
 // #include "Devices/OutdoorOlderBedroomRelay.h"
