@@ -7,6 +7,6 @@
 #define BOARD_ESP8266
 
 #define HAS_RELAY
-#define RELAY_PIN D6
+#define RELAY_PIN 16
 
 #endif //_DEVICE_H_
