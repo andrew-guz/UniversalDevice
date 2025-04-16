@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+#include <functional>
 #include <string>
 #include <string_view>
 
@@ -33,4 +35,9 @@ public:
 
 private:
     uuid_t _uuid;
+};
+
+template<>
+struct std::hash<Uuid> {
+    std::size_t operator()(const Uuid& uuid) const noexcept { return std::hash<std::string>{}(uuid.data()); }
 };
