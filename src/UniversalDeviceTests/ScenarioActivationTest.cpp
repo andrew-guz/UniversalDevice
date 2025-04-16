@@ -1,5 +1,7 @@
 #include <filesystem>
 #include <stdexcept>
+#include <string>
+#include <unordered_map>
 
 #include <catch2/catch_all.hpp>
 #include <nlohmann/json_fwd.hpp>
@@ -27,6 +29,7 @@ TEST_CASE("Scenario activation test") {
 
         IStorageCache* scenarioCache = GetScenariosCache(&storage);
         IStorageCache* eventCache = EventTableStorageCache::GetCache(&storage);
+        IStorageCache* commandCache = GetCommandsCache(&storage);
 
         StorageCacheProblem problem;
 
@@ -48,10 +51,19 @@ TEST_CASE("Scenario activation test") {
         const Uuid eventId1 = addEvent(true);
         const Uuid eventId2 = addEvent(false);
 
-        const auto addScenario = [&scenarioCache](const std::set<Uuid>& activate, const std::set<Uuid>& deactivate) -> Uuid {
+        const Uuid receiverId = Uuid{};
+        const std::string command1 = "command1";
+        const std::string command2 = "command2";
+
+        const auto addScenario = [&scenarioCache,
+                                  &receiverId](const std::set<Uuid>& activate, const std::set<Uuid>& deactivate, const std::string& command) -> Uuid {
             Scenario scenario{
                 ._activateEvent = activate,
                 ._deactivateEvent = deactivate,
+                ._commands =
+                    std::unordered_map<Uuid, std::string>{
+                        { receiverId, command },
+                    },
             };
             const StorageCacheProblem problem = scenarioCache->InsertOrReplace(SimpleTableInsertOrReplaceInput<Scenario>{
                 ._id = scenario._id,
@@ -62,8 +74,8 @@ TEST_CASE("Scenario activation test") {
             return scenario._id;
         };
 
-        const Uuid scenarioId1 = addScenario({ eventId2 }, { eventId1 });
-        const Uuid scenarioId2 = addScenario({ eventId1, Uuid{} }, { eventId2, Uuid{} });
+        const Uuid scenarioId1 = addScenario({ eventId2 }, { eventId1 }, command1);
+        const Uuid scenarioId2 = addScenario({ eventId1, Uuid{} }, { eventId2, Uuid{} }, command2);
 
         const auto checkEventState = [&eventCache](const Uuid& eventId, bool expectedActivity) {
             eventCache->Cleanup();
@@ -82,18 +94,37 @@ TEST_CASE("Scenario activation test") {
             }
         };
 
+        const auto checkCommand = [&commandCache, &receiverId](const bool exists, const std::string& expectedCommand = {}) {
+            commandCache->Cleanup();
+            SimpleTableSelectInput what{
+                ._id = receiverId,
+            };
+            SimpleTableSelectOutput<std::string> result;
+            const StorageCacheProblem problem = commandCache->Select(what, result);
+            if (!exists)
+                REQUIRE(problem._type == StorageCacheProblemType::NotExists);
+            else {
+                if (problem._type != StorageCacheProblemType::NoProblems)
+                    throw std::runtime_error("Command check failed");
+                REQUIRE(result._data == expectedCommand);
+            }
+        };
+
         checkEventState(eventId1, true);
         checkEventState(eventId2, false);
+        checkCommand(false);
 
         REQUIRE(ActivateScenario(&storage, scenarioId1));
 
         checkEventState(eventId1, false);
         checkEventState(eventId2, true);
+        checkCommand(true, command1);
 
         REQUIRE(ActivateScenario(&storage, scenarioId2));
 
         checkEventState(eventId1, true);
         checkEventState(eventId2, false);
+        checkCommand(true, command2);
 
     } catch (...) {
         REQUIRE(false);
