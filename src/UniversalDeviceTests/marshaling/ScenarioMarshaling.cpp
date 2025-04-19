@@ -22,13 +22,14 @@ TEST_CASE("ScenarioJson") {
         ._name = "test",
         ._activateEvent = activate,
         ._deactivateEvent = deactivate,
+        ._commands = {
+            { Uuid{}, "command" },
+            { Uuid{}, "command2" },
+        },
     };
 
     const nlohmann::json expectedJson{
-        { "id", scenario._id },
-        { "name", "test" },
-        { "activate", activate },
-        { "deactivate", deactivate },
+        { "id", scenario._id }, { "name", "test" }, { "activate", activate }, { "deactivate", deactivate }, { "commands", scenario._commands },
     };
 
     const nlohmann::json scenarioToJson = static_cast<nlohmann::json>(scenario);
