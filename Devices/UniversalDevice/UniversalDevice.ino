@@ -219,6 +219,9 @@ void authorizeAndGetSettings() {
 #ifdef HAS_MOTION_RELAY
     type = "motion_relay";
 #endif
+#ifdef IS_UNIVERSAL
+    type = "universal_device";
+#endif
     auto authMessage =
         CreateSimpleMessage(type, DEVICE_UUID, String(UUID{}.toCharArray()), "websocket_authorization", "authString", AUTHORIZATION_STR);
     websocketClient.sendTXT(authMessage);
