@@ -446,6 +446,18 @@ void from_json(const nlohmann::json& json, LogInformation& logInformation) {
     logInformation._fileContent = Base64Helper::FromBase64(json.value("fileContent", ""));
 }
 
+void from_json(const nlohmann::json& json, LogLevel& logLevel) {
+    const std::string str = json.get<std::string>();
+    if (str == "DEBUG")
+        logLevel = LogLevel::DEBUG;
+    else if (str == "INFO")
+        logLevel = LogLevel::INFO;
+    else if (str == "ERROR")
+        logLevel = LogLevel::ERROR;
+    else
+        LOG_ERROR_MSG(fmt::format("Invalid LogLevel: {}", str));
+}
+
 void to_json(nlohmann::json& json, const Message& message) {
     json = {
         { "header", message._header },

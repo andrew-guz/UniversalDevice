@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 
 #include "Enums.hpp"
+#include "Logger.hpp"
 #include "Types.hpp"
 
 class Uuid;
@@ -148,6 +149,8 @@ void from_json(const nlohmann::json& json, ExtendedUniversalDeviceCurrentValues&
 void to_json(nlohmann::json& json, const LogInformation& logInformation);
 
 void from_json(const nlohmann::json& json, LogInformation& logInformation);
+
+void from_json(const nlohmann::json& json, LogLevel& logLevel);
 
 void to_json(nlohmann::json& json, const Message& message);
 
