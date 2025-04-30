@@ -1,6 +1,8 @@
 #include "Settings.hpp"
 
 #include "Defines.hpp"
+#include "Logger.hpp"
+#include "Marshaling.hpp"
 #include "ProcessSettingsReader.hpp"
 
 Settings Settings::ReadSettings() {
@@ -15,5 +17,6 @@ Settings Settings::ReadSettings() {
     settings._keyPath = settingsJson.value("keyPath", "");
     settings._authPath = settingsJson.value("authPath", "");
     settings._logPath = settingsJson.value("logPath", "");
+    settings._logLevel = settingsJson.contains("logLevel") ? settingsJson.at("logLevel").get<LogLevel>() : LogLevel::INFO;
     return settings;
 }

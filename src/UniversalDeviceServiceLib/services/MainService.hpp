@@ -14,6 +14,8 @@ protected:
 
     crow::response GetVersion() const;
 
+    crow::response SetLogLevel(const std::string& logLevel);
+
     crow::response Quit();
 
 private:

@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include "Defines.hpp"
+#include "Logger.hpp"
 
 struct Settings {
     int _port = DEFAULT_SERVICE_PORT;
@@ -11,6 +12,7 @@ struct Settings {
     std::filesystem::path _keyPath;
     std::filesystem::path _authPath;
     std::filesystem::path _logPath;
+    LogLevel _logLevel = LogLevel::INFO;
 
     static Settings ReadSettings();
 };

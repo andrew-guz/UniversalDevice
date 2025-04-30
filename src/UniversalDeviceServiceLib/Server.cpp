@@ -25,7 +25,7 @@ int Server::run() {
         if (!settings._logPath.empty())
             PathHelper::SetCustomLogPath(settings._logPath);
 
-        Logger::SetLogLevel(LogLevel::INFO);
+        Logger::SetLogLevel(settings._logLevel);
 
         LOG_INFO_MSG("Starting Device service...");
 
