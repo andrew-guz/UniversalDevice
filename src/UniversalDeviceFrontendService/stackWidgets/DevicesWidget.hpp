@@ -30,6 +30,8 @@ private:
 
     void AddDeviceButton(Wt::WHBoxLayout* layout, const ExtendedComponentDescription& description);
 
+    void OnSettings();
+
 private:
     Wt::WVBoxLayout* _mainLayout = nullptr;
     std::vector<std::pair<Wt::WWidget*, Wt::WLayout*>> _widgets;

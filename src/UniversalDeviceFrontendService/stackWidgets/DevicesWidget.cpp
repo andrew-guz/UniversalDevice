@@ -5,7 +5,9 @@
 #include <vector>
 
 #include <Wt/Http/Cookie.h>
+#include <Wt/WComboBox.h>
 #include <Wt/WContainerWidget.h>
+#include <Wt/WDialog.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WHBoxLayout.h>
@@ -14,6 +16,7 @@
 #include <Wt/WVBoxLayout.h>
 #include <Wt/WWidget.h>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Constants.hpp"
 #include "Defines.hpp"
@@ -70,6 +73,10 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings
     auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(logsButton);
     logsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Logs, {}); });
+
+    auto settingsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Настройки"), 0, AlignmentFlag::Center);
+    WidgetHelper::SetUsualButtonSize(settingsButton);
+    settingsButton->clicked().connect([this]() { OnSettings(); });
 
     auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
@@ -275,4 +282,43 @@ void DevicesWidget::AddScenarioButton(WHBoxLayout* layout, const Scenario& scena
     ScenarioButton* button =
         layout->addWidget(std::make_unique<ScenarioButton>(_settings._servicePort, scenario), 0, AlignmentFlag::Top | AlignmentFlag::Left);
     _widgets.push_back(std::make_pair<WWidget*, WLayout*>(button, layout));
+}
+
+void DevicesWidget::OnSettings() {
+    auto dialog = this->addChild(std::make_unique<WDialog>("Настройки"));
+    auto layout = dialog->contents()->setLayout(std::make_unique<WHBoxLayout>());
+    dialog->setMinimumSize(400, 50);
+    dialog->setClosable(true);
+    dialog->setResizable(false);
+    dialog->rejectWhenEscapePressed(true);
+    // log level
+    layout->addWidget(std::make_unique<WText>("Уровнь логирования:"), 0, AlignmentFlag::Left | AlignmentFlag::Top);
+    auto logLevel = layout->addWidget(std::make_unique<WComboBox>(), 1, AlignmentFlag::Top);
+    logLevel->addItem("Select...");
+    logLevel->addItem("DEBUG");
+    logLevel->addItem("INFO");
+    logLevel->addItem("ERROR");
+    logLevel->setCurrentIndex(0);
+    // ok button
+    auto ok = dialog->footer()->addWidget(std::make_unique<WPushButton>("Ok"));
+    ok->setDefault(true);
+    ok->clicked().connect(dialog, &WDialog::accept);
+
+    const DialogCode dialogResult = dialog->exec();
+
+    if (dialogResult == DialogCode::Accepted) {
+        [[maybe_unused]] const int currentIdex = logLevel->currentIndex();
+        if (logLevel->currentIndex() >= 1 && logLevel->currentIndex() <= 3) {
+
+            auto result = RequestHelper::DoPostRequest(
+                { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_LOG_LEVEL, "<string>", logLevel->currentText().toUTF8()) },
+                Constants::LoginService,
+                nlohmann::json::object_t{});
+
+            if (result == 200)
+                WidgetHelper::ShowSimpleMessage(this, "Информация", "Уровень логирования успешно изменён!", 5000);
+            else
+                WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Ошибка смены уроня логирования");
+        }
+    }
 }
