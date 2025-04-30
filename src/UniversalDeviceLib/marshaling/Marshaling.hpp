@@ -63,6 +63,9 @@ template<>
 EventType EnumFromString(const std::string& str);
 
 template<>
+LogLevel EnumFromString(const std::string& str);
+
+template<>
 std::string EnumToString(Subject enumType);
 
 template<>

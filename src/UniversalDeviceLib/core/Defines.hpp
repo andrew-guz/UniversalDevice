@@ -18,6 +18,7 @@
 // api addresses
 // common
 #define API_VERSION                "/api/version"
+#define API_LOG_LEVEL              "/api/logLevel/<string>"
 #define API_QUIT                   "/api/quit"
 // for devices
 #define API_DEVICE                 "/api/device/<string>"

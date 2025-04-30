@@ -170,6 +170,18 @@ EventType EnumFromString(const std::string& str) {
 }
 
 template<>
+LogLevel EnumFromString(const std::string& str) {
+    if (str == "DEBUG")
+        return LogLevel::DEBUG;
+    else if (str == "INFO")
+        return LogLevel::INFO;
+    else if (str == "ERROR")
+        return LogLevel::ERROR;
+    LOG_ERROR_MSG(fmt::format("Invalid LogLevel: {}", str));
+    return LogLevel::INFO;
+}
+
+template<>
 std::string EnumToString(Subject enumType) {
     switch (enumType) {
         case Subject::Undefined:
@@ -446,17 +458,7 @@ void from_json(const nlohmann::json& json, LogInformation& logInformation) {
     logInformation._fileContent = Base64Helper::FromBase64(json.value("fileContent", ""));
 }
 
-void from_json(const nlohmann::json& json, LogLevel& logLevel) {
-    const std::string str = json.get<std::string>();
-    if (str == "DEBUG")
-        logLevel = LogLevel::DEBUG;
-    else if (str == "INFO")
-        logLevel = LogLevel::INFO;
-    else if (str == "ERROR")
-        logLevel = LogLevel::ERROR;
-    else
-        LOG_ERROR_MSG(fmt::format("Invalid LogLevel: {}", str));
-}
+void from_json(const nlohmann::json& json, LogLevel& logLevel) { logLevel = EnumFromString<LogLevel>(json.get<std::string>()); }
 
 void to_json(nlohmann::json& json, const Message& message) {
     json = {
