@@ -97,7 +97,7 @@ void EventsProcessor::ProcessTimerEvent(const TimerEvent& timeEvent, const Messa
     auto currentTime = message._data.get<CurrentTime>();
     auto [hour, minute] = TimeHelper::GetHourMinute(currentTime._timestamp);
     if (hour == timeEvent._hour && minute == timeEvent._minute)
-        SendCommand(timeEvent._receiver._id, timeEvent._command.dump());
+        SendCommand(timeEvent._receiver._id, timeEvent._command.dump(), fmt::format("Инициировано временное событие `{}`", timeEvent._name));
 }
 
 void EventsProcessor::ProcessThermometerEvent(const ThermometerEvent& thermometerEvent, const Message& message) {
@@ -111,7 +111,9 @@ void EventsProcessor::ProcessThermometerEvent(const ThermometerEvent& thermomete
     }
     if ((thermometerEvent._lower == true && thermometerCurrentValue._value <= thermometerEvent._temperature) ||
         (thermometerEvent._lower == false && thermometerCurrentValue._value >= thermometerEvent._temperature))
-        SendCommand(thermometerEvent._receiver._id, thermometerEvent._command.dump());
+        SendCommand(thermometerEvent._receiver._id,
+                    thermometerEvent._command.dump(),
+                    fmt::format("Инициировано событие термометра `{}`", thermometerEvent._name));
 }
 
 void EventsProcessor::ProcessRelayEvent(const RelayEvent& relayEvent, const Message& message) {
@@ -121,7 +123,7 @@ void EventsProcessor::ProcessRelayEvent(const RelayEvent& relayEvent, const Mess
         return;
     }
     if (relayCurrentState._state == relayEvent._state)
-        SendCommand(relayEvent._receiver._id, relayEvent._command.dump());
+        SendCommand(relayEvent._receiver._id, relayEvent._command.dump(), fmt::format("Инициировано событие реле `{}`", relayEvent._name));
 }
 
 void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEvent, const Message& message) {
@@ -134,20 +136,23 @@ void EventsProcessor::ProcessThermostatEvent(const ThermostatEvent& thermostatEv
         return;
     }
     std::string command;
+    std::string logMessage;
     if (thermometerCurrentValue._value <= thermostatEvent._temperature - thermostatEvent._delta) {
         // on
         RelayState relayState;
         relayState._state = true;
         command = nlohmann::json(relayState).dump();
+        logMessage = fmt::format("Инициировано включения реле термостатом `{}`", thermostatEvent._name);
     }
     if (thermometerCurrentValue._value >= thermostatEvent._temperature + thermostatEvent._delta) {
         // off
         RelayState relayState;
         relayState._state = false;
         command = nlohmann::json(relayState).dump();
+        logMessage = fmt::format("Инициировано выключения реле термостатом `{}`", thermostatEvent._name);
     }
     if (command.size())
-        SendCommand(thermostatEvent._receiver._id, command);
+        SendCommand(thermostatEvent._receiver._id, command, logMessage);
 }
 
 void EventsProcessor::UpdateSunriseSunsetTime(const CurrentTime& currentTime) const {
@@ -194,7 +199,7 @@ void EventsProcessor::ProcessSunriseEvent(const SunriseEvent& sunriseEvent, cons
     UpdateSunriseSunsetTime(currentTime);
     auto [hour, minute] = TimeHelper::GetHourMinute(currentTime._timestamp);
     if (hour == EventsProcessor::currentSunriseSunsetTime.sunriseHour && minute == EventsProcessor::currentSunriseSunsetTime.sunriseMinute)
-        SendCommand(sunriseEvent._receiver._id, sunriseEvent._command.dump());
+        SendCommand(sunriseEvent._receiver._id, sunriseEvent._command.dump(), fmt::format("Инициировано событие восхода `{}`", sunriseEvent._name));
 }
 
 void EventsProcessor::ProcessSunsetEvent(const SunsetEvent& sunsetEvent, const Message& message) {
@@ -202,10 +207,10 @@ void EventsProcessor::ProcessSunsetEvent(const SunsetEvent& sunsetEvent, const M
     UpdateSunriseSunsetTime(currentTime);
     auto [hour, minute] = TimeHelper::GetHourMinute(currentTime._timestamp);
     if (hour == EventsProcessor::currentSunriseSunsetTime.sunsetHour && minute == EventsProcessor::currentSunriseSunsetTime.sunsetMinute)
-        SendCommand(sunsetEvent._receiver._id, sunsetEvent._command.dump());
+        SendCommand(sunsetEvent._receiver._id, sunsetEvent._command.dump(), fmt::format("Инициировано событие заката `{}`", sunsetEvent._name));
 }
 
-void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString) {
+void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString, const std::string& logMessage) {
     try {
         auto storageCache = GetCommandsCache(_queryExecutor);
         SimpleTableInsertOrReplaceInput what{
@@ -216,8 +221,10 @@ void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandStri
         switch (problem._type) {
             case StorageCacheProblemType::NoProblems: {
                 auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(id);
-                if (connection)
+                if (connection) {
                     connection->send_text(commandString);
+                    LOG_INFO_MSG(logMessage);
+                }
             } break;
             case StorageCacheProblemType::Empty:
                 LOG_ERROR_MSG(fmt::format("Invalid command {}", commandString));

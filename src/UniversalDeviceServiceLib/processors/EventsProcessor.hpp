@@ -45,7 +45,7 @@ private:
 
     void ProcessSunsetEvent(const SunsetEvent& sunsetEvent, const Message& message);
 
-    void SendCommand(const Uuid& id, const std::string& commandString);
+    void SendCommand(const Uuid& id, const std::string& commandString, const std::string& logMessage);
 
 private:
     static EventsProcessor::SunriseSunsetTime currentSunriseSunsetTime;
