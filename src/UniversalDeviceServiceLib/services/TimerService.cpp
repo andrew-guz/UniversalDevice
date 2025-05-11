@@ -36,7 +36,7 @@ void TimerService::TimerFunction() {
     CurrentTime currentTime;
     currentTime._timestamp = std::chrono::system_clock::now();
     {
-        auto message = MessageHelper::Create(DeviceType::Timer, Constants::PredefinedIdTimer, Subject::TimerEvent, currentTime);
+        auto message = MessageHelper::Create(EventType::Timer, Constants::PredefinedIdTimer, Subject::TimerEvent, currentTime);
         CallProcessorsNoResult(std::chrono::system_clock::now(), message);
     }
     {

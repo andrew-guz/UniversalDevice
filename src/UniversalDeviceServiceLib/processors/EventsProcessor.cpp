@@ -217,7 +217,9 @@ void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandStri
 
         {
             // check if command is the same - do nothing
-            SimpleTableSelectInput what;
+            SimpleTableSelectInput what{
+                ._id = id,
+            };
             SimpleTableSelectOutput<std::string> result;
             auto problem = storageCache->Select(what, result);
             switch (problem._type) {

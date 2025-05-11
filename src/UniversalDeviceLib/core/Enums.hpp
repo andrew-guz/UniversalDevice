@@ -14,7 +14,6 @@ enum class AccountType : std::uint8_t {
 
 enum class DeviceType : std::uint8_t {
     Undefined,
-    Timer,
     Thermometer,
     Relay,
     MotionRelay,

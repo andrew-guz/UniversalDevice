@@ -241,7 +241,6 @@ void DevicesWidget::AddDeviceButton(WHBoxLayout* layout, const ExtendedComponent
             StackWidgetType stackWidgetType = static_cast<StackWidgetType>(-1);
             switch (description.getDeviceType()) {
                 case DeviceType::Undefined:
-                case DeviceType::Timer:
                     break;
                 case DeviceType::Thermometer:
                     stackWidgetType = StackWidgetType::Thermometer;

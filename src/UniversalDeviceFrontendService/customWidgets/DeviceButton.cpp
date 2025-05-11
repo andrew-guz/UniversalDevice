@@ -49,7 +49,6 @@ void DeviceButton::Refresh() {
         if (std::holds_alternative<DeviceType>(_deviceType)) {
             switch (std::get<DeviceType>(_deviceType)) {
                 case DeviceType::Undefined:
-                case DeviceType::Timer:
                     LOG_ERROR_MSG("Unknown device type");
                     break;
                 case DeviceType::Thermometer: {

@@ -86,8 +86,6 @@ std::string EnumToString(DeviceType enumType) {
     switch (enumType) {
         case DeviceType::Undefined:
             return "undefined_type";
-        case DeviceType::Timer:
-            return "timer";
         case DeviceType::Thermometer:
             return "thermometer";
         case DeviceType::Relay:
@@ -102,8 +100,6 @@ std::string EnumToString(DeviceType enumType) {
 }
 
 DeviceType DeviceTypeFromString(const std::string& str) {
-    if (str == "timer")
-        return DeviceType::Timer;
     if (str == "thermometer")
         return DeviceType::Thermometer;
     if (str == "relay")
