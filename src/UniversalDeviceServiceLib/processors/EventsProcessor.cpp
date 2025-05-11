@@ -14,6 +14,7 @@
 #include "RelayState.hpp"
 #include "RequestHelper.hpp"
 #include "SimpleTableStorageCache.hpp"
+#include "StorageCacheSharedData.hpp"
 #include "SunriseEvent.hpp"
 #include "ThermometerCurrentValue.hpp"
 #include "TimeHelper.hpp"
@@ -213,6 +214,30 @@ void EventsProcessor::ProcessSunsetEvent(const SunsetEvent& sunsetEvent, const M
 void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString, const std::string& logMessage) {
     try {
         auto storageCache = GetCommandsCache(_queryExecutor);
+
+        {
+            // check if command is the same - do nothing
+            SimpleTableSelectInput what;
+            SimpleTableSelectOutput<std::string> result;
+            auto problem = storageCache->Select(what, result);
+            switch (problem._type) {
+                case StorageCacheProblemType::NoProblems:
+                    if (result._data == commandString) {
+                        return;
+                    }
+                    break;
+                case StorageCacheProblemType::Empty:
+                    break;
+                case StorageCacheProblemType::NotExists:
+                    break;
+                case StorageCacheProblemType::TooMany:
+                    break;
+                case StorageCacheProblemType::SQLError:
+                    LOG_SQL_ERROR(problem._message);
+                    break;
+            }
+        }
+
         SimpleTableInsertOrReplaceInput what{
             ._id = id,
             ._data = commandString,
