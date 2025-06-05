@@ -19,3 +19,6 @@
 [submodule "fmt"]
 	path = vendor/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "libpqxx"]
+	path = vendor/libpqxx
+	url = https://github.com/jtv/libpqxx.git

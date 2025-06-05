@@ -23,3 +23,5 @@ add_subdirectory(catch2)
 
 set(BUILD_SHARED_LIBS on)
 add_subdirectory(fmt)
+
+add_subdirectory(libpqxx)
