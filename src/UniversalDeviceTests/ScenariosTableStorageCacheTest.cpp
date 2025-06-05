@@ -3,9 +3,9 @@
 #include <catch2/catch_all.hpp>
 
 #include "IStorageCache.hpp"
+#include "SQLiteStorage.hpp"
 #include "Scenario.hpp"
 #include "SimpleTableStorageCache.hpp"
-#include "Storage.hpp"
 #include "StorageCacheSharedData.hpp"
 #include "Uuid.hpp"
 
@@ -16,7 +16,7 @@ TEST_CASE("ScenariosTableStorageCacheTest") {
 
     try {
 
-        Storage storage{ dbPath };
+        SQLiteStorage storage{ dbPath };
 
         IStorageCache* storageCache = GetScenariosCache(&storage);
 

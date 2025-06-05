@@ -8,10 +8,10 @@
 #include "Enums.hpp"
 #include "EventTableStorageCache.hpp"
 #include "IStorageCache.hpp"
+#include "SQLiteStorage.hpp"
 #include "Scenario.hpp"
 #include "ScenarioUtils.hpp"
 #include "SimpleTableStorageCache.hpp"
-#include "Storage.hpp"
 #include "StorageCacheSharedData.hpp"
 #include "TimerEvent.hpp"
 #include "Uuid.hpp"
@@ -23,7 +23,7 @@ TEST_CASE("Scenario activation test") {
 
     try {
 
-        Storage storage{ dbPath };
+        SQLiteStorage storage{ dbPath };
 
         IStorageCache* scenarioCache = GetScenariosCache(&storage);
         IStorageCache* eventCache = EventTableStorageCache::GetCache(&storage);

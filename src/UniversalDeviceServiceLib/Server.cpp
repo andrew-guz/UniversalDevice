@@ -13,10 +13,10 @@
 #include "MainService.hpp"
 #include "Middleware.hpp"
 #include "PathHelper.hpp"
+#include "SQLiteStorage.hpp"
 #include "ScenariosService.hpp"
 #include "Settings.hpp"
 #include "SettingsService.hpp"
-#include "Storage.hpp"
 #include "TimerService.hpp"
 
 int Server::run() {
@@ -31,7 +31,7 @@ int Server::run() {
 
         AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializer>(PathHelper::FullFilePath(settings._authPath)));
 
-        Storage storage(PathHelper::FullFilePath(settings._dbPath));
+        SQLiteStorage storage(PathHelper::FullFilePath(settings._dbPath));
 
         CrowApp app;
 
