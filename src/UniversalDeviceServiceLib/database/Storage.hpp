@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -18,6 +19,8 @@ public:
     virtual std::vector<std::string> GetDeviceRelatedTables() const override;
 
     virtual std::vector<std::string> GetDataTables() const override;
+
+    virtual void CleanupOldData(const std::chrono::system_clock::time_point& timestamp) override;
 
 protected:
     void InitializeDb();

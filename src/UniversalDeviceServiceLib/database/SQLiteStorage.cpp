@@ -1,6 +1,5 @@
 #include "SQLiteStorage.hpp"
 
-#include <chrono>
 #include <sqlite3.h>
 
 #include <fmt/format.h>
@@ -8,8 +7,6 @@
 #include "Logger.hpp"
 
 namespace {
-    constexpr std::chrono::weeks oldDataDelta = std::chrono::weeks{ 2 };
-
     int NoActionCallback(void* data, int columnsInRow, char** rowData, char** columnNames) { return 0; }
 
     int SelectCallback(void* data, int columnsInRow, char** rowData, char** columnNames) {
@@ -49,17 +46,9 @@ bool SQLiteStorage::Select(const std::string_view query, std::vector<std::vector
     return InternalExecute(query, SelectCallback, &data);
 }
 
-bool SQLiteStorage::Delete(std::string query) { return Execute(query, NoActionCallback); }
+bool SQLiteStorage::Delete(const std::string_view query) { return Execute(query, NoActionCallback); }
 
 bool SQLiteStorage::Commit() { return Execute("COMMIT;"); }
-
-void SQLiteStorage::CleanupOldData(const std::chrono::system_clock::time_point& timestamp) {
-    const std::chrono::system_clock::time_point oldTimestamp = timestamp - oldDataDelta;
-    for (const std::string& table : GetDataTables()) {
-        const std::string query = fmt::format("DELETE FROM {} WHERE timestamp < {}", table, TimeHelper::TimeToInt(oldTimestamp));
-        Delete(query);
-    }
-}
 
 bool SQLiteStorage::InternalExecute(const std::string_view query, int (*callback)(void*, int, char**, char**), void* data, const int repeatCount) {
     _mutex.lock();

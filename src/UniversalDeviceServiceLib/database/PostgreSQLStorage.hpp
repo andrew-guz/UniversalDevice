@@ -1,19 +1,16 @@
 #pragma once
 
-#include <filesystem>
-#include <mutex>
-#include <sqlite3.h>
+#include <chrono>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "Storage.hpp"
 
-class SQLiteStorage final : public Storage {
-public:
-    SQLiteStorage(const std::filesystem::path& dbPath);
+class PostgreSQLStorage final : public Storage {
+    PostgreSQLStorage();
 
-    virtual ~SQLiteStorage();
+    virtual ~PostgreSQLStorage();
 
     virtual bool Begin() override;
 
@@ -27,11 +24,5 @@ public:
 
     virtual bool Commit() override;
 
-private:
-    bool InternalExecute(std::string_view query, int (*callback)(void*, int, char**, char**), void* data, int repeatCount = 0);
-
-private:
-    sqlite3* _connection = nullptr;
-    std::filesystem::path _dbPath;
-    std::mutex _mutex;
+    virtual void CleanupOldData(const std::chrono::system_clock::time_point& timestamp) override;
 };

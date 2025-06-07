@@ -1,6 +1,11 @@
 #include "Storage.hpp"
 
+#include <chrono>
+#include <string>
+#include <vector>
+
 namespace {
+    constexpr std::chrono::weeks oldDataDelta = std::chrono::weeks{ 2 };
 
     static std::map<std::string, std::string> Tables = {
         { "Devices",
@@ -20,7 +25,7 @@ namespace {
           "CREATE TABLE IF NOT EXISTS UniversalDevices (idx INTEGER, id TEXT, timestamp INTEGER, 'values' TEXT, PRIMARY KEY(idx AUTOINCREMENT))" },
     };
 
-}
+} // namespace
 
 std::vector<std::string> Storage::GetAllTables() const {
     return {
@@ -41,6 +46,14 @@ std::vector<std::string> Storage::GetDataTables() const {
         "MotionRelays",
         "UniversalDevices",
     };
+}
+
+void Storage::CleanupOldData(const std::chrono::system_clock::time_point& timestamp) {
+    const std::chrono::system_clock::time_point oldTimestamp = timestamp - oldDataDelta;
+    for (const std::string& table : GetDataTables()) {
+        const std::string query = fmt::format("DELETE FROM {} WHERE timestamp < {}", table, TimeHelper::TimeToInt(oldTimestamp));
+        Delete(query);
+    }
 }
 
 void Storage::InitializeDb() {
