@@ -69,7 +69,7 @@ add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
 add_dependencies(${PROJECT_NAME} UniversalDeviceLib)
 
 # executable needs libraries - so link to installed libs
-target_link_libraries(${PROJECT_NAME} -lpthread -lsqlite3 Crow::Crow
+target_link_libraries(${PROJECT_NAME} -lpthread -lsqlite3 pqxx Crow::Crow
                       UniversalDeviceLib)
 
 # install section
