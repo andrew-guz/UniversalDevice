@@ -13,12 +13,12 @@
 
 PostgreSQLStorage::PostgreSQLStorage(std::string_view dbName, std::string_view username, std::string_view password) :
     Storage(),
-    connection(fmt::format("hostaddr=127.0.0.1 port=5432 dbname={} user={} password={}", dbName, username, password)) {}
-
-PostgreSQLStorage::~PostgreSQLStorage() {
-    if (transaction)
-        transaction->commit();
+    connection(fmt::format("hostaddr=127.0.0.1 port=5432 dbname={} user={} password={}", dbName, username, password)) //
+{
+    InitializeDb();
 }
+
+PostgreSQLStorage::~PostgreSQLStorage() { Commit(); }
 
 bool PostgreSQLStorage::Begin() {
     if (transaction)
@@ -29,24 +29,27 @@ bool PostgreSQLStorage::Begin() {
 }
 
 bool PostgreSQLStorage::Execute(const std::string_view query) {
-    pqxx::work transaction(this->connection);
 
     try {
+        pqxx::work transaction(this->connection);
+
         transaction.exec(query);
+        transaction.commit();
+
+        return true;
     } catch (const pqxx::sql_error& sqlError) {
         LOG_ERROR_MSG(fmt::format("SQL error: {} for query {}", sqlError.what(), sqlError.query()));
     } catch (...) {
         LOG_ERROR_MSG("SQL error");
     }
 
-    transaction.commit();
-    return true;
+    return false;
 }
 
 bool PostgreSQLStorage::Select(const std::string_view query, std::vector<std::vector<std::string>>& data) {
-    pqxx::work transaction(this->connection);
-
     try {
+        pqxx::work transaction(this->connection);
+
         const pqxx::result result = transaction.exec(query);
         for (const pqxx::row& row : result) {
             std::vector<std::string> rowResult;
@@ -56,14 +59,17 @@ bool PostgreSQLStorage::Select(const std::string_view query, std::vector<std::ve
             }
             data.emplace_back(std::move(rowResult));
         }
+
+        transaction.commit();
+
+        return true;
     } catch (const pqxx::sql_error& sqlError) {
         LOG_ERROR_MSG(fmt::format("SQL error: {} for query {}", sqlError.what(), sqlError.query()));
     } catch (...) {
         LOG_ERROR_MSG("SQL error");
     }
 
-    transaction.commit();
-    return true;
+    return false;
 }
 
 bool PostgreSQLStorage::Commit() {
@@ -73,6 +79,7 @@ bool PostgreSQLStorage::Commit() {
     try {
         transaction->commit();
         transaction.reset();
+
         return true;
     } catch (const pqxx::sql_error& sqlError) {
         LOG_ERROR_MSG(fmt::format("SQL error: {} for query {}", sqlError.what(), sqlError.query()));

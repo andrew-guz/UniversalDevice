@@ -10,6 +10,7 @@
 #include "Storage.hpp"
 
 class PostgreSQLStorage final : public Storage {
+public:
     PostgreSQLStorage(std::string_view dbName, std::string_view username, std::string_view password);
 
     virtual ~PostgreSQLStorage();
