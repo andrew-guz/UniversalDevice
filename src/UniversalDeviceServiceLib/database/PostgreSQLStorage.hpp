@@ -1,18 +1,16 @@
 #pragma once
 
-#include <chrono>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include <pqxx/connection>
-#include <pqxx/transaction>
+#include <pqxx/pqxx>
 
 #include "Storage.hpp"
 
 class PostgreSQLStorage final : public Storage {
-    PostgreSQLStorage();
+    PostgreSQLStorage(std::string_view dbName, std::string_view username, std::string_view password);
 
     virtual ~PostgreSQLStorage();
 
@@ -23,8 +21,6 @@ class PostgreSQLStorage final : public Storage {
     virtual bool Select(std::string_view query, std::vector<std::vector<std::string>>& data) override;
 
     virtual bool Commit() override;
-
-    virtual void CleanupOldData(const std::chrono::system_clock::time_point& timestamp) override;
 
 protected:
     pqxx::connection connection;
