@@ -19,11 +19,7 @@ public:
 
     virtual bool Execute(std::string_view query) = 0;
 
-    virtual bool Execute(std::string_view query, int (*callback)(void*, int, char**, char**)) = 0;
-
     virtual bool Select(std::string_view query, std::vector<std::vector<std::string>>& data) = 0;
-
-    virtual bool Delete(std::string_view query) = 0;
 
     virtual bool Commit() = 0;
 

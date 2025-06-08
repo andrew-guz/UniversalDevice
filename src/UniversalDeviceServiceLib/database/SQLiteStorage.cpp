@@ -36,17 +36,11 @@ SQLiteStorage::~SQLiteStorage() { sqlite3_close(_connection); }
 
 bool SQLiteStorage::Begin() { return Execute("BEGIN TRANSACTION;"); }
 
-bool SQLiteStorage::Execute(const std::string_view query) { return Execute(query, NoActionCallback); }
-
-bool SQLiteStorage::Execute(const std::string_view query, int (*callback)(void*, int, char**, char**)) {
-    return InternalExecute(query, callback, this);
-}
+bool SQLiteStorage::Execute(const std::string_view query) { return InternalExecute(query, NoActionCallback, this); }
 
 bool SQLiteStorage::Select(const std::string_view query, std::vector<std::vector<std::string>>& data) {
     return InternalExecute(query, SelectCallback, &data);
 }
-
-bool SQLiteStorage::Delete(const std::string_view query) { return Execute(query, NoActionCallback); }
 
 bool SQLiteStorage::Commit() { return Execute("COMMIT;"); }
 

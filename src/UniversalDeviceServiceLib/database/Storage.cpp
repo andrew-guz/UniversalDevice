@@ -52,7 +52,7 @@ void Storage::CleanupOldData(const std::chrono::system_clock::time_point& timest
     const std::chrono::system_clock::time_point oldTimestamp = timestamp - oldDataDelta;
     for (const std::string& table : GetDataTables()) {
         const std::string query = fmt::format("DELETE FROM {} WHERE timestamp < {}", table, TimeHelper::TimeToInt(oldTimestamp));
-        Delete(query);
+        Execute(query);
     }
 }
 

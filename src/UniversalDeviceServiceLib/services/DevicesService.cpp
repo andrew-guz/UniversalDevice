@@ -121,7 +121,7 @@ crow::response DevicesService::DeleteDevice(const std::string& idString) {
         // delete device from all tables
         for (const auto& table : _queryExecutor->GetDeviceRelatedTables()) {
             const std::string query = fmt::format("DELETE FROM {} WHERE id = '{}'", table, idString);
-            if (!_queryExecutor->Delete(query)) {
+            if (!_queryExecutor->Execute(query)) {
                 LOG_ERROR_MSG(fmt::format("Failed to delete device {} from {}", idString, table));
                 return crow::response(crow::BAD_REQUEST);
             }

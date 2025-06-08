@@ -27,11 +27,7 @@ bool PostgreSQLStorage::Begin() {
 
 bool PostgreSQLStorage::Execute(const std::string_view query) { return false; }
 
-bool PostgreSQLStorage::Execute(const std::string_view query, int (*callback)(void*, int, char**, char**)) { return false; }
-
 bool PostgreSQLStorage::Select(const std::string_view query, std::vector<std::vector<std::string>>& data) { return false; }
-
-bool PostgreSQLStorage::Delete(const std::string_view query) { return false; }
 
 bool PostgreSQLStorage::Commit() {
     if (!transaction)
