@@ -1,5 +1,5 @@
 # base image
-FROM debian:stable-slim as base-image
+FROM debian:stable-slim AS base-image
 
 # update
 RUN apt-get update && apt-get upgrade -y
@@ -20,7 +20,7 @@ RUN ln -s /usr/bin/clang++-19 /usr/bin/clang++
 RUN ln -s /usr/bin/clang-format-19 /usr/bin/clang-format
 
 # main image
-FROM base-image as universal-device-image
+FROM base-image AS universal-device-image
 
 # open ports
 EXPOSE 7315
