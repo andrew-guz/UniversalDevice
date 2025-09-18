@@ -40,7 +40,8 @@ link_directories(${CMAKE_BINARY_DIR}/vendor/wt/src/)
 link_directories(${CMAKE_BINARY_DIR}/vendor/wt/src/http)
 
 # set compiler flags
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -Wno-inconsistent-missing-override")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
+                    "-Wall -Wno-inconsistent-missing-override")
 
 # set for linker path where libraries are
 set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS}
