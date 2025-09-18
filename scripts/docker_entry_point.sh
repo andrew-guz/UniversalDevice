@@ -6,5 +6,5 @@ cd ./bin
 
 ./UniversalDeviceFrontendService &
 
-# wihtout this will finish container
+# without this will finish container
 /bin/bash

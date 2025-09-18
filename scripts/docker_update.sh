@@ -6,6 +6,6 @@ git fetch --all
 
 git pull
 
-git submodule update --init
+git submodule update --init --recursive
 
 ./scripts/docker_start.sh

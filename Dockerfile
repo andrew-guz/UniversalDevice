@@ -1,6 +1,9 @@
 # base image
 FROM debian:stable-slim AS base-image
 
+# for apt
+ENV DEBIAN_FRONTEND=noninteractive
+
 # update
 RUN apt-get update && apt-get upgrade -y
 
@@ -8,7 +11,7 @@ RUN apt-get update && apt-get upgrade -y
 RUN ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 
 # install all needed for build
-RUN apt-get install -y wget lsb-release wget software-properties-common gnupg make cmake libasio-dev libboost-all-dev uuid-dev libsqlite3-dev git jq
+RUN apt-get install -y wget lsb-release wget gnupg make cmake libssl-dev libasio-dev libboost-all-dev uuid-dev libsqlite3-dev git jq
 
 # get clang 17
 RUN wget https://apt.llvm.org/llvm.sh

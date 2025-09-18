@@ -2,6 +2,7 @@
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WLineEdit.h>
+#include <Wt/WPasswordEdit.h>
 
 #include "BaseStackWidget.hpp"
 #include "Settings.hpp"
@@ -19,5 +20,5 @@ private:
 
 private:
     Wt::WLineEdit* _login;
-    Wt::WLineEdit* _password;
+    Wt::WPasswordEdit* _password;
 };

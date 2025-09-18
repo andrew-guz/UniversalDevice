@@ -46,7 +46,7 @@ link_directories(/usr/local/library)
 link_directories(./../bin/)
 
 # set compiler flags
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -DCROW_ENABLE_SSL")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -Wno-unused-lambda-capture -DCROW_ENABLE_SSL")
 
 # set for linker path where libraries are
 set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS}
