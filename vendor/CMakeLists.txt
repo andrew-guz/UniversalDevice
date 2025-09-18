@@ -1,8 +1,11 @@
 # subprojects
 
+find_package(OpenSSL REQUIRED)
+
 set(CROW_FEATURES "ssl")
 add_subdirectory(crow)
 
+set(ENABLE_SSL ON)
 set(ENABLE_QT5 off)
 set(ENABLE_QT6 off)
 set(BUILD_EXAMPLES off)

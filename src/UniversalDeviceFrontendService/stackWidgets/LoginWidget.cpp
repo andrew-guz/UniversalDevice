@@ -6,6 +6,7 @@
 #include <Wt/WGlobal.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WGroupBox.h>
+#include <Wt/WPasswordEdit.h>
 #include <Wt/WPushButton.h>
 
 #include "AccountManager.hpp"
@@ -24,8 +25,7 @@ LoginWidget::LoginWidget(IStackHolder* stackHolder, const Settings& settings) :
     _login = boxLayout->addWidget(std::make_unique<WLineEdit>(), 0, 1);
     _login->enterPressed().connect([this]() { Login(); });
     boxLayout->addWidget(std::make_unique<WText>("Пароль:"), 1, 0, AlignmentFlag::Left);
-    _password = boxLayout->addWidget(std::make_unique<WLineEdit>(), 1, 1);
-    _password->setEchoMode(EchoMode::Password);
+    _password = boxLayout->addWidget(std::make_unique<WPasswordEdit>(), 1, 1);
     _password->enterPressed().connect([this]() { Login(); });
     auto okBtn = boxLayout->addWidget(std::make_unique<WPushButton>("Вход"), 2, 1, AlignmentFlag::Right);
     okBtn->clicked().connect([this]() { Login(); });
