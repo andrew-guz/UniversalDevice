@@ -77,6 +77,10 @@ void resetRelay() {
 }
 
 void loop() {
+    if (millis() > 2 * 7 * 24 * 60 * 60 * 1000) {
+        ESP.restart();
+    }
+
     if (!wifiExists()) {
         digitalWrite(LED_BUILTIN, LOW);
         resetRelay();
