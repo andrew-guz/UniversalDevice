@@ -6,6 +6,7 @@
 #include <set>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <variant>
 
 #include <boost/hof.hpp>
@@ -617,6 +618,7 @@ void to_json(nlohmann::json& json, const Scenario& scenario) {
         { "name", scenario._name },
         { "activate", scenario._activateEvent },
         { "deactivate", scenario._deactivateEvent },
+        { "commands", scenario._commands },
     };
 }
 
@@ -625,6 +627,8 @@ void from_json(const nlohmann::json& json, Scenario& scenario) {
     scenario._name = json.at("name").get<std::string>();
     scenario._activateEvent = json.at("activate").get<std::set<Uuid>>();
     scenario._deactivateEvent = json.at("deactivate").get<std::set<Uuid>>();
+    scenario._commands =
+        json.count("commands") == 0 ? std::unordered_map<Uuid, std::string>{} : json.at("commands").get<std::unordered_map<Uuid, std::string>>();
 }
 
 void to_json(nlohmann::json& json, const ThermometerLedBrightness& thermometerLedBrightness) {
