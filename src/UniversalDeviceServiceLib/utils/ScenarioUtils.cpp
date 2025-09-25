@@ -6,6 +6,7 @@
 #include "Marshaling.hpp"
 #include "Scenario.hpp"
 #include "SimpleTableStorageCache.hpp"
+#include "WebsocketsCache.hpp"
 
 void CleanupScenario(Scenario& scenario, IQueryExecutor* queryExecutor) {
     IStorageCache* eventsStorageCache = EventTableStorageCache::GetCache(queryExecutor);
@@ -56,7 +57,7 @@ bool ActivateScenario(const Scenario& scenario, IQueryExecutor* queryExecutor) {
         }
     }
     if (!queryExecutor->Begin()) {
-        LOG_ERROR_MSG("Failed to update events for scenario: failed to start transaction");
+        LOG_ERROR_MSG("Failed to update events and commands for scenario: failed to start transaction");
         return false;
     }
     for (const auto& [eventId, eventPair] : modifiedEvents) {
@@ -81,8 +82,40 @@ bool ActivateScenario(const Scenario& scenario, IQueryExecutor* queryExecutor) {
                 break;
         }
     }
+    IStorageCache* commandsStorageCache = GetCommandsCache(queryExecutor);
+    for (const auto& [receiverId, command] : scenario._commands) {
+        try {
+            SimpleTableInsertOrReplaceInput what{
+                ._id = Uuid{ receiverId },
+                ._data = command,
+            };
+            auto problem = commandsStorageCache->InsertOrReplace(what);
+            switch (problem._type) {
+                case StorageCacheProblemType::NoProblems: {
+                    auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid(receiverId));
+                    if (connection)
+                        connection->send_text(command);
+                } break;
+                case StorageCacheProblemType::Empty:
+                    LOG_ERROR_MSG(fmt::format("Invalid commands {}", command));
+                    return false;
+                    break;
+                case StorageCacheProblemType::NotExists:
+                    break;
+                case StorageCacheProblemType::TooMany:
+                    break;
+                case StorageCacheProblemType::SQLError:
+                    LOG_SQL_ERROR(problem._message);
+                    return false;
+                    break;
+            }
+        } catch (...) {
+            LOG_ERROR_MSG("Something went wrong in ActivateScenario send commands");
+            return false;
+        }
+    }
     if (!queryExecutor->Commit()) {
-        LOG_ERROR_MSG("Failed to update events for scenario: failed to end transaction");
+        LOG_ERROR_MSG("Failed to update events and commands for scenario: failed to end transaction");
         return false;
     }
     LOG_INFO_MSG(fmt::format("Scenario '{}' activated!", scenario._name));
