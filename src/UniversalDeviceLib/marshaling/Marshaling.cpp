@@ -6,6 +6,7 @@
 #include <string_view>
 #include <variant>
 
+#include <boost/hof.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
@@ -46,7 +47,6 @@
 #include "UniversalDeviceCurrentValues.hpp"
 #include "Uuid.hpp"
 #include "WebSocketAuthentication.hpp"
-#include <boost/hof.hpp>
 
 template<>
 std::string EnumToString(AccountType enumType) {

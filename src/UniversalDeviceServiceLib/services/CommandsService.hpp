@@ -1,10 +1,11 @@
 #pragma once
 
 #include "BaseService.hpp"
+#include "CommandsController.hpp"
 
 class CommandsService final : public BaseService {
 protected:
-    CommandsService(IQueryExecutor* queryExecutor);
+    CommandsService(IQueryExecutor* queryExecutor, CommandsController& controller);
 
 public:
     virtual ~CommandsService() = default;
@@ -18,5 +19,5 @@ private:
     crow::response SetCommands(const crow::request& request, const std::string& idString);
 
 private:
-    friend class BaseServiceExtension;
+    CommandsController& _controller;
 };

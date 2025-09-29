@@ -1,4 +1,4 @@
-#include "SettingsController.hpp"
+#include "CommandsController.hpp"
 
 #include <mutex>
 #include <optional>
@@ -7,25 +7,25 @@
 #include <nlohmann/json.hpp>
 
 #include "Cache.hpp"
+#include "Command.hpp"
 #include "Controller.hpp"
 #include "IQueryExecutor.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
-#include "Settings.hpp"
 #include "Uuid.hpp"
 
 namespace {
-    constexpr std::string TableName = "Settings";
-    constexpr std::string ColumnName = "settings";
+    constexpr std::string TableName = "Commands";
+    constexpr std::string ColumnName = "commands";
 } // namespace
 
-SettingsController::SettingsController(IQueryExecutor* queryExecutor) :
+CommandsController::CommandsController(IQueryExecutor* queryExecutor) :
     Controller(queryExecutor) {}
 
-std::optional<Settings> SettingsController::Get(const Uuid& id) const {
+std::optional<Command> CommandsController::Get(const Uuid& id) const {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
-    std::optional<Settings> cacheResult = _cache.Get(id);
+    std::optional<Command> cacheResult = _cache.Get(id);
     if (cacheResult.has_value())
         return cacheResult;
 
@@ -34,31 +34,31 @@ std::optional<Settings> SettingsController::Get(const Uuid& id) const {
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(query, data)) {
         if (data.size() == 0)
-            LOG_DEBUG_MSG(fmt::format("No settings for device {}", id.data()));
+            LOG_DEBUG_MSG(fmt::format("No command for device {}", id.data()));
         else if (data.size() == 1) {
             if (data[0][1].empty())
-                LOG_INFO_MSG(fmt::format("Empty settings for device {}", id.data()));
+                LOG_INFO_MSG(fmt::format("Empty command for device {}", id.data()));
             else {
-                const Settings settings = nlohmann::json::parse(data[0][1]).get<Settings>();
-                _cache.Add(id, settings);
-                return settings;
+                const Command command = nlohmann::json::parse(data[0][1]).get<Command>();
+                _cache.Add(id, command);
+                return command;
             }
         } else
-            LOG_ERROR_MSG(fmt::format("Too many settings for device {}", id.data()));
+            LOG_ERROR_MSG(fmt::format("Too many commands for device {}", id.data()));
     } else
         LOG_SQL_ERROR(query);
 
     return std::nullopt;
 }
 
-bool SettingsController::AddOrUpdate(const Uuid& id, const Settings& settings) {
+bool CommandsController::AddOrUpdate(const Uuid& id, const Command& command) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
     const std::string query = fmt::format(
-        "INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')", TableName, ColumnName, id.data(), static_cast<nlohmann::json>(settings).dump());
+        "INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')", TableName, ColumnName, id.data(), static_cast<nlohmann::json>(command).dump());
 
     if (_queryExecutor->Execute(query)) {
-        _cache.AddOrUpdate(id, settings);
+        _cache.AddOrUpdate(id, command);
         return true;
     }
 
@@ -67,7 +67,7 @@ bool SettingsController::AddOrUpdate(const Uuid& id, const Settings& settings) {
     return false;
 }
 
-bool SettingsController::Remove(const Uuid& id) {
+bool CommandsController::Remove(const Uuid& id) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
     const std::string query = fmt::format("DELETE FROM {} WHERE id='{}'", TableName, id.data());

@@ -1,7 +1,9 @@
 #include "SettingsService.hpp"
 
 #include <optional>
+#include <variant>
 
+#include <boost/hof.hpp>
 #include <nlohmann/json.hpp>
 
 #include "Marshaling.hpp"
@@ -39,7 +41,10 @@ crow::response SettingsService::SetSettings(const crow::request& request, const 
         if (_controller.AddOrUpdate(id, settings)) {
             auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid(idString));
             if (connection)
-                connection->send_text(request.body);
+                connection->send_text(std::visit(
+                    boost::hof::match([](const PeriodSettings& value) -> std::string { return static_cast<nlohmann::json>(value).dump(); },
+                                      [](const MotionRelaySettings& value) -> std::string { return static_cast<nlohmann::json>(value).dump(); }),
+                    settings));
             return crow::response(crow::OK);
         }
     } catch (...) {

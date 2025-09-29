@@ -40,4 +40,4 @@ Uuid Uuid::Empty() {
     return result;
 }
 
-//std::size_t std::hash<Uuid>::perator()(const Uuid& obj) const { return std::hash<std::string>{}(obj.data()); }
+std::size_t std::hash<Uuid>::operator()(const Uuid& uuid) const { return hash<std::string>{}(uuid.data()); }

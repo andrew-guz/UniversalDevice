@@ -39,7 +39,6 @@ int Server::run() {
         Platform platform{ app, &storage };
 
         BaseServiceExtension::Create<MainService>(app, &storage);
-        BaseServiceExtension::Create<CommandsService>(app, &storage);
         BaseServiceExtension::Create<EventsService>(app, &storage);
         BaseServiceExtension::Create<ScenariosService>(app, &storage);
         BaseServiceExtension::Create<BackendLogsService>(app, &storage);
