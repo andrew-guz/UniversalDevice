@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <string_view>
 
@@ -34,3 +35,10 @@ public:
 private:
     uuid_t _uuid;
 };
+
+namespace std {
+    template<>
+    struct hash<Uuid> {
+        std::size_t operator()(const Uuid& uuid) const { return hash<std::string>{}(uuid.data()); }
+    };
+} // namespace std

@@ -5,6 +5,7 @@
 #include <Wt/WTimer.h>
 #include <fmt/format.h>
 
+#include "ApplicationSettings.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "Logger.hpp"
@@ -13,7 +14,7 @@
 
 using namespace Wt;
 
-MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings) :
+MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
     _motionText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _motionText->setText(WidgetHelper::TextWithFontSize("Нет движения", 80));

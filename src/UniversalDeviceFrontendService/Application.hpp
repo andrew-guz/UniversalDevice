@@ -4,12 +4,12 @@
 #include <Wt/WHBoxLayout.h>
 #include <Wt/WStackedWidget.h>
 
+#include "ApplicationSettings.hpp"
 #include "IStackHolder.hpp"
-#include "Settings.hpp"
 
 class Application final : public Wt::WApplication, public IStackHolder {
 public:
-    Application(const Settings& settings, const Wt::WEnvironment& env);
+    Application(const ApplicationSettings& settings, const Wt::WEnvironment& env);
 
     virtual ~Application() = default;
 

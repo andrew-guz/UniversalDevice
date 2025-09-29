@@ -18,6 +18,7 @@
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
+#include "ApplicationSettings.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceButton.hpp"
@@ -46,7 +47,7 @@ namespace {
     };
 } // namespace
 
-DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) :
+DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<WVBoxLayout>());
     setOverflow(Overflow::Scroll, Orientation::Vertical);

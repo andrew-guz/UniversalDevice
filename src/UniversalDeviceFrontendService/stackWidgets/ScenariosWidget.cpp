@@ -18,6 +18,7 @@
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
+#include "ApplicationSettings.hpp"
 #include "Defines.hpp"
 #include "Event.hpp"
 #include "Logger.hpp"
@@ -29,7 +30,7 @@
 
 using namespace Wt;
 
-ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const Settings& settings) :
+ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<WVBoxLayout>());
 

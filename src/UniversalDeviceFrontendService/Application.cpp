@@ -20,7 +20,7 @@
 
 using namespace Wt;
 
-Application::Application(const Settings& settings, const WEnvironment& env) :
+Application::Application(const ApplicationSettings& settings, const WEnvironment& env) :
     Wt::WApplication(env) {
     setTitle(fmt::format("Universal device [{}.{}.{}]", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
     setCssTheme("polished");

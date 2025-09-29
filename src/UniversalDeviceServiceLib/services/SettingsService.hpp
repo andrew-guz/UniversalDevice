@@ -1,12 +1,12 @@
 #pragma once
 
 #include "BaseService.hpp"
+#include "SettingsController.hpp"
 
 class SettingsService final : public BaseService {
-protected:
-    SettingsService(IQueryExecutor* queryExecutor);
-
 public:
+    SettingsService(IQueryExecutor* queryExecutor, SettingsController& controller);
+
     virtual ~SettingsService() = default;
 
 protected:
@@ -18,5 +18,5 @@ private:
     crow::response SetSettings(const crow::request& request, const std::string& idString);
 
 private:
-    friend class BaseServiceExtension;
+    SettingsController& _controller;
 };

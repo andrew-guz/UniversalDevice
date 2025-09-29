@@ -10,6 +10,7 @@
 #include <Wt/WVBoxLayout.h>
 #include <fmt/format.h>
 
+#include "ApplicationSettings.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
@@ -29,7 +30,7 @@ namespace {
 
 } // namespace
 
-BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& settings) :
+BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings),
     _deviceId(Uuid::Empty()) {
     _mainLayout = setLayout(std::make_unique<WVBoxLayout>());

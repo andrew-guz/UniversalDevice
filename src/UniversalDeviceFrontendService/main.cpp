@@ -7,10 +7,10 @@
 #include "AccountManager.hpp"
 #include "AccountManagerInitializer.hpp"
 #include "Application.hpp"
+#include "ApplicationSettings.hpp"
 #include "Logger.hpp"
 #include "PathHelper.hpp"
 #include "Version.hpp"
-
 int main(int argc, char** argv) {
     if (argc == 2 && strcmp(argv[1], "--version") == 0) {
         std::cout << fmt::format("{}.{}.{}", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH) << std::endl;
@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     int result = -1;
 
     try {
-        auto settings = Settings::ReadSettings();
+        auto settings = ApplicationSettings::ReadSettings();
         if (!settings._logPath.empty())
             PathHelper::SetCustomLogPath(settings._logPath);
 

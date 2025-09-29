@@ -6,13 +6,14 @@
 
 #include <Wt/WTabWidget.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
 #include "SecondsComboBox.hpp"
 #include "UniversalDeviceChartModel.hpp"
 
 class UniversalDeviceWidget final : public BaseDeviceWidget {
 public:
-    UniversalDeviceWidget(IStackHolder* stackHolder, const Settings& settings);
+    UniversalDeviceWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~UniversalDeviceWidget() = default;
 

@@ -9,6 +9,7 @@
 #include <Wt/WTimer.h>
 #include <fmt/format.h>
 
+#include "ApplicationSettings.hpp"
 #include "ChartFactory.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
@@ -19,7 +20,7 @@
 
 using namespace Wt;
 
-RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
+RelayWidget::RelayWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
     _stateText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _stateText->setText(WidgetHelper::TextWithFontSize("Выключено", 80));

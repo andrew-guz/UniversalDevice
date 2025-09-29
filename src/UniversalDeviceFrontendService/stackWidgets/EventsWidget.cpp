@@ -9,6 +9,7 @@
 #include <Wt/WVBoxLayout.h>
 #include <fmt/format.h>
 
+#include "ApplicationSettings.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "Enums.hpp"
@@ -28,7 +29,7 @@
 #include "TimerEventEditor.hpp"
 #include "WidgetHelper.hpp"
 
-EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) :
+EventsWidget::EventsWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<Wt::WVBoxLayout>());
 

@@ -2,8 +2,10 @@
 
 #include <nlohmann/json.hpp>
 
+#include "Command.hpp"
 #include "Enums.hpp"
 #include "Logger.hpp"
+#include "Settings.hpp"
 #include "Types.hpp"
 
 class Uuid;
@@ -175,6 +177,10 @@ void to_json(nlohmann::json& json, const PeriodSettings& periodSettings);
 
 void from_json(const nlohmann::json& json, PeriodSettings& periodSettings);
 
+void to_json(nlohmann::json& json, const Settings& settings);
+
+void from_json(const nlohmann::json& json, Settings& settings);
+
 void to_json(nlohmann::json& json, const RelayCurrentState& relayCurrentState);
 
 void from_json(const nlohmann::json& json, RelayCurrentState& relayCurrentState);
@@ -194,6 +200,10 @@ void from_json(const nlohmann::json& json, Scenario& scenario);
 void to_json(nlohmann::json& json, const ThermometerLedBrightness& thermometerLedBrightness);
 
 void from_json(const nlohmann::json& json, ThermometerLedBrightness& thermometerLedBrightness);
+
+void to_json(nlohmann::json& json, const Command& command);
+
+void from_json(const nlohmann::json& json, Command& command);
 
 void to_json(nlohmann::json& json, const ThermometerCurrentValue& thermometerCurrentValue);
 

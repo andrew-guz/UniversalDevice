@@ -1,12 +1,13 @@
 #pragma once
 
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
 #include "ExtendedMotionRelayCurrentState.hpp"
 #include "MotionRelaySettings.hpp"
 
 class MotionRelayWidget final : public BaseDeviceWidget {
 public:
-    MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings);
+    MotionRelayWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~MotionRelayWidget() = default;
 

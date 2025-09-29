@@ -3,16 +3,15 @@
 #include <filesystem>
 
 #include "Defines.hpp"
-#include "Logger.hpp"
 
-struct Settings {
-    int _port = DEFAULT_SERVICE_PORT;
-    std::filesystem::path _dbPath;
+struct ApplicationSettings {
+    int _servicePort = DEFAULT_SERVICE_PORT;
+    int _frontendPort = DEFAULT_FRONTEND_PORT;
     std::filesystem::path _certificatePath;
     std::filesystem::path _keyPath;
+    std::filesystem::path _dhPath;
     std::filesystem::path _authPath;
     std::filesystem::path _logPath;
-    LogLevel _logLevel = LogLevel::INFO;
 
-    static Settings ReadSettings();
+    static ApplicationSettings ReadSettings();
 };

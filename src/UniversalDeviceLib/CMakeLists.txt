@@ -19,6 +19,7 @@ project(${PROJECT_NAME})
 # where to search headers
 include_directories(./authentication)
 include_directories(./component)
+include_directories(./cache)
 include_directories(./core)
 include_directories(./events)
 include_directories(./interfaces)

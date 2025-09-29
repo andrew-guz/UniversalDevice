@@ -8,12 +8,15 @@
 #include "DeviceProperty.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "Logger.hpp"
+#include "SettingsController.hpp"
 #include "SimpleTableStorageCache.hpp"
+#include "StorageCacheSharedData.hpp"
 #include "Uuid.hpp"
 #include "WebsocketsCache.hpp"
 
-DevicesService::DevicesService(IQueryExecutor* queryExecutor) :
-    BaseService(queryExecutor) {}
+DevicesService::DevicesService(IQueryExecutor* queryExecutor, SettingsController& settingsController) :
+    BaseService(queryExecutor),
+    _settingsController(settingsController) {}
 
 void DevicesService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DevicesService::ListDevices));
@@ -126,15 +129,12 @@ crow::response DevicesService::DeleteDevice(const std::string& idString) {
                 return crow::response(crow::BAD_REQUEST);
             }
         }
+        const Uuid id{ idString };
+        _settingsController.Remove(id);
         {
             SimpleTableDeleteInput what{
                 ._id = Uuid{ idString },
             };
-            if (GetSettingsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
-
-                LOG_ERROR_MSG(fmt::format("Failed to delete device {} from Settings", idString));
-                return crow::response(crow::BAD_REQUEST);
-            }
             if (GetCommandsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
                 LOG_ERROR_MSG(fmt::format("Failed to delete device {} from Commands", idString));
                 return crow::response(crow::BAD_REQUEST);

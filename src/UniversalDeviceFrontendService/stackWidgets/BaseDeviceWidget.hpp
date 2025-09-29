@@ -8,6 +8,7 @@
 #include <Wt/WTimer.h>
 #include <Wt/WVBoxLayout.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseStackWidget.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "Marshaling.hpp"
@@ -19,7 +20,7 @@
 
 class BaseDeviceWidget : public Wt::WContainerWidget, public BaseStackWidget {
 public:
-    BaseDeviceWidget(IStackHolder* stackHolder, const Settings& settings);
+    BaseDeviceWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~BaseDeviceWidget() = default;
 

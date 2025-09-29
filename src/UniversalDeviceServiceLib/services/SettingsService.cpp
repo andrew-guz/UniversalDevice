@@ -1,10 +1,17 @@
 #include "SettingsService.hpp"
 
-#include "SimpleTableStorageCache.hpp"
+#include <optional>
+
+#include <nlohmann/json.hpp>
+
+#include "Marshaling.hpp"
+#include "Settings.hpp"
+#include "Uuid.hpp"
 #include "WebsocketsCache.hpp"
 
-SettingsService::SettingsService(IQueryExecutor* queryExecutor) :
-    BaseService(queryExecutor) {}
+SettingsService::SettingsService(IQueryExecutor* queryExecutor, SettingsController& controller) :
+    BaseService(queryExecutor),
+    _controller(controller) {}
 
 void SettingsService::Initialize(CrowApp& app) {
     CROW_ROUTE(app, API_DEVICE_SETTINGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &SettingsService::GetSettings));
@@ -13,65 +20,31 @@ void SettingsService::Initialize(CrowApp& app) {
 
 crow::response SettingsService::GetSettings(const std::string& idString) const {
     try {
-        auto storageCache = GetSettingsCache(_queryExecutor);
-        SimpleTableSelectInput what{
-            ._id = Uuid{ idString },
-        };
-        SimpleTableSelectOutput<std::string> result;
-        auto problem = storageCache->Select(what, result);
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems:
-                return crow::response(crow::OK, result._data);
-                break;
-            case StorageCacheProblemType::Empty:
-                LOG_INFO_MSG(fmt::format("Empty settings for device {}", idString));
-                break;
-            case StorageCacheProblemType::NotExists:
-                LOG_DEBUG_MSG(fmt::format("No settings for device {}", idString));
-                break;
-            case StorageCacheProblemType::TooMany:
-                LOG_ERROR_MSG(fmt::format("Too many settings for device {}", idString));
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
-        }
+        const Uuid id = Uuid{ idString };
+        const std::optional<Settings> settings = _controller.Get(id);
+        if (settings.has_value())
+            return crow::response(crow::OK, static_cast<nlohmann::json>(settings.value()).dump());
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in DeviceService::GetSettings");
         return crow::response(crow::BAD_REQUEST);
     }
+
     return crow::response(crow::OK, std::string());
 }
 
 crow::response SettingsService::SetSettings(const crow::request& request, const std::string& idString) {
     try {
-        auto settingsString = request.body;
-        auto storageCache = GetSettingsCache(_queryExecutor);
-        SimpleTableInsertOrReplaceInput what{
-            ._id = Uuid{ idString },
-            ._data = settingsString,
-        };
-        auto problem = storageCache->InsertOrReplace(what);
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems: {
-                auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid(idString));
-                if (connection)
-                    connection->send_text(settingsString);
-                return crow::response(crow::OK);
-            } break;
-            case StorageCacheProblemType::Empty:
-                LOG_ERROR_MSG(fmt::format("Invalid settings {}", settingsString));
-                break;
-            case StorageCacheProblemType::NotExists:
-                break;
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
+        const Uuid id = Uuid{ idString };
+        const Settings settings = nlohmann::json::parse(request.body).get<Settings>();
+        if (_controller.AddOrUpdate(id, settings)) {
+            auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(Uuid(idString));
+            if (connection)
+                connection->send_text(request.body);
+            return crow::response(crow::OK);
         }
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in DeviceService::SetSettings");
     }
+
     return crow::response(crow::BAD_REQUEST);
 }

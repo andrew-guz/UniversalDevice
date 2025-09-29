@@ -7,15 +7,15 @@
 #include <Wt/WVBoxLayout.h>
 #include <nlohmann/json.hpp>
 
+#include "ApplicationSettings.hpp"
 #include "BaseEventEditor.hpp"
 #include "BaseStackWidget.hpp"
 #include "EventsTableModel.hpp"
 #include "ExtendedComponentDescription.hpp"
-#include "Settings.hpp"
 
 class EventsWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
-    EventsWidget(IStackHolder* stackHolder, const Settings& settings);
+    EventsWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~EventsWidget() = default;
 

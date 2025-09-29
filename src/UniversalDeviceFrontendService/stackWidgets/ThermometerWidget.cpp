@@ -5,6 +5,7 @@
 #include <Wt/WGlobal.h>
 #include <fmt/format.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
 #include "ChartFactory.hpp"
 #include "Constants.hpp"
@@ -16,7 +17,7 @@
 
 using namespace Wt;
 
-ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& settings) :
+ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
     _temperatureText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _temperatureText->setText(WidgetHelper::TextWithFontSize(0.0f, "°C", 80));

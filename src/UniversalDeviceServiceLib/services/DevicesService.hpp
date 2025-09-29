@@ -1,12 +1,12 @@
 #pragma once
 
 #include "BaseService.hpp"
+#include "SettingsController.hpp"
 
 class DevicesService final : public BaseService {
-protected:
-    DevicesService(IQueryExecutor* queryExecutor);
-
 public:
+    DevicesService(IQueryExecutor* queryExecutor, SettingsController& settingsController);
+
     virtual ~DevicesService() = default;
 
 protected:
@@ -34,5 +34,5 @@ private:
     crow::response RestartDevice(const std::string& idString);
 
 private:
-    friend class BaseServiceExtension;
+    SettingsController& _settingsController;
 };

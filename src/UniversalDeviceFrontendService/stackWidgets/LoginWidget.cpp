@@ -10,12 +10,13 @@
 #include <Wt/WPushButton.h>
 
 #include "AccountManager.hpp"
+#include "ApplicationSettings.hpp"
 #include "Base64Helper.hpp"
 #include "WidgetHelper.hpp"
 
 using namespace Wt;
 
-LoginWidget::LoginWidget(IStackHolder* stackHolder, const Settings& settings) :
+LoginWidget::LoginWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings) {
     auto mainLayout = setLayout(std::make_unique<WGridLayout>());
     auto box = mainLayout->addWidget(std::make_unique<WGroupBox>(), 0, 0, AlignmentFlag::Center | AlignmentFlag::Top);

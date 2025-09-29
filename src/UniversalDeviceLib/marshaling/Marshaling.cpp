@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <set>
 #include <string>
+#include <string_view>
+#include <variant>
 
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
@@ -31,6 +33,7 @@
 #include "RelayEvent.hpp"
 #include "RelayState.hpp"
 #include "Scenario.hpp"
+#include "Settings.hpp"
 #include "SunriseEvent.hpp"
 #include "SunsetEvent.hpp"
 #include "ThermometerCurrentValue.hpp"
@@ -43,6 +46,7 @@
 #include "UniversalDeviceCurrentValues.hpp"
 #include "Uuid.hpp"
 #include "WebSocketAuthentication.hpp"
+#include <boost/hof.hpp>
 
 template<>
 std::string EnumToString(AccountType enumType) {
@@ -520,6 +524,33 @@ void to_json(nlohmann::json& json, const RelayCurrentState& relayCurrentState) {
     };
 }
 
+void to_json(nlohmann::json& json, const Settings& settings) {
+    std::visit(boost::hof::match(
+                   [&json](const PeriodSettings& value) -> void {
+                       json = nlohmann::json{
+                           { "type", "period" },
+                           { "settings", value },
+                       };
+                   },
+                   [&json](const MotionRelaySettings& value) -> void {
+                       json = nlohmann::json{
+                           { "type", "motionRelay" },
+                           { "settings", value },
+                       };
+                   }),
+               settings);
+}
+
+void from_json(const nlohmann::json& json, Settings& settings) {
+    const std::string_view type = json["type"].get<std::string_view>();
+    if (type == "period")
+        settings = json["settings"].get<PeriodSettings>();
+    else if (type == "motionRelay")
+        settings = json["settings"].get<MotionRelaySettings>();
+    else
+        LOG_ERROR_MSG(fmt::format("Invalid Settings type: {}", type));
+}
+
 void from_json(const nlohmann::json& json, RelayCurrentState& relayCurrentState) {
     relayCurrentState._state = json.value("state", std::numeric_limits<float>::min());
 }
@@ -566,6 +597,33 @@ void to_json(nlohmann::json& json, const ThermometerLedBrightness& thermometerLe
 
 void from_json(const nlohmann::json& json, ThermometerLedBrightness& thermometerLedBrightness) {
     thermometerLedBrightness._brightness = json.value("brightness", 7);
+}
+
+void to_json(nlohmann::json& json, const Command& command) {
+    std::visit(boost::hof::match(
+                   [&json](const RelayState& value) -> void {
+                       json = nlohmann::json{
+                           { "type", "relayState" },
+                           { "command", value },
+                       };
+                   },
+                   [&json](const ThermometerLedBrightness& value) -> void {
+                       json = nlohmann::json{
+                           { "type", "brightness" },
+                           { "command", value },
+                       };
+                   }),
+               command);
+}
+
+void from_json(const nlohmann::json& json, Command& command) {
+    const std::string_view type = json["type"].get<std::string_view>();
+    if (type == "relayState")
+        command = json["command"].get<RelayState>();
+    else if (type == "brightness")
+        command = json["command"].get<ThermometerLedBrightness>();
+    else
+        LOG_ERROR_MSG(fmt::format("Invalid Command type: {}", type));
 }
 
 void to_json(nlohmann::json& json, const ThermometerCurrentValue& thermometerCurrentValue) {

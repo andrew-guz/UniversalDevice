@@ -9,6 +9,7 @@
 #include <Wt/WSelectionBox.h>
 #include <Wt/WVBoxLayout.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseStackWidget.hpp"
 #include "Event.hpp"
 #include "Scenario.hpp"
@@ -16,7 +17,7 @@
 
 class ScenariosWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
-    ScenariosWidget(IStackHolder* stackHolder, const Settings& settings);
+    ScenariosWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~ScenariosWidget() = default;
 

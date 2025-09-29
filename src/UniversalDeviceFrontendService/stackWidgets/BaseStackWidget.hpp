@@ -1,13 +1,13 @@
 #pragma once
 
+#include "ApplicationSettings.hpp"
 #include "FrontendDefines.hpp"
 #include "IStackHolder.hpp"
 #include "IStackWidget.hpp"
-#include "Settings.hpp"
 
 class BaseStackWidget : public IStackWidget {
 public:
-    BaseStackWidget(IStackHolder* stackHolder, const Settings& settings) :
+    BaseStackWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
         _stackHolder(stackHolder),
         _settings(settings) {}
 
@@ -15,5 +15,5 @@ public:
 
 protected:
     IStackHolder* _stackHolder;
-    const Settings& _settings;
+    const ApplicationSettings& _settings;
 };

@@ -4,12 +4,12 @@
 #include <Wt/WLineEdit.h>
 #include <Wt/WPasswordEdit.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseStackWidget.hpp"
-#include "Settings.hpp"
 
 class LoginWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
-    LoginWidget(IStackHolder* stackHolder, const Settings& settings);
+    LoginWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~LoginWidget() = default;
 

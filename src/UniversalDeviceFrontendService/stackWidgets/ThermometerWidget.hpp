@@ -2,6 +2,7 @@
 
 #include <Wt/Chart/WCartesianChart.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
 #include "PeriodSettings.hpp"
@@ -11,7 +12,7 @@
 
 class ThermometerWidget final : public BaseDeviceWidget {
 public:
-    ThermometerWidget(IStackHolder* stackHolder, const Settings& settings);
+    ThermometerWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~ThermometerWidget() = default;
 

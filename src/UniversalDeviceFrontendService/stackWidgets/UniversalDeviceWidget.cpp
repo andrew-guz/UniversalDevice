@@ -20,6 +20,7 @@
 #include <Wt/WWidget.h>
 #include <fmt/format.h>
 
+#include "ApplicationSettings.hpp"
 #include "ChartFactory.hpp"
 #include "Enums.hpp"
 #include "ExtendedUniversalDeviceCurrentValues.hpp"
@@ -94,7 +95,7 @@ namespace {
     }
 } // namespace
 
-UniversalDeviceWidget::UniversalDeviceWidget(IStackHolder* stackHolder, const Settings& settings) :
+UniversalDeviceWidget::UniversalDeviceWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
     _tabWidget = _mainLayout->addWidget(std::make_unique<WTabWidget>(), 1);
     _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 0, AlignmentFlag::Center | AlignmentFlag::Bottom);

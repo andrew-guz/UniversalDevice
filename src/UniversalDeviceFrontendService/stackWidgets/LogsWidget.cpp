@@ -5,6 +5,7 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WVBoxLayout.h>
 
+#include "ApplicationSettings.hpp"
 #include "Constants.hpp"
 #include "FileUtils.hpp"
 #include "LogInformation.hpp"
@@ -15,7 +16,7 @@
 
 using namespace Wt;
 
-LogsWidget::LogsWidget(IStackHolder* stackHolder, const Settings& settings) :
+LogsWidget::LogsWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings) {
     auto mainLayout = setLayout(std::make_unique<WVBoxLayout>());
 

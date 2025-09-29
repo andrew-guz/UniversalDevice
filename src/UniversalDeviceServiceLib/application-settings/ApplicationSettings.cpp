@@ -1,16 +1,16 @@
-#include "Settings.hpp"
+#include "ApplicationSettings.hpp"
 
 #include "Defines.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "ProcessSettingsReader.hpp"
 
-Settings Settings::ReadSettings() {
+ApplicationSettings ApplicationSettings::ReadSettings() {
     nlohmann::json settingsJson = ProcessSettingsReader::ReadProcessSettings();
     if (settingsJson.is_null())
-        return Settings();
+        return ApplicationSettings();
 
-    Settings settings;
+    ApplicationSettings settings;
     settings._port = settingsJson.value("port", DEFAULT_SERVICE_PORT);
     settings._dbPath = settingsJson.value("dbPath", "");
     settings._certificatePath = settingsJson.value("certificatePath", "");

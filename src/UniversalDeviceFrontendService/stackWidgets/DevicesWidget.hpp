@@ -6,16 +6,16 @@
 #include <Wt/WContainerWidget.h>
 #include <Wt/WHBoxLayout.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseStackWidget.hpp"
 #include "ExtendedComponentDescription.hpp"
 #include "Scenario.hpp"
-#include "Settings.hpp"
 
 class DeviceButton;
 
 class DevicesWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
-    DevicesWidget(IStackHolder* stackHolder, const Settings& settings);
+    DevicesWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~DevicesWidget() = default;
 

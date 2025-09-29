@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
 #include "ExtendedRelayCurrentState.hpp"
 #include "RelayChartModel.hpp"
@@ -7,7 +8,7 @@
 
 class RelayWidget final : public BaseDeviceWidget {
 public:
-    RelayWidget(IStackHolder* stackHolder, const Settings& settings);
+    RelayWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~RelayWidget() = default;
 
