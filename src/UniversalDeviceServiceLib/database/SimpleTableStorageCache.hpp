@@ -171,8 +171,4 @@ private:
     std::map<Uuid, T> _dataCache;
 };
 
-IStorageCache* GetSettingsCache(IQueryExecutor* queryExecutor);
-
-IStorageCache* GetCommandsCache(IQueryExecutor* queryExecutor);
-
 IStorageCache* GetScenariosCache(IQueryExecutor* queryExecutor);

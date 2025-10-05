@@ -16,5 +16,5 @@ private:
     void TimerFunction();
 
 private:
-    friend class BaseServiceExtension;
+    friend class ServiceExtension;
 };

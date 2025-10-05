@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "BaseProcessorWithQueryExecutor.hpp"
+#include "CommandsController.hpp"
 #include "CurrentTime.hpp"
 #include "RelayEvent.hpp"
 #include "SunriseEvent.hpp"
@@ -13,7 +14,7 @@
 
 class EventsProcessor final : public BaseProcessorWithQueryExecutor {
 public:
-    EventsProcessor(IQueryExecutor* queryExecutor);
+    EventsProcessor(IQueryExecutor* queryExecutor, CommandsController& commandsController);
 
     virtual ~EventsProcessor() = default;
 
@@ -49,4 +50,6 @@ private:
 
 private:
     static EventsProcessor::SunriseSunsetTime currentSunriseSunsetTime;
+
+    CommandsController& _commandsController;
 };

@@ -6,7 +6,6 @@
 #include <string_view>
 #include <variant>
 
-#include <boost/hof.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
@@ -14,6 +13,7 @@
 #include "Base64Helper.hpp"
 #include "ComponentDescription.hpp"
 #include "CurrentTime.hpp"
+#include "Device.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "DeviceProperty.hpp"
 #include "Enums.hpp"
@@ -41,6 +41,7 @@
 #include "ThermometerEvent.hpp"
 #include "ThermometerLedBrightness.hpp"
 #include "ThermostatEvent.hpp"
+#include "TimeHelper.hpp"
 #include "TimerEvent.hpp"
 #include "Types.hpp"
 #include "UniversalData.hpp"
@@ -357,6 +358,24 @@ void from_json(const nlohmann::json& json, CurrentTime& currentTime) {
     currentTime._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
+void to_json(nlohmann::json& json, const Device& device) {
+    json = nlohmann::json{
+        { "id", device._id.data() },
+        { "type", device._type },
+        { "name", device._name },
+        { "grp", device._group },
+        { "timestamp", TimeHelper::TimeToInt(device._timestamp) },
+    };
+}
+
+void from_json(const nlohmann::json& json, Device& device) {
+    device._id = json["id"].get<Uuid>();
+    device._type = json["type"].get<DeviceType>();
+    device._name = json["name"].get<std::string>();
+    device._group = json["grp"].get<std::string>();
+    device._timestamp = TimeHelper::TimeFromInt(json["timestamp"].get<int64_t>());
+}
+
 void to_json(nlohmann::json& json, const DeviceInformationDescription& deviceInformationDescription) {
     json = (const ComponentDescription&)deviceInformationDescription;
     json += { "seconds", deviceInformationDescription._seconds };
@@ -525,30 +544,16 @@ void to_json(nlohmann::json& json, const RelayCurrentState& relayCurrentState) {
 }
 
 void to_json(nlohmann::json& json, const Settings& settings) {
-    std::visit(boost::hof::match(
-                   [&json](const PeriodSettings& value) -> void {
-                       json = nlohmann::json{
-                           { "type", "period" },
-                           { "settings", value },
-                       };
-                   },
-                   [&json](const MotionRelaySettings& value) -> void {
-                       json = nlohmann::json{
-                           { "type", "motionRelay" },
-                           { "settings", value },
-                       };
-                   }),
-               settings);
+    std::visit([&json](const auto& value) -> void { json = static_cast<nlohmann::json>(value); }, settings);
 }
 
 void from_json(const nlohmann::json& json, Settings& settings) {
-    const std::string_view type = json["type"].get<std::string_view>();
-    if (type == "period")
-        settings = json["settings"].get<PeriodSettings>();
-    else if (type == "motionRelay")
-        settings = json["settings"].get<MotionRelaySettings>();
+    if (json.find("activityTime") != json.end())
+        settings = json.get<MotionRelaySettings>();
+    else if (json.find("period") != json.end())
+        settings = json.get<PeriodSettings>();
     else
-        LOG_ERROR_MSG(fmt::format("Invalid Settings type: {}", type));
+        LOG_ERROR_MSG(fmt::format("Invalid Settings: {}", json.dump()));
 }
 
 void from_json(const nlohmann::json& json, RelayCurrentState& relayCurrentState) {
@@ -600,30 +605,16 @@ void from_json(const nlohmann::json& json, ThermometerLedBrightness& thermometer
 }
 
 void to_json(nlohmann::json& json, const Command& command) {
-    std::visit(boost::hof::match(
-                   [&json](const RelayState& value) -> void {
-                       json = nlohmann::json{
-                           { "type", "relayState" },
-                           { "command", value },
-                       };
-                   },
-                   [&json](const ThermometerLedBrightness& value) -> void {
-                       json = nlohmann::json{
-                           { "type", "brightness" },
-                           { "command", value },
-                       };
-                   }),
-               command);
+    std::visit([&json](const auto& value) -> void { json = static_cast<nlohmann::json>(value); }, command);
 }
 
 void from_json(const nlohmann::json& json, Command& command) {
-    const std::string_view type = json["type"].get<std::string_view>();
-    if (type == "relayState")
-        command = json["command"].get<RelayState>();
-    else if (type == "brightness")
-        command = json["command"].get<ThermometerLedBrightness>();
+    if (json.find("state") != json.end())
+        command = json.get<RelayState>();
+    else if (json.find("brightness") != json.end())
+        command = json.get<ThermometerLedBrightness>();
     else
-        LOG_ERROR_MSG(fmt::format("Invalid Command type: {}", type));
+        LOG_ERROR_MSG(fmt::format("Invalid Command: {}", json.dump()));
 }
 
 void to_json(nlohmann::json& json, const ThermometerCurrentValue& thermometerCurrentValue) {

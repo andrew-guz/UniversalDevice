@@ -1,17 +1,15 @@
 #pragma once
 
-#include "BaseService.hpp"
+#include <crow.h>
+
 #include "CommandsController.hpp"
+#include "Middleware.hpp"
 
-class CommandsService final : public BaseService {
-protected:
-    CommandsService(IQueryExecutor* queryExecutor, CommandsController& controller);
-
+class CommandsService final {
 public:
-    virtual ~CommandsService() = default;
+    CommandsService(CrowApp& app, CommandsController& controller);
 
-protected:
-    virtual void Initialize(CrowApp& app) override;
+    virtual ~CommandsService() = default;
 
 private:
     crow::response GetCommands(const std::string& idString) const;

@@ -1,11 +1,19 @@
 #include "WebsocketProcessor.hpp"
 
+#include <optional>
+
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
-#include "SimpleTableStorageCache.hpp"
+#include "Command.hpp"
+#include "Marshaling.hpp"
 
-WebSocketProcessor::WebSocketProcessor(IQueryExecutor* queryExecutor) :
-    BaseProcessorWithQueryExecutor(queryExecutor) {}
+WebSocketProcessor::WebSocketProcessor(IQueryExecutor* queryExecutor,
+                                       SettingsController& settingsController,
+                                       CommandsController& commandsController) :
+    BaseProcessorWithQueryExecutor(queryExecutor),
+    _settingsController(settingsController),
+    _commandsController(commandsController) {}
 
 nlohmann::json WebSocketProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     try {
@@ -36,56 +44,18 @@ nlohmann::json WebSocketProcessor::ProcessMessage(const std::chrono::system_cloc
 
 nlohmann::json WebSocketProcessor::ProcessWebSocketGetSettingsMessage(const std::chrono::system_clock::time_point& timestamp,
                                                                       const Message& message) {
-    auto storageCache = GetSettingsCache(_queryExecutor);
-    SimpleTableSelectInput what{
-        ._id = message._header._description._id,
-    };
-    SimpleTableSelectOutput<std::string> result;
-    auto problem = storageCache->Select(what, result);
-    switch (problem._type) {
-        case StorageCacheProblemType::NoProblems:
-            return nlohmann::json::parse(result._data);
-            break;
-        case StorageCacheProblemType::Empty:
-            LOG_INFO_MSG(fmt::format("Empty settings for device {}", what._id.data()));
-            break;
-        case StorageCacheProblemType::NotExists:
-            LOG_DEBUG_MSG(fmt::format("No settings for device {}", what._id.data()));
-            break;
-        case StorageCacheProblemType::TooMany:
-            LOG_ERROR_MSG(fmt::format("Too many settings for device {}", what._id.data()));
-            break;
-        case StorageCacheProblemType::SQLError:
-            LOG_SQL_ERROR(problem._message);
-            break;
-    }
+    const std::optional<Settings> settings = _settingsController.Get(message._header._description._id);
+    if (settings.has_value())
+        return static_cast<nlohmann::json>(settings.value());
+
     return {};
 }
 
 nlohmann::json WebSocketProcessor::ProcessWebSocketGetCommandsMessage(const std::chrono::system_clock::time_point& timestamp,
                                                                       const Message& message) {
-    auto storageCache = GetCommandsCache(_queryExecutor);
-    SimpleTableSelectInput what{
-        ._id = message._header._description._id,
-    };
-    SimpleTableSelectOutput<std::string> result;
-    auto problem = storageCache->Select(what, result);
-    switch (problem._type) {
-        case StorageCacheProblemType::NoProblems:
-            return nlohmann::json::parse(result._data);
-            break;
-        case StorageCacheProblemType::Empty:
-            LOG_INFO_MSG(fmt::format("Empty commands for device {}", what._id.data()));
-            break;
-        case StorageCacheProblemType::NotExists:
-            LOG_DEBUG_MSG(fmt::format("No commands for device {}", what._id.data()));
-            break;
-        case StorageCacheProblemType::TooMany:
-            LOG_ERROR_MSG(fmt::format("Too many commands for device {}", what._id.data()));
-            break;
-        case StorageCacheProblemType::SQLError:
-            LOG_SQL_ERROR(problem._message);
-            break;
-    }
+    const std::optional<Command> command = _commandsController.Get(message._header._description._id);
+    if (command.has_value())
+        return static_cast<nlohmann::json>(command.value());
+
     return {};
 }

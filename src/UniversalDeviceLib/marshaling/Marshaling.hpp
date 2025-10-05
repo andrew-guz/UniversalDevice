@@ -12,6 +12,7 @@ class Uuid;
 struct Account;
 struct ComponentDescription;
 struct CurrentTime;
+struct Device;
 struct DeviceInformationDescription;
 struct DeviceProperty;
 struct Event;
@@ -118,6 +119,10 @@ void from_json(const nlohmann::json& json, ComponentDescription& componentDescri
 void to_json(nlohmann::json& json, const CurrentTime& currentTime);
 
 void from_json(const nlohmann::json& json, CurrentTime& currentTime);
+
+void to_json(nlohmann::json& json, const Device& device);
+
+void from_json(const nlohmann::json& json, Device& device);
 
 void to_json(nlohmann::json& json, const DeviceInformationDescription& deviceInformationDescription);
 

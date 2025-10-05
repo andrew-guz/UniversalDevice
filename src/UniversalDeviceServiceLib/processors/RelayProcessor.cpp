@@ -2,6 +2,7 @@
 
 #include <fmt/format.h>
 
+#include "DbExtension.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "ExtendedRelayCurrentState.hpp"
 #include "Logger.hpp"

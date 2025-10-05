@@ -1,43 +1,36 @@
 #include "DevicesService.hpp"
 
+#include <optional>
+
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
-#include "DbExtension.hpp"
+#include "BaseService.hpp"
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
-#include "ExtendedComponentDescription.hpp"
 #include "Logger.hpp"
-#include "SettingsController.hpp"
-#include "SimpleTableStorageCache.hpp"
-#include "StorageCacheSharedData.hpp"
 #include "Uuid.hpp"
 #include "WebsocketsCache.hpp"
 
-DevicesService::DevicesService(IQueryExecutor* queryExecutor, SettingsController& settingsController) :
+DevicesService::DevicesService(IQueryExecutor* queryExecutor, DevicesController& devicesController) :
     BaseService(queryExecutor),
-    _settingsController(settingsController) {}
+    _devicesController(devicesController) {}
 
 void DevicesService::Initialize(CrowApp& app) {
-    CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DevicesService::ListDevices));
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DevicesService::GetDeviceName));
-    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::SetDeviceName));
-    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &DevicesService::GetDeviceGroup));
-    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::SetDeviceGroup));
-    CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::GetDeviceInfo));
-    CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &DevicesService::DeleteDevice));
-    CROW_ROUTE(app, API_CLIENT_RESTART_DEVICE).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &DevicesService::RestartDevice));
+    CROW_ROUTE(app, API_CLIENT_DEVICES).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &DevicesService::ListDevices));
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &DevicesService::GetDeviceName));
+    CROW_ROUTE(app, API_CLIENT_DEVICE_NAME).methods(crow::HTTPMethod::POST)(ServiceExtension::bind(this, &DevicesService::SetDeviceName));
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &DevicesService::GetDeviceGroup));
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GROUP).methods(crow::HTTPMethod::POST)(ServiceExtension::bind(this, &DevicesService::SetDeviceGroup));
+    CROW_ROUTE(app, API_CLIENT_DEVICE_GET_INFO).methods(crow::HTTPMethod::POST)(ServiceExtension::bind(this, &DevicesService::GetDeviceInfo));
+    CROW_ROUTE(app, API_DEVICE).methods(crow::HTTPMethod::DELETE)(ServiceExtension::bind(this, &DevicesService::DeleteDevice));
+    CROW_ROUTE(app, API_CLIENT_RESTART_DEVICE).methods(crow::HTTPMethod::POST)(ServiceExtension::bind(this, &DevicesService::RestartDevice));
 }
 
 crow::response DevicesService::ListDevices() const {
     nlohmann::json result;
     try {
-        std::vector<std::vector<std::string>> data;
-        static const std::string query = "SELECT * FROM Devices";
-        if (_queryExecutor->Select(query, data))
-            result = DbExtension::CreateVectorFromDbStrings<ExtendedComponentDescription>(data);
-        else
-            LOG_SQL_ERROR(query);
+        result = _devicesController.List();
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::ListDevices");
         return crow::response(crow::BAD_REQUEST);
@@ -45,108 +38,91 @@ crow::response DevicesService::ListDevices() const {
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response DevicesService::GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) const {
-    nlohmann::json result;
-    try {
-        const std::string query = fmt::format("SELECT {} FROM Devices WHERE id = '{}'", field, idString);
-        std::vector<std::vector<std::string>> data;
-        if (_queryExecutor->Select(query, data)) {
-            if (data.size() == 1) {
-                DeviceProperty deviceProperty;
-                deviceProperty._value = data[0][1];
-                result = deviceProperty;
-            } else {
-                if (data.size() == 0)
-                    LOG_ERROR_MSG(fmt::format("No devices with id {}", idString));
-                else
-                    LOG_ERROR_MSG(fmt::format("Too many devices with same id {}", idString));
-            }
-        } else
-            LOG_SQL_ERROR(query);
-    } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::GetDeviceProperty");
-        return crow::response(crow::BAD_REQUEST);
+crow::response DevicesService::GetDeviceName(const std::string& idString) const {
+    std::optional<Device> device = _devicesController.Get(Uuid{ idString });
+    if (device.has_value()) {
+        const nlohmann::json result = DeviceProperty{ device->_name };
+        return crow::response(crow::OK, result.dump());
     }
-    return crow::response(crow::OK, result.dump());
+
+    LOG_ERROR_MSG("Something went wrong in ClientService::GetDeviceName");
+
+    return crow::response(crow::BAD_REQUEST);
 }
 
-crow::response DevicesService::GetDeviceName(const crow::request& request, const std::string& idString) const {
-    return GetDeviceProperty(request, idString, "name");
-}
-
-crow::response DevicesService::GetDeviceGroup(const crow::request& request, const std::string& idString) const {
-    return GetDeviceProperty(request, idString, "grp");
-}
-
-crow::response
-DevicesService::SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty) {
-    try {
-        auto bodyJson = nlohmann::json::parse(request.body);
-        auto deviceProperty = bodyJson.get<DeviceProperty>();
-        if (canBeEmpty || !deviceProperty._value.empty()) {
-            const std::string query = fmt::format("UPDATE Devices SET {} = '{}' WHERE id = '{}'", field, deviceProperty._value, idString);
-            if (_queryExecutor->Execute(query))
-                return crow::response(crow::OK);
-            else
-                LOG_SQL_ERROR(query);
-        } else
-            LOG_ERROR_MSG(fmt::format("Invalid device {} {}", field, request.body));
-    } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::SetDeviceProperty");
-        return crow::response(crow::BAD_REQUEST);
+crow::response DevicesService::GetDeviceGroup(const std::string& idString) const {
+    std::optional<Device> device = _devicesController.Get(Uuid{ idString });
+    if (device.has_value()) {
+        const nlohmann::json result = DeviceProperty{ device->_group };
+        return crow::response(crow::OK, result.dump());
     }
+
+    LOG_ERROR_MSG("Something went wrong in ClientService::GetDeviceGroup");
+
     return crow::response(crow::BAD_REQUEST);
 }
 
 crow::response DevicesService::SetDeviceName(const crow::request& request, const std::string& idString) {
-    return SetDeviceProperty(request, idString, "name", false);
+    try {
+        auto bodyJson = nlohmann::json::parse(request.body);
+        auto deviceProperty = bodyJson.get<DeviceProperty>();
+        if (deviceProperty._value.size()) {
+            if (_devicesController.UpdateDeviceName(Uuid{ idString }, deviceProperty._value))
+                return crow::response(crow::OK);
+            else
+                LOG_ERROR_MSG(fmt::format("Failed to update device {} name {}", idString, request.body));
+        } else
+            LOG_ERROR_MSG(fmt::format("Invalid device name {}", request.body));
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::SetDeviceProperty");
+    }
+
+    return crow::response(crow::BAD_REQUEST);
 }
 
 crow::response DevicesService::SetDeviceGroup(const crow::request& request, const std::string& idString) {
-    return SetDeviceProperty(request, idString, "grp", true);
+    try {
+        auto bodyJson = nlohmann::json::parse(request.body);
+        auto deviceProperty = bodyJson.get<DeviceProperty>();
+        if (_devicesController.UpdateDeviceGroup(Uuid{ idString }, deviceProperty._value))
+            return crow::response(crow::OK);
+        else
+            LOG_ERROR_MSG(fmt::format("Failed to update device {} group {}", idString, request.body));
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::SetDeviceGroup");
+    }
+
+    return crow::response(crow::BAD_REQUEST);
 }
 
 crow::response DevicesService::GetDeviceInfo(const crow::request& request) {
-
     nlohmann::json result;
+
     try {
         auto timestamp = std::chrono::system_clock::now();
-        auto message = BaseServiceExtension::GetMessageFromRequest(request);
+        auto message = ServiceExtension::GetMessageFromRequest(request);
         result = CallProcessorsJsonResult(timestamp, message);
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::GetDeviceInfo");
     }
+
     return crow::response(crow::OK, result.dump());
 }
 
 crow::response DevicesService::DeleteDevice(const std::string& idString) {
     try {
-        // delete device from all tables
-        for (const auto& table : _queryExecutor->GetDeviceRelatedTables()) {
-            const std::string query = fmt::format("DELETE FROM {} WHERE id = '{}'", table, idString);
-            if (!_queryExecutor->Delete(query)) {
-                LOG_ERROR_MSG(fmt::format("Failed to delete device {} from {}", idString, table));
-                return crow::response(crow::BAD_REQUEST);
-            }
+        if (_devicesController.Remove(Uuid{ idString })) {
+            // TODO: Clean event table. Right now deleted id is not a column of event table...
+            return crow::response{ crow::OK };
         }
-        const Uuid id{ idString };
-        _settingsController.Remove(id);
-        {
-            SimpleTableDeleteInput what{
-                ._id = Uuid{ idString },
-            };
-            if (GetCommandsCache(_queryExecutor)->Delete(what)._type != StorageCacheProblemType::NoProblems) {
-                LOG_ERROR_MSG(fmt::format("Failed to delete device {} from Commands", idString));
-                return crow::response(crow::BAD_REQUEST);
-            }
-        }
-        // TODO: Clean event table. Right now deleted id is not a column of event table...
-        return crow::response{
-            crow::OK,
-        };
+
+        LOG_ERROR_MSG(fmt::format("Failed to delete device {}", idString));
+
+        return crow::response(crow::BAD_REQUEST);
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in DeviceService::DeleteDevice");
     }
+
     return crow::response(crow::BAD_REQUEST);
 }
 
@@ -160,6 +136,8 @@ crow::response DevicesService::RestartDevice(const std::string& idString) {
                                   .dump());
         return crow::response(crow::OK);
     }
+
     LOG_ERROR_MSG(fmt::format("Failed to restart device {} - not connected", idString));
+
     return crow::response(crow::BAD_REQUEST);
 }

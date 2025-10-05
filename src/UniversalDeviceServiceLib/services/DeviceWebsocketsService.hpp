@@ -20,5 +20,5 @@ private:
     void OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason, uint16_t code);
 
 private:
-    friend class BaseServiceExtension;
+    friend class ServiceExtension;
 };

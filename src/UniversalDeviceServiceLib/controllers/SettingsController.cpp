@@ -14,11 +14,6 @@
 #include "Settings.hpp"
 #include "Uuid.hpp"
 
-namespace {
-    constexpr std::string TableName = "Settings";
-    constexpr std::string ColumnName = "settings";
-} // namespace
-
 SettingsController::SettingsController(IQueryExecutor* queryExecutor) :
     Controller(queryExecutor) {}
 
@@ -30,7 +25,7 @@ std::optional<Settings> SettingsController::Get(const Uuid& id) const {
         return cacheResult;
 
     // Maybe not in cache but in database - we should check
-    const std::string query = fmt::format("SELECT {} FROM {} WHERE id = 'id'", ColumnName, TableName, id.data());
+    const std::string query = fmt::format("SELECT settings FROM Settings WHERE id = '{}'", id.data());
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(query, data)) {
         if (data.size() == 0)
@@ -54,8 +49,8 @@ std::optional<Settings> SettingsController::Get(const Uuid& id) const {
 bool SettingsController::AddOrUpdate(const Uuid& id, const Settings& settings) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
-    const std::string query = fmt::format(
-        "INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')", TableName, ColumnName, id.data(), static_cast<nlohmann::json>(settings).dump());
+    const std::string query =
+        fmt::format("INSERT OR REPLACE INTO Settings (id, settings) VALUES ('{}', '{}')", id.data(), static_cast<nlohmann::json>(settings).dump());
 
     if (_queryExecutor->Execute(query)) {
         _cache.AddOrUpdate(id, settings);
@@ -70,7 +65,7 @@ bool SettingsController::AddOrUpdate(const Uuid& id, const Settings& settings) {
 bool SettingsController::Remove(const Uuid& id) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
-    const std::string query = fmt::format("DELETE FROM {} WHERE id='{}'", TableName, id.data());
+    const std::string query = fmt::format("DELETE FROM Settings WHERE id='{}'", id.data());
     if (_queryExecutor->Execute(query)) {
         _cache.Remove(id);
         return true;

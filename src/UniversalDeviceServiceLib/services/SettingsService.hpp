@@ -1,16 +1,15 @@
 #pragma once
 
-#include "BaseService.hpp"
+#include <crow.h>
+
+#include "Middleware.hpp"
 #include "SettingsController.hpp"
 
-class SettingsService final : public BaseService {
+class SettingsService final {
 public:
-    SettingsService(IQueryExecutor* queryExecutor, SettingsController& controller);
+    SettingsService(CrowApp& app, SettingsController& controller);
 
-    virtual ~SettingsService() = default;
-
-protected:
-    virtual void Initialize(CrowApp& app) override;
+    ~SettingsService() = default;
 
 private:
     crow::response GetSettings(const std::string& idString) const;

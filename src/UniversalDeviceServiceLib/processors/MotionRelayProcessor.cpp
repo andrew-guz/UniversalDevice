@@ -2,6 +2,7 @@
 
 #include <fmt/format.h>
 
+#include "DbExtension.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "Enums.hpp"
 #include "ExtendedMotionRelayCurrentState.hpp"

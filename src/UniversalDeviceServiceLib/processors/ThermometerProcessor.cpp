@@ -1,16 +1,22 @@
 #include "ThermometerProcessor.hpp"
 
+#include <optional>
+
 #include <fmt/format.h>
 
+#include "DbExtension.hpp"
+#include "Device.hpp"
 #include "DeviceInformationDescription.hpp"
+#include "DevicesController.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "ThermometerCurrentValue.hpp"
 #include "TimeHelper.hpp"
 
-ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor) :
-    BaseProcessorWithQueryExecutor(queryExecutor) {}
+ThermometerProcessor::ThermometerProcessor(IQueryExecutor* queryExecutor, DevicesController& devicesController) :
+    BaseProcessorWithQueryExecutor(queryExecutor),
+    _devicesController(devicesController) {}
 
 nlohmann::json ThermometerProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     switch (message._header._subject) {
@@ -41,25 +47,15 @@ nlohmann::json ThermometerProcessor::ProcessThermometerCurrentValueMessage(const
         LOG_ERROR_MSG("ThermometerProcessor - invalid message");
         return {};
     }
+
     auto& description = message._header._description;
     if (std::abs(currentValue._value - ThermometerCurrentValue::InvalidTemperature) < 0.1f) {
-        std::string deviceName = "Unknown";
-
-        const std::string selectQuery = fmt::format("SELECT name, grp FROM Devices WHERE id = '{}'", description._id.data());
-        std::vector<std::vector<std::string>> data;
-        if (_queryExecutor->Select(selectQuery, data)) {
-            if (data.size()) {
-                std::optional<std::string> name = DbExtension::FindValueByName<std::string>(data[0], "name");
-                std::optional<std::string> grp = DbExtension::FindValueByName<std::string>(data[0], "grp");
-                if (name.has_value() && grp.has_value())
-                    deviceName = fmt::format("{} ({})", std::move(name.value()), std::move(grp.value()));
-            }
-        } else
-            LOG_SQL_ERROR(selectQuery);
-
+        const std::optional<Device> device = _devicesController.Get(description._id);
+        const std::string deviceName = device.has_value() ? fmt::format("{} ({})", device->_name, device->_group) : "Unknown";
         LOG_INFO_MSG(fmt::format("-127.0 found - no sensor connected to '{}' ({})", deviceName, description._id.data()));
         return {};
     }
+
     const std::string query = fmt::format("INSERT INTO Thermometers (id, timestamp, value) VALUES ('{}', {}, '{}')",
                                           description._id.data(),
                                           TimeHelper::TimeToInt(timestamp),
@@ -68,6 +64,7 @@ nlohmann::json ThermometerProcessor::ProcessThermometerCurrentValueMessage(const
         LOG_SQL_ERROR(query);
         return {};
     }
+
     return nlohmann::json{
         { "acknowledge", message._header._id },
     };

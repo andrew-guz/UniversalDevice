@@ -19,12 +19,33 @@ protected:
 public:
     virtual ~BaseService() = default;
 
-protected:
     virtual void Initialize(CrowApp& app) = 0;
 
+protected:
     void CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
 
     nlohmann::json CallProcessorsJsonResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
+
+protected:
+    IQueryExecutor* _queryExecutor = nullptr;
+};
+
+class ServiceExtension final {
+public:
+    ServiceExtension() = delete;
+
+    ~ServiceExtension() = default;
+
+    template<typename ServiceType>
+    static ServiceType* Create(CrowApp& app, IQueryExecutor* queryExecutor) {
+        auto service = new ServiceType(queryExecutor);
+        service->Initialize(app);
+        return service;
+    }
+
+    static Message GetMessageFromRequest(const crow::request& request);
+
+    static Message GetMessageFromWebSocketData(const std::string& data);
 
     template<typename ServiceType, typename... Args>
     static auto bind(ServiceType* service, crow::response (ServiceType::*func)(Args...)) {
@@ -84,25 +105,4 @@ protected:
             return crow::response(crow::BAD_REQUEST);
         };
     }
-
-protected:
-    IQueryExecutor* _queryExecutor = nullptr;
-};
-
-class BaseServiceExtension final {
-public:
-    BaseServiceExtension() = delete;
-
-    ~BaseServiceExtension() = default;
-
-    template<typename ServiceType>
-    static ServiceType* Create(CrowApp& app, IQueryExecutor* queryExecutor) {
-        auto service = new ServiceType(queryExecutor);
-        service->Initialize(app);
-        return service;
-    }
-
-    static Message GetMessageFromRequest(const crow::request& request);
-
-    static Message GetMessageFromWebSocketData(const std::string& data);
 };

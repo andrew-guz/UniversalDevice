@@ -24,5 +24,5 @@ private:
     crow::response ActivateScenario(const std::string& scenarioId);
 
 private:
-    friend class BaseServiceExtension;
+    friend class ServiceExtension;
 };

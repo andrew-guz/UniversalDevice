@@ -21,5 +21,5 @@ protected:
 private:
     CrowApp* _application = nullptr;
 
-    friend class BaseServiceExtension;
+    friend class ServiceExtension;
 };

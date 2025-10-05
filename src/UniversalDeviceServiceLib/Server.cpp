@@ -6,9 +6,7 @@
 #include "AccountManagerInitializer.hpp"
 #include "ApplicationSettings.hpp"
 #include "BackendLogsService.hpp"
-#include "CommandsService.hpp"
 #include "DeviceWebsocketsService.hpp"
-#include "DevicesService.hpp"
 #include "EventsService.hpp"
 #include "Logger.hpp"
 #include "MainService.hpp"
@@ -16,7 +14,6 @@
 #include "PathHelper.hpp"
 #include "Platform.hpp"
 #include "ScenariosService.hpp"
-#include "SettingsService.hpp"
 #include "Storage.hpp"
 #include "TimerService.hpp"
 
@@ -36,14 +33,14 @@ int Server::run() {
 
         CrowApp app;
 
-        Platform platform{ app, &storage };
+        Platform::Init(app, &storage);
 
-        BaseServiceExtension::Create<MainService>(app, &storage);
-        BaseServiceExtension::Create<EventsService>(app, &storage);
-        BaseServiceExtension::Create<ScenariosService>(app, &storage);
-        BaseServiceExtension::Create<BackendLogsService>(app, &storage);
-        BaseServiceExtension::Create<DeviceWebsocketsService>(app, &storage);
-        BaseServiceExtension::Create<TimerService>(app, &storage);
+        ServiceExtension::Create<MainService>(app, &storage);
+        ServiceExtension::Create<EventsService>(app, &storage);
+        ServiceExtension::Create<ScenariosService>(app, &storage);
+        ServiceExtension::Create<BackendLogsService>(app, &storage);
+        ServiceExtension::Create<DeviceWebsocketsService>(app, &storage);
+        ServiceExtension::Create<TimerService>(app, &storage);
 
         app.ssl_file(PathHelper::FullFilePath(settings._certificatePath).native(), PathHelper::FullFilePath(settings._keyPath).native())
             .port(settings._port)

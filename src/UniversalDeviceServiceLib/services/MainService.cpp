@@ -2,6 +2,7 @@
 
 #include <fmt/format.h>
 
+#include "BaseService.hpp"
 #include "Defines.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
@@ -12,9 +13,9 @@ MainService::MainService(IQueryExecutor* queryExecutor) :
 
 void MainService::Initialize(CrowApp& app) {
     _application = &app;
-    CROW_ROUTE(app, API_VERSION).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &MainService::GetVersion));
-    CROW_ROUTE(app, API_LOG_LEVEL).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &MainService::SetLogLevel));
-    CROW_ROUTE(app, API_QUIT).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &MainService::Quit));
+    CROW_ROUTE(app, API_VERSION).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &MainService::GetVersion));
+    CROW_ROUTE(app, API_LOG_LEVEL).methods(crow::HTTPMethod::POST)(ServiceExtension::bind(this, &MainService::SetLogLevel));
+    CROW_ROUTE(app, API_QUIT).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &MainService::Quit));
 }
 
 crow::response MainService::GetVersion() const {

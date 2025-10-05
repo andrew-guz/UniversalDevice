@@ -30,7 +30,7 @@ void DeviceWebsocketsService::OnWebSocketMessage(crow::websocket::connection& co
         return;
     try {
         auto timestamp = std::chrono::system_clock::now();
-        auto message = BaseServiceExtension::GetMessageFromWebSocketData(data);
+        auto message = ServiceExtension::GetMessageFromWebSocketData(data);
         if (message._header._subject == Subject::WebSocketAuthorization) {
             auto webSocketAuthentication = message._data.get<WebSocketAuthentication>();
             if (AccountManager::Instance()->IsValidUser(webSocketAuthentication._authString))

@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
+#include "DbExtension.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "ExtendedUniversalDeviceCurrentValues.hpp"
 #include "Logger.hpp"

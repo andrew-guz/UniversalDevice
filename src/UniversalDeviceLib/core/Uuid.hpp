@@ -39,6 +39,6 @@ private:
 namespace std {
     template<>
     struct hash<Uuid> {
-        std::size_t operator()(const Uuid& uuid) const; //{ return hash<std::string>{}(uuid.data()); }
+        std::size_t operator()(const Uuid& uuid) const;
     };
 } // namespace std

@@ -6,6 +6,7 @@
 #include <string_view>
 #include <vector>
 
+#include "DatabaseMarshaling.hpp"
 #include "Types.hpp"
 #include "Uuid.hpp"
 
@@ -18,7 +19,7 @@ public:
     template<typename T>
     static T CreateFromDbStrings(const std::vector<std::string>& dbStrings) {
         T t;
-        t.FromDbStrings(dbStrings);
+        FromDbStrings<T>(dbStrings, t);
         return t;
     }
 

@@ -1,5 +1,6 @@
 #include "EventsService.hpp"
 
+#include "BaseService.hpp"
 #include "Event.hpp"
 #include "EventTableStorageCache.hpp"
 #include "Marshaling.hpp"
@@ -8,10 +9,11 @@ EventsService::EventsService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor) {}
 
 void EventsService::Initialize(CrowApp& app) {
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &EventsService::GetEvents));
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &EventsService::AddEvent, "AddEvent"));
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &EventsService::UpdateEvent, "UpdateEvent"));
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)(BaseService::bindObject(this, &EventsService::DeleteEvent, "DeleteEvent"));
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &EventsService::GetEvents));
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)(ServiceExtension::bindObject(this, &EventsService::AddEvent, "AddEvent"));
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)(ServiceExtension::bindObject(this, &EventsService::UpdateEvent, "UpdateEvent"));
+    CROW_ROUTE(app, API_CLIENT_EVENTS)
+        .methods(crow::HTTPMethod::DELETE)(ServiceExtension::bindObject(this, &EventsService::DeleteEvent, "DeleteEvent"));
 }
 
 crow::response EventsService::GetEvents() const {

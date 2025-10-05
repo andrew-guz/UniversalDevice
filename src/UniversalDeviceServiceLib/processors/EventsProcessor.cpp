@@ -1,11 +1,13 @@
 #include "EventsProcessor.hpp"
 
 #include <cmath>
+#include <optional>
 #include <sunset.h>
 
 #include <fmt/format.h>
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
 
+#include "Command.hpp"
 #include "CurrentTime.hpp"
 #include "Enums.hpp"
 #include "EventTableStorageCache.hpp"
@@ -22,8 +24,9 @@
 
 EventsProcessor::SunriseSunsetTime EventsProcessor::currentSunriseSunsetTime;
 
-EventsProcessor::EventsProcessor(IQueryExecutor* queryExecutor) :
-    BaseProcessorWithQueryExecutor(queryExecutor) {}
+EventsProcessor::EventsProcessor(IQueryExecutor* queryExecutor, CommandsController& commandsController) :
+    BaseProcessorWithQueryExecutor(queryExecutor),
+    _commandsController(commandsController) {}
 
 nlohmann::json EventsProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     // load all events
@@ -199,56 +202,18 @@ void EventsProcessor::ProcessSunsetEvent(const SunsetEvent& sunsetEvent, const M
 
 void EventsProcessor::SendCommand(const Uuid& id, const std::string& commandString, const std::string& logMessage) {
     try {
-        auto storageCache = GetCommandsCache(_queryExecutor);
+        const std::optional<Command> existingCommand = _commandsController.Get(id);
+        const Command newCommand = nlohmann::json::parse(commandString).get<Command>();
 
-        {
-            // check if command is the same - do nothing
-            SimpleTableSelectInput what{
-                ._id = id,
-            };
-            SimpleTableSelectOutput<std::string> result;
-            auto problem = storageCache->Select(what, result);
-            switch (problem._type) {
-                case StorageCacheProblemType::NoProblems:
-                    if (result._data == commandString) {
-                        return;
-                    }
-                    break;
-                case StorageCacheProblemType::Empty:
-                    break;
-                case StorageCacheProblemType::NotExists:
-                    break;
-                case StorageCacheProblemType::TooMany:
-                    break;
-                case StorageCacheProblemType::SQLError:
-                    LOG_SQL_ERROR(problem._message);
-                    break;
+        if (existingCommand.has_value() && existingCommand.value() == newCommand)
+            return;
+
+        if (_commandsController.AddOrUpdate(id, newCommand)) {
+            auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(id);
+            if (connection) {
+                connection->send_text(commandString);
+                LOG_INFO_MSG(logMessage);
             }
-        }
-
-        SimpleTableInsertOrReplaceInput what{
-            ._id = id,
-            ._data = commandString,
-        };
-        auto problem = storageCache->InsertOrReplace(what);
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems: {
-                auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(id);
-                if (connection) {
-                    connection->send_text(commandString);
-                    LOG_INFO_MSG(logMessage);
-                }
-            } break;
-            case StorageCacheProblemType::Empty:
-                LOG_ERROR_MSG(fmt::format("Invalid command {}", commandString));
-                break;
-            case StorageCacheProblemType::NotExists:
-                break;
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
         }
     } catch (...) {
         LOG_ERROR_MSG("EventsProcessor::SendCommand");

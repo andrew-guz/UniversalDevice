@@ -1,5 +1,6 @@
 #include "ScenariosService.hpp"
 
+#include "BaseService.hpp"
 #include "Marshaling.hpp"
 #include "Scenario.hpp"
 #include "ScenarioUtils.hpp"
@@ -9,13 +10,13 @@ ScenariosService::ScenariosService(IQueryExecutor* queryExecutor) :
     BaseService(queryExecutor) {}
 
 void ScenariosService::Initialize(CrowApp& app) {
-    CROW_ROUTE(app, API_CLIENT_SCENARIOS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ScenariosService::GetScenarios));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &ScenariosService::GetScenarios));
     CROW_ROUTE(app, API_CLIENT_SCENARIOS)
-        .methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &ScenariosService::AddScenario, "AddScenario"));
+        .methods(crow::HTTPMethod::POST)(ServiceExtension::bindObject(this, &ScenariosService::AddScenario, "AddScenario"));
     CROW_ROUTE(app, API_CLIENT_SCENARIOS)
-        .methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ScenariosService::UpdateScenario, "UpdateScenario"));
-    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &ScenariosService::DeleteScenario));
-    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::PATCH)(BaseService::bind(this, &ScenariosService::ActivateScenario));
+        .methods(crow::HTTPMethod::PUT)(ServiceExtension::bindObject(this, &ScenariosService::UpdateScenario, "UpdateScenario"));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::DELETE)(ServiceExtension::bind(this, &ScenariosService::DeleteScenario));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::PATCH)(ServiceExtension::bind(this, &ScenariosService::ActivateScenario));
 }
 
 crow::response ScenariosService::GetScenarios() const {
@@ -25,10 +26,7 @@ crow::response ScenariosService::GetScenarios() const {
         const StorageCacheProblem problem = storageCache->SelectAll(scenariosResult);
         switch (problem._type) {
             case StorageCacheProblemType::NoProblems:
-                return crow::response{
-                    crow::OK,
-                    static_cast<nlohmann::json>(scenariosResult._data).dump(),
-                };
+                return crow::response{ crow::OK, static_cast<nlohmann::json>(scenariosResult._data).dump() };
             case StorageCacheProblemType::Empty:
             case StorageCacheProblemType::NotExists:
             case StorageCacheProblemType::TooMany:
@@ -40,10 +38,7 @@ crow::response ScenariosService::GetScenarios() const {
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::GetScenarios");
     }
-    return crow::response{
-        crow::OK,
-        nlohmann::json::array().dump(),
-    };
+    return crow::response{ crow::OK, nlohmann::json::array().dump() };
 }
 
 crow::response ScenariosService::AddScenario(Scenario& scenario) {
@@ -58,9 +53,7 @@ crow::response ScenariosService::AddScenario(Scenario& scenario) {
 
         switch (problem._type) {
             case StorageCacheProblemType::NoProblems:
-                return crow::response{
-                    crow::OK,
-                };
+                return crow::response{ crow::OK };
             case StorageCacheProblemType::Empty:
             case StorageCacheProblemType::NotExists:
             case StorageCacheProblemType::TooMany:
@@ -89,9 +82,7 @@ crow::response ScenariosService::UpdateScenario(Scenario& scenario) {
 
         switch (problem._type) {
             case StorageCacheProblemType::NoProblems:
-                return crow::response{
-                    crow::OK,
-                };
+                return crow::response{ crow::OK };
             case StorageCacheProblemType::Empty:
             case StorageCacheProblemType::NotExists:
             case StorageCacheProblemType::TooMany:
@@ -117,9 +108,7 @@ crow::response ScenariosService::DeleteScenario(const std::string& scenarioId) {
 
         switch (problem._type) {
             case StorageCacheProblemType::NoProblems:
-                return crow::response{
-                    crow::OK,
-                };
+                return crow::response{ crow::OK };
             case StorageCacheProblemType::Empty:
             case StorageCacheProblemType::NotExists:
             case StorageCacheProblemType::TooMany:

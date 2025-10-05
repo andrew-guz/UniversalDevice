@@ -22,5 +22,5 @@ private:
     crow::response DeleteEvent(const Event& event);
 
 private:
-    friend class BaseServiceExtension;
+    friend class ServiceExtension;
 };

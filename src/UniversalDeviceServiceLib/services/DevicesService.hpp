@@ -1,27 +1,22 @@
 #pragma once
 
 #include "BaseService.hpp"
-#include "SettingsController.hpp"
+#include "DevicesController.hpp"
 
 class DevicesService final : public BaseService {
 public:
-    DevicesService(IQueryExecutor* queryExecutor, SettingsController& settingsController);
+    DevicesService(IQueryExecutor* queryExecutor, DevicesController& devicesController);
 
     virtual ~DevicesService() = default;
 
-protected:
     virtual void Initialize(CrowApp& app) override;
 
 private:
     crow::response ListDevices() const;
 
-    crow::response GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) const;
+    crow::response GetDeviceName(const std::string& idString) const;
 
-    crow::response GetDeviceName(const crow::request& request, const std::string& idString) const;
-
-    crow::response GetDeviceGroup(const crow::request& request, const std::string& idString) const;
-
-    crow::response SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty);
+    crow::response GetDeviceGroup(const std::string& idString) const;
 
     crow::response SetDeviceName(const crow::request& request, const std::string& idString);
 
@@ -34,5 +29,5 @@ private:
     crow::response RestartDevice(const std::string& idString);
 
 private:
-    SettingsController& _settingsController;
+    DevicesController& _devicesController;
 };

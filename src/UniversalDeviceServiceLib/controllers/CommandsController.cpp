@@ -14,11 +14,6 @@
 #include "Marshaling.hpp"
 #include "Uuid.hpp"
 
-namespace {
-    constexpr std::string TableName = "Commands";
-    constexpr std::string ColumnName = "commands";
-} // namespace
-
 CommandsController::CommandsController(IQueryExecutor* queryExecutor) :
     Controller(queryExecutor) {}
 
@@ -30,7 +25,7 @@ std::optional<Command> CommandsController::Get(const Uuid& id) const {
         return cacheResult;
 
     // Maybe not in cache but in database - we should check
-    const std::string query = fmt::format("SELECT {} FROM {} WHERE id = 'id'", ColumnName, TableName, id.data());
+    const std::string query = fmt::format("SELECT commands FROM Commands WHERE id = '{}'", id.data());
     std::vector<std::vector<std::string>> data;
     if (_queryExecutor->Select(query, data)) {
         if (data.size() == 0)
@@ -54,8 +49,8 @@ std::optional<Command> CommandsController::Get(const Uuid& id) const {
 bool CommandsController::AddOrUpdate(const Uuid& id, const Command& command) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
-    const std::string query = fmt::format(
-        "INSERT OR REPLACE INTO {} (id, {}) VALUES ('{}', '{}')", TableName, ColumnName, id.data(), static_cast<nlohmann::json>(command).dump());
+    const std::string query =
+        fmt::format("INSERT OR REPLACE INTO Commands (id, commands) VALUES ('{}', '{}')", id.data(), static_cast<nlohmann::json>(command).dump());
 
     if (_queryExecutor->Execute(query)) {
         _cache.AddOrUpdate(id, command);
@@ -70,7 +65,7 @@ bool CommandsController::AddOrUpdate(const Uuid& id, const Command& command) {
 bool CommandsController::Remove(const Uuid& id) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
-    const std::string query = fmt::format("DELETE FROM {} WHERE id='{}'", TableName, id.data());
+    const std::string query = fmt::format("DELETE FROM Commands WHERE id='{}'", id.data());
     if (_queryExecutor->Execute(query)) {
         _cache.Remove(id);
         return true;
