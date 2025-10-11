@@ -87,12 +87,16 @@ unsigned long motionStartTime;
 unsigned long universalDeviceStartTime;
 int universalDeviceStateDelay = 5000;
 #endif // IS_UNIVERSAL
+char websocketBuffer[256];
+bool websocketConnected = false;
 
 String generateMessageId() {
     UUID messageId;
     messageId.generate();
     String messageIdStr{ messageId.toCharArray() };
-    ackMessages.insert(std::make_pair(messageIdStr, millis()));
+    if (websocketConnected)
+        ackMessages.insert(std::make_pair(messageIdStr, millis()));
+
     return messageIdStr;
 }
 
@@ -175,7 +179,6 @@ bool connectToWiFi(const String& ssid, const String& password) {
             Serial.println(" Connected");
 #ifdef HAS_DISPLAY
             display.ShowState(Display::State::Connected);
-            ;
 #endif
             return true;
         }
@@ -230,9 +233,6 @@ void authorizeAndGetSettings() {
     auto commandsMessage = CreateSimpleMessage(type, DEVICE_UUID, String(UUID{}.toCharArray()), "websocket_get_commands");
     websocketClient.sendTXT(commandsMessage);
 }
-
-char websocketBuffer[256];
-bool websocketConnected = false;
 
 void WebSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
     switch (type) {
@@ -356,6 +356,28 @@ void setup() {
     ArduinoOTA.setHostname(DEVICE_NAME);
     ArduinoOTA.setPasswordHash(OTA_PASSWORD);
     ArduinoOTA.begin();
+
+    auto startTime = millis();
+
+#ifdef HAS_THERMOMTER
+    temperatureStartTime = startTime;
+#ifdef HAS_DISPLAY
+    displayStartTime = startTime;
+#endif // HAS_DISPLAY
+#endif // HAS_THERMOMTER
+
+#ifdef HAS_RELAY
+    relayStartTime = startTime;
+#endif // HAS_RELAY
+
+#ifdef HAS_MOTION_RELAY
+    relayStartTime = startTime;
+    motionStartTime = startTime;
+#endif // HAS_MOTION_RELAY
+
+#ifdef IS_UNIVERSAL
+    universalDeviceStartTime = startTime;
+#endif // IS_UNIVERSAL
 }
 
 void loop() {
@@ -417,6 +439,10 @@ void loop() {
         relayStartTime = millis();
         return;
     }
+    if (currentTime <= motionStartTime) {
+        motionStartTime = millis();
+        return;
+    }
 #endif // HAS_MOTION_RELAY
 
 #ifdef IS_UNIVERSAL
@@ -425,6 +451,8 @@ void loop() {
         return;
     }
 #endif // IS_UNIVERSAL
+
+    // measurement itself
 
 #ifdef HAS_THERMOMETER
     // 500 for measure time
