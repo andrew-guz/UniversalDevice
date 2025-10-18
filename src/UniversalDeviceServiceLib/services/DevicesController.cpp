@@ -12,7 +12,10 @@
 DevicesController::DevicesController(IQueryExecutor* queryExecutor, SettingsController& settingsController, CommandsController& commandsController) :
     Controller(queryExecutor),
     _settingsController(settingsController),
-    _commandsController(commandsController) {}
+    _commandsController(commandsController) //
+{
+    FillCache();
+}
 
 bool DevicesController::Add(const Device& device) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
@@ -40,18 +43,9 @@ std::vector<Device> DevicesController::List() const {
     if (_cache.Size())
         return _cache.List();
 
-    std::vector<Device> result;
-    const std::string query = "SELECT * FROM Devices";
-    std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
-        result = DbExtension::CreateVectorFromDbStrings<Device>(data);
-        for (const Device& device : result) {
-            _cache.Add(device._id, device);
-        }
-    } else
-        LOG_SQL_ERROR(query);
+    FillCache();
 
-    return result;
+    return _cache.List();
 }
 
 std::optional<Device> DevicesController::Get(const Uuid& id) const {
@@ -140,4 +134,16 @@ bool DevicesController::Remove(const Uuid& id) {
     LOG_SQL_ERROR(query);
 
     return false;
+}
+
+void DevicesController::FillCache() const {
+    const std::string query = "SELECT * FROM Devices";
+    std::vector<std::vector<std::string>> data;
+    if (_queryExecutor->Select(query, data)) {
+        const std::vector<Device> result = DbExtension::CreateVectorFromDbStrings<Device>(data);
+        for (const Device& device : result) {
+            _cache.Add(device._id, device);
+        }
+    } else
+        LOG_SQL_ERROR(query);
 }

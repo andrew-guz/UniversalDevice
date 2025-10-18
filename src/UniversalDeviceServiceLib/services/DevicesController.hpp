@@ -32,6 +32,9 @@ public:
     bool Remove(const Uuid& id);
 
 private:
+    void FillCache() const;
+
+private:
     mutable Cache<Uuid, Device> _cache;
     SettingsController& _settingsController;
     CommandsController& _commandsController;

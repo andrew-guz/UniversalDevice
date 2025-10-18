@@ -34,6 +34,7 @@ struct Scenario;
 struct ThermometerCurrentValue;
 struct ThermometerEvent;
 struct ThermometerLedBrightness;
+struct ThermometerValue;
 struct ThermostatEvent;
 struct TimerEvent;
 struct SunriseEvent;
@@ -209,6 +210,10 @@ void from_json(const nlohmann::json& json, ThermometerLedBrightness& thermometer
 void to_json(nlohmann::json& json, const Command& command);
 
 void from_json(const nlohmann::json& json, Command& command);
+
+void to_json(nlohmann::json& json, const ThermometerValue& thermometerValue);
+
+void from_json(const nlohmann::json& json, ThermometerValue& thermometerValue);
 
 void to_json(nlohmann::json& json, const ThermometerCurrentValue& thermometerCurrentValue);
 

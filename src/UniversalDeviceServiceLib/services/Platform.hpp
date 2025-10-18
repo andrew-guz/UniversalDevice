@@ -15,6 +15,7 @@
 #include "Middleware.hpp"
 #include "SettingsController.hpp"
 #include "SettingsService.hpp"
+#include "ThermometerValuesController.hpp"
 
 struct Platform final {
 protected:
@@ -32,6 +33,7 @@ private:
     SettingsController _settingsController;
     CommandsController _commandsController;
     DevicesController _devicesController;
+    ThermometerValuesController _thermometerValuesController;
 
     SettingsService _settingsService;
     CommandsService _commandsService;

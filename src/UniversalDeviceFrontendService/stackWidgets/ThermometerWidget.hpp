@@ -5,7 +5,6 @@
 #include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
 #include "ExtendedThermometerCurrentValue.hpp"
-#include "PeriodSettings.hpp"
 #include "SecondsComboBox.hpp"
 #include "TemperatureChartModel.hpp"
 #include "ThermometerLedBrightness.hpp"

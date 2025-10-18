@@ -17,13 +17,13 @@ static std::map<std::string, std::string> Tables = {
     { "Devices", "CREATE TABLE IF NOT EXISTS Devices (id TEXT UNIQUE, type TEXT, name TEXT, grp TEXT, timestamp INTEGER, PRIMARY KEY(id, type))" },
     { "Events",
       "CREATE TABLE IF NOT EXISTS Events (id TEXT UNIQUE, active INTEGER, providerId TEXT, providerType TEXT, event TEXT, PRIMARY KEY(id))" },
+    { "Scenarios", "CREATE TABLE IF NOT EXISTS Scenarios (id TEXT, scenarios TEXT, PRIMARY KEY(id))" },
     { "Thermometers",
       "CREATE TABLE IF NOT EXISTS Thermometers (idx INTEGER, id TEXT, timestamp INTEGER, value REAL, PRIMARY KEY(idx AUTOINCREMENT))" },
     { "Relays", "CREATE TABLE IF NOT EXISTS Relays (idx INTEGER, id TEXT, timestamp INTEGER, state INTEGER, PRIMARY KEY(idx AUTOINCREMENT))" },
     { "MotionRelays",
       "CREATE TABLE IF NOT EXISTS MotionRelays (idx INTEGER, id TEXT, timestamp INTEGER, motion INTEGER, state INTEGER, PRIMARY "
       "KEY(idx AUTOINCREMENT))" },
-    { "Scenarios", "CREATE TABLE IF NOT EXISTS Scenarios (id TEXT, scenarios TEXT, PRIMARY KEY(id))" },
     { "UniversalDevices",
       "CREATE TABLE IF NOT EXISTS UniversalDevices (idx INTEGER, id TEXT, timestamp INTEGER, 'values' TEXT, PRIMARY KEY(idx AUTOINCREMENT))" },
 };
@@ -54,9 +54,11 @@ Storage::~Storage() { sqlite3_close(_connection); }
 
 bool Storage::Begin() { return Execute("BEGIN TRANSACTION;"); }
 
-bool Storage::Execute(const std::string_view query) { return Execute(query, NoActionCallback); }
+bool Storage::Execute(const std::string_view query, std::uint64_t* lastInsertedIndex) { return Execute(query, NoActionCallback, lastInsertedIndex); }
 
-bool Storage::Execute(const std::string_view query, int (*callback)(void*, int, char**, char**)) { return InternalExecute(query, callback, this); }
+bool Storage::Execute(const std::string_view query, int (*callback)(void*, int, char**, char**), std::uint64_t* lastInsertedIndex) {
+    return InternalExecute(query, callback, this, lastInsertedIndex);
+}
 
 bool Storage::Select(const std::string_view query, std::vector<std::vector<std::string>>& data) {
     return InternalExecute(query, SelectCallback, &data);
@@ -95,7 +97,8 @@ void Storage::CleanupOldData(const std::chrono::system_clock::time_point& timest
     }
 }
 
-bool Storage::InternalExecute(const std::string_view query, int (*callback)(void*, int, char**, char**), void* data, const int repeatCount) {
+bool Storage::InternalExecute(
+    const std::string_view query, int (*callback)(void*, int, char**, char**), void* data, std::uint64_t* lastInsertedIndex, const int repeatCount) {
     _mutex.lock();
     char* error = nullptr;
     int result = sqlite3_exec(_connection, query.data(), callback, data, &error);
@@ -112,12 +115,15 @@ bool Storage::InternalExecute(const std::string_view query, int (*callback)(void
             result = sqlite3_open(PathHelper::FullFilePath(_dbPath).c_str(), &_connection);
             LOG_INFO_MSG(fmt::format("Open result: {}", result));
             _mutex.unlock();
-            return InternalExecute(query, callback, data, 1);
+            return InternalExecute(query, callback, data, lastInsertedIndex, 1);
         }
 
         _mutex.unlock();
         return false;
     }
+
+    if (lastInsertedIndex != 0 && query.starts_with("INSERT"))
+        *lastInsertedIndex = sqlite3_last_insert_rowid(_connection);
 
     _mutex.unlock();
     return true;

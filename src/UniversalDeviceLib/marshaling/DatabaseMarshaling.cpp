@@ -15,6 +15,7 @@
 #include "ExtendedUniversalDeviceCurrentValues.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "ThermometerValue.hpp"
 #include "Types.hpp"
 #include "Uuid.hpp"
 
@@ -105,6 +106,19 @@ void FromDbStrings(const std::vector<std::string>& dbStrings, ExtendedUniversalD
         if (timestamp.has_value() && values.has_value()) {
             object._timestamp = timestamp.value();
             object._values = nlohmann::json::parse(values.value()).get<UniversalDeviceCurrentValues>()._values;
+        }
+    } else
+        LOG_ERROR_MSG("Invalid db strings");
+}
+
+template<>
+void FromDbStrings(const std::vector<std::string>& dbStrings, ThermometerValue& object) {
+    if (dbStrings.size() % 2 == 0) {
+        auto value = DbExtension::FindValueByName<float>(dbStrings, "value");
+        auto timestamp = DbExtension::FindValueByName<std::chrono::system_clock::time_point>(dbStrings, "timestamp");
+        if (timestamp.has_value() && value.has_value()) {
+            object._value = value.value();
+            object._timestamp = timestamp.value();
         }
     } else
         LOG_ERROR_MSG("Invalid db strings");

@@ -24,6 +24,7 @@ Platform::Platform(CrowApp& app, IQueryExecutor* queryExecutor) :
     _settingsController(queryExecutor),
     _commandsController(queryExecutor),
     _devicesController(queryExecutor, _settingsController, _commandsController),
+    _thermometerValuesController(queryExecutor, _devicesController),
     _settingsService(app, _settingsController),
     _commandsService(app, _commandsController),
     _deviceService(queryExecutor, _devicesController) //
@@ -57,7 +58,7 @@ Processors Platform::CreateProcessors(const Message& message, IQueryExecutor* qu
             break;
         case Subject::GetDeviceInformation:
             // we need information about device - here we should call all device processors maybe some one will return data
-            processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor, s_instance->_devicesController)));
+            processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor, s_instance->_thermometerValuesController)));
             processors.push_back(std::shared_ptr<IProcessor>(new RelayProcessor(queryExecutor)));
             processors.push_back(std::shared_ptr<IProcessor>(new MotionRelayProcessor(queryExecutor)));
             processors.push_back(std::shared_ptr<IProcessor>(new UniversalDeviceProcessor(queryExecutor)));
@@ -66,7 +67,7 @@ Processors Platform::CreateProcessors(const Message& message, IQueryExecutor* qu
             // register thermometer if needed
             processors.push_back(std::shared_ptr<IProcessor>(new DeviceRegistrationProcessor(queryExecutor, s_instance->_devicesController)));
             // since this is thermometer - add ThermometerProcessor
-            processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor, s_instance->_devicesController)));
+            processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor, s_instance->_thermometerValuesController)));
             // process events due to thermometer state
             processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor, s_instance->_commandsController)));
             break;

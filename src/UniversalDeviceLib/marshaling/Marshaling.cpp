@@ -40,6 +40,7 @@
 #include "ThermometerCurrentValue.hpp"
 #include "ThermometerEvent.hpp"
 #include "ThermometerLedBrightness.hpp"
+#include "ThermometerValue.hpp"
 #include "ThermostatEvent.hpp"
 #include "TimeHelper.hpp"
 #include "TimerEvent.hpp"
@@ -615,6 +616,22 @@ void from_json(const nlohmann::json& json, Command& command) {
         command = json.get<ThermometerLedBrightness>();
     else
         LOG_ERROR_MSG(fmt::format("Invalid Command: {}", json.dump()));
+}
+
+void to_json(nlohmann::json& json, const ThermometerValue& thermometerValue) {
+    json = {
+        { "value", thermometerValue._value },
+    };
+
+    if (thermometerValue._timestamp.has_value())
+        json += { "timestamp", TimeHelper::TimeToInt(thermometerValue._timestamp.value()) };
+}
+
+void from_json(const nlohmann::json& json, ThermometerValue& thermometerValue) {
+    thermometerValue._value = json.value("value", std::numeric_limits<float>::min());
+
+    if (json.contains("timestamp"))
+        thermometerValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const ThermometerCurrentValue& thermometerCurrentValue) {

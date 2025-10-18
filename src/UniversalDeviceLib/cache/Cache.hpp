@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-template<typename KeyType, typename ObjectType>
+template<typename KeyType, typename ObjectType, typename Container = std::unordered_map<KeyType, ObjectType>>
 class Cache final {
 public:
     Cache() = default;
@@ -40,6 +40,8 @@ public:
         return true;
     }
 
+    const Container& Get() const { return _cache; }
+
     std::vector<ObjectType> List() const {
         std::vector<ObjectType> result;
         result.reserve(_cache.size());
@@ -63,5 +65,5 @@ public:
     std::size_t Size() const { return _cache.size(); }
 
 private:
-    std::unordered_map<KeyType, ObjectType> _cache;
+    Container _cache;
 };

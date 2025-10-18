@@ -1,11 +1,11 @@
 #pragma once
 
 #include "BaseProcessorWithQueryExecutor.hpp"
-#include "DevicesController.hpp"
+#include "ThermometerValuesController.hpp"
 
 class ThermometerProcessor final : public BaseProcessorWithQueryExecutor {
 public:
-    ThermometerProcessor(IQueryExecutor* queryExecutor, DevicesController& devicesController);
+    ThermometerProcessor(IQueryExecutor* queryExecutor, ThermometerValuesController& thermometerValuesController);
 
     virtual ~ThermometerProcessor() = default;
 
@@ -17,5 +17,5 @@ private:
     nlohmann::json ProcessGetDeviceInformationMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message);
 
 private:
-    DevicesController& _devicesController;
+    ThermometerValuesController& _thermometerValuesController;
 };

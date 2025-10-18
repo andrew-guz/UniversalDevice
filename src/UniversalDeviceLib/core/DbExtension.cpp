@@ -88,6 +88,14 @@ std::optional<int> DbExtension::FindValueByName<int>(const std::vector<std::stri
 }
 
 template<>
+std::optional<std::uint64_t> DbExtension::FindValueByName<std::uint64_t>(const std::vector<std::string>& dbStrings, std::string_view name) {
+    std::optional<std::string> value = FindStringValueByName(dbStrings, name);
+    if (value.has_value())
+        return std::atoll(value.value().c_str());
+    return std::nullopt;
+}
+
+template<>
 std::optional<float> DbExtension::FindValueByName<float>(const std::vector<std::string>& dbStrings, std::string_view name) {
     std::optional<std::string> value = FindStringValueByName(dbStrings, name);
     if (value.has_value())

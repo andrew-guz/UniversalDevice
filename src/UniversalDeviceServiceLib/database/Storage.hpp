@@ -15,9 +15,9 @@ public:
 
     virtual bool Begin() override;
 
-    virtual bool Execute(std::string_view query) override;
+    virtual bool Execute(std::string_view query, std::uint64_t* lastInsertedIndex = nullptr) override;
 
-    virtual bool Execute(std::string_view query, int (*callback)(void*, int, char**, char**)) override;
+    virtual bool Execute(std::string_view query, int (*callback)(void*, int, char**, char**), std::uint64_t* lastInsertedIndex = nullptr) override;
 
     virtual bool Select(std::string_view query, std::vector<std::vector<std::string>>& data) override;
 
@@ -34,7 +34,11 @@ public:
     virtual void CleanupOldData(const std::chrono::system_clock::time_point& timestamp) override;
 
 private:
-    bool InternalExecute(std::string_view query, int (*callback)(void*, int, char**, char**), void* data, int repeatCount = 0);
+    bool InternalExecute(std::string_view query,
+                         int (*callback)(void*, int, char**, char**),
+                         void* data,
+                         std::uint64_t* lastInsertedIndex = nullptr,
+                         int repeatCount = 0);
 
     void InitializeDb();
 
