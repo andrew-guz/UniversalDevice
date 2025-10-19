@@ -19,3 +19,6 @@
 [submodule "fmt"]
 	path = vendor/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "sunset"]
+	path = vendor/sunset
+	url = https://github.com/andrew-guz/sunset.git

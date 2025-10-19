@@ -1,9 +1,10 @@
 #include "EventsProcessor.hpp"
 
-#include <future>
+#include <cmath>
+#include <sunset.h>
 
-#include "nlohmann/json_fwd.hpp"
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "CurrentTime.hpp"
 #include "Enums.hpp"
@@ -12,7 +13,6 @@
 #include "Marshaling.hpp"
 #include "RelayCurrentState.hpp"
 #include "RelayState.hpp"
-#include "RequestHelper.hpp"
 #include "SimpleTableStorageCache.hpp"
 #include "StorageCacheSharedData.hpp"
 #include "SunriseEvent.hpp"
@@ -164,35 +164,21 @@ void EventsProcessor::UpdateSunriseSunsetTime(const CurrentTime& currentTime) co
     if (EventsProcessor::currentSunriseSunsetTime.day == day && EventsProcessor::currentSunriseSunsetTime.month == month + 1)
         return;
 
-    // TODO: Use location
-    [[maybe_unused]] auto future = std::async(std::launch::async, []() {
-        auto [statusCode, data] = RequestHelper::DoGetOutsizeRequest("https://api.sunrisesunset.io/json?lat=59.945673&lng=30.342361&time_format=24");
-        if (statusCode != 200)
-            return;
+#define LAT      59.945673
+#define LONG     30.342361
+#define TIMEZONE 3
 
-        try {
-            const nlohmann::json json = nlohmann::json::parse(data);
-            if (json.at("status").get<std::string>() != "OK")
-                return;
+    SunSet sunset;
+    sunset.setPosition(LAT, LONG, TIMEZONE);
+    sunset.setCurrentDate(1900 + year, month + 1, day);
+    const double sunriseMinutes = sunset.calcSunrise();
+    const double sunsetMinutes = sunset.calcSunset();
 
-            const nlohmann::json results = json.at("results");
-            const std::chrono::system_clock::time_point date = TimeHelper::TimeFromString(results.at("date").get<std::string>(), "%Y-%m-%d");
-            int day;
-            int month;
-            int year;
-            std::tie(day, month, year) = TimeHelper::GetDayMonthYear(date);
-            EventsProcessor::currentSunriseSunsetTime.day = day;
-            EventsProcessor::currentSunriseSunsetTime.month = month + 1;
-            const std::chrono::system_clock::time_point sunrise = TimeHelper::TimeFromString(results.at("sunrise").get<std::string>(), "%H:%M:%S");
-            std::tie(EventsProcessor::currentSunriseSunsetTime.sunriseHour, EventsProcessor::currentSunriseSunsetTime.sunriseMinute) =
-                TimeHelper::GetHourMinute(sunrise);
-            const std::chrono::system_clock::time_point sunset = TimeHelper::TimeFromString(results.at("sunset").get<std::string>(), "%H:%M:%S");
-            std::tie(EventsProcessor::currentSunriseSunsetTime.sunsetHour, EventsProcessor::currentSunriseSunsetTime.sunsetMinute) =
-                TimeHelper::GetHourMinute(sunset);
-        } catch (...) {
-            return;
-        }
-    });
+    EventsProcessor::currentSunriseSunsetTime.sunriseHour = std::floor(sunriseMinutes / 60.0);
+    EventsProcessor::currentSunriseSunsetTime.sunriseMinute =
+        std::round(sunriseMinutes - EventsProcessor::currentSunriseSunsetTime.sunriseHour * 60.0);
+    EventsProcessor::currentSunriseSunsetTime.sunsetHour = std::floor(sunsetMinutes / 60.0);
+    EventsProcessor::currentSunriseSunsetTime.sunsetMinute = std::round(sunsetMinutes - EventsProcessor::currentSunriseSunsetTime.sunsetHour * 60.0);
 }
 
 void EventsProcessor::ProcessSunriseEvent(const SunriseEvent& sunriseEvent, const Message& message) {
