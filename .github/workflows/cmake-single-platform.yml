@@ -2,10 +2,10 @@ name: Build and test
 
 on:
   push:
-    branches: 
-      - '**'
+    branches:
+      - "**"
   pull_request:
-    branches: 
+    branches:
       - "main"
 
 env:
@@ -27,7 +27,7 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           chmod u+x llvm.sh
           sudo ./llvm.sh 19
-          sudo apt-get -y install clang-format-19 cmake-format libasio-dev libboost-all-dev uuid-dev sqlite3 libsqlite3-dev
+          sudo apt-get -y install clang-format-19 cmake-format libasio-dev libboost-all-dev uuid-dev sqlite3 libsqlite3-dev libgtest-dev
 
       - name: Check format
         run: ${{github.workspace}}/scripts/check_format.sh
