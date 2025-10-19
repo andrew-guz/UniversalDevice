@@ -11,7 +11,7 @@ RUN apt-get update && apt-get upgrade -y
 RUN ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 
 # install all needed for build
-RUN apt-get install -y wget lsb-release wget gnupg make cmake libssl-dev libasio-dev libboost-all-dev uuid-dev libsqlite3-dev git jq
+RUN apt-get install -y wget lsb-release wget gnupg make cmake libssl-dev libasio-dev libboost-all-dev uuid-dev libsqlite3-dev git jq libgtest-dev
 
 # get clang 17
 RUN wget https://apt.llvm.org/llvm.sh
