@@ -91,7 +91,7 @@ bool DevicesController::UpdateDeviceTimestamp(const Uuid& id, const std::chrono:
 bool DevicesController::UpdateDeviceName(const Uuid& id, const std::string& name) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
-    const std::string query = fmt::format("UPDATE Devices SET name = {} WHERE id = '{}'", name, id.data());
+    const std::string query = fmt::format("UPDATE Devices SET name = '{}' WHERE id = '{}'", name, id.data());
     if (_queryExecutor->Execute(query)) {
         Device device = _cache.Get(id).value();
         device._name = name;
