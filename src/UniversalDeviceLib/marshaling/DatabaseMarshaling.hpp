@@ -9,6 +9,7 @@ struct ExtendedMotionRelayCurrentState;
 struct ExtendedRelayCurrentState;
 struct ExtendedThermometerCurrentValue;
 struct ExtendedUniversalDeviceCurrentValues;
+struct MotionRelayValue;
 struct RelayValue;
 struct ThermometerValue;
 
@@ -32,6 +33,9 @@ void FromDbStrings(const std::vector<std::string>& dbStrings, ExtendedThermomete
 
 template<>
 void FromDbStrings(const std::vector<std::string>& dbStrings, ExtendedUniversalDeviceCurrentValues& object);
+
+template<>
+void FromDbStrings(const std::vector<std::string>& dbStrings, MotionRelayValue& object);
 
 template<>
 void FromDbStrings(const std::vector<std::string>& dbStrings, RelayValue& object);

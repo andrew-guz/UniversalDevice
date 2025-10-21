@@ -29,6 +29,7 @@
 #include "MessageHeader.hpp"
 #include "MotionRelayCurrentState.hpp"
 #include "MotionRelaySettings.hpp"
+#include "MotionRelayValue.hpp"
 #include "PeriodSettings.hpp"
 #include "RelayCurrentState.hpp"
 #include "RelayEvent.hpp"
@@ -529,6 +530,24 @@ void to_json(nlohmann::json& json, const MotionRelaySettings& motionRelaySetting
 void from_json(const nlohmann::json& json, MotionRelaySettings& motionRelaySettings) {
     (PeriodSettings&)motionRelaySettings = json.get<PeriodSettings>();
     motionRelaySettings._activityTime = json.value("activityTime", DEFAULT_ACTIVITY_TIME);
+}
+
+void to_json(nlohmann::json& json, const MotionRelayValue& motionRelayValue) {
+    json = {
+        { "motion", motionRelayValue._motion },
+        { "state", motionRelayValue._state },
+    };
+
+    if (motionRelayValue._timestamp.has_value())
+        json += { "timestamp", TimeHelper::TimeToInt(motionRelayValue._timestamp.value()) };
+}
+
+void from_json(const nlohmann::json& json, MotionRelayValue& motionRelayValue) {
+    motionRelayValue._motion = json.value("motion", false);
+    motionRelayValue._state = json.value("value", std::numeric_limits<int>::min());
+
+    if (json.contains("timestamp"))
+        motionRelayValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const PeriodSettings& periodSettings) {

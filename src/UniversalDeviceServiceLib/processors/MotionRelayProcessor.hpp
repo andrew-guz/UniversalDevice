@@ -1,10 +1,11 @@
 #pragma once
 
 #include "BaseProcessorWithQueryExecutor.hpp"
+#include "MotionRelayValuesController.hpp"
 
 class MotionRelayProcessor final : public BaseProcessorWithQueryExecutor {
 public:
-    MotionRelayProcessor(IQueryExecutor* queryExecutor);
+    MotionRelayProcessor(IQueryExecutor* queryExecutor, MotionRelayValuesController& motionRelayValuesController);
 
     virtual ~MotionRelayProcessor() = default;
 
@@ -14,4 +15,7 @@ private:
     nlohmann::json ProcessMotionRelayCurrentStateMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message);
 
     nlohmann::json ProcessGetDeviceInformationMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message);
+
+private:
+    MotionRelayValuesController& _motionRelayValuesController;
 };

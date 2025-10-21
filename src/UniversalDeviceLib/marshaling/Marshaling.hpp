@@ -26,6 +26,7 @@ struct Message;
 struct MessageHeader;
 struct MotionRelayCurrentState;
 struct MotionRelaySettings;
+struct MotionRelayValue;
 struct PeriodSettings;
 struct RelayCurrentState;
 struct RelayEvent;
@@ -179,6 +180,10 @@ void from_json(const nlohmann::json& json, MotionRelayCurrentState& motionRelayC
 void to_json(nlohmann::json& json, const MotionRelaySettings& motionRelaySettings);
 
 void from_json(const nlohmann::json& json, MotionRelaySettings& motionRelaySettings);
+
+void to_json(nlohmann::json& json, const MotionRelayValue& motionRelayValue);
+
+void from_json(const nlohmann::json& json, MotionRelayValue& motionRelayValue);
 
 void to_json(nlohmann::json& json, const PeriodSettings& periodSettings);
 

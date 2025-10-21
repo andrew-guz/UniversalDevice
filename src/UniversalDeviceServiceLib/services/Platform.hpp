@@ -13,6 +13,7 @@
 #include "IQueryExecutor.hpp"
 #include "Message.hpp"
 #include "Middleware.hpp"
+#include "MotionRelayValuesController.hpp"
 #include "RelayValuesController.hpp"
 #include "SettingsController.hpp"
 #include "SettingsService.hpp"
@@ -36,6 +37,7 @@ private:
     DevicesController _devicesController;
     ThermometerValuesController _thermometerValuesController;
     RelayValuesController _relayValuesController;
+    MotionRelayValuesController _motionRelayValuesController;
 
     SettingsService _settingsService;
     CommandsService _commandsService;

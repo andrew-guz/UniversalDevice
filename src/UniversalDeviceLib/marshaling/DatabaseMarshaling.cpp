@@ -15,6 +15,7 @@
 #include "ExtendedUniversalDeviceCurrentValues.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "MotionRelayValue.hpp"
 #include "RelayValue.hpp"
 #include "ThermometerValue.hpp"
 #include "Types.hpp"
@@ -107,6 +108,21 @@ void FromDbStrings(const std::vector<std::string>& dbStrings, ExtendedUniversalD
         if (timestamp.has_value() && values.has_value()) {
             object._timestamp = timestamp.value();
             object._values = nlohmann::json::parse(values.value()).get<UniversalDeviceCurrentValues>()._values;
+        }
+    } else
+        LOG_ERROR_MSG("Invalid db strings");
+}
+
+template<>
+void FromDbStrings(const std::vector<std::string>& dbStrings, MotionRelayValue& object) {
+    if (dbStrings.size() % 2 == 0) {
+        auto motion = DbExtension::FindValueByName<bool>(dbStrings, "motion");
+        auto state = DbExtension::FindValueByName<int>(dbStrings, "state");
+        auto timestamp = DbExtension::FindValueByName<std::chrono::system_clock::time_point>(dbStrings, "timestamp");
+        if (motion.has_value() && state.has_value() && timestamp.has_value()) {
+            object._motion = motion.value();
+            object._state = state.value();
+            object._timestamp = timestamp.value();
         }
     } else
         LOG_ERROR_MSG("Invalid db strings");

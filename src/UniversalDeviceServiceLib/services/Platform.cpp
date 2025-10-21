@@ -26,6 +26,7 @@ Platform::Platform(CrowApp& app, IQueryExecutor* queryExecutor) :
     _devicesController(queryExecutor, _settingsController, _commandsController),
     _thermometerValuesController(queryExecutor, _devicesController),
     _relayValuesController(queryExecutor),
+    _motionRelayValuesController(queryExecutor),
     _settingsService(app, _settingsController),
     _commandsService(app, _commandsController),
     _deviceService(queryExecutor, _devicesController) //
@@ -61,7 +62,7 @@ Processors Platform::CreateProcessors(const Message& message, IQueryExecutor* qu
             // we need information about device - here we should call all device processors maybe some one will return data
             processors.push_back(std::shared_ptr<IProcessor>(new ThermometerProcessor(queryExecutor, s_instance->_thermometerValuesController)));
             processors.push_back(std::shared_ptr<IProcessor>(new RelayProcessor(queryExecutor, s_instance->_relayValuesController)));
-            processors.push_back(std::shared_ptr<IProcessor>(new MotionRelayProcessor(queryExecutor)));
+            processors.push_back(std::shared_ptr<IProcessor>(new MotionRelayProcessor(queryExecutor, s_instance->_motionRelayValuesController)));
             processors.push_back(std::shared_ptr<IProcessor>(new UniversalDeviceProcessor(queryExecutor)));
             break;
         case Subject::ThermometerCurrentValue:
@@ -84,7 +85,7 @@ Processors Platform::CreateProcessors(const Message& message, IQueryExecutor* qu
             // register motion relay if needed
             processors.push_back(std::shared_ptr<IProcessor>(new DeviceRegistrationProcessor(queryExecutor, s_instance->_devicesController)));
             // since this is motion relay - add MotionRelayProcessor
-            processors.push_back(std::shared_ptr<IProcessor>(new MotionRelayProcessor(queryExecutor)));
+            processors.push_back(std::shared_ptr<IProcessor>(new MotionRelayProcessor(queryExecutor, s_instance->_motionRelayValuesController)));
             // process events due to motion relay state
             processors.push_back(std::shared_ptr<IProcessor>(new EventsProcessor(queryExecutor, s_instance->_commandsController)));
             break;
