@@ -30,6 +30,7 @@ struct PeriodSettings;
 struct RelayCurrentState;
 struct RelayEvent;
 struct RelayState;
+struct RelayValue;
 struct Scenario;
 struct ThermometerCurrentValue;
 struct ThermometerEvent;
@@ -198,6 +199,10 @@ void from_json(const nlohmann::json& json, RelayEvent& relayEvent);
 void to_json(nlohmann::json& json, const RelayState& relayState);
 
 void from_json(const nlohmann::json& json, RelayState& relayState);
+
+void to_json(nlohmann::json& json, const RelayValue& relayValue);
+
+void from_json(const nlohmann::json& json, RelayValue& relayValue);
 
 void to_json(nlohmann::json& json, const Scenario& scenario);
 

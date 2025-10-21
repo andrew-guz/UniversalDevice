@@ -33,6 +33,7 @@
 #include "RelayCurrentState.hpp"
 #include "RelayEvent.hpp"
 #include "RelayState.hpp"
+#include "RelayValue.hpp"
 #include "Scenario.hpp"
 #include "Settings.hpp"
 #include "SunriseEvent.hpp"
@@ -578,6 +579,22 @@ void to_json(nlohmann::json& json, const RelayState& relayState) {
 }
 
 void from_json(const nlohmann::json& json, RelayState& relayState) { relayState._state = json.value("state", std::numeric_limits<float>::min()); }
+
+void to_json(nlohmann::json& json, const RelayValue& relayValue) {
+    json = {
+        { "state", relayValue._state },
+    };
+
+    if (relayValue._timestamp.has_value())
+        json += { "timestamp", TimeHelper::TimeToInt(relayValue._timestamp.value()) };
+}
+
+void from_json(const nlohmann::json& json, RelayValue& relayValue) {
+    relayValue._state = json.value("value", std::numeric_limits<int>::min());
+
+    if (json.contains("timestamp"))
+        relayValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+}
 
 void to_json(nlohmann::json& json, const Scenario& scenario) {
     json = {

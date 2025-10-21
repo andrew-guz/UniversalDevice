@@ -1,17 +1,18 @@
 #include "RelayProcessor.hpp"
 
+#include <optional>
+
 #include <fmt/format.h>
 
-#include "DbExtension.hpp"
 #include "DeviceInformationDescription.hpp"
-#include "ExtendedRelayCurrentState.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
-#include "RelayCurrentState.hpp"
-#include "TimeHelper.hpp"
+#include "RelayValue.hpp"
+#include "RelayValuesController.hpp"
 
-RelayProcessor::RelayProcessor(IQueryExecutor* queryExecutor) :
-    BaseProcessorWithQueryExecutor(queryExecutor) {}
+RelayProcessor::RelayProcessor(IQueryExecutor* queryExecutor, RelayValuesController& relayValuesController) :
+    BaseProcessorWithQueryExecutor(queryExecutor),
+    _relayValuesController(relayValuesController) {}
 
 nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     switch (message._header._subject) {
@@ -36,20 +37,12 @@ nlohmann::json RelayProcessor::ProcessMessage(const std::chrono::system_clock::t
 }
 
 nlohmann::json RelayProcessor::ProcessRelayCurrentStateMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
-    auto currentState = message._data.get<RelayCurrentState>();
-    if (currentState._state == std::numeric_limits<float>::min()) {
-        LOG_ERROR_MSG("RelayProcessor - invalid message");
+    RelayValue value = message._data.get<RelayValue>();
+    value._timestamp = timestamp;
+
+    if (!_relayValuesController.Add(message._header._description._id, value))
         return {};
-    }
-    auto& description = message._header._description;
-    const std::string query = fmt::format("INSERT INTO Relays (id, timestamp, state) VALUES ('{}', {}, '{}')",
-                                          description._id.data(),
-                                          TimeHelper::TimeToInt(timestamp),
-                                          currentState._state);
-    if (!_queryExecutor->Execute(query)) {
-        LOG_SQL_ERROR(query);
-        return {};
-    }
+
     return nlohmann::json{
         { "acknowledge", message._header._id },
     };
@@ -59,30 +52,6 @@ nlohmann::json RelayProcessor::ProcessGetDeviceInformationMessage(const std::chr
     auto description = message._data.get<DeviceInformationDescription>();
     if (!description.isDeviceType() || description.getDeviceType() != DeviceType::Relay || description._id.isEmpty())
         return {};
-    std::vector<ExtendedRelayCurrentState> extendedRelayCurrentStates;
-    if (description._seconds != 0) {
-        auto now = std::chrono::system_clock::now();
-        now -= std::chrono::seconds(description._seconds);
-        const std::string query = fmt::format("SELECT timestamp, state FROM Relays WHERE id = '{}' AND timestamp >= {} ORDER BY idx DESC",
-                                              description._id.data(),
-                                              TimeHelper::TimeToInt(now));
-        std::vector<std::vector<std::string>> data;
-        if (_queryExecutor->Select(query, data))
-            extendedRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedRelayCurrentState>(data);
-        else
-            LOG_SQL_ERROR(query);
-    }
-    if (extendedRelayCurrentStates.size() == 0) {
-        const std::string query =
-            fmt::format("SELECT timestamp, state FROM Relays WHERE id = '{}' ORDER BY idx DESC LIMIT 1", description._id.data());
-        std::vector<std::vector<std::string>> data;
-        if (_queryExecutor->Select(query, data))
-            extendedRelayCurrentStates = DbExtension::CreateVectorFromDbStrings<ExtendedRelayCurrentState>(data);
-        else
-            LOG_SQL_ERROR(query);
-    }
-    if (extendedRelayCurrentStates.size())
-        return extendedRelayCurrentStates;
-    LOG_INFO_MSG(fmt::format("No data for device {} found", description._id.data()));
-    return {};
+
+    return _relayValuesController.Get(description._id, description._seconds);
 }

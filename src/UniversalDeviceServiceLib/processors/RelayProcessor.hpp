@@ -1,10 +1,11 @@
 #pragma once
 
 #include "BaseProcessorWithQueryExecutor.hpp"
+#include "RelayValuesController.hpp"
 
 class RelayProcessor final : public BaseProcessorWithQueryExecutor {
 public:
-    RelayProcessor(IQueryExecutor* queryExecutor);
+    RelayProcessor(IQueryExecutor* queryExecutor, RelayValuesController& relayValuesController);
 
     virtual ~RelayProcessor() = default;
 
@@ -14,4 +15,7 @@ private:
     nlohmann::json ProcessRelayCurrentStateMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message);
 
     nlohmann::json ProcessGetDeviceInformationMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message);
+
+private:
+    RelayValuesController& _relayValuesController;
 };

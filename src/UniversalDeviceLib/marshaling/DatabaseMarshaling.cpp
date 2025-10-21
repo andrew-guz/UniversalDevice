@@ -15,6 +15,7 @@
 #include "ExtendedUniversalDeviceCurrentValues.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "RelayValue.hpp"
 #include "ThermometerValue.hpp"
 #include "Types.hpp"
 #include "Uuid.hpp"
@@ -112,11 +113,24 @@ void FromDbStrings(const std::vector<std::string>& dbStrings, ExtendedUniversalD
 }
 
 template<>
+void FromDbStrings(const std::vector<std::string>& dbStrings, RelayValue& object) {
+    if (dbStrings.size() % 2 == 0) {
+        auto state = DbExtension::FindValueByName<int>(dbStrings, "state");
+        auto timestamp = DbExtension::FindValueByName<std::chrono::system_clock::time_point>(dbStrings, "timestamp");
+        if (state.has_value() && timestamp.has_value()) {
+            object._state = state.value();
+            object._timestamp = timestamp.value();
+        }
+    } else
+        LOG_ERROR_MSG("Invalid db strings");
+}
+
+template<>
 void FromDbStrings(const std::vector<std::string>& dbStrings, ThermometerValue& object) {
     if (dbStrings.size() % 2 == 0) {
         auto value = DbExtension::FindValueByName<float>(dbStrings, "value");
         auto timestamp = DbExtension::FindValueByName<std::chrono::system_clock::time_point>(dbStrings, "timestamp");
-        if (timestamp.has_value() && value.has_value()) {
+        if (value.has_value() && timestamp.has_value()) {
             object._value = value.value();
             object._timestamp = timestamp.value();
         }
