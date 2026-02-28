@@ -1,5 +1,8 @@
 #include "String.hpp"
 
+#include <string>
+#include <vector>
+
 std::vector<std::string> SplitString(const std::string& str, const char delimeter, const bool keepEmpty) {
     std::vector<std::string> result;
 

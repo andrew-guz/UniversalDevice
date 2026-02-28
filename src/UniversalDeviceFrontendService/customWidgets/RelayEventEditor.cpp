@@ -1,8 +1,18 @@
 #include "RelayEventEditor.hpp"
 
+#include <memory>
+
 #include <Wt/WGlobal.h>
 
+#include "BaseEventEditor.hpp"
+#include "Device.hpp"
+#include "DeviceComboBox.hpp"
+#include "Enums.hpp"
+#include "Event.hpp"
+#include "EventReceiverWidget.hpp"
+#include "Provider.hpp"
 #include "RelayEvent.hpp"
+#include "Uuid.hpp"
 
 using namespace Wt;
 
@@ -15,7 +25,7 @@ RelayEventEditor::RelayEventEditor() :
     _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 0, AlignmentFlag::Top);
 }
 
-void RelayEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
+void RelayEventEditor::SetDevices(const Devices& devices) {
     BaseEventEditor::SetDevices(devices);
     _provider->SetDevices(FilteredDevices({ DeviceType::Relay, DeviceType::MotionRelay }));
     _receiver->SetDevices(devices);
@@ -30,8 +40,8 @@ void RelayEventEditor::Cleanup() {
 
 void RelayEventEditor::FillUi(const Event& event) {
     BaseEventEditor::FillUi(event);
-    const RelayEvent& relayEvent = dynamic_cast<const RelayEvent&>(event);
-    _provider->SetSelectedDevice(event._provider._id);
+    const RelayEvent& relayEvent = std::get<RelayEvent>(event);
+    _provider->SetSelectedDevice(GetProviderId(relayEvent._provider));
     _state->setChecked(relayEvent._state);
     _receiver->FillUi(event);
 }
@@ -40,8 +50,8 @@ bool RelayEventEditor::IsValid() const { return BaseEventEditor::IsValid() && _p
 
 void RelayEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);
-    RelayEvent& relayEvent = dynamic_cast<RelayEvent&>(event);
-    event._provider = _provider->GetSelectedDevice();
+    RelayEvent& relayEvent = std::get<RelayEvent>(event);
+    relayEvent._provider = _provider->GetSelectedDevice();
     relayEvent._state = _state->isChecked();
     _receiver->FillFromUi(event);
 }

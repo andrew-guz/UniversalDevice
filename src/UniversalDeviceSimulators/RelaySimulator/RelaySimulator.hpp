@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ixwebsocket/IXWebSocketMessage.h>
+
 #include "PeriodSettings.hpp"
 #include "Simulator.hpp"
 

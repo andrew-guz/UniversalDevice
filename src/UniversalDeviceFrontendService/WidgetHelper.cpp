@@ -1,5 +1,11 @@
 #include "WidgetHelper.hpp"
 
+#include <chrono>
+#include <functional>
+#include <memory>
+#include <string>
+#include <tuple>
+
 #include <Wt/WApplication.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WLineEdit.h>
@@ -8,6 +14,8 @@
 #include <Wt/WString.h>
 #include <Wt/WText.h>
 #include <Wt/WTimer.h>
+#include <Wt/WValidator.h>
+#include <fmt/format.h>
 
 using namespace Wt;
 

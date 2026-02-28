@@ -1,11 +1,12 @@
 #include <chrono>
 
 #include <catch2/catch_all.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json_fwd.hpp>
 
-#include "ExtendedThermometerCurrentValue.hpp"
 #include "Marshaling.hpp"
 #include "MotionRelaySettings.hpp"
+#include "ThermometerValue.hpp"
 #include "TimerEvent.hpp"
 
 template<typename T>
@@ -30,7 +31,7 @@ TEST_CASE("DerivedObjectsMarshaling") {
 
     test(motionRelaySettings);
 
-    ExtendedThermometerCurrentValue extThermValue;
+    ThermometerValue extThermValue;
     extThermValue._timestamp = std::chrono::system_clock::now();
     test(extThermValue);
 }

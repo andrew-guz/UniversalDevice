@@ -1,10 +1,18 @@
 #pragma once
 
-#include "BaseProcessorWithQueryExecutor.hpp"
+#include <chrono>
 
-class RelayProcessor final : public BaseProcessorWithQueryExecutor {
+#include <nlohmann/json_fwd.hpp>
+
+#include "DeviceDataProcessor.hpp"
+#include "Enums.hpp"
+#include "Message.hpp"
+#include "RelayValue.hpp"
+#include "RelayValuesController.hpp"
+
+class RelayProcessor final : public DeviceDataProcessor<RelayValuesController, RelayValue, DeviceType::Relay> {
 public:
-    RelayProcessor(IQueryExecutor* queryExecutor);
+    RelayProcessor(RelayValuesController& relayValuesController);
 
     virtual ~RelayProcessor() = default;
 

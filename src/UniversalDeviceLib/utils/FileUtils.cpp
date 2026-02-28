@@ -1,10 +1,13 @@
 #include "FileUtils.hpp"
 
 #include <deque>
+#include <filesystem>
 #include <fstream>
 #include <numeric>
+#include <string>
 
 #include "Defines.hpp"
+#include "LogInformation.hpp"
 #include "PathHelper.hpp"
 
 std::string ReadLogFile(const std::filesystem::path& path) {

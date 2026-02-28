@@ -1,28 +1,34 @@
 #pragma once
 
-#include <vector>
+#include <chrono>
+#include <string>
 
-#include "BaseProcessorWithQueryExecutor.hpp"
-#include "CurrentTime.hpp"
+#include <nlohmann/json_fwd.hpp>
+
+#include "Command.hpp"
+#include "CommandsController.hpp"
+#include "EventsController.hpp"
+#include "IProcessor.hpp"
+#include "Message.hpp"
 #include "RelayEvent.hpp"
 #include "SunriseEvent.hpp"
+#include "SunriseSunsetUtils.hpp"
 #include "SunsetEvent.hpp"
 #include "ThermometerEvent.hpp"
 #include "ThermostatEvent.hpp"
 #include "TimerEvent.hpp"
+#include "Uuid.hpp"
 
-class EventsProcessor final : public BaseProcessorWithQueryExecutor {
+class EventsProcessor final : public IProcessor {
 public:
-    EventsProcessor(IQueryExecutor* queryExecutor);
+    EventsProcessor(EventsController& eventsController, CommandsController& commandsController);
 
     virtual ~EventsProcessor() = default;
 
     virtual nlohmann::json ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) override;
 
 private:
-    std::vector<nlohmann::json> LoadEvents(const ComponentDescription& description);
-
-    void ProcessTimerEvent(const TimerEvent& timeEvent, const Message& message);
+    void ProcessTimerEvent(std::chrono::system_clock::time_point timestamp, const TimerEvent& timeEvent);
 
     void ProcessThermometerEvent(const ThermometerEvent& thermometerEvent, const Message& message);
 
@@ -30,23 +36,18 @@ private:
 
     void ProcessThermostatEvent(const ThermostatEvent& thermostatEvent, const Message& message);
 
-    struct SunriseSunsetTime {
-        int day = -1;
-        int month = -1;
-        int sunriseHour = -1;
-        int sunriseMinute = -1;
-        int sunsetHour = -1;
-        int sunsetMinute = -1;
-    };
+    void UpdateSunriseSunsetTime(std::chrono::system_clock::time_point timestamp) const;
 
-    void UpdateSunriseSunsetTime(const CurrentTime& currentTime) const;
+    void ProcessSunriseEvent(std::chrono::system_clock::time_point timestamp, const SunriseEvent& sunriseEvent);
 
-    void ProcessSunriseEvent(const SunriseEvent& sunriseEvent, const Message& message);
+    void ProcessSunsetEvent(std::chrono::system_clock::time_point timestamp, const SunsetEvent& sunsetEvent);
 
-    void ProcessSunsetEvent(const SunsetEvent& sunsetEvent, const Message& message);
-
-    void SendCommand(const Uuid& id, const std::string& commandString, const std::string& logMessage);
+    void SendCommand(const Uuid& id, const Command& command, const std::string& logMessage);
 
 private:
-    static EventsProcessor::SunriseSunsetTime currentSunriseSunsetTime;
+    static SunriseSunsetTime currentSunriseSunsetTime;
+
+    EventsController& _eventsController;
+
+    CommandsController& _commandsController;
 };

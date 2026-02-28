@@ -1,11 +1,14 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include <Wt/WAbstractItemModel.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WModelIndex.h>
 #include <Wt/cpp17/any.hpp>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Enums.hpp"
 

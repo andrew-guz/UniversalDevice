@@ -2,15 +2,13 @@
 
 #include <limits>
 
+#include "BaseEvent.hpp"
+#include "Command.hpp"
 #include "Enums.hpp"
-#include "Event.hpp"
 
-struct ThermometerEvent final : public Event {
+struct ThermometerEvent final : public BaseEvent {
+    const EventType _type = EventType::Thermometer;
     float _temperature = std::numeric_limits<float>::min();
     bool _lower = true;
-
-    ThermometerEvent() :
-        Event(EventType::Thermometer) {}
-
-    virtual ~ThermometerEvent() = default;
+    Command _command;
 };

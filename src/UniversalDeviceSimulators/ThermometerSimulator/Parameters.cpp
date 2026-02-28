@@ -1,5 +1,7 @@
 #include "Parameters.hpp"
 
+#include <nlohmann/json_fwd.hpp>
+
 #include "ProcessSettingsReader.hpp"
 
 Parameters Parameters::ReadFromFile() {

@@ -1,16 +1,20 @@
 #include "UniversalData.hpp"
 
 #include <string>
+#include <string_view>
+#include <utility>
 
-UniversalData::UniversalData(bool value) :
+#include "Enums.hpp"
+
+UniversalData::UniversalData(const bool value) :
     _type(UniversalDataType::Bool),
     _data(value) {}
 
-UniversalData::UniversalData(int value) :
+UniversalData::UniversalData(const int value) :
     _type(UniversalDataType::Int),
     _data(value) {}
 
-UniversalData::UniversalData(double value) :
+UniversalData::UniversalData(const double value) :
     _type(UniversalDataType::Double),
     _data(value) {}
 

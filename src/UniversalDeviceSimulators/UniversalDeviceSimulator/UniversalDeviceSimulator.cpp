@@ -1,14 +1,20 @@
-
-
 #include "UniversalDeviceSimulator.hpp"
 
+#include <cstddef>
+#include <map>
 #include <random>
 #include <string>
 
+#include <ixwebsocket/IXWebSocketMessage.h>
+#include <ixwebsocket/IXWebSocketMessageType.h>
+#include <nlohmann/json_fwd.hpp>
+
 #include "Enums.hpp"
 #include "MessageHelper.hpp"
+#include "PeriodSettings.hpp"
+#include "Simulator.hpp"
 #include "UniversalData.hpp"
-#include "UniversalDeviceCurrentValues.hpp"
+#include "UniversalValue.hpp"
 
 namespace {
     std::random_device random_device;
@@ -28,7 +34,7 @@ UniversalDeviceSimulator::UniversalDeviceSimulator() :
         { "param_string", UniversalData{ std::string{ "test" } } },
     } } {}
 
-UniversalDeviceCurrentValues UniversalDeviceSimulator::GetValues() const { return values; }
+UniversalValue UniversalDeviceSimulator::GetValues() const { return values; }
 
 int UniversalDeviceSimulator::GetPeriod() const { return periodSettings._period; }
 
@@ -41,7 +47,7 @@ void UniversalDeviceSimulator::SendValues() {
         stringValue += static_cast<char>(string_distribution(random_generator));
     }
     values._values.at("param_string") = stringValue;
-    auto valuesMessage = MessageHelper::Create(GetType(), GetId(), Subject::UniversalDeviceCurrentState, values);
+    auto valuesMessage = MessageHelper::CreateDeviceMessage(GetType(), GetId(), Subject::UniversalDeviceCurrentState, values);
     SendMessage(valuesMessage);
 }
 

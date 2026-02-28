@@ -2,7 +2,9 @@
 
 #include <filesystem>
 #include <mutex>
+#include <vector>
 
+#include "Account.hpp"
 #include "IAccountManagerInitializer.hpp"
 
 class AccountManagerInitializer final : public IAccountManagerInitializer {

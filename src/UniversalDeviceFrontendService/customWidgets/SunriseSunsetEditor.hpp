@@ -3,7 +3,9 @@
 #include <Wt/WSpinBox.h>
 
 #include "BaseEventEditor.hpp"
+#include "Device.hpp"
 #include "Enums.hpp"
+#include "Event.hpp"
 #include "EventReceiverWidget.hpp"
 
 class SunriseSunsetEditor final : public BaseEventEditor {
@@ -12,7 +14,7 @@ public:
 
     virtual ~SunriseSunsetEditor() = default;
 
-    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
+    virtual void SetDevices(const Devices& devices) override;
 
     virtual void Cleanup() override;
 

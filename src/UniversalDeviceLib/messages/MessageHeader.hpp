@@ -1,12 +1,11 @@
 #pragma once
 
-#include "ComponentDescription.hpp"
-#include "Constants.hpp"
 #include "Enums.hpp"
+#include "Provider.hpp"
 #include "Uuid.hpp"
 
 struct MessageHeader final {
     Uuid _id;
-    ComponentDescription _description;
+    Provider _description;
     Subject _subject = Subject::Undefined;
 };

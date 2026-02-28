@@ -1,11 +1,18 @@
 #include "TimerEventEditor.hpp"
 
+#include <memory>
+
 #include <Wt/WGlobal.h>
 #include <Wt/WHBoxLayout.h>
+#include <Wt/WValidator.h>
 
+#include "BaseEventEditor.hpp"
 #include "Constants.hpp"
-#include "Enums.hpp"
+#include "Device.hpp"
+#include "Event.hpp"
+#include "EventReceiverWidget.hpp"
 #include "Marshaling.hpp"
+#include "Provider.hpp"
 #include "TimerEvent.hpp"
 
 TimerEventEditor::TimerEventEditor() :
@@ -27,7 +34,7 @@ TimerEventEditor::TimerEventEditor() :
     _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 0, Wt::AlignmentFlag::Top);
 }
 
-void TimerEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
+void TimerEventEditor::SetDevices(const Devices& devices) {
     BaseEventEditor::SetDevices(devices);
     _receiver->SetDevices(devices);
 }
@@ -41,7 +48,7 @@ void TimerEventEditor::Cleanup() {
 
 void TimerEventEditor::FillUi(const Event& event) {
     BaseEventEditor::FillUi(event);
-    const TimerEvent& timerEvent = dynamic_cast<const TimerEvent&>(event);
+    const TimerEvent& timerEvent = std::get<TimerEvent>(event);
     _hour->setValue(timerEvent._hour);
     _minute->setValue(timerEvent._minute);
     _receiver->FillUi(event);
@@ -54,9 +61,10 @@ bool TimerEventEditor::IsValid() const {
 
 void TimerEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);
-    TimerEvent& timerEvent = dynamic_cast<TimerEvent&>(event);
-    timerEvent._provider._id = Constants::PredefinedIdTimer;
-    timerEvent._provider._type = EventType::Timer;
+    TimerEvent& timerEvent = std::get<TimerEvent>(event);
+    timerEvent._provider = EventProvider{
+        ._id = Constants::PredefinedIdTimer,
+    };
     timerEvent._hour = _hour->value();
     timerEvent._minute = _minute->value();
     _receiver->FillFromUi(event);

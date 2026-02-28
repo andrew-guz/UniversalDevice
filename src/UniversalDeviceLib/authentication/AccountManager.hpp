@@ -1,11 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include "Account.hpp"
-#include "AccountManagerInitializer.hpp"
 #include "Enums.hpp"
+#include "IAccountManagerInitializer.hpp"
 #include "Singleton.hpp"
 
 class AccountManager final : public Singleton<AccountManager> {

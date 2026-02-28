@@ -3,7 +3,9 @@
 #include <Wt/WCheckBox.h>
 
 #include "BaseEventEditor.hpp"
+#include "Device.hpp"
 #include "DeviceComboBox.hpp"
+#include "Event.hpp"
 #include "EventReceiverWidget.hpp"
 
 class RelayEventEditor final : public BaseEventEditor {
@@ -12,7 +14,7 @@ public:
 
     virtual ~RelayEventEditor() = default;
 
-    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
+    virtual void SetDevices(const Devices& devices) override;
 
     virtual void Cleanup() override;
 

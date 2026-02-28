@@ -1,24 +1,25 @@
 #pragma once
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Wt/cpp17/any.hpp>
 
 #include "BaseChartModel.hpp"
 #include "Enums.hpp"
-#include "ExtendedUniversalDeviceCurrentValues.hpp"
 #include "UniversalData.hpp"
+#include "UniversalValue.hpp"
 
-class UniversalDeviceChartModel : public BaseChartModel<ExtendedUniversalDeviceCurrentValues> {
+class UniversalDeviceChartModel : public BaseChartModel<UniversalValue> {
 public:
-    UniversalDeviceChartModel(const std::vector<ExtendedUniversalDeviceCurrentValues>& data, std::string parameterName) :
-        BaseChartModel<ExtendedUniversalDeviceCurrentValues>(data),
+    UniversalDeviceChartModel(const std::vector<UniversalValue>& data, std::string parameterName) :
+        BaseChartModel<UniversalValue>(data),
         _parameterName(std::move(parameterName)) {}
 
     virtual ~UniversalDeviceChartModel() = default;
 
-    void SetData(const std::vector<ExtendedUniversalDeviceCurrentValues>& data) { UpdateData(data); }
+    void SetData(const std::vector<UniversalValue>& data) { UpdateData(data); }
 
 protected:
     virtual const Wt::cpp17::any GetValue(const int index) const override {

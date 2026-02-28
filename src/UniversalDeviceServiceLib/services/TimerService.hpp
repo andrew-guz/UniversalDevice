@@ -3,18 +3,14 @@
 #include "BaseService.hpp"
 
 class TimerService final : public BaseService {
-protected:
-    TimerService(IQueryExecutor* queryExecutor);
-
 public:
-    virtual ~TimerService() = default;
+    TimerService();
 
-protected:
-    virtual void Initialize(CrowApp& app) override;
+    virtual ~TimerService() = default;
 
 private:
     void TimerFunction();
 
 private:
-    friend class BaseServiceExtension;
+    friend class ServiceExtension;
 };

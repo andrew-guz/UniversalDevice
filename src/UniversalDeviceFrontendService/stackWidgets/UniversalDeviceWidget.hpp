@@ -1,18 +1,25 @@
 #pragma once
 
 #include <memory>
+#include <set>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
 #include <Wt/WTabWidget.h>
+#include <Wt/WText.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
+#include "BaseStackWidget.hpp"
+#include "IStackHolder.hpp"
 #include "SecondsComboBox.hpp"
 #include "UniversalDeviceChartModel.hpp"
+#include "UniversalValue.hpp"
 
 class UniversalDeviceWidget final : public BaseDeviceWidget {
 public:
-    UniversalDeviceWidget(IStackHolder* stackHolder, const Settings& settings);
+    UniversalDeviceWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~UniversalDeviceWidget() = default;
 
@@ -33,5 +40,5 @@ private:
     std::vector<std::shared_ptr<UniversalDeviceChartModel>> _models;
     std::unordered_map<std::string, Wt::WText*> _texts;
     SecondsComboBox* _seconds;
-    std::vector<ExtendedUniversalDeviceCurrentValues> _cachedValues;
+    std::vector<UniversalValue> _cachedValues;
 };

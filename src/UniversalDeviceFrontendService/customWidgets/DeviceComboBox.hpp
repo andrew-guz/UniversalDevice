@@ -2,7 +2,9 @@
 
 #include <Wt/WComboBox.h>
 
-#include "ExtendedComponentDescription.hpp"
+#include "Device.hpp"
+#include "DeviceDescription.hpp"
+#include "Uuid.hpp"
 
 class DeviceComboBox final : public Wt::WComboBox {
 public:
@@ -10,14 +12,14 @@ public:
 
     virtual ~DeviceComboBox() = default;
 
-    void SetDevices(const std::vector<ExtendedComponentDescription>& devices);
+    void SetDevices(const Devices& devices);
 
     bool IsValid() const;
 
-    ComponentDescription GetSelectedDevice() const;
+    DeviceDescription GetSelectedDevice() const;
 
     void SetSelectedDevice(const Uuid& deviceId);
 
 private:
-    std::vector<ExtendedComponentDescription> _devices;
+    Devices _devices;
 };

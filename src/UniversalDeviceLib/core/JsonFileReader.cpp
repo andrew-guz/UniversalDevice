@@ -1,5 +1,10 @@
 #include "JsonFileReader.hpp"
 
+#include <filesystem>
+#include <fstream>
+
+#include <nlohmann/json_fwd.hpp>
+
 #include "Logger.hpp"
 
 nlohmann::json JsonFileReader::ReadJson(const std::filesystem::path& fullFileName) {

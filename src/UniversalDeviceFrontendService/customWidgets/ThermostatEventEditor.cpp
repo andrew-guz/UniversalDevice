@@ -1,9 +1,20 @@
 #include "ThermostatEventEditor.hpp"
 
+#include <memory>
+
 #include <Wt/WGlobal.h>
 #include <Wt/WHBoxLayout.h>
+#include <Wt/WValidator.h>
 
+#include "BaseEventEditor.hpp"
+#include "Device.hpp"
+#include "DeviceComboBox.hpp"
+#include "Enums.hpp"
+#include "Event.hpp"
+#include "Provider.hpp"
+#include "Receiver.hpp"
 #include "ThermostatEvent.hpp"
+#include "Uuid.hpp"
 
 using namespace Wt;
 
@@ -29,7 +40,7 @@ ThermostatEventEditor::ThermostatEventEditor() :
     _receiver = _mainLayout->addWidget(std::make_unique<DeviceComboBox>(), 0, AlignmentFlag::Top);
 }
 
-void ThermostatEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
+void ThermostatEventEditor::SetDevices(const Devices& devices) {
     BaseEventEditor::SetDevices(devices);
     _provider->SetDevices(FilteredDevices(DeviceType::Thermometer));
     _receiver->SetDevices(FilteredDevices(DeviceType::Relay));
@@ -45,11 +56,11 @@ void ThermostatEventEditor::Cleanup() {
 
 void ThermostatEventEditor::FillUi(const Event& event) {
     BaseEventEditor::FillUi(event);
-    const ThermostatEvent& thermostatEvent = dynamic_cast<const ThermostatEvent&>(event);
-    _provider->SetSelectedDevice(event._provider._id);
+    const ThermostatEvent& thermostatEvent = std::get<ThermostatEvent>(event);
+    _provider->SetSelectedDevice(GetProviderId(thermostatEvent._provider));
     _temperature->setValue(thermostatEvent._temperature);
     _delta->setValue(thermostatEvent._delta);
-    _receiver->SetSelectedDevice(event._receiver._id);
+    _receiver->SetSelectedDevice(thermostatEvent._receiver._id);
 }
 
 bool ThermostatEventEditor::IsValid() const {
@@ -59,9 +70,9 @@ bool ThermostatEventEditor::IsValid() const {
 
 void ThermostatEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);
-    ThermostatEvent& thermostatEvent = dynamic_cast<ThermostatEvent&>(event);
-    event._provider = _provider->GetSelectedDevice();
+    ThermostatEvent& thermostatEvent = std::get<ThermostatEvent>(event);
+    thermostatEvent._provider = _provider->GetSelectedDevice();
     thermostatEvent._temperature = _temperature->value();
     thermostatEvent._delta = _delta->value();
-    event._receiver = _receiver->GetSelectedDevice();
+    thermostatEvent._receiver = _receiver->GetSelectedDevice();
 }

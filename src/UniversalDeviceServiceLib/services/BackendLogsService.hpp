@@ -1,16 +1,15 @@
 #pragma once
 
+#include <crow/http_response.h>
+
 #include "BaseService.hpp"
+#include "Middleware.hpp"
 
 class BackendLogsService final : public BaseService {
-protected:
-    BackendLogsService(IQueryExecutor* queryExecutor);
-
 public:
-    virtual ~BackendLogsService() = default;
+    BackendLogsService(CrowApp& app);
 
-protected:
-    virtual void Initialize(CrowApp& app) override;
+    virtual ~BackendLogsService() = default;
 
 private:
     crow::response GetBackendLog() const;
@@ -18,5 +17,5 @@ private:
     crow::response ClearBackendLog() const;
 
 private:
-    friend class BaseServiceExtension;
+    friend class ServiceExtension;
 };

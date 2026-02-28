@@ -1,10 +1,15 @@
 #include "AccountManager.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <tuple>
 
 #include "Base64Helper.hpp"
 #include "Enums.hpp"
-#include "Logger.hpp"
+#include "IAccountManagerInitializer.hpp"
 
 void AccountManager::Init(std::shared_ptr<IAccountManagerInitializer> initializer) {
     _initializer = initializer;

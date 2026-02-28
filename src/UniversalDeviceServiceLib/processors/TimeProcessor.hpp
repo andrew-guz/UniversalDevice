@@ -1,14 +1,21 @@
 #pragma once
 
-#include <vector>
+#include <chrono>
 
-#include "BaseProcessorWithQueryExecutor.hpp"
+#include <nlohmann/json_fwd.hpp>
 
-class TimeProcessor final : public BaseProcessorWithQueryExecutor {
+#include "CleanupController.hpp"
+#include "IProcessor.hpp"
+#include "Message.hpp"
+
+class TimeProcessor final : public IProcessor {
 public:
-    TimeProcessor(IQueryExecutor* queryExecutor);
+    TimeProcessor(CleanupController& cleanupController);
 
     virtual ~TimeProcessor() = default;
 
     virtual nlohmann::json ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) override;
+
+private:
+    CleanupController& _cleanupController;
 };

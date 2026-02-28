@@ -2,9 +2,15 @@
 
 #include "RelaySimulator.hpp"
 
+#include <ixwebsocket/IXWebSocketMessage.h>
+#include <ixwebsocket/IXWebSocketMessageType.h>
+#include <nlohmann/json_fwd.hpp>
+
 #include "Enums.hpp"
 #include "MessageHelper.hpp"
-#include "RelayCurrentState.hpp"
+#include "PeriodSettings.hpp"
+#include "RelayValue.hpp"
+#include "Simulator.hpp"
 
 RelaySimulator::RelaySimulator() :
     Simulator(DeviceType::Relay) {}
@@ -14,9 +20,9 @@ bool RelaySimulator::GetState() const { return state; }
 int RelaySimulator::GetPeriod() const { return periodSettings._period; }
 
 void RelaySimulator::SendState() {
-    RelayCurrentState stateValue;
+    RelayValue stateValue;
     stateValue._state = GetState();
-    auto stateMessage = MessageHelper::Create(GetType(), GetId(), Subject::RelayCurrentState, stateValue);
+    auto stateMessage = MessageHelper::CreateDeviceMessage(GetType(), GetId(), Subject::RelayCurrentState, stateValue);
     SendMessage(stateMessage);
 }
 

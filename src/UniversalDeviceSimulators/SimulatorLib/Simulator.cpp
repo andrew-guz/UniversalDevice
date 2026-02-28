@@ -1,11 +1,18 @@
 #include "Simulator.hpp"
 
+#include <memory>
+
 #include <fmt/format.h>
 #include <ixwebsocket/IXSocketTLSOptions.h>
+#include <ixwebsocket/IXWebSocketMessage.h>
+#include <ixwebsocket/IXWebSocketMessageType.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "AccountManager.hpp"
 #include "AccountManagerInitializer.hpp"
+#include "BaseParameters.hpp"
 #include "Defines.hpp"
+#include "Enums.hpp"
 #include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "PathHelper.hpp"
@@ -28,7 +35,7 @@ Simulator::Simulator(const DeviceType type) :
         if (message->type == ix::WebSocketMessageType::Open) {
             WebSocketAuthentication auth;
             auth._authString = "Basic ZGV2aWNlOmVBITdSPWgmVnU=";
-            auto authMessage = MessageHelper::Create(_type, _parameters._id, Subject::WebSocketAuthorization, auth);
+            auto authMessage = MessageHelper::CreateDeviceMessage(_type, _parameters._id, Subject::WebSocketAuthorization, auth);
             _websocket.send(nlohmann::json(authMessage).dump());
             AskForSettings();
             AskForCommands();
@@ -45,12 +52,12 @@ DeviceType Simulator::GetType() const { return _type; }
 const Uuid& Simulator::GetId() const { return _parameters._id; }
 
 void Simulator::AskForSettings() {
-    auto settingsMessage = MessageHelper::Create(_type, _parameters._id, Subject::WebSocketGetSettings, {});
+    auto settingsMessage = MessageHelper::CreateDeviceMessage(_type, _parameters._id, Subject::WebSocketGetSettings, {});
     _websocket.send(nlohmann::json(settingsMessage).dump());
 }
 
 void Simulator::AskForCommands() {
-    auto commandsMessage = MessageHelper::Create(_type, _parameters._id, Subject::WebSocketGetCommands, {});
+    auto commandsMessage = MessageHelper::CreateDeviceMessage(_type, _parameters._id, Subject::WebSocketGetCommands, {});
     _websocket.send(nlohmann::json(commandsMessage).dump());
 }
 

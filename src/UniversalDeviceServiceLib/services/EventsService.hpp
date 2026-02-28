@@ -1,26 +1,31 @@
 #pragma once
 
-#include "BaseService.hpp"
+#include <string>
 
-class EventsService final : public BaseService {
-protected:
-    EventsService(IQueryExecutor* queryExecutor);
+#include <crow/http_response.h>
 
+#include "Event.hpp"
+#include "EventsController.hpp"
+#include "Middleware.hpp"
+
+class EventsService final {
 public:
-    virtual ~EventsService() = default;
+    EventsService(CrowApp& app, EventsController& eventsController);
 
-protected:
-    virtual void Initialize(CrowApp& app) override;
+    virtual ~EventsService() = default;
 
 private:
     crow::response GetEvents() const;
 
-    crow::response AddEvent(const Event& event, const std::string& eventString);
+    crow::response AddEvent(Event& event);
 
-    crow::response UpdateEvent(const Event& event, const std::string& eventString);
+    crow::response UpdateEvent(Event& event);
 
-    crow::response DeleteEvent(const Event& event);
+    crow::response DeleteEvent(const std::string& id);
 
 private:
-    friend class BaseServiceExtension;
+    EventsController& _eventsController;
+
+private:
+    friend class ServiceExtension;
 };

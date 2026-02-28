@@ -6,7 +6,9 @@
 #include <Wt/WText.h>
 #include <Wt/WVBoxLayout.h>
 
+#include "Device.hpp"
 #include "DeviceComboBox.hpp"
+#include "Event.hpp"
 #include "IEventEditorWidget.hpp"
 
 class EventReceiverWidget final : public Wt::WContainerWidget, public IEventEditorWidget {
@@ -15,7 +17,7 @@ public:
 
     virtual ~EventReceiverWidget() = default;
 
-    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
+    virtual void SetDevices(const Devices& devices) override;
 
     virtual void Cleanup() override;
 

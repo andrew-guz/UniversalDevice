@@ -5,6 +5,7 @@
 #include <iterator>
 #include <memory>
 #include <set>
+#include <string>
 #include <vector>
 
 #include <Wt/WCheckBox.h>
@@ -18,8 +19,14 @@
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
+#include "ApplicationSettings.hpp"
+#include "BaseStackWidget.hpp"
+#include "Constants.hpp"
 #include "Defines.hpp"
 #include "Event.hpp"
+#include "EventUtils.hpp"
+#include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RequestHelper.hpp"
@@ -29,7 +36,7 @@
 
 using namespace Wt;
 
-ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const Settings& settings) :
+ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<WVBoxLayout>());
 
@@ -123,11 +130,11 @@ void ScenariosWidget::Refresh() {
     }
 
     for (const auto& event : _events) {
-        auto activateCheckBox = _activateEventsGroup->addWidget(std::make_unique<WCheckBox>(event._name));
+        auto activateCheckBox = _activateEventsGroup->addWidget(std::make_unique<WCheckBox>(GetEventName(event)));
         activateCheckBox->setInline(false);
         _activatedEvents.push_back(activateCheckBox);
 
-        auto deactivateCheckBox = _deactivateEventsGroup->addWidget(std::make_unique<WCheckBox>(event._name));
+        auto deactivateCheckBox = _deactivateEventsGroup->addWidget(std::make_unique<WCheckBox>(GetEventName(event)));
         deactivateCheckBox->setInline(false);
         _deactivatedEvents.push_back(deactivateCheckBox);
     }
@@ -166,7 +173,7 @@ void ScenariosWidget::OnSelection(int index) {
     std::set<std::size_t> activatedIndexes;
     std::set<std::size_t> deactivatedIndexes;
     for (std::size_t index = 0; index < _events.size(); ++index) {
-        const Uuid& eventId = _events.at(index)._id;
+        const Uuid& eventId = GetEventId(_events.at(index));
         if (scenario._activateEvent.contains(eventId))
             activatedIndexes.insert(index);
         if (scenario._deactivateEvent.contains(eventId))
@@ -227,7 +234,7 @@ std::set<Uuid> ScenariosWidget::GetSelectedEventIndexes(const std::vector<Wt::WC
     std::set<Uuid> result;
     for (std::size_t index = 0; index < container.size(); ++index) {
         if (container.at(index)->isChecked())
-            result.insert(_events[index]._id);
+            result.insert(GetEventId(_events.at(index)));
     }
     return result;
 }

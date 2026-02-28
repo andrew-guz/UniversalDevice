@@ -1,6 +1,7 @@
 # where to search headers
 include_directories(./../UniversalDeviceLib/authentication)
 include_directories(./../UniversalDeviceLib/component)
+include_directories(./../UniversalDeviceLib/cache)
 include_directories(./../UniversalDeviceLib/core)
 include_directories(./../UniversalDeviceLib/events)
 include_directories(./../UniversalDeviceLib/interfaces)
@@ -9,14 +10,20 @@ include_directories(./../UniversalDeviceLib/messages)
 include_directories(./../UniversalDeviceLib/network)
 include_directories(./../UniversalDeviceLib/structures)
 include_directories(./../UniversalDeviceLib/structures/commands)
-include_directories(./../UniversalDeviceLib/structures/inform)
 include_directories(./../UniversalDeviceLib/structures/settings)
 include_directories(./../UniversalDeviceLib/utils)
 include_directories(./../UniversalDeviceServiceLib/interfaces)
+include_directories(./../UniversalDeviceServiceLib/controllers)
 include_directories(./../UniversalDeviceServiceLib/database)
 include_directories(./../UniversalDeviceServiceLib/processors)
 include_directories(./../UniversalDeviceServiceLib/services)
-include_directories(./../UniversalDeviceServiceLib/utils)
+
+# set C++ minimum version
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# set warnings as errors
+set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 # unit tests section
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/tests)

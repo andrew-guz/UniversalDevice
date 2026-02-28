@@ -1,5 +1,7 @@
 #include "ProcessSettingsReader.hpp"
 
+#include <nlohmann/json_fwd.hpp>
+
 #include "JsonFileReader.hpp"
 #include "Logger.hpp"
 

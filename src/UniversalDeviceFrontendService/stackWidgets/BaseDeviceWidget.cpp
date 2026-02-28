@@ -1,5 +1,10 @@
 #include "BaseDeviceWidget.hpp"
 
+#include <chrono>
+#include <memory>
+#include <mutex>
+#include <string>
+
 #include <Wt/WDialog.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WHBoxLayout.h>
@@ -10,9 +15,13 @@
 #include <Wt/WVBoxLayout.h>
 #include <fmt/format.h>
 
+#include "ApplicationSettings.hpp"
+#include "BaseStackWidget.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
+#include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RequestHelper.hpp"
@@ -23,13 +32,13 @@ using namespace Wt;
 
 namespace {
 
-    std::string CombineNameAndGroup(const std::string name, const std::string& group) {
+    std::string CombineNameAndGroup(const std::string& name, const std::string& group) {
         return group.empty() ? name : name + std::string{ " (" } + group + std::string{ ")" };
     }
 
 } // namespace
 
-BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const Settings& settings) :
+BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings),
     _deviceId(Uuid::Empty()) {
     _mainLayout = setLayout(std::make_unique<WVBoxLayout>());

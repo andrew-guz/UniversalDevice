@@ -1,7 +1,15 @@
 #include "TimeHelper.hpp"
 
+#include <chrono>
+#include <cstdint>
+#include <ctime>
 #include <iomanip>
+#include <optional>
+#include <sstream>
+#include <string>
+#include <string_view>
 #include <time.h>
+#include <tuple>
 
 #include <fmt/chrono.h>
 #include <fmt/format.h>
@@ -12,7 +20,7 @@ int64_t TimeHelper::TimeToInt(const std::chrono::system_clock::time_point& time)
     return secondsFromEpoch.count();
 }
 
-std::chrono::system_clock::time_point TimeHelper::TimeFromInt(int64_t value) {
+std::chrono::system_clock::time_point TimeHelper::TimeFromInt(const int64_t value) {
     auto seconds = std::chrono::seconds(value);
     return std::chrono::system_clock::time_point(seconds);
 }
@@ -21,6 +29,13 @@ std::string TimeHelper::TimeToString(const std::chrono::system_clock::time_point
     const auto time_t = std::chrono::system_clock::to_time_t(time);
     const auto tm = fmt::localtime(time_t);
     return fmt::format("{:%d-%m-%Y %T}", tm);
+}
+
+std::string TimeHelper::TimeToString(const std::optional<std::chrono::system_clock::time_point>& time) {
+    if (time.has_value())
+        return TimeToString(time.value());
+
+    return {};
 }
 
 std::string TimeHelper::TimeToString(int64_t value) { return TimeToString(TimeFromInt(value)); }
@@ -35,7 +50,7 @@ std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::stri
     return TimeHelper::TimeFromString(string, "%d-%m-%Y %T");
 }
 
-std::chrono::system_clock::time_point TimeHelper::TimeFromString(std::string_view string, const std::string_view format) {
+std::chrono::system_clock::time_point TimeHelper::TimeFromString(const std::string_view string, const std::string_view format) {
     std::tm tm = {};
     std::stringstream sstream(string.data());
     sstream >> std::get_time(&tm, format.data());

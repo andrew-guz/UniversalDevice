@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -17,9 +18,9 @@ public:
 
     virtual bool Begin() = 0;
 
-    virtual bool Execute(std::string_view query) = 0;
+    virtual bool Execute(std::string_view query, std::uint64_t* lastInsertedIndex = nullptr) = 0;
 
-    virtual bool Execute(std::string_view query, int (*callback)(void*, int, char**, char**)) = 0;
+    virtual bool Execute(std::string_view query, int (*callback)(void*, int, char**, char**), std::uint64_t* lastInsertedIndex = nullptr) = 0;
 
     virtual bool Select(std::string_view query, std::vector<std::vector<std::string>>& data) = 0;
 

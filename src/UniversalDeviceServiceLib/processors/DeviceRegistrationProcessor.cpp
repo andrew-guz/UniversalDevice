@@ -1,31 +1,31 @@
 #include "DeviceRegistrationProcessor.hpp"
 
+#include <chrono>
+
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
+#include "Device.hpp"
+#include "DeviceDescription.hpp"
+#include "DevicesController.hpp"
 #include "Marshaling.hpp"
-#include "TimeHelper.hpp"
+#include "Provider.hpp"
 
-DeviceRegistrationProcessor::DeviceRegistrationProcessor(IQueryExecutor* queryExecutor) :
-    BaseProcessorWithQueryExecutor(queryExecutor) {}
+DeviceRegistrationProcessor::DeviceRegistrationProcessor(DevicesController& devicesController) :
+    _devicesController(devicesController) {}
 
 nlohmann::json DeviceRegistrationProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
-    auto& description = message._header._description;
-    const std::string selectQuery = fmt::format("SELECT * FROM Devices WHERE id = '{}'", description._id.data());
-    std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(selectQuery, data)) {
-        std::string updateInsertQuery;
-        if (data.size()) {
-            updateInsertQuery =
-                fmt::format("UPDATE Devices SET timestamp = {} WHERE id = '{}'", TimeHelper::TimeToInt(timestamp), description._id.data());
-        } else {
-            updateInsertQuery = fmt::format("INSERT INTO Devices (id, type, timestamp) VALUES ('{}', '{}', {})",
-                                            description._id.data(),
-                                            ActorTypeToString(description._type),
-                                            TimeHelper::TimeToInt(timestamp));
-        }
-        if (!_queryExecutor->Execute(updateInsertQuery))
-            LOG_SQL_ERROR(updateInsertQuery);
-    } else
-        LOG_SQL_ERROR(selectQuery);
+    const Uuid id = GetProviderId(message._header._description);
+    if (_devicesController.Get(id).has_value())
+        _devicesController.UpdateDeviceTimestamp(id, timestamp);
+    else {
+        Device device{
+            ._id = id,
+            ._type = std::get<DeviceDescription>(message._header._description)._type,
+            ._timestamp = timestamp,
+        };
+        _devicesController.Add(device);
+    }
+
     return {};
 }

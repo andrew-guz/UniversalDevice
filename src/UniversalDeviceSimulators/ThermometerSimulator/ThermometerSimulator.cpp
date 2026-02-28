@@ -1,12 +1,17 @@
 #include "ThermometerSimulator.hpp"
 
-#include <cstdlib>
 #include <random>
+
+#include <ixwebsocket/IXWebSocketMessage.h>
+#include <ixwebsocket/IXWebSocketMessageType.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Enums.hpp"
 #include "MessageHelper.hpp"
+#include "Parameters.hpp"
 #include "PeriodSettings.hpp"
-#include "ThermometerCurrentValue.hpp"
+#include "Simulator.hpp"
+#include "ThermometerValue.hpp"
 
 namespace {
     std::random_device random_device;
@@ -39,9 +44,9 @@ float ThermometerSimulator::GetTemperature() {
 int ThermometerSimulator::GetPeriod() const { return periodSettings._period; }
 
 void ThermometerSimulator::SendTemperature() {
-    ThermometerCurrentValue temperatureValue;
+    ThermometerValue temperatureValue;
     temperatureValue._value = GetTemperature();
-    auto temperatureMessage = MessageHelper::Create(GetType(), GetId(), Subject::ThermometerCurrentValue, temperatureValue);
+    auto temperatureMessage = MessageHelper::CreateDeviceMessage(GetType(), GetId(), Subject::ThermometerCurrentValue, temperatureValue);
     SendMessage(temperatureMessage);
 }
 

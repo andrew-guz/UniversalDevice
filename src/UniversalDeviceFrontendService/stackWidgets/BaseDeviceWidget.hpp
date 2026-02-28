@@ -2,24 +2,31 @@
 
 #include <cstdint>
 #include <mutex>
+#include <string>
+#include <vector>
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WText.h>
 #include <Wt/WTimer.h>
 #include <Wt/WVBoxLayout.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseStackWidget.hpp"
+#include "Constants.hpp"
+#include "Defines.hpp"
 #include "DeviceInformationDescription.hpp"
+#include "Enums.hpp"
+#include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "Marshaling.hpp"
 #include "MessageHelper.hpp"
 #include "RequestHelper.hpp"
-#include "Types.hpp"
 #include "UrlHelper.hpp"
 #include "Uuid.hpp"
 
 class BaseDeviceWidget : public Wt::WContainerWidget, public BaseStackWidget {
 public:
-    BaseDeviceWidget(IStackHolder* stackHolder, const Settings& settings);
+    BaseDeviceWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~BaseDeviceWidget() = default;
 
@@ -45,18 +52,18 @@ protected:
 
     // return 1 last point
     template<typename TValues>
-    std::vector<TValues> GetValues(const ActorType type) {
+    std::vector<TValues> GetValues(const DeviceType type) {
         return GetValues<TValues>(type, (std::uint64_t)0);
     }
 
     // return data from last N seconds or at least one last known point
     template<typename TValues>
-    std::vector<TValues> GetValues(const ActorType type, std::uint64_t seconds) {
+    std::vector<TValues> GetValues(const DeviceType type, std::uint64_t seconds) {
         DeviceInformationDescription messageData;
         messageData._type = type;
         messageData._id = _deviceId;
         messageData._seconds = seconds;
-        auto postMessage = MessageHelper::Create(ClientActor{}, Constants::PredefinedIdClient, Subject::GetDeviceInformation, messageData);
+        auto postMessage = MessageHelper::CreateClientMessage(Subject::GetDeviceInformation, messageData);
         auto replyJson = RequestHelper::DoPostRequestWithAnswer(
             { BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICE_GET_INFO }, Constants::LoginService, postMessage);
         return !replyJson.is_null() ? replyJson.get<std::vector<TValues>>() : std::vector<TValues>{};

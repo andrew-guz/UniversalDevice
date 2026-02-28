@@ -1,19 +1,35 @@
 #include "MotionRelayWidget.hpp"
 
+#include <functional>
+#include <memory>
+
+#include <Wt/WDialog.h>
 #include <Wt/WEvent.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WTimer.h>
+#include <Wt/WValidator.h>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
+#include "ApplicationSettings.hpp"
+#include "BaseDeviceWidget.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
+#include "Enums.hpp"
+#include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "Logger.hpp"
+#include "MotionRelaySettings.hpp"
+#include "MotionRelayValue.hpp"
 #include "RelayState.hpp"
+#include "RequestHelper.hpp"
+#include "TimeHelper.hpp"
+#include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
 
 using namespace Wt;
 
-MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings) :
+MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
     _motionText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _motionText->setText(WidgetHelper::TextWithFontSize("Нет движения", 80));
@@ -32,7 +48,7 @@ MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Settings& 
 }
 
 void MotionRelayWidget::Initialize() {
-    auto motionStateValues = GetValues<ExtendedMotionRelayCurrentState>(DeviceType::MotionRelay);
+    auto motionStateValues = GetValues<MotionRelayValue>(DeviceType::MotionRelay);
     if (motionStateValues.size()) {
         auto& motionStateValue = motionStateValues[0];
         _motionDetected = motionStateValue._motion;
@@ -40,8 +56,7 @@ void MotionRelayWidget::Initialize() {
         _motionText->setText(WidgetHelper::TextWithFontSize(_motionDetected ? "Движение" : "Нет движения", 80));
         _stateText->setText(WidgetHelper::TextWithFontSize(_deviceState ? "Включено" : "Выключено", 80));
         _stateButton->setText(WidgetHelper::TextWithFontSize(_deviceState ? "Выключить" : "Включить", 32));
-        auto timestamp = motionStateValue._timestamp;
-        _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
+        _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(motionStateValue._timestamp), 20));
     } else
         Clear(BaseDeviceWidget::ClearType::Data);
     _stateButton->setEnabled(true);

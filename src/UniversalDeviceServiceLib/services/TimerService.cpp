@@ -1,8 +1,15 @@
 #include "TimerService.hpp"
 
-#include "CurrentTime.hpp"
+#include <chrono>
+#include <functional>
+#include <thread>
+
+#include <nlohmann/json_fwd.hpp>
+
+#include "Constants.hpp"
 #include "Enums.hpp"
 #include "MessageHelper.hpp"
+#include "TimeHelper.hpp"
 
 namespace {
 
@@ -22,10 +29,7 @@ namespace {
 
 } // namespace
 
-TimerService::TimerService(IQueryExecutor* queryExecutor) :
-    BaseService(queryExecutor) {}
-
-void TimerService::Initialize(CrowApp& /* app */) {
+TimerService::TimerService() {
     // also start thread for timer events
     auto timerFunction = std::bind(&TimerService::TimerFunction, this);
     auto timingThread = new std::thread(TimerThreadFunction, timerFunction);
@@ -33,18 +37,10 @@ void TimerService::Initialize(CrowApp& /* app */) {
 }
 
 void TimerService::TimerFunction() {
-    CurrentTime currentTime;
-    currentTime._timestamp = std::chrono::system_clock::now();
-    {
-        auto message = MessageHelper::Create(EventType::Timer, Constants::PredefinedIdTimer, Subject::TimerEvent, currentTime);
-        CallProcessorsNoResult(std::chrono::system_clock::now(), message);
-    }
-    {
-        auto message = MessageHelper::Create(EventType::Sunrise, Constants::PredefinedIdSunrise, Subject::SunriseEvent, currentTime);
-        CallProcessorsNoResult(std::chrono::system_clock::now(), message);
-    }
-    {
-        auto message = MessageHelper::Create(EventType::Sunset, Constants::PredefinedIdSunset, Subject::SunsetEvent, currentTime);
-        CallProcessorsNoResult(std::chrono::system_clock::now(), message);
-    }
+    CallProcessorsNoResult(std::chrono::system_clock::now(),
+                           MessageHelper::CreateEventMessage(Constants::PredefinedIdTimer, Subject::TimerEvent, nlohmann::json::object_t{}));
+    CallProcessorsNoResult(std::chrono::system_clock::now(),
+                           MessageHelper::CreateEventMessage(Constants::PredefinedIdSunrise, Subject::SunriseEvent, nlohmann::json::object_t{}));
+    CallProcessorsNoResult(std::chrono::system_clock::now(),
+                           MessageHelper::CreateEventMessage(Constants::PredefinedIdSunset, Subject::SunsetEvent, nlohmann::json::object_t{}));
 }

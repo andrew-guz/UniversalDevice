@@ -1,6 +1,10 @@
 #include "BaseParameters.hpp"
 
+#include <nlohmann/json_fwd.hpp>
+
+#include "Defines.hpp"
 #include "ProcessSettingsReader.hpp"
+#include "Uuid.hpp"
 
 BaseParameters BaseParameters::ReadFromFile() {
     nlohmann::json json = ProcessSettingsReader::ReadProcessSettings();

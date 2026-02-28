@@ -1,14 +1,16 @@
 #include "AccountManagerInitializer.hpp"
 
+#include <filesystem>
 #include <mutex>
+#include <vector>
 
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Account.hpp"
 #include "Enums.hpp"
 #include "JsonFileReader.hpp"
 #include "Marshaling.hpp"
-#include "PathHelper.hpp"
 
 AccountManagerInitializer::AccountManagerInitializer(const std::filesystem::path& authPath) :
     _authPath(authPath) {}

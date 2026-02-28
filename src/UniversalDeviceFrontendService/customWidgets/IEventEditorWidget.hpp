@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Device.hpp"
 #include "Event.hpp"
-#include "ExtendedComponentDescription.hpp"
 
 class IEventEditorWidget {
 public:
@@ -9,7 +9,7 @@ public:
 
     virtual ~IEventEditorWidget() = default;
 
-    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) = 0;
+    virtual void SetDevices(const Devices& devices) = 0;
 
     virtual void Cleanup() = 0;
 

@@ -1,14 +1,20 @@
 #include "DeviceComboBox.hpp"
 
-#include "Defines.hpp"
-#include "RequestHelper.hpp"
+#include <algorithm>
+#include <cstddef>
+
+#include <Wt/WComboBox.h>
+
+#include "Device.hpp"
+#include "DeviceDescription.hpp"
+#include "Uuid.hpp"
 
 using namespace std;
 
 DeviceComboBox::DeviceComboBox() :
     WComboBox() {}
 
-void DeviceComboBox::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
+void DeviceComboBox::SetDevices(const Devices& devices) {
     clear();
     _devices = devices;
     for (auto& device : _devices)
@@ -20,10 +26,13 @@ bool DeviceComboBox::IsValid() const {
     return index >= 0 && index < _devices.size();
 }
 
-ComponentDescription DeviceComboBox::GetSelectedDevice() const {
+DeviceDescription DeviceComboBox::GetSelectedDevice() const {
     if (!IsValid())
         return {};
-    return _devices[currentIndex()];
+    return DeviceDescription{
+        ._type = _devices[currentIndex()]._type,
+        ._id = _devices[currentIndex()]._id,
+    };
 }
 
 void DeviceComboBox::SetSelectedDevice(const Uuid& deviceId) {

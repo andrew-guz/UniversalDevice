@@ -1,6 +1,8 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -13,6 +15,9 @@ public:
 
     // returns 25-11-2023 12:34:56 from time_point
     static std::string TimeToString(const std::chrono::system_clock::time_point& time);
+
+    // returns 25-11-2023 12:34:56 from time_point of empty string
+    static std::string TimeToString(const std::optional<std::chrono::system_clock::time_point>& time);
 
     // returns 25-11-2023 12:34:56 from seconds since epoch
     static std::string TimeToString(int64_t value);

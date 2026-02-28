@@ -1,12 +1,22 @@
 #include "LogsWidget.hpp"
 
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <Wt/WGlobal.h>
 #include <Wt/WHBoxLayout.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WVBoxLayout.h>
 
+#include "ApplicationSettings.hpp"
+#include "BaseStackWidget.hpp"
 #include "Constants.hpp"
+#include "Defines.hpp"
 #include "FileUtils.hpp"
+#include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "LogInformation.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
@@ -15,7 +25,7 @@
 
 using namespace Wt;
 
-LogsWidget::LogsWidget(IStackHolder* stackHolder, const Settings& settings) :
+LogsWidget::LogsWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings) {
     auto mainLayout = setLayout(std::make_unique<WVBoxLayout>());
 

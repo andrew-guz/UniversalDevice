@@ -1,11 +1,18 @@
 #include "EventsTableModel.hpp"
 
+#include <cstddef>
 #include <string>
+#include <vector>
 
+#include <Wt/WGlobal.h>
+#include <Wt/WModelIndex.h>
+#include <Wt/cpp17/any.hpp>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "Enums.hpp"
 #include "Event.hpp"
+#include "EventUtils.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RelayEvent.hpp"
@@ -57,16 +64,16 @@ Wt::cpp17::any EventsTableModel::data(const Wt::WModelIndex& index, Wt::ItemData
         if (role == Wt::ItemDataRole::Display) {
             switch (index.column()) {
                 case Columns::Name:
-                    return event._name;
+                    return GetEventName(event);
                     break;
                 case Columns::Type:
-                    return EventTypeDisplayName(event._type);
+                    return EventTypeDisplayName(GetEventType(event));
                     break;
                 case Columns::Activity:
-                    return event._active ? "Активно" : "Неактивно";
+                    return GetEventActivity(event) ? "Активно" : "Неактивно";
                     break;
                 case Columns::Additional:
-                    return EventAdditionalInfo(event._type, _data[index.row()]);
+                    return EventAdditionalInfo(GetEventType(event), _data[index.row()]);
                     break;
             }
         }

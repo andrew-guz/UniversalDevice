@@ -1,10 +1,19 @@
 #include "BaseEventEditor.hpp"
 
+#include <algorithm>
+#include <memory>
+#include <set>
+#include <variant>
+
 #include <Wt/WContainerWidget.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WHBoxLayout.h>
 
+#include "Device.hpp"
+#include "Enums.hpp"
 #include "Event.hpp"
+#include "EventUtils.hpp"
+#include "IEventEditorWidget.hpp"
 
 using namespace Wt;
 
@@ -23,7 +32,7 @@ BaseEventEditor::BaseEventEditor() :
     _active = commonLayout->addWidget(std::make_unique<WCheckBox>("Активно"), 0, AlignmentFlag::Right | AlignmentFlag::Top);
 }
 
-void BaseEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) { _devices = devices; }
+void BaseEventEditor::SetDevices(const Devices& devices) { _devices = devices; }
 
 void BaseEventEditor::Cleanup() {
     _name->setText({});
@@ -31,25 +40,22 @@ void BaseEventEditor::Cleanup() {
 }
 
 void BaseEventEditor::FillUi(const Event& event) {
-    _name->setText(event._name);
-    _active->setChecked(event._active);
+    _name->setText(GetEventName(event));
+    _active->setChecked(GetEventActivity(event));
 }
 
 bool BaseEventEditor::IsValid() const { return _name->text().toUTF8().size(); }
 
 void BaseEventEditor::FillFromUi(Event& event) const {
-    event._name = _name->text().toUTF8();
-    event._active = _active->isChecked();
+    std::visit([&](auto& e) { e._name = _name->text().toUTF8(); }, event);
+    std::visit([&](auto& e) { e._active = _active->isChecked(); }, event);
 }
 
-std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const DeviceType type) {
-    return FilteredDevices(std::set<DeviceType>{ type });
-}
+Devices BaseEventEditor::FilteredDevices(const DeviceType type) { return FilteredDevices(std::set<DeviceType>{ type }); }
 
-std::vector<ExtendedComponentDescription> BaseEventEditor::FilteredDevices(const std::set<DeviceType>& types) {
+Devices BaseEventEditor::FilteredDevices(const std::set<DeviceType>& types) {
     auto devices = _devices;
-    auto newEnd =
-        std::remove_if(devices.begin(), devices.end(), [&](const auto& d) { return !d.isDeviceType() || types.count(d.getDeviceType()) == 0; });
+    auto newEnd = std::remove_if(devices.begin(), devices.end(), [&](const auto& d) { return types.count(d._type) == 0; });
     devices.erase(newEnd, devices.end());
     return devices;
 }

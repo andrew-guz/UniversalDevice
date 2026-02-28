@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include <nlohmann/json_fwd.hpp>
+
 #include "Message.hpp"
 
 class IProcessor {

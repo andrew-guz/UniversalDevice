@@ -1,10 +1,13 @@
 #pragma once
 
+#include <set>
+
 #include <Wt/WCheckBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WVBoxLayout.h>
 
+#include "Device.hpp"
 #include "Enums.hpp"
 #include "Event.hpp"
 #include "IEventEditorWidget.hpp"
@@ -15,7 +18,7 @@ public:
 
     virtual ~BaseEventEditor() = default;
 
-    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
+    virtual void SetDevices(const Devices& devices) override;
 
     virtual void Cleanup() override;
 
@@ -26,12 +29,12 @@ public:
     virtual void FillFromUi(Event& event) const override;
 
 protected:
-    std::vector<ExtendedComponentDescription> FilteredDevices(DeviceType type);
+    Devices FilteredDevices(DeviceType type);
 
-    std::vector<ExtendedComponentDescription> FilteredDevices(const std::set<DeviceType>& types);
+    Devices FilteredDevices(const std::set<DeviceType>& types);
 
 protected:
-    std::vector<ExtendedComponentDescription> _devices;
+    Devices _devices;
     Wt::WVBoxLayout* _mainLayout;
     Wt::WLineEdit* _name;
     Wt::WCheckBox* _active;

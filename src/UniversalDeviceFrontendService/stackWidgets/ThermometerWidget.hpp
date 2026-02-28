@@ -1,17 +1,22 @@
 #pragma once
 
-#include <Wt/Chart/WCartesianChart.h>
+#include <memory>
+#include <vector>
 
+#include <Wt/Chart/WCartesianChart.h>
+#include <Wt/WText.h>
+
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
-#include "ExtendedThermometerCurrentValue.hpp"
-#include "PeriodSettings.hpp"
+#include "IStackHolder.hpp"
 #include "SecondsComboBox.hpp"
 #include "TemperatureChartModel.hpp"
 #include "ThermometerLedBrightness.hpp"
+#include "ThermometerValue.hpp"
 
 class ThermometerWidget final : public BaseDeviceWidget {
 public:
-    ThermometerWidget(IStackHolder* stackHolder, const Settings& settings);
+    ThermometerWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~ThermometerWidget() = default;
 
@@ -31,5 +36,5 @@ private:
     Wt::Chart::WCartesianChart* _chart;
     std::shared_ptr<TemperatureChartModel> _model;
     SecondsComboBox* _seconds;
-    std::vector<ExtendedThermometerCurrentValue> _cachedValues;
+    std::vector<ThermometerValue> _cachedValues;
 };

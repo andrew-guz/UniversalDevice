@@ -21,6 +21,7 @@ include_directories(./../SimulatorLib)
 include_directories(./../../../vendor/ixwebsocket)
 include_directories(./../../UniversalDeviceLib/authentication)
 include_directories(./../../UniversalDeviceLib/component)
+include_directories(./../../UniversalDeviceLib/cache)
 include_directories(./../../UniversalDeviceLib/core)
 include_directories(./../../UniversalDeviceLib/events)
 include_directories(./../../UniversalDeviceLib/interfaces)
@@ -29,7 +30,6 @@ include_directories(./../../UniversalDeviceLib/messages)
 include_directories(./../../UniversalDeviceLib/network)
 include_directories(./../../UniversalDeviceLib/structures)
 include_directories(./../../UniversalDeviceLib/structures/commands)
-include_directories(./../../UniversalDeviceLib/structures/inform)
 include_directories(./../../UniversalDeviceLib/structures/settings)
 
 # set variable where to put ouput file
@@ -55,6 +55,10 @@ file(GLOB_RECURSE SRC_FILES *.cpp)
 
 # create executable from source
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
+
+# add preprocessor definitions
+target_compile_definitions(${PROJECT_NAME}
+                           PRIVATE $<$<CONFIG:Debug>:DEBUG_BUILD>)
 
 # make sure that this project will be build after some targets
 add_dependencies(${PROJECT_NAME} UniversalDeviceLib SimulatorLib)

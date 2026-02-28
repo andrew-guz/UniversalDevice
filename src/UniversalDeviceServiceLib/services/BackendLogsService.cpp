@@ -1,13 +1,20 @@
 #include "BackendLogsService.hpp"
 
+#include <crow/app.h>
+#include <crow/common.h>
+#include <crow/http_response.h>
+#include <nlohmann/json_fwd.hpp>
+
+#include "BaseService.hpp"
+#include "Defines.hpp"
 #include "FileUtils.hpp"
+#include "LogInformation.hpp"
+#include "Logger.hpp"
+#include "Middleware.hpp"
 
-BackendLogsService::BackendLogsService(IQueryExecutor* queryExecutor) :
-    BaseService(queryExecutor) {}
-
-void BackendLogsService::Initialize(CrowApp& app) {
-    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &BackendLogsService::GetBackendLog));
-    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &BackendLogsService::ClearBackendLog));
+BackendLogsService::BackendLogsService(CrowApp& app) {
+    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &BackendLogsService::GetBackendLog));
+    CROW_ROUTE(app, API_CLIENT_LOGS).methods(crow::HTTPMethod::DELETE)(ServiceExtension::bind(this, &BackendLogsService::ClearBackendLog));
 }
 
 crow::response BackendLogsService::GetBackendLog() const {
@@ -17,7 +24,5 @@ crow::response BackendLogsService::GetBackendLog() const {
 
 crow::response BackendLogsService::ClearBackendLog() const {
     Logger::Cleanup();
-    return crow::response{
-        crow::OK,
-    };
+    return crow::response{ crow::OK };
 }

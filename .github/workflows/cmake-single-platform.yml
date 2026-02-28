@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - "main"
+  workflow_dispatch:
 
 env:
   BUILD_TYPE: Release
@@ -31,6 +32,12 @@ jobs:
 
       - name: Check format
         run: ${{github.workspace}}/scripts/check_format.sh
+
+      - name: Delete build folder if it exists
+        run: rm -rf build
+
+      - name: Delete tests folder if it exists
+        run: rm -rf bin/tests
 
       - name: Configure
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}

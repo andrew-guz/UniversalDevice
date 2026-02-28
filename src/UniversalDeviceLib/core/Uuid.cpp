@@ -1,6 +1,11 @@
 #include "Uuid.hpp"
 
 #include <cstring>
+#include <functional>
+#include <string>
+#include <string_view>
+
+#include <uuid/uuid.h>
 
 Uuid::Uuid() { uuid_generate(_uuid); }
 
@@ -38,3 +43,5 @@ Uuid Uuid::Empty() {
     uuid_parse("00000000-0000-0000-0000-000000000000", result._uuid);
     return result;
 }
+
+std::size_t std::hash<Uuid>::operator()(const Uuid& uuid) const { return hash<std::string>{}(uuid.data()); }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <chrono>
+#include <cstddef>
+#include <ctime>
 #include <vector>
 
 #include <Wt/WAbstractItemModel.h>
@@ -51,7 +53,9 @@ public:
             role == Wt::ItemDataRole::Display) {
             if (index.column() == 0) {
                 auto timestamp = _data[index.row()]._timestamp;
-                auto time_t = std::chrono::system_clock::to_time_t(timestamp);
+                if (!timestamp.has_value())
+                    return Wt::WDateTime{};
+                auto time_t = std::chrono::system_clock::to_time_t(timestamp.value());
                 auto tm = std::localtime(&time_t);
                 auto updatedTime_t = timegm(tm);
                 return Wt::WDateTime::fromTime_t(updatedTime_t);

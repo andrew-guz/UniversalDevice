@@ -1,12 +1,16 @@
 #pragma once
 
+#include <Wt/WGlobal.h>
+#include <Wt/WText.h>
+
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
-#include "ExtendedMotionRelayCurrentState.hpp"
-#include "MotionRelaySettings.hpp"
+#include "BaseStackWidget.hpp"
+#include "IStackHolder.hpp"
 
 class MotionRelayWidget final : public BaseDeviceWidget {
 public:
-    MotionRelayWidget(IStackHolder* stackHolder, const Settings& settings);
+    MotionRelayWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~MotionRelayWidget() = default;
 

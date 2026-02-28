@@ -1,16 +1,20 @@
 #pragma once
 
+#include <string>
+
+#include <crow/http_response.h>
+
 #include "BaseService.hpp"
+#include "EventsController.hpp"
+#include "Middleware.hpp"
+#include "Scenario.hpp"
+#include "ScenariosController.hpp"
 
 class ScenariosService final : public BaseService {
-protected:
-    ScenariosService(IQueryExecutor* queryExecutor);
-
 public:
-    virtual ~ScenariosService() = default;
+    ScenariosService(CrowApp& app, ScenariosController& scenariosController, EventsController& eventsController);
 
-protected:
-    virtual void Initialize(CrowApp& app) override;
+    virtual ~ScenariosService() = default;
 
 private:
     crow::response GetScenarios() const;
@@ -24,5 +28,9 @@ private:
     crow::response ActivateScenario(const std::string& scenarioId);
 
 private:
-    friend class BaseServiceExtension;
+    ScenariosController& _scenariosController;
+    EventsController& _eventsController;
+
+private:
+    friend class ServiceExtension;
 };

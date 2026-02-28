@@ -1,5 +1,7 @@
 #include "PathHelper.hpp"
 
+#include <filesystem>
+
 namespace {
 
     std::filesystem::path Path() { return std::filesystem::canonical("/proc/self/exe"); }

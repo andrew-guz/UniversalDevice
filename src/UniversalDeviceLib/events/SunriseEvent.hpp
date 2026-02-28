@@ -1,11 +1,10 @@
 #pragma once
 
+#include "BaseEvent.hpp"
+#include "Command.hpp"
 #include "Enums.hpp"
-#include "Event.hpp"
 
-struct SunriseEvent final : public Event {
-    SunriseEvent() :
-        Event(EventType::Sunrise) {}
-
-    virtual ~SunriseEvent() = default;
+struct SunriseEvent final : public BaseEvent {
+    const EventType _type = EventType::Sunrise;
+    Command _command;
 };

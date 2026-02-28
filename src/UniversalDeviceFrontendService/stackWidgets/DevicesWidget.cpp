@@ -1,13 +1,19 @@
 #include "DevicesWidget.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <functional>
 #include <memory>
+#include <set>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include <Wt/Http/Cookie.h>
 #include <Wt/WComboBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WDialog.h>
+#include <Wt/WEvent.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WHBoxLayout.h>
@@ -18,11 +24,14 @@
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
+#include "ApplicationSettings.hpp"
+#include "BaseStackWidget.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
+#include "Device.hpp"
 #include "DeviceButton.hpp"
 #include "Enums.hpp"
-#include "ExtendedComponentDescription.hpp"
+#include "FrontendDefines.hpp"
 #include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
@@ -42,11 +51,11 @@ namespace {
         Group* _parent;
         std::vector<std::shared_ptr<Group>> _children;
         std::string _name;
-        std::vector<ExtendedComponentDescription> _descriptions;
+        Devices _devices;
     };
 } // namespace
 
-DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const Settings& settings) :
+DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<WVBoxLayout>());
     setOverflow(Overflow::Scroll, Orientation::Vertical);
@@ -106,11 +115,10 @@ void DevicesWidget::Refresh() {
     const auto scenarios = !scenariosReplyJson.is_null() ? scenariosReplyJson.get<std::vector<Scenario>>() : std::vector<Scenario>{};
 
     const auto devicesReplyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
-    const auto allDescriptions =
-        !devicesReplyJson.is_null() ? devicesReplyJson.get<std::vector<ExtendedComponentDescription>>() : std::vector<ExtendedComponentDescription>{};
-    if (allDescriptions.empty())
+    const auto allDevices = !devicesReplyJson.is_null() ? devicesReplyJson.get<Devices>() : Devices{};
+    if (allDevices.empty())
         return;
-    LOG_DEBUG_MSG(fmt::format("{} descriptions found", allDescriptions.size()));
+    LOG_DEBUG_MSG(fmt::format("{} descriptions found", allDevices.size()));
 
     auto initButtonsWidget = [&buttonsWidget, &buttonsLayout, this](WVBoxLayout* layout) {
         buttonsWidget = layout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Top);
@@ -146,20 +154,20 @@ void DevicesWidget::Refresh() {
     }
 
     std::set<std::string> groups;
-    std::vector<ExtendedComponentDescription> descriptionsWithoutGroup;
-    std::vector<ExtendedComponentDescription> descriptionsWithGroup;
-    std::for_each(allDescriptions.begin(), allDescriptions.end(), [&groups, &descriptionsWithoutGroup, &descriptionsWithGroup](const auto& d) {
+    Devices devicesWithoutGroup;
+    Devices devicesWithGroup;
+    std::for_each(allDevices.begin(), allDevices.end(), [&groups, &devicesWithoutGroup, &devicesWithGroup](const auto& d) {
         if (d._group.size()) {
             groups.insert(d._group);
-            descriptionsWithGroup.push_back(d);
+            devicesWithGroup.push_back(d);
         } else
-            descriptionsWithoutGroup.push_back(d);
+            devicesWithoutGroup.push_back(d);
     });
 
     // add buttons in groups
     auto topLevelGroup = std::make_shared<Group>();
-    for (const auto& description : descriptionsWithGroup) {
-        const auto groups = SplitString(description._group, '/');
+    for (const auto& device : devicesWithGroup) {
+        const auto groups = SplitString(device._group, '/');
         Group* currentGroup = topLevelGroup.get();
         for (std::size_t groupIndex = 0; groupIndex < groups.size(); ++groupIndex) {
             const auto& group = groups[groupIndex];
@@ -175,7 +183,7 @@ void DevicesWidget::Refresh() {
             } else
                 currentGroup = iter->get();
             if (groupIndex == groups.size() - 1)
-                currentGroup->_descriptions.push_back(description);
+                currentGroup->_devices.push_back(device);
         }
     }
     std::function<void(Wt::WVBoxLayout*, const std::shared_ptr<Group>&)> addGroup = [&](Wt::WVBoxLayout* layout,
@@ -190,15 +198,14 @@ void DevicesWidget::Refresh() {
             addGroup(groupLayout, subGroup);
 
         // add buttons in group
-        std::sort(
-            group->_descriptions.begin(), group->_descriptions.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
+        std::sort(group->_devices.begin(), group->_devices.end(), [](const auto& a, const auto& b) { return a._name.compare(b._name) < 0; });
 
-        for (std::size_t i = 0; i < group->_descriptions.size(); ++i) {
+        for (std::size_t i = 0; i < group->_devices.size(); ++i) {
             if (buttonsWidget == nullptr) {
                 initButtonsWidget(groupLayout);
             }
 
-            AddDeviceButton(buttonsLayout, group->_descriptions.at(i));
+            AddDeviceButton(buttonsLayout, group->_devices.at(i));
 
             if (i % MAX_BUTTONS_IN_A_ROW == MAX_BUTTONS_IN_A_ROW - 1) {
                 clearButtonsWidget();
@@ -214,13 +221,13 @@ void DevicesWidget::Refresh() {
         addGroup(_mainLayout, group);
 
     // add groups without layout
-    for (std::size_t i = 0; i < descriptionsWithoutGroup.size(); ++i) {
+    for (std::size_t i = 0; i < devicesWithoutGroup.size(); ++i) {
         if (buttonsWidget == nullptr) {
             initButtonsWidget(_mainLayout);
             buttonsLayout->setContentsMargins(0, 0, 0, 0);
         }
 
-        AddDeviceButton(buttonsLayout, descriptionsWithoutGroup.at(i));
+        AddDeviceButton(buttonsLayout, devicesWithoutGroup.at(i));
 
         if (i % MAX_BUTTONS_IN_A_ROW == MAX_BUTTONS_IN_A_ROW - 1) {
             clearButtonsWidget();
@@ -233,43 +240,41 @@ void DevicesWidget::Refresh() {
     _widgets.push_back(std::make_pair<WWidget*, WLayout*>(expander, _mainLayout));
 }
 
-void DevicesWidget::AddDeviceButton(WHBoxLayout* layout, const ExtendedComponentDescription& description) {
+void DevicesWidget::AddDeviceButton(WHBoxLayout* layout, const Device& device) {
     DeviceButton* button =
-        layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, description), 0, AlignmentFlag::Top | AlignmentFlag::Left);
-    button->clicked().connect([this, description]() {
-        if (description.isDeviceType()) {
-            StackWidgetType stackWidgetType = static_cast<StackWidgetType>(-1);
-            switch (description.getDeviceType()) {
-                case DeviceType::Undefined:
-                    break;
-                case DeviceType::Thermometer:
-                    stackWidgetType = StackWidgetType::Thermometer;
-                    break;
-                case DeviceType::Relay:
-                    stackWidgetType = StackWidgetType::Relay;
-                    break;
-                case DeviceType::MotionRelay:
-                    stackWidgetType = StackWidgetType::MotionRelay;
-                    break;
-                case DeviceType::UniversalDevice:
-                    stackWidgetType = StackWidgetType::UniversalDevice;
-                    break;
-            }
-            if (stackWidgetType != static_cast<StackWidgetType>(-1))
-                _stackHolder->SetWidget(stackWidgetType, description._id.data());
+        layout->addWidget(std::make_unique<DeviceButton>(_settings._servicePort, device), 0, AlignmentFlag::Top | AlignmentFlag::Left);
+    button->clicked().connect([this, device]() {
+        StackWidgetType stackWidgetType = static_cast<StackWidgetType>(-1);
+        switch (device._type) {
+            case DeviceType::Undefined:
+                break;
+            case DeviceType::Thermometer:
+                stackWidgetType = StackWidgetType::Thermometer;
+                break;
+            case DeviceType::Relay:
+                stackWidgetType = StackWidgetType::Relay;
+                break;
+            case DeviceType::MotionRelay:
+                stackWidgetType = StackWidgetType::MotionRelay;
+                break;
+            case DeviceType::UniversalDevice:
+                stackWidgetType = StackWidgetType::UniversalDevice;
+                break;
         }
+        if (stackWidgetType != static_cast<StackWidgetType>(-1))
+            _stackHolder->SetWidget(stackWidgetType, device._id.data());
     });
-    button->mouseWentUp().connect([this, description](const WMouseEvent& event) {
+    button->mouseWentUp().connect([this, device](const WMouseEvent& event) {
         if (event.button() == MouseButton::Right) {
             auto popup = std::make_unique<Wt::WPopupMenu>();
             auto deleteItem = popup->addItem("Удалить...");
-            deleteItem->triggered().connect([this, &description]() {
+            deleteItem->triggered().connect([this, &device]() {
                 auto result = RequestHelper::DoDeleteRequest(
-                    { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", description._id.data()) }, Constants::LoginService);
+                    { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", device._id.data()) }, Constants::LoginService);
                 if (result == 200)
                     Refresh();
                 else
-                    LOG_ERROR_MSG(fmt::format("Failed to delete device {}", description._id.data()));
+                    LOG_ERROR_MSG(fmt::format("Failed to delete device {}", device._id.data()));
             });
             popup->exec(event);
         }
@@ -291,7 +296,7 @@ void DevicesWidget::OnSettings() {
     dialog->setResizable(false);
     dialog->rejectWhenEscapePressed(true);
     // log level
-    layout->addWidget(std::make_unique<WText>("Уровнь логирования:"), 0, AlignmentFlag::Left | AlignmentFlag::Top);
+    layout->addWidget(std::make_unique<WText>("Уровень логирования:"), 0, AlignmentFlag::Left | AlignmentFlag::Top);
     auto logLevel = layout->addWidget(std::make_unique<WComboBox>(), 1, AlignmentFlag::Top);
     logLevel->addItem("Select...");
     logLevel->addItem("DEBUG");

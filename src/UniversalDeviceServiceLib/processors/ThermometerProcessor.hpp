@@ -1,10 +1,18 @@
 #pragma once
 
-#include "BaseProcessorWithQueryExecutor.hpp"
+#include <chrono>
 
-class ThermometerProcessor final : public BaseProcessorWithQueryExecutor {
+#include <nlohmann/json_fwd.hpp>
+
+#include "DeviceDataProcessor.hpp"
+#include "Enums.hpp"
+#include "Message.hpp"
+#include "ThermometerValue.hpp"
+#include "ThermometerValuesController.hpp"
+
+class ThermometerProcessor final : public DeviceDataProcessor<ThermometerValuesController, ThermometerValue, DeviceType::Thermometer> {
 public:
-    ThermometerProcessor(IQueryExecutor* queryExecutor);
+    ThermometerProcessor(ThermometerValuesController& thermometerValuesController);
 
     virtual ~ThermometerProcessor() = default;
 

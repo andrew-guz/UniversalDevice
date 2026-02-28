@@ -1,30 +1,45 @@
 #pragma once
 
+#include <chrono>
+#include <exception>
+#include <string>
 #include <string_view>
+#include <utility>
 
 #include <crow.h>
+#include <crow/common.h>
+#include <crow/http_request.h>
+#include <crow/http_response.h>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
-#include "IQueryExecutor.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "Message.hpp"
-#include "Middleware.hpp"
 
 class BaseService {
 protected:
-    BaseService(IQueryExecutor* queryExecutor);
+    BaseService() = default;
 
 public:
     virtual ~BaseService() = default;
 
 protected:
-    virtual void Initialize(CrowApp& app) = 0;
-
     void CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
 
     nlohmann::json CallProcessorsJsonResult(const std::chrono::system_clock::time_point& timestamp, const Message& message);
+};
+
+class ServiceExtension final {
+public:
+    ServiceExtension() = delete;
+
+    ~ServiceExtension() = default;
+
+    static Message GetMessageFromRequest(const crow::request& request);
+
+    static Message GetMessageFromWebSocketData(const std::string& data);
 
     template<typename ServiceType, typename... Args>
     static auto bind(ServiceType* service, crow::response (ServiceType::*func)(Args...)) {
@@ -84,25 +99,4 @@ protected:
             return crow::response(crow::BAD_REQUEST);
         };
     }
-
-protected:
-    IQueryExecutor* _queryExecutor = nullptr;
-};
-
-class BaseServiceExtension final {
-public:
-    BaseServiceExtension() = delete;
-
-    ~BaseServiceExtension() = default;
-
-    template<typename ServiceType>
-    static ServiceType* Create(CrowApp& app, IQueryExecutor* queryExecutor) {
-        auto service = new ServiceType(queryExecutor);
-        service->Initialize(app);
-        return service;
-    }
-
-    static Message GetMessageFromRequest(const crow::request& request);
-
-    static Message GetMessageFromWebSocketData(const std::string& data);
 };

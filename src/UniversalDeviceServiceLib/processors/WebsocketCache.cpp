@@ -1,3 +1,11 @@
+#include <algorithm>
+#include <mutex>
+#include <utility>
+#include <vector>
+
+#include <crow/websocket.h>
+
+#include "Uuid.hpp"
 #include "WebsocketsCache.hpp"
 
 void WebsocketsCache::AddWebSocketConnection(const Uuid& id, crow::websocket::connection& connection) {

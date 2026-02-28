@@ -1,10 +1,18 @@
 #pragma once
 
-#include "BaseProcessorWithQueryExecutor.hpp"
+#include <chrono>
 
-class UniversalDeviceProcessor final : public BaseProcessorWithQueryExecutor {
+#include <nlohmann/json_fwd.hpp>
+
+#include "DeviceDataProcessor.hpp"
+#include "Enums.hpp"
+#include "Message.hpp"
+#include "UniversalValue.hpp"
+#include "UniversalValuesController.hpp"
+
+class UniversalDeviceProcessor final : public DeviceDataProcessor<UniversalValuesController, UniversalValue, DeviceType::UniversalDevice> {
 public:
-    UniversalDeviceProcessor(IQueryExecutor* queryExecutor);
+    UniversalDeviceProcessor(UniversalValuesController& universalValuesController);
 
     virtual ~UniversalDeviceProcessor() = default;
 
