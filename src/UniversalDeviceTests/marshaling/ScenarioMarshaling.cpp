@@ -26,9 +26,9 @@ TEST_CASE("ScenarioJson") {
         ._name = "test",
         ._activateEvent = activate,
         ._deactivateEvent = deactivate,
-        ._commands = {
-            { Uuid{}, ThermometerLedBrightness{._brightness = 1, }, },
-            { Uuid{}, RelayState{._state = false, }, },
+        ._commands = { 
+            { Uuid{}, ThermometerLedBrightness{._brightness = 1 } },
+            { Uuid{}, RelayState{._state = false } },
         },
     };
 
@@ -55,4 +55,14 @@ TEST_CASE("ScenarioJson") {
         static_cast<nlohmann::json>(vectorScenario),
     };
     REQUIRE(scenariosVectorJson2 == expectedScenariosJson);
+
+    const nlohmann::json scenarioJsonWithNoCommands{
+        { "id", scenario._id },
+        { "name", "test" },
+        { "activate", activate },
+        { "deactivate", deactivate },
+    };
+
+    const Scenario scenarioWithNoCommands = scenarioJsonWithNoCommands.get<Scenario>();
+    REQUIRE(scenarioWithNoCommands._commands.empty());
 }
