@@ -6,7 +6,9 @@
 #include <nlohmann/json_fwd.hpp>
 
 #include "Marshaling.hpp"
+#include "RelayState.hpp"
 #include "Scenario.hpp"
+#include "ThermometerLedBrightness.hpp"
 #include "Uuid.hpp"
 
 TEST_CASE("ScenarioJson") {
@@ -25,8 +27,8 @@ TEST_CASE("ScenarioJson") {
         ._activateEvent = activate,
         ._deactivateEvent = deactivate,
         ._commands = {
-            { Uuid{}, "command" },
-            { Uuid{}, "command2" },
+            { Uuid{}, ThermometerLedBrightness{._brightness = 1, }, },
+            { Uuid{}, RelayState{._state = false, }, },
         },
     };
 
