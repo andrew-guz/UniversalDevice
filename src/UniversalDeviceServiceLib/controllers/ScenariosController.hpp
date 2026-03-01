@@ -27,7 +27,7 @@ public:
 
     void CleanupScenario(Scenario& scenario);
 
-    bool ActivateScenario(const Uuid& id);
+    std::optional<Scenario> ActivateScenario(const Uuid& id);
 
     bool Remove(const Uuid& id);
 

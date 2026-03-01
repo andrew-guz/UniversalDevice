@@ -113,7 +113,7 @@ void ScenariosController::CleanupScenario(Scenario& scenario) {
     removeNotExistingEvents(scenario._deactivateEvent, eventIds);
 }
 
-bool ScenariosController::ActivateScenario(const Uuid& id) {
+std::optional<Scenario> ScenariosController::ActivateScenario(const Uuid& id) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
     if (!_cache.Size())
@@ -122,42 +122,42 @@ bool ScenariosController::ActivateScenario(const Uuid& id) {
     std::optional<Scenario> scenario = _cache.Get(id);
     if (!scenario.has_value()) {
         LOG_ERROR_MSG("Scenario not found");
-        return false;
+        return std::nullopt;
     }
 
     CleanupScenario(scenario.value());
 
     if (!_queryExecutor->Begin()) {
         LOG_ERROR_MSG("Failed to update events for scenario: failed to start transaction");
-        return false;
+        return std::nullopt;
     }
 
     for (const Uuid& activeEventId : scenario->_activateEvent)
         if (!_eventsController.SetActivity(activeEventId, true).has_value()) {
             LOG_ERROR_MSG("Failed to set event activity");
-            return false;
+            return std::nullopt;
         }
 
     for (const Uuid& activeEventId : scenario->_deactivateEvent)
         if (!_eventsController.SetActivity(activeEventId, false).has_value()) {
             LOG_ERROR_MSG("Failed to set event activity");
-            return false;
+            return std::nullopt;
         }
 
     for (const auto& [deviceId, command] : scenario->_commands) {
         if (!_commandsController.AddOrUpdate(deviceId, command)) {
             LOG_ERROR_MSG("Failed to write command");
-            return false;
+            return std::nullopt;
         }
     }
 
     if (!_queryExecutor->Commit()) {
         LOG_ERROR_MSG("Failed to update events for scenario: failed to end transaction");
-        return false;
+        return std::nullopt;
     }
 
     LOG_INFO_MSG(fmt::format("Scenario '{}' activated!", scenario->_name));
-    return true;
+    return scenario;
 }
 
 bool ScenariosController::Remove(const Uuid& id) {

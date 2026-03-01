@@ -153,12 +153,12 @@ TEST_CASE("Scenario activation test") {
         checkEventState(eventId1, true, false);
         checkEventState(eventId2, false, false);
 
-        REQUIRE(scenariosController.ActivateScenario(scenarioId1));
+        REQUIRE(scenariosController.ActivateScenario(scenarioId1).has_value());
 
         checkEventState(eventId1, false, true);
         checkEventState(eventId2, true, true);
 
-        REQUIRE(scenariosController.ActivateScenario(scenarioId2));
+        REQUIRE(scenariosController.ActivateScenario(scenarioId2).has_value());
 
         checkEventState(eventId1, true, true);
         checkEventState(eventId2, false, true);
