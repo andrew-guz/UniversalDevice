@@ -1,11 +1,21 @@
 #include "EventReceiverWidget.hpp"
 
+#include <memory>
+#include <variant>
+
 #include <Wt/WGlobal.h>
 #include <Wt/WHBoxLayout.h>
 #include <Wt/WVBoxLayout.h>
+#include <boost/hof/match.hpp>
 
 #include "Defines.hpp"
+#include "Device.hpp"
+#include "DeviceComboBox.hpp"
+#include "Enums.hpp"
+#include "Event.hpp"
 #include "EventWidgetHelper.hpp"
+#include "IEventEditorWidget.hpp"
+#include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RelayState.hpp"
 #include "ThermometerLedBrightness.hpp"
@@ -38,7 +48,7 @@ EventReceiverWidget::EventReceiverWidget() :
     _relayState = _mainLayout->addWidget(std::make_unique<WCheckBox>("Включить"), 0, AlignmentFlag::Top);
 }
 
-void EventReceiverWidget::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
+void EventReceiverWidget::SetDevices(const Devices& devices) {
     _receivers->SetDevices(devices);
     OnReceiverChanged();
 }
@@ -51,32 +61,38 @@ void EventReceiverWidget::Cleanup() {
 }
 
 void EventReceiverWidget::FillUi(const Event& event) {
-    _receivers->SetSelectedDevice(event._receiver._id);
-    if (event._receiver.isDeviceType() && event._receiver.getDeviceType() == DeviceType::Thermometer) {
-        auto thermometerLedBrightness = event._command.get<ThermometerLedBrightness>();
-        _brightness->setValue(thermometerLedBrightness._brightness);
-    } else if (event._receiver.isDeviceType() &&
-               (event._receiver.getDeviceType() == DeviceType::Relay || event._receiver.getDeviceType() == DeviceType::MotionRelay)) {
-        auto relayState = event._command.get<RelayState>();
-        _relayState->setChecked(relayState._state);
-    }
+    const auto eventFunction = [&](const auto& event) {
+        _receivers->SetSelectedDevice(event._receiver._id);
+        std::visit(boost::hof::match([&](const ThermometerLedBrightness& command) { _brightness->setValue(command._brightness); },
+                                     [&](const RelayState& command) { _relayState->setChecked(command._state); }),
+                   event._command);
+    };
+    std::visit(boost::hof::match([&](const TimerEvent& timerEvent) { eventFunction(timerEvent); },
+                                 [&](const ThermometerEvent& thermometerEvent) { eventFunction(thermometerEvent); },
+                                 [&](const RelayEvent& relayEvent) { eventFunction(relayEvent); },
+                                 [&](const ThermostatEvent& thermostatEvent) { LOG_ERROR_MSG("No command for ThermostatEvent"); },
+                                 [&](const SunriseEvent& sunriseEvent) { eventFunction(sunriseEvent); },
+                                 [&](const SunsetEvent& sunsetEvent) { eventFunction(sunsetEvent); }),
+               event);
     OnReceiverChanged();
 }
 
 bool EventReceiverWidget::IsValid() const { return _receivers->IsValid(); }
 
 void EventReceiverWidget::FillFromUi(Event& event) const {
-    event._receiver = _receivers->GetSelectedDevice();
-    if (event._receiver.isDeviceType() && event._receiver.getDeviceType() == DeviceType::Thermometer) {
-        ThermometerLedBrightness thermometerLedBrightness;
-        thermometerLedBrightness._brightness = _brightness->value();
-        event._command = thermometerLedBrightness;
-    } else if (event._receiver.isDeviceType() &&
-               (event._receiver.getDeviceType() == DeviceType::Relay || event._receiver.getDeviceType() == DeviceType::MotionRelay)) {
-        RelayState relayState;
-        relayState._state = _relayState->isChecked();
-        event._command = relayState;
-    }
+    const auto eventFunction = [&](auto& event) {
+        event._receiver = _receivers->GetSelectedDevice();
+        std::visit(boost::hof::match([&](ThermometerLedBrightness& command) { command._brightness = _brightness->value(); },
+                                     [&](RelayState& command) { command._state = _relayState->isChecked(); }),
+                   event._command);
+    };
+    std::visit(boost::hof::match([&](TimerEvent& timerEvent) { eventFunction(timerEvent); },
+                                 [&](ThermometerEvent& thermometerEvent) { eventFunction(thermometerEvent); },
+                                 [&](RelayEvent& relayEvent) { eventFunction(relayEvent); },
+                                 [&](ThermostatEvent& thermostatEvent) { LOG_ERROR_MSG("No command for ThermostatEvent"); },
+                                 [&](SunriseEvent& sunriseEvent) { eventFunction(sunriseEvent); },
+                                 [&](SunsetEvent& sunsetEvent) { eventFunction(sunsetEvent); }),
+               event);
 }
 
 void EventReceiverWidget::OnReceiverChanged() {
@@ -84,11 +100,10 @@ void EventReceiverWidget::OnReceiverChanged() {
         EventWidgetHelper::Hide(_brightnessText, _brightness, _relayState);
     else {
         const auto& selectedDevice = _receivers->GetSelectedDevice();
-        if (selectedDevice.isDeviceType() && selectedDevice.getDeviceType() == DeviceType::Thermometer) {
+        if (selectedDevice._type == DeviceType::Thermometer) {
             EventWidgetHelper::Hide(_relayState);
             EventWidgetHelper::Show(_brightnessText, _brightness);
-        } else if (selectedDevice.isDeviceType() &&
-                   (selectedDevice.getDeviceType() == DeviceType::Relay || selectedDevice.getDeviceType() == DeviceType::MotionRelay)) {
+        } else if (selectedDevice._type == DeviceType::Relay || selectedDevice._type == DeviceType::MotionRelay) {
             EventWidgetHelper::Hide(_brightnessText, _brightness);
             EventWidgetHelper::Show(_relayState);
         }

@@ -1,17 +1,19 @@
 #pragma once
 
+#include <string>
+
+#include <crow/http_response.h>
+
 #include "BaseService.hpp"
+#include "Middleware.hpp"
 
 class MainService final : public BaseService {
-protected:
-    MainService(IQueryExecutor* queryExecutor);
-
 public:
+    MainService(CrowApp& app);
+
     virtual ~MainService() = default;
 
 protected:
-    virtual void Initialize(CrowApp& app) override;
-
     crow::response GetVersion() const;
 
     crow::response SetLogLevel(const std::string& logLevel);
@@ -19,7 +21,7 @@ protected:
     crow::response Quit();
 
 private:
-    CrowApp* _application = nullptr;
+    CrowApp& _application;
 
-    friend class BaseServiceExtension;
+    friend class ServiceExtension;
 };

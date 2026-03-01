@@ -1,20 +1,25 @@
 #include "MainService.hpp"
 
+#include <string>
+
+#include <crow/app.h>
+#include <crow/common.h>
+#include <crow/http_response.h>
 #include <fmt/format.h>
 
+#include "BaseService.hpp"
 #include "Defines.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "Middleware.hpp"
 #include "Version.hpp"
 
-MainService::MainService(IQueryExecutor* queryExecutor) :
-    BaseService(queryExecutor) {}
-
-void MainService::Initialize(CrowApp& app) {
-    _application = &app;
-    CROW_ROUTE(app, API_VERSION).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &MainService::GetVersion));
-    CROW_ROUTE(app, API_LOG_LEVEL).methods(crow::HTTPMethod::POST)(BaseService::bind(this, &MainService::SetLogLevel));
-    CROW_ROUTE(app, API_QUIT).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &MainService::Quit));
+MainService::MainService(CrowApp& app) :
+    _application(app) //
+{
+    CROW_ROUTE(app, API_VERSION).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &MainService::GetVersion));
+    CROW_ROUTE(app, API_LOG_LEVEL).methods(crow::HTTPMethod::POST)(ServiceExtension::bind(this, &MainService::SetLogLevel));
+    CROW_ROUTE(app, API_QUIT).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &MainService::Quit));
 }
 
 crow::response MainService::GetVersion() const {
@@ -27,6 +32,6 @@ crow::response MainService::SetLogLevel(const std::string& logLevel) {
 }
 
 crow::response MainService::Quit() {
-    _application->stop();
+    _application.stop();
     return crow::response(crow::OK);
 }

@@ -1,9 +1,22 @@
 #include "ScenarioButton.hpp"
 
-#include <fmt/format.h>
+#include <algorithm>
+#include <chrono>
+#include <memory>
+#include <utility>
+#include <vector>
 
+#include <Wt/WBorder.h>
+#include <Wt/WGlobal.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTimer.h>
+#include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
+
+#include "Constants.hpp"
 #include "Defines.hpp"
 #include "Event.hpp"
+#include "EventUtils.hpp"
 #include "FrontendDefines.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
@@ -41,28 +54,37 @@ ScenarioButton::~ScenarioButton() { _refreshTimer->stop(); }
 
 void ScenarioButton::Refresh() {
     const auto eventsReplyJson = RequestHelper::DoGetRequest({ BACKEND_IP, _port, API_CLIENT_EVENTS }, Constants::LoginService);
-    const auto events = !eventsReplyJson.is_null() ? eventsReplyJson.get<std::vector<Event>>() : std::vector<Event>{};
+    std::vector<Event> events;
+    if (!eventsReplyJson.is_null()) {
+        for (const nlohmann::json& eventJson : eventsReplyJson)
+            events.emplace_back(eventJson.get<Event>());
+    }
 
     bool allEventsAreOK = true;
     for (const Uuid& activeEvent : _scenario._activateEvent) {
         if (!allEventsAreOK)
             break;
-        const auto iter = std::find_if(events.begin(), events.end(), [&activeEvent](const Event& event) { return event._id == activeEvent; });
+
+        const auto iter = std::find_if(events.begin(), events.end(), [&activeEvent](const Event& event) { return GetEventId(event) == activeEvent; });
         if (iter == events.end()) {
             allEventsAreOK = false;
             break;
         }
-        allEventsAreOK &= iter->_active;
+
+        allEventsAreOK &= GetEventActivity(*iter);
     }
     for (const Uuid& inactiveEvent : _scenario._deactivateEvent) {
         if (!allEventsAreOK)
             break;
-        const auto iter = std::find_if(events.begin(), events.end(), [&inactiveEvent](const Event& event) { return event._id == inactiveEvent; });
+
+        const auto iter =
+            std::find_if(events.begin(), events.end(), [&inactiveEvent](const Event& event) { return GetEventId(event) == inactiveEvent; });
         if (iter == events.end()) {
             allEventsAreOK = false;
             break;
         }
-        allEventsAreOK &= !iter->_active;
+
+        allEventsAreOK &= !GetEventActivity(*iter);
     }
 
     if (allEventsAreOK)

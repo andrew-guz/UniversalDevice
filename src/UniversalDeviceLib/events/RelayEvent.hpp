@@ -1,13 +1,11 @@
 #pragma once
 
+#include "BaseEvent.hpp"
+#include "Command.hpp"
 #include "Enums.hpp"
-#include "Event.hpp"
 
-struct RelayEvent final : public Event {
+struct RelayEvent final : public BaseEvent {
+    const EventType _type = EventType::Relay;
     int _state = 0;
-
-    RelayEvent() :
-        Event(EventType::Relay) {}
-
-    virtual ~RelayEvent() = default;
+    Command _command;
 };

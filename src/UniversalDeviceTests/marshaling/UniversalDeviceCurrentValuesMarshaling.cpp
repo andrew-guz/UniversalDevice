@@ -1,15 +1,18 @@
-#include <optional>
+#include <chrono>
+#include <string>
+#include <utility>
 
 #include <catch2/catch_all.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json_fwd.hpp>
 
 #include "Marshaling.hpp"
+#include "TimeHelper.hpp"
 #include "UniversalData.hpp"
-#include "UniversalDeviceCurrentValues.hpp"
+#include "UniversalValue.hpp"
 
 TEST_CASE("UniversalDeviceCurrentValuesJson") {
-    const UniversalDeviceCurrentValues universalDeviceCurrentValues {
+    const UniversalValue universalDeviceCurrentValues {
         ._values = {
             { "bool_param", true },
             { "int_param", 42 },
@@ -18,43 +21,106 @@ TEST_CASE("UniversalDeviceCurrentValuesJson") {
         },
     };
     const nlohmann::json expectedJson{
-        { "values",
-          nlohmann::json{
-              {
-                  "bool_param",
-                  {
-                      { "type", "boolean" },
-                      { "value", true },
-                  },
-              },
-              {
-                  "int_param",
-                  {
-                      { "type", "integer" },
-                      { "value", 42 },
-                  },
-              },
-              {
-                  "double_param",
-                  {
-                      { "type", "double" },
-                      { "value", 3.14 },
-                  },
-              },
-              {
-                  "string_param",
-                  {
-                      { "type", "string" },
-                      { "value", "test" },
-                  },
-              },
-          } },
+        {
+            "values",
+            nlohmann::json{
+                {
+                    "bool_param",
+                    {
+                        { "type", "boolean" },
+                        { "value", true },
+                    },
+                },
+                {
+                    "int_param",
+                    {
+                        { "type", "integer" },
+                        { "value", 42 },
+                    },
+                },
+                {
+                    "double_param",
+                    {
+                        { "type", "double" },
+                        { "value", 3.14 },
+                    },
+                },
+                {
+                    "string_param",
+                    {
+                        { "type", "string" },
+                        { "value", "test" },
+                    },
+                },
+            },
+        },
     };
 
     const nlohmann::json universalDeviceCurrentValuesToJson = static_cast<nlohmann::json>(universalDeviceCurrentValues);
     REQUIRE(universalDeviceCurrentValuesToJson == expectedJson);
 
-    const UniversalDeviceCurrentValues universalDeviceCurrentValuesFromJson = expectedJson.get<UniversalDeviceCurrentValues>();
+    const UniversalValue universalDeviceCurrentValuesFromJson = expectedJson.get<UniversalValue>();
+    REQUIRE(universalDeviceCurrentValuesFromJson._values.size() == universalDeviceCurrentValues._values.size());
+    for (const std::pair<std::string, UniversalData>& pair : universalDeviceCurrentValues._values) {
+        REQUIRE(universalDeviceCurrentValuesFromJson._values.count(pair.first) != 0);
+        const bool parametersAreEqual = universalDeviceCurrentValuesFromJson._values.at(pair.first) == pair.second;
+        REQUIRE(parametersAreEqual);
+    }
+}
+
+TEST_CASE("UniversalDeviceCurrentValuesJsonWithTimestamp") {
+    const std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    const UniversalValue universalDeviceCurrentValues {
+        ._values = {
+            { "bool_param", true },
+            { "int_param", 42 },
+            { "double_param", 3.14 },
+            { "string_param", std::string {"test"} },
+        },
+        ._timestamp = now,
+    };
+    const nlohmann::json expectedJson{
+        {
+            "values",
+            nlohmann::json{
+                {
+                    "bool_param",
+                    {
+                        { "type", "boolean" },
+                        { "value", true },
+                    },
+                },
+                {
+                    "int_param",
+                    {
+                        { "type", "integer" },
+                        { "value", 42 },
+                    },
+                },
+                {
+                    "double_param",
+                    {
+                        { "type", "double" },
+                        { "value", 3.14 },
+                    },
+                },
+                {
+                    "string_param",
+                    {
+                        { "type", "string" },
+                        { "value", "test" },
+                    },
+                },
+            },
+        },
+        { "timestamp", TimeHelper::TimeToInt(now) },
+
+    };
+
+    const nlohmann::json universalDeviceCurrentValuesToJson = static_cast<nlohmann::json>(universalDeviceCurrentValues);
+    REQUIRE(universalDeviceCurrentValuesToJson == expectedJson);
+
+    const UniversalValue universalDeviceCurrentValuesFromJson = expectedJson.get<UniversalValue>();
     REQUIRE(universalDeviceCurrentValuesFromJson._values.size() == universalDeviceCurrentValues._values.size());
     for (const std::pair<std::string, UniversalData>& pair : universalDeviceCurrentValues._values) {
         REQUIRE(universalDeviceCurrentValuesFromJson._values.count(pair.first) != 0);

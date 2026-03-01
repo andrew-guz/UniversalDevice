@@ -6,6 +6,9 @@ protected:
     Singleton() = default;
 
 public:
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+
     virtual ~Singleton() = default;
 
     static T* Instance() {

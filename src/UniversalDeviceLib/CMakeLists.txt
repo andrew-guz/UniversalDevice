@@ -1,7 +1,7 @@
 # common variable for project name and executable name
 set(PROJECT_NAME "UniversalDeviceLib")
 
-# check that all needed librarties are preinstalled
+# check that all needed libraries are preinstalled
 function(check_library lib_name)
   find_library(${lib_name}_LIB ${lib_name})
   if(NOT ${lib_name}_LIB)
@@ -19,6 +19,7 @@ project(${PROJECT_NAME})
 # where to search headers
 include_directories(./authentication)
 include_directories(./component)
+include_directories(./cache)
 include_directories(./core)
 include_directories(./events)
 include_directories(./interfaces)
@@ -27,7 +28,6 @@ include_directories(./messages)
 include_directories(./network)
 include_directories(./structures)
 include_directories(./structures/commands)
-include_directories(./structures/inform)
 include_directories(./structures/settings)
 include_directories(./utils)
 
@@ -38,7 +38,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../../bin)
 link_directories(/usr/local/library)
 
 # set compiler flags
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -Wunused")
 
 # set for linker path where libraries are
 set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS}
@@ -56,6 +56,10 @@ file(GLOB_RECURSE SRC_FILES *.cpp)
 
 # create shared library from source
 add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
+
+# add preprocessor definitions
+target_compile_definitions(${PROJECT_NAME}
+                           PRIVATE $<$<CONFIG:Debug>:DEBUG_BUILD>)
 
 # executable needs libraries - so link to installed libs
 target_link_libraries(${PROJECT_NAME} b64 ixwebsocket fmt::fmt

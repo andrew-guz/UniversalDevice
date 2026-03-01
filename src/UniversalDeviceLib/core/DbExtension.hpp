@@ -1,12 +1,14 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "Types.hpp"
+#include "DatabaseMarshaling.hpp"
+#include "Enums.hpp"
 #include "Uuid.hpp"
 
 class DbExtension final {
@@ -18,7 +20,7 @@ public:
     template<typename T>
     static T CreateFromDbStrings(const std::vector<std::string>& dbStrings) {
         T t;
-        t.FromDbStrings(dbStrings);
+        FromDbStrings<T>(dbStrings, t);
         return t;
     }
 
@@ -44,9 +46,6 @@ template<>
 std::optional<DeviceType> DbExtension::FindValueByName<DeviceType>(const std::vector<std::string>& dbStrings, std::string_view name);
 
 template<>
-std::optional<ActorType> DbExtension::FindValueByName<ActorType>(const std::vector<std::string>& dbStrings, std::string_view name);
-
-template<>
 std::optional<Uuid> DbExtension::FindValueByName<Uuid>(const std::vector<std::string>& dbStrings, std::string_view name);
 
 template<>
@@ -58,6 +57,9 @@ std::optional<bool> DbExtension::FindValueByName<bool>(const std::vector<std::st
 
 template<>
 std::optional<int> DbExtension::FindValueByName<int>(const std::vector<std::string>& dbStrings, std::string_view name);
+
+template<>
+std::optional<std::uint64_t> DbExtension::FindValueByName<uint64_t>(const std::vector<std::string>& dbStrings, std::string_view name);
 
 template<>
 std::optional<float> DbExtension::FindValueByName<float>(const std::vector<std::string>& dbStrings, std::string_view name);

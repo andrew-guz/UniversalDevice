@@ -6,4 +6,4 @@ docker build . --tag=base-image --target base-image
 
 docker build . --tag=universaldevice:$VERSION --target universal-device-image
 
-docker run --name universaldevice -d -it --restart always -p 0.0.0.0:7315:7315 -p 0.0.0.0:7316:7316 -v ./opt:/opt/UniversalDevice universaldevice:$VERSION
+docker run --name universaldevice -d -it --restart always -p 0.0.0.0:7315:7315 -p 0.0.0.0:7316:7316 -v ./opt:/opt/UniversalDevice universaldevice:$VERSION $1

@@ -1,10 +1,12 @@
 #pragma once
 
+#include <ostream>
 #include <string>
 #include <string_view>
 #include <utility>
 
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include "RequestAddress.hpp"
 

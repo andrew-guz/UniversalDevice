@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -7,7 +8,7 @@
 #include <mutex>
 #include <string>
 
-#include "PathHelper.hpp"
+#include "PathHelper.hpp" // Really needed - see #define LOG(level)
 #include "TimeHelper.hpp"
 
 class FileStreamWrapper final {

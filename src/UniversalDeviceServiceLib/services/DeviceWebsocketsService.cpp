@@ -1,20 +1,27 @@
 #include "DeviceWebsocketsService.hpp"
 
+#include <chrono>
+#include <cstdint>
+#include <string>
+
+#include <crow/app.h>
+#include <crow/websocket.h>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include "AccountManager.hpp"
+#include "BaseService.hpp"
 #include "Defines.hpp"
+#include "Enums.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "Middleware.hpp"
+#include "Provider.hpp"
 #include "WebSocketAuthentication.hpp"
 #include "WebsocketsCache.hpp"
 
-DeviceWebsocketsService::DeviceWebsocketsService(IQueryExecutor* queryExecutor) :
-    BaseService(queryExecutor) {}
-
-void DeviceWebsocketsService::Initialize(CrowApp& app) {
-
+DeviceWebsocketsService::DeviceWebsocketsService(CrowApp& app) {
     CROW_WEBSOCKET_ROUTE(app, API_DEVICE_WEBSOCKETS)
         .onopen([&](crow::websocket::connection& connection) { LOG_INFO_MSG(fmt::format("Incoming ip - {}", connection.get_remote_ip())); })
         .onmessage([&](crow::websocket::connection& connection, const std::string& data, bool is_binary) {
@@ -30,11 +37,11 @@ void DeviceWebsocketsService::OnWebSocketMessage(crow::websocket::connection& co
         return;
     try {
         auto timestamp = std::chrono::system_clock::now();
-        auto message = BaseServiceExtension::GetMessageFromWebSocketData(data);
+        auto message = ServiceExtension::GetMessageFromWebSocketData(data);
         if (message._header._subject == Subject::WebSocketAuthorization) {
             auto webSocketAuthentication = message._data.get<WebSocketAuthentication>();
             if (AccountManager::Instance()->IsValidUser(webSocketAuthentication._authString))
-                WebsocketsCache::Instance()->AddWebSocketConnection(message._header._description._id, connection);
+                WebsocketsCache::Instance()->AddWebSocketConnection(GetProviderId(message._header._description), connection);
             else {
                 LOG_ERROR_MSG("Not authorized connection");
                 // ask for authorization again
@@ -44,7 +51,7 @@ void DeviceWebsocketsService::OnWebSocketMessage(crow::websocket::connection& co
                                          .dump());
             }
         } else {
-            auto knownConnection = WebsocketsCache::Instance()->GetWebSocketConnection(message._header._description._id);
+            auto knownConnection = WebsocketsCache::Instance()->GetWebSocketConnection(GetProviderId(message._header._description));
             if (knownConnection) {
                 // not all messages need answers
                 auto result = CallProcessorsJsonResult(timestamp, message);

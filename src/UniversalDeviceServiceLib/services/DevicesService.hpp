@@ -1,27 +1,26 @@
 #pragma once
 
+#include <string>
+
+#include <crow/http_request.h>
+#include <crow/http_response.h>
+
 #include "BaseService.hpp"
+#include "DevicesController.hpp"
+#include "Middleware.hpp"
 
 class DevicesService final : public BaseService {
-protected:
-    DevicesService(IQueryExecutor* queryExecutor);
-
 public:
-    virtual ~DevicesService() = default;
+    DevicesService(CrowApp& app, DevicesController& devicesController);
 
-protected:
-    virtual void Initialize(CrowApp& app) override;
+    virtual ~DevicesService() = default;
 
 private:
     crow::response ListDevices() const;
 
-    crow::response GetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field) const;
+    crow::response GetDeviceName(const std::string& idString) const;
 
-    crow::response GetDeviceName(const crow::request& request, const std::string& idString) const;
-
-    crow::response GetDeviceGroup(const crow::request& request, const std::string& idString) const;
-
-    crow::response SetDeviceProperty(const crow::request& request, const std::string& idString, const std::string& field, bool canBeEmpty);
+    crow::response GetDeviceGroup(const std::string& idString) const;
 
     crow::response SetDeviceName(const crow::request& request, const std::string& idString);
 
@@ -34,5 +33,5 @@ private:
     crow::response RestartDevice(const std::string& idString);
 
 private:
-    friend class BaseServiceExtension;
+    DevicesController& _devicesController;
 };

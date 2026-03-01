@@ -1,12 +1,18 @@
 #include "TimeProcessor.hpp"
 
-#include <nlohmann/json.hpp>
+#include <chrono>
+#include <string>
 
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+
+#include "CleanupController.hpp"
+#include "Message.hpp"
 #include "TimeHelper.hpp"
 #include "WebsocketsCache.hpp"
 
-TimeProcessor::TimeProcessor(IQueryExecutor* queryExecutor) :
-    BaseProcessorWithQueryExecutor(queryExecutor) {}
+TimeProcessor::TimeProcessor(CleanupController& cleanupController) :
+    _cleanupController(cleanupController) {}
 
 nlohmann::json TimeProcessor::ProcessMessage(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     // Notify all devices about current time
@@ -25,7 +31,7 @@ nlohmann::json TimeProcessor::ProcessMessage(const std::chrono::system_clock::ti
     }
 
     // Maybe it's time to cleanup database
-    _queryExecutor->CleanupOldData(timestamp);
+    _cleanupController.Cleanup(timestamp);
 
     return {};
 }

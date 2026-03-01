@@ -1,15 +1,19 @@
 #include "BaseService.hpp"
 
+#include <chrono>
+#include <string>
+#include <vector>
+
+#include <crow/http_request.h>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
+#include "Logger.hpp"
 #include "Marshaling.hpp"
-#include "ProcessorsFactory.hpp"
-
-BaseService::BaseService(IQueryExecutor* queryExecutor) :
-    _queryExecutor(queryExecutor) {}
+#include "Platform.hpp"
 
 void BaseService::CallProcessorsNoResult(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
-    auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);
+    auto processors = Platform::CreateProcessors(message);
     for (auto& processor : processors)
         processor->ProcessMessage(timestamp, message);
 }
@@ -17,7 +21,7 @@ void BaseService::CallProcessorsNoResult(const std::chrono::system_clock::time_p
 nlohmann::json BaseService::CallProcessorsJsonResult(const std::chrono::system_clock::time_point& timestamp, const Message& message) {
     nlohmann::json result;
     std::vector<nlohmann::json> processorJsonResults;
-    auto processors = ProcessorsFactory::CreateProcessors(message, _queryExecutor);
+    auto processors = Platform::CreateProcessors(message);
     for (auto& processor : processors) {
         auto processorResultJson = processor->ProcessMessage(timestamp, message);
         if (processorResultJson.is_null())
@@ -38,7 +42,7 @@ nlohmann::json BaseService::CallProcessorsJsonResult(const std::chrono::system_c
     return result;
 }
 
-Message BaseServiceExtension::GetMessageFromRequest(const crow::request& request) {
+Message ServiceExtension::GetMessageFromRequest(const crow::request& request) {
     auto body = request.body;
     try {
         auto bodyJson = nlohmann::json::parse(body);
@@ -50,7 +54,7 @@ Message BaseServiceExtension::GetMessageFromRequest(const crow::request& request
     return Message();
 }
 
-Message BaseServiceExtension::GetMessageFromWebSocketData(const std::string& data) {
+Message ServiceExtension::GetMessageFromWebSocketData(const std::string& data) {
     try {
         auto dataJson = nlohmann::json::parse(data);
         LOG_DEBUG_MSG(dataJson.dump());

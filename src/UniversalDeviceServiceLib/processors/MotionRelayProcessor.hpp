@@ -1,10 +1,18 @@
 #pragma once
 
-#include "BaseProcessorWithQueryExecutor.hpp"
+#include <chrono>
 
-class MotionRelayProcessor final : public BaseProcessorWithQueryExecutor {
+#include <nlohmann/json_fwd.hpp>
+
+#include "DeviceDataProcessor.hpp"
+#include "Enums.hpp"
+#include "Message.hpp"
+#include "MotionRelayValue.hpp"
+#include "MotionRelayValuesController.hpp"
+
+class MotionRelayProcessor final : public DeviceDataProcessor<MotionRelayValuesController, MotionRelayValue, DeviceType::MotionRelay> {
 public:
-    MotionRelayProcessor(IQueryExecutor* queryExecutor);
+    MotionRelayProcessor(MotionRelayValuesController& motionRelayValuesController);
 
     virtual ~MotionRelayProcessor() = default;
 

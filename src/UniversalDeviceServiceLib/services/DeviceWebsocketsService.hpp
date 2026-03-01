@@ -1,18 +1,18 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
+#include <crow/websocket.h>
+
 #include "BaseService.hpp"
+#include "Middleware.hpp"
 
 class DeviceWebsocketsService final : public BaseService {
-protected:
-    DeviceWebsocketsService(IQueryExecutor* queryExecutor);
-
 public:
-    virtual ~DeviceWebsocketsService() = default;
+    DeviceWebsocketsService(CrowApp& app);
 
-protected:
-    virtual void Initialize(CrowApp& app) override;
+    virtual ~DeviceWebsocketsService() = default;
 
 private:
     void OnWebSocketMessage(crow::websocket::connection& connection, const std::string& data, bool is_binary);
@@ -20,5 +20,5 @@ private:
     void OnWebSocketClose(crow::websocket::connection& connection, const std::string& reason, uint16_t code);
 
 private:
-    friend class BaseServiceExtension;
+    friend class ServiceExtension;
 };

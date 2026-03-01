@@ -1,5 +1,12 @@
 #include "Logger.hpp"
 
+#include <filesystem>
+#include <fstream>
+#include <map>
+#include <mutex>
+#include <ostream>
+#include <utility>
+
 std::map<std::filesystem::path, std::fstream*> FileStreamWrapper::_fileStreams;
 std::ostream FileStreamWrapper::_nullStream(0);
 std::mutex FileStreamWrapper::_mutex;

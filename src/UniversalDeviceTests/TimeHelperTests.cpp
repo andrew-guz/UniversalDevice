@@ -1,5 +1,8 @@
-#define CONFIG_CATCH_MAIN
+#include <chrono>
+#include <optional>
+
 #include <catch2/catch_all.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include "TimeHelper.hpp"
 
@@ -27,6 +30,25 @@ TEST_CASE() {
 
     auto stringValue2 = TimeHelper::TimeToString(timeValue);
     REQUIRE(stringValue1 == stringValue2);
+}
+
+TEST_CASE() {
+    auto now = std::chrono::system_clock::now();
+
+    auto stringValue1 = TimeHelper::TimeToString(std::optional<std::chrono::system_clock::time_point>(now));
+    auto timeValue = TimeHelper::TimeFromString(stringValue1);
+    auto delta = now - timeValue;
+    delta = std::chrono::duration_cast<std::chrono::seconds>(delta);
+    REQUIRE(delta.count() == 0);
+
+    auto stringValue2 = TimeHelper::TimeToString(timeValue);
+    REQUIRE(stringValue1 == stringValue2);
+}
+
+TEST_CASE() {
+    auto stringValue = TimeHelper::TimeToString(std::nullopt);
+
+    REQUIRE(stringValue.empty());
 }
 
 TEST_CASE() {

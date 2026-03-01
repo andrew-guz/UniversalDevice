@@ -1,12 +1,19 @@
+#include <cstring>
 #include <exception>
+#include <iostream>
 #include <memory>
+#include <ostream>
+#include <string>
 #include <vector>
 
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
 #include <fmt/format.h>
 
 #include "AccountManager.hpp"
 #include "AccountManagerInitializer.hpp"
 #include "Application.hpp"
+#include "ApplicationSettings.hpp"
 #include "Logger.hpp"
 #include "PathHelper.hpp"
 #include "Version.hpp"
@@ -20,7 +27,7 @@ int main(int argc, char** argv) {
     int result = -1;
 
     try {
-        auto settings = Settings::ReadSettings();
+        auto settings = ApplicationSettings::ReadSettings();
         if (!settings._logPath.empty())
             PathHelper::SetCustomLogPath(settings._logPath);
 

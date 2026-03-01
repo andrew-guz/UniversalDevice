@@ -1,11 +1,17 @@
+#include <memory>
 #include <string>
+#include <vector>
 
 #include <catch2/catch_all.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <fmt/format.h>
 
+#include "Account.hpp"
 #include "AccountManager.hpp"
 #include "Base64Helper.hpp"
 #include "Enums.hpp"
+#include "IAccountManagerInitializer.hpp"
+#include <bits/basic_string.h>
 
 using namespace std::string_literals;
 

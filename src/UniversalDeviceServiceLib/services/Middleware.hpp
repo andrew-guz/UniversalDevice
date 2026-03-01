@@ -1,6 +1,10 @@
 #pragma once
 
 #include <crow.h>
+#include <crow/app.h>
+#include <crow/common.h>
+#include <crow/http_request.h>
+#include <crow/http_response.h>
 
 #include "AccountManager.hpp"
 #include "Defines.hpp"

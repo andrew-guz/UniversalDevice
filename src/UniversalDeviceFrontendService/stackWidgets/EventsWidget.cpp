@@ -1,17 +1,35 @@
 #include "EventsWidget.hpp"
 
+#include <algorithm>
 #include <memory>
+#include <string>
+#include <variant>
+#include <vector>
 
+#include <Wt/WAbstractItemView.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WHBoxLayout.h>
+#include <Wt/WModelIndex.h>
 #include <Wt/WText.h>
 #include <Wt/WVBoxLayout.h>
+#include <Wt/cpp17/any.hpp>
+#include <boost/hof/match.hpp>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
+#include "ApplicationSettings.hpp"
+#include "BaseEventEditor.hpp"
+#include "BaseStackWidget.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
+#include "Device.hpp"
 #include "Enums.hpp"
+#include "Event.hpp"
+#include "EventUtils.hpp"
+#include "EventsTableModel.hpp"
+#include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RelayEvent.hpp"
@@ -28,7 +46,7 @@
 #include "TimerEventEditor.hpp"
 #include "WidgetHelper.hpp"
 
-EventsWidget::EventsWidget(IStackHolder* stackHolder, const Settings& settings) :
+EventsWidget::EventsWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseStackWidget(stackHolder, settings) {
     _mainLayout = setLayout(std::make_unique<Wt::WVBoxLayout>());
 
@@ -134,13 +152,12 @@ std::vector<nlohmann::json> EventsWidget::GetEvents() {
     return result.is_null() ? std::vector<nlohmann::json>{} : result.get<std::vector<nlohmann::json>>();
 }
 
-std::vector<ExtendedComponentDescription> EventsWidget::GetDevices() {
+Devices EventsWidget::GetDevices() {
     auto resultJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
-    std::vector<ExtendedComponentDescription> devices =
-        resultJson.is_null() ? std::vector<ExtendedComponentDescription>{} : resultJson.get<std::vector<ExtendedComponentDescription>>();
+    Devices devices = resultJson.is_null() ? Devices{} : resultJson.get<Devices>();
     // right now not all devices can receive events
-    auto newEnd = std::remove_if(devices.begin(), devices.end(), [](const ExtendedComponentDescription& device) {
-        return !device.isDeviceType() || device.getDeviceType() == DeviceType::Undefined || device.getDeviceType() == DeviceType::UniversalDevice;
+    auto newEnd = std::remove_if(devices.begin(), devices.end(), [](const Device& device) {
+        return device._type == DeviceType::Undefined || device._type == DeviceType::UniversalDevice;
     });
     devices.erase(newEnd, devices.end());
     return devices;
@@ -166,7 +183,11 @@ void EventsWidget::DeleteEvent() {
     if (selectedIndexes.empty())
         return;
     auto eventJson = Wt::cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), Wt::ItemDataRole::User));
-    auto result = RequestHelper::DoDeleteRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_EVENTS }, Constants::LoginService, eventJson);
+    auto event = eventJson.get<Event>();
+    auto result = RequestHelper::DoDeleteRequest(
+        { BACKEND_IP, _settings._servicePort, fmt::format("{}/{}", std::string{ API_CLIENT_EVENTS }, GetEventId(event).data()) },
+        Constants::LoginService,
+        eventJson);
     if (result != 200)
         LOG_ERROR_MSG(fmt::format("Error while deleting Event {}", eventJson.dump()));
     Refresh();
@@ -193,35 +214,19 @@ void EventsWidget::OnTableSelectionChanged() {
     if (selectedIndexes.empty())
         return;
     auto eventJson = Wt::cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), Wt::ItemDataRole::User));
-    auto simpleEvent = eventJson.get<Event>();
+    auto event = eventJson.get<Event>();
     const auto applyType = [&](int index, const Event& event) -> void {
         _eventType->setCurrentIndex(index);
         OnEventTypeChanged();
         _eventEditor->FillUi(event);
     };
-    switch (simpleEvent._type) {
-        case EventType::Undefined:
-            LOG_ERROR_MSG("Invalid event type");
-            break;
-        case EventType::Timer:
-            applyType(0, eventJson.get<TimerEvent>());
-            break;
-        case EventType::Thermometer:
-            applyType(1, eventJson.get<ThermometerEvent>());
-            break;
-        case EventType::Relay:
-            applyType(2, eventJson.get<RelayEvent>());
-            break;
-        case EventType::Thermostat:
-            applyType(3, eventJson.get<ThermostatEvent>());
-            break;
-        case EventType::Sunrise:
-            applyType(4, eventJson.get<SunriseEvent>());
-            break;
-        case EventType::Sunset:
-            applyType(5, eventJson.get<SunsetEvent>());
-            break;
-    }
+    std::visit(boost::hof::match([&](const TimerEvent& e) { applyType(0, e); },
+                                 [&](const ThermometerEvent& e) { applyType(1, e); },
+                                 [&](const RelayEvent& e) { applyType(2, e); },
+                                 [&](const ThermostatEvent& e) { applyType(3, e); },
+                                 [&](const SunriseEvent& e) { applyType(4, e); },
+                                 [&](const SunsetEvent& e) { applyType(5, e); }),
+               event);
 }
 
 void EventsWidget::OnEventTypeChanged() {
@@ -255,32 +260,32 @@ nlohmann::json EventsWidget::CreateNewEventFromEditor(BaseEventEditor* eventEdit
     nlohmann::json eventJson;
     switch (_eventType->currentIndex()) {
         case 0: {
-            TimerEvent event;
+            Event event = TimerEvent{};
             eventEditor->FillFromUi(event);
             eventJson = event;
         } break;
         case 1: {
-            ThermometerEvent event;
+            Event event = ThermometerEvent{};
             eventEditor->FillFromUi(event);
             eventJson = event;
         } break;
         case 2: {
-            RelayEvent event;
+            Event event = RelayEvent{};
             eventEditor->FillFromUi(event);
             eventJson = event;
         } break;
         case 3: {
-            ThermostatEvent event;
+            Event event = ThermostatEvent{};
             eventEditor->FillFromUi(event);
             eventJson = event;
         } break;
         case 4: {
-            SunriseEvent event;
+            Event event = SunriseEvent{};
             eventEditor->FillFromUi(event);
             eventJson = event;
         } break;
         case 5: {
-            SunsetEvent event;
+            Event event = SunsetEvent{};
             eventEditor->FillFromUi(event);
             eventJson = event;
         } break;
@@ -300,7 +305,7 @@ Uuid EventsWidget::GetSelectedEventIdFromTable() const {
     if (selectedIndexes.empty())
         return Uuid::Empty();
     auto selectedEventJson = Wt::cpp17::any_cast<nlohmann::json>(_eventsTable->model()->data(*selectedIndexes.begin(), Wt::ItemDataRole::User));
-    return selectedEventJson.get<Event>()._id;
+    return GetEventId(selectedEventJson.get<Event>());
 }
 
 void EventsWidget::ShowIncorrectEventMsgBox() { WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Неверно заполнены поля редактора событий!"); }

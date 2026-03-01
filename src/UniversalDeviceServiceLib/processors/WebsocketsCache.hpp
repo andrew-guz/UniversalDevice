@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <crow.h>
+#include <crow/websocket.h>
 
 #include "Singleton.hpp"
 #include "Uuid.hpp"

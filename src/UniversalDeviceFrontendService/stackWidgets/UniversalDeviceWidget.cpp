@@ -2,13 +2,17 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
+#include <functional>
 #include <memory>
 #include <set>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include <Wt/Chart/WCartesianChart.h>
+#include <Wt/Chart/WChartGlobal.h>
 #include <Wt/WAbstractItemModel.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WDialog.h>
@@ -19,22 +23,32 @@
 #include <Wt/WVBoxLayout.h>
 #include <Wt/WWidget.h>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
+#include "ApplicationSettings.hpp"
+#include "BaseDeviceWidget.hpp"
 #include "ChartFactory.hpp"
+#include "Constants.hpp"
+#include "Defines.hpp"
 #include "Enums.hpp"
-#include "ExtendedUniversalDeviceCurrentValues.hpp"
+#include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "PeriodSettings.hpp"
+#include "RequestHelper.hpp"
+#include "SecondsComboBox.hpp"
 #include "TimeHelper.hpp"
 #include "UniversalDeviceChartModel.hpp"
+#include "UniversalValue.hpp"
+#include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
 
 using namespace Wt;
 
 namespace {
-    std::set<std::string> findParameters(const std::vector<ExtendedUniversalDeviceCurrentValues>& values) {
+    std::set<std::string> findParameters(const std::vector<UniversalValue>& values) {
         std::set<std::string> result;
-        for (const ExtendedUniversalDeviceCurrentValues& value : values) {
+        for (const UniversalValue& value : values) {
             std::set<std::string> current;
             for (const auto& [key, _] : value._values)
                 current.emplace(key);
@@ -48,8 +62,7 @@ namespace {
         return result;
     }
 
-    std::shared_ptr<UniversalDeviceChartModel> createModel(const std::vector<ExtendedUniversalDeviceCurrentValues>& values,
-                                                           const std::string& parameter) {
+    std::shared_ptr<UniversalDeviceChartModel> createModel(const std::vector<UniversalValue>& values, const std::string& parameter) {
         switch (values.front()._values.at(parameter).GetType()) {
             case UniversalDataType::Bool:
             case UniversalDataType::Int:
@@ -94,7 +107,7 @@ namespace {
     }
 } // namespace
 
-UniversalDeviceWidget::UniversalDeviceWidget(IStackHolder* stackHolder, const Settings& settings) :
+UniversalDeviceWidget::UniversalDeviceWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
     _tabWidget = _mainLayout->addWidget(std::make_unique<WTabWidget>(), 1);
     _mainLayout->addWidget(std::make_unique<WText>("За последние:"), 0, AlignmentFlag::Center | AlignmentFlag::Bottom);
@@ -115,14 +128,14 @@ void UniversalDeviceWidget::OnBack() {
 void UniversalDeviceWidget::Initialize() {
     const uint64_t seconds = _seconds->GetSeconds();
     if (_cachedValues.empty())
-        _cachedValues = GetValues<ExtendedUniversalDeviceCurrentValues>(DeviceType::UniversalDevice, seconds);
+        _cachedValues = GetValues<UniversalValue>(DeviceType::UniversalDevice, seconds);
     else {
-        auto lastValues = GetValues<ExtendedUniversalDeviceCurrentValues>(DeviceType::UniversalDevice, 0);
+        auto lastValues = GetValues<UniversalValue>(DeviceType::UniversalDevice, 0);
         if (lastValues.empty() ||
             lastValues[0]._timestamp != std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) {
                                             return a._timestamp < b._timestamp;
                                         })->_timestamp)
-            _cachedValues = GetValues<ExtendedUniversalDeviceCurrentValues>(DeviceType::UniversalDevice, seconds);
+            _cachedValues = GetValues<UniversalValue>(DeviceType::UniversalDevice, seconds);
     }
     if (_cachedValues.size()) {
         const std::set<std::string> parameters = findParameters(_cachedValues);
@@ -150,8 +163,7 @@ void UniversalDeviceWidget::Initialize() {
             }
         }
 
-        auto timestamp = _cachedValues.begin()->_timestamp;
-        _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
+        _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(_cachedValues.begin()->_timestamp), 20));
 
         for (const auto& model : _models)
             model->SetData(_cachedValues);

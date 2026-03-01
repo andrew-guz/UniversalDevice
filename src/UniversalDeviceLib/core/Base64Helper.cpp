@@ -1,6 +1,8 @@
 #include "Base64Helper.hpp"
 
 #include <sstream>
+#include <string>
+#include <string_view>
 
 #include <b64/decode.h>
 #include <b64/encode.h>

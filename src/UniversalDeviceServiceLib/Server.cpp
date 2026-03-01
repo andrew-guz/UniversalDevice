@@ -1,27 +1,23 @@
 #include "Server.hpp"
 
+#include <exception>
+#include <memory>
+
 #include <crow.h>
 #include <fmt/format.h>
 
+#include "AccountManager.hpp"
 #include "AccountManagerInitializer.hpp"
-#include "BackendLogsService.hpp"
-#include "CommandsService.hpp"
-#include "DeviceWebsocketsService.hpp"
-#include "DevicesService.hpp"
-#include "EventsService.hpp"
+#include "ApplicationSettings.hpp"
 #include "Logger.hpp"
-#include "MainService.hpp"
 #include "Middleware.hpp"
 #include "PathHelper.hpp"
-#include "ScenariosService.hpp"
-#include "Settings.hpp"
-#include "SettingsService.hpp"
+#include "Platform.hpp"
 #include "Storage.hpp"
-#include "TimerService.hpp"
 
 int Server::run() {
     try {
-        auto settings = Settings::ReadSettings();
+        auto settings = ApplicationSettings::ReadSettings();
         if (!settings._logPath.empty())
             PathHelper::SetCustomLogPath(settings._logPath);
 
@@ -35,15 +31,7 @@ int Server::run() {
 
         CrowApp app;
 
-        BaseServiceExtension::Create<MainService>(app, &storage);
-        BaseServiceExtension::Create<SettingsService>(app, &storage);
-        BaseServiceExtension::Create<CommandsService>(app, &storage);
-        BaseServiceExtension::Create<EventsService>(app, &storage);
-        BaseServiceExtension::Create<ScenariosService>(app, &storage);
-        BaseServiceExtension::Create<BackendLogsService>(app, &storage);
-        BaseServiceExtension::Create<DevicesService>(app, &storage);
-        BaseServiceExtension::Create<DeviceWebsocketsService>(app, &storage);
-        BaseServiceExtension::Create<TimerService>(app, &storage);
+        Platform::Init(app, &storage);
 
         app.ssl_file(PathHelper::FullFilePath(settings._certificatePath).native(), PathHelper::FullFilePath(settings._keyPath).native())
             .port(settings._port)

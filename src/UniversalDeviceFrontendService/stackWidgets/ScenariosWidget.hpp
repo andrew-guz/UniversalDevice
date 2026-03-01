@@ -1,22 +1,27 @@
 #pragma once
 
+#include <cstddef>
 #include <set>
+#include <string>
 #include <vector>
 
 #include <Wt/WCheckBox.h>
 #include <Wt/WContainerWidget.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WSelectionBox.h>
 #include <Wt/WVBoxLayout.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseStackWidget.hpp"
 #include "Event.hpp"
+#include "IStackHolder.hpp"
 #include "Scenario.hpp"
 #include "Uuid.hpp"
 
 class ScenariosWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
-    ScenariosWidget(IStackHolder* stackHolder, const Settings& settings);
+    ScenariosWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~ScenariosWidget() = default;
 

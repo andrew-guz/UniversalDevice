@@ -1,121 +1,87 @@
 #include "EventsService.hpp"
 
+#include <string>
+
+#include <crow/app.h>
+#include <crow/common.h>
+#include <crow/http_response.h>
+#include <nlohmann/json_fwd.hpp>
+
+#include "BaseService.hpp"
+#include "Defines.hpp"
 #include "Event.hpp"
-#include "EventTableStorageCache.hpp"
+#include "EventsController.hpp"
+#include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "Middleware.hpp"
+#include "Uuid.hpp"
 
-EventsService::EventsService(IQueryExecutor* queryExecutor) :
-    BaseService(queryExecutor) {}
-
-void EventsService::Initialize(CrowApp& app) {
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &EventsService::GetEvents));
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &EventsService::AddEvent, "AddEvent"));
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &EventsService::UpdateEvent, "UpdateEvent"));
-    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::DELETE)(BaseService::bindObject(this, &EventsService::DeleteEvent, "DeleteEvent"));
+EventsService::EventsService(CrowApp& app, EventsController& eventsController) :
+    _eventsController(eventsController) //
+{
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &EventsService::GetEvents));
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::POST)(ServiceExtension::bindObject(this, &EventsService::AddEvent, "AddEvent"));
+    CROW_ROUTE(app, API_CLIENT_EVENTS).methods(crow::HTTPMethod::PUT)(ServiceExtension::bindObject(this, &EventsService::UpdateEvent, "UpdateEvent"));
+    CROW_ROUTE(app, API_CLIENT_EVENTS_ID).methods(crow::HTTPMethod::DELETE)(ServiceExtension::bind(this, &EventsService::DeleteEvent));
 }
 
 crow::response EventsService::GetEvents() const {
-    nlohmann::json result = nlohmann::json::array({});
+    nlohmann::json result;
+
     try {
-        std::vector<std::string> eventStrings;
-
-        auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-        EventTableSelectAllOutput eventsResult;
-        auto problem = storageCache->SelectAll(eventsResult);
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems:
-                eventStrings = eventsResult._data;
-                break;
-            case StorageCacheProblemType::Empty:
-            case StorageCacheProblemType::NotExists:
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
-        }
-
-        for (auto& eventString : eventStrings) {
-            try {
-                nlohmann::json eventJson = nlohmann::json::parse(eventString);
-                result.push_back(eventJson);
-            } catch (...) {
-                LOG_ERROR_MSG(fmt::format("Invalid event JSON {}", eventString));
-            }
-        }
+        result = _eventsController.List();
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::GetEvents");
+        LOG_ERROR_MSG("Something went wrong in EventsService::GetEvents");
+        return crow::response(crow::BAD_REQUEST);
     }
+
     return crow::response(crow::OK, result.dump());
 }
 
-crow::response EventsService::AddEvent(const Event& event, const std::string& eventString) {
-    auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-    EventTableInsertOrReplaceInput what{
-        ._id = event._id,
-        ._active = event._active,
-        ._providerId = event._provider._id,
-        ._providerType = event._provider._type,
-        ._event = eventString,
-    };
-    auto problem = storageCache->InsertOrReplace(what);
-    switch (problem._type) {
-        case StorageCacheProblemType::NoProblems:
-            return crow::response(crow::OK);
-            break;
-        case StorageCacheProblemType::Empty:
-        case StorageCacheProblemType::NotExists:
-        case StorageCacheProblemType::TooMany:
-            break;
-        case StorageCacheProblemType::SQLError:
-            LOG_SQL_ERROR(problem._message);
-            break;
+crow::response EventsService::AddEvent(Event& event) {
+    nlohmann::json result;
+
+    try {
+        if (!_eventsController.Add(event)) {
+            LOG_ERROR_MSG("Failed to add event");
+            return crow::response(crow::BAD_REQUEST);
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in EventsService::AddEvent");
+        return crow::response(crow::BAD_REQUEST);
     }
-    return crow::response(crow::BAD_REQUEST);
+
+    return crow::response(crow::OK);
 }
 
-crow::response EventsService::UpdateEvent(const Event& event, const std::string& eventString) {
-    auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-    EventTableUpdateInput what{
-        ._id = event._id,
-        ._active = event._active,
-        ._providerId = event._provider._id,
-        ._providerType = event._provider._type,
-        ._event = eventString,
-    };
-    auto problem = storageCache->Update(what);
-    switch (problem._type) {
-        case StorageCacheProblemType::NoProblems:
-            return crow::response(crow::OK);
-            break;
-        case StorageCacheProblemType::Empty:
-        case StorageCacheProblemType::NotExists:
-        case StorageCacheProblemType::TooMany:
-            break;
-        case StorageCacheProblemType::SQLError:
-            LOG_SQL_ERROR(problem._message);
-            break;
+crow::response EventsService::UpdateEvent(Event& event) {
+    nlohmann::json result;
+
+    try {
+        if (!_eventsController.Update(event).has_value()) {
+            LOG_ERROR_MSG("Failed to update event");
+            return crow::response(crow::BAD_REQUEST);
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in EventsService::UpdateEvent");
+        return crow::response(crow::BAD_REQUEST);
     }
-    return crow::response(crow::BAD_REQUEST);
+
+    return crow::response(crow::OK);
 }
 
-crow::response EventsService::DeleteEvent(const Event& event) {
-    auto storageCache = EventTableStorageCache::GetCache(_queryExecutor);
-    EventTableDeleteInput what{
-        ._id = event._id,
-    };
-    auto problem = storageCache->Delete(what);
-    switch (problem._type) {
-        case StorageCacheProblemType::NoProblems:
-            return crow::response(crow::OK);
-            break;
-        case StorageCacheProblemType::Empty:
-        case StorageCacheProblemType::NotExists:
-        case StorageCacheProblemType::TooMany:
-            break;
-        case StorageCacheProblemType::SQLError:
-            LOG_SQL_ERROR(problem._message);
-            break;
+crow::response EventsService::DeleteEvent(const std::string& idString) {
+    nlohmann::json result;
+
+    try {
+        if (!_eventsController.Delete(Uuid{ idString })) {
+            LOG_ERROR_MSG("Failed to delete event");
+            return crow::response(crow::BAD_REQUEST);
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in EventsService::DeleteEvent");
+        return crow::response(crow::BAD_REQUEST);
     }
-    return crow::response(crow::BAD_REQUEST);
+
+    return crow::response(crow::OK);
 }

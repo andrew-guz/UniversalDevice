@@ -1,22 +1,39 @@
 #include "ThermometerWidget.hpp"
 
+#include <algorithm>
+#include <cstdint>
+#include <functional>
 #include <memory>
 
+#include <Wt/Chart/WAxis.h>
+#include <Wt/Chart/WChartGlobal.h>
+#include <Wt/WDialog.h>
 #include <Wt/WGlobal.h>
+#include <Wt/WValidator.h>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
 #include "ChartFactory.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
+#include "Enums.hpp"
+#include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "RequestHelper.hpp"
 #include "SecondsComboBox.hpp"
+#include "TemperatureChartModel.hpp"
+#include "ThermometerValue.hpp"
+#include "TimeHelper.hpp"
+#include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
 
 using namespace Wt;
 
-ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const Settings& settings) :
+ThermometerWidget::ThermometerWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
     _temperatureText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _temperatureText->setText(WidgetHelper::TextWithFontSize(0.0f, "°C", 80));
@@ -42,14 +59,14 @@ void ThermometerWidget::OnBack() {
 void ThermometerWidget::Initialize() {
     const uint64_t seconds = _seconds->GetSeconds();
     if (_cachedValues.empty())
-        _cachedValues = GetValues<ExtendedThermometerCurrentValue>(DeviceType::Thermometer, seconds);
+        _cachedValues = GetValues<ThermometerValue>(DeviceType::Thermometer, seconds);
     else {
-        auto lastValues = GetValues<ExtendedThermometerCurrentValue>(DeviceType::Thermometer, 0);
+        auto lastValues = GetValues<ThermometerValue>(DeviceType::Thermometer, 0);
         if (lastValues.empty() ||
             lastValues[0]._timestamp != std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) {
                                             return a._timestamp < b._timestamp;
                                         })->_timestamp)
-            _cachedValues = GetValues<ExtendedThermometerCurrentValue>(DeviceType::Thermometer, seconds);
+            _cachedValues = GetValues<ThermometerValue>(DeviceType::Thermometer, seconds);
     }
     if (_cachedValues.size()) {
         auto value = _cachedValues.begin()->_value;
@@ -60,8 +77,7 @@ void ThermometerWidget::Initialize() {
             std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) { return a._value < b._value; })->_value;
         _chart->axis(Chart::Axis::Y).setMinimum(min - 1);
         _chart->axis(Chart::Axis::Y).setMaximum(max + 1);
-        auto timestamp = _cachedValues.begin()->_timestamp;
-        _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
+        _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(_cachedValues.begin()->_timestamp), 20));
         _model->UpdateData(_cachedValues);
     } else
         Clear(BaseDeviceWidget::ClearType::Data);

@@ -1,21 +1,26 @@
 #pragma once
 
+#include <string>
 #include <utility>
 #include <vector>
 
 #include <Wt/WContainerWidget.h>
+#include <Wt/WGlobal.h>
 #include <Wt/WHBoxLayout.h>
+#include <Wt/WLayout.h>
+#include <Wt/WWidget.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseStackWidget.hpp"
-#include "ExtendedComponentDescription.hpp"
+#include "Device.hpp"
+#include "IStackHolder.hpp"
 #include "Scenario.hpp"
-#include "Settings.hpp"
 
 class DeviceButton;
 
 class DevicesWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
-    DevicesWidget(IStackHolder* stackHolder, const Settings& settings);
+    DevicesWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~DevicesWidget() = default;
 
@@ -28,7 +33,7 @@ private:
 
     void AddScenarioButton(Wt::WHBoxLayout* layout, const Scenario& scenario);
 
-    void AddDeviceButton(Wt::WHBoxLayout* layout, const ExtendedComponentDescription& description);
+    void AddDeviceButton(Wt::WHBoxLayout* layout, const Device& device);
 
     void OnSettings();
 

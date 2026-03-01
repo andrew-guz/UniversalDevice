@@ -4,8 +4,9 @@
 #include <Wt/WSpinBox.h>
 
 #include "BaseEventEditor.hpp"
+#include "Device.hpp"
 #include "DeviceComboBox.hpp"
-#include "EventReceiverWidget.hpp"
+#include "Event.hpp"
 
 class ThermostatEventEditor final : public BaseEventEditor {
 public:
@@ -13,7 +14,7 @@ public:
 
     virtual ~ThermostatEventEditor() = default;
 
-    virtual void SetDevices(const std::vector<ExtendedComponentDescription>& devices) override;
+    virtual void SetDevices(const Devices& devices) override;
 
     virtual void Cleanup() override;
 

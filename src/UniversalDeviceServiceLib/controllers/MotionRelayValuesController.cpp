@@ -1,0 +1,100 @@
+#include "MotionRelayValuesController.hpp"
+
+#include <algorithm>
+#include <chrono>
+#include <cstdint>
+#include <iterator>
+#include <mutex>
+#include <string>
+#include <vector>
+
+#include <fmt/format.h>
+
+#include "Cache.hpp"
+#include "DbExtension.hpp"
+#include "IQueryExecutor.hpp"
+#include "Logger.hpp"
+#include "MotionRelayValue.hpp"
+#include "TimeHelper.hpp"
+#include "TimeValuesController.hpp"
+#include "Uuid.hpp"
+
+MotionRelayValuesController::MotionRelayValuesController(IQueryExecutor* queryExecutor) :
+    TimeValuesController<MotionRelayValue>(queryExecutor) //
+{
+    FillCache();
+}
+
+bool MotionRelayValuesController::Add(const Uuid& id, const MotionRelayValue& value) {
+    std::lock_guard<std::mutex> lockGuard{ _mutex };
+
+    if (!value._timestamp.has_value()) {
+        LOG_ERROR_MSG("Invalid MotionRelayValue");
+        return false;
+    }
+
+    const std::string query = fmt::format("INSERT INTO MotionRelays (id, timestamp, motion, state) VALUES ('{}', {}, '{}', '{}')",
+                                          id.data(),
+                                          TimeHelper::TimeToInt(value._timestamp.value()),
+                                          value._motion,
+                                          value._state);
+    if (_queryExecutor->Execute(query)) {
+        _caches[id].Add(value._timestamp.value(), value);
+        return true;
+    }
+
+    LOG_SQL_ERROR(query);
+
+    return false;
+}
+
+std::vector<MotionRelayValue> MotionRelayValuesController::Get(const Uuid& id, const std::uint64_t seconds) {
+    std::lock_guard<std::mutex> lockGuard{ _mutex };
+
+    if (!_caches.contains(id) || _caches[id].Size() == 0) {
+        return {};
+    }
+
+    std::vector<MotionRelayValue> result;
+    result.reserve(_caches[id].Size());
+
+    if (seconds != 0) {
+        const std::chrono::system_clock::time_point timeLimit = std::chrono::system_clock::now() - std::chrono::seconds(seconds);
+        const auto& values = _caches[id].Get();
+        std::transform(values.upper_bound(timeLimit), values.end(), std::back_inserter(result), [](const auto& pair) { return pair.second; });
+        std::reverse(result.begin(), result.end());
+    }
+
+    if (result.size() == 0) {
+        result.push_back(_caches[id].Get().rbegin()->second);
+    }
+
+    return result;
+}
+
+void MotionRelayValuesController::FillCache() {
+    const std::string query = "SELECT * FROM MotionRelays";
+    std::vector<std::vector<std::string>> data;
+    if (_queryExecutor->Select(query, data)) {
+        for (const auto& dbString : data) {
+            if (dbString.size() % 2 == 0) {
+                auto deviceId = DbExtension::FindValueByName<Uuid>(dbString, "id");
+                auto timestamp = DbExtension::FindValueByName<std::chrono::system_clock::time_point>(dbString, "timestamp");
+                auto motion = DbExtension::FindValueByName<bool>(dbString, "motion");
+                auto state = DbExtension::FindValueByName<int>(dbString, "state");
+                if (deviceId.has_value() && timestamp.has_value() && state.has_value() && motion.has_value()) {
+                    if (!_caches.contains(deviceId.value()))
+                        _caches.try_emplace(deviceId.value(), ChronoCache<MotionRelayValue>{});
+                    _caches[deviceId.value()].Add(timestamp.value(),
+                                                  MotionRelayValue{
+                                                      ._motion = motion.value(),
+                                                      ._state = state.value(),
+                                                      ._timestamp = timestamp.value(),
+                                                  });
+                }
+            } else
+                LOG_ERROR_MSG("Invalid db strings");
+        }
+    } else
+        LOG_SQL_ERROR(query);
+}

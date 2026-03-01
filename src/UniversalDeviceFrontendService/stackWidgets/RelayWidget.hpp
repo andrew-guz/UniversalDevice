@@ -1,13 +1,22 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
+#include <Wt/WGlobal.h>
+#include <Wt/WText.h>
+
+#include "ApplicationSettings.hpp"
 #include "BaseDeviceWidget.hpp"
-#include "ExtendedRelayCurrentState.hpp"
+#include "BaseStackWidget.hpp"
+#include "IStackHolder.hpp"
 #include "RelayChartModel.hpp"
+#include "RelayValue.hpp"
 #include "SecondsComboBox.hpp"
 
 class RelayWidget final : public BaseDeviceWidget {
 public:
-    RelayWidget(IStackHolder* stackHolder, const Settings& settings);
+    RelayWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~RelayWidget() = default;
 
@@ -30,5 +39,5 @@ private:
     int _deviceState = 0;
     std::shared_ptr<RelayChartModel> _model;
     SecondsComboBox* _seconds;
-    std::vector<ExtendedRelayCurrentState> _cachedValues;
+    std::vector<RelayValue> _cachedValues;
 };

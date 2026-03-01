@@ -50,3 +50,4 @@ RUN echo '{ "port": 7315, "dbPath": "/opt/UniversalDevice/UniversalDeviceService
 RUN echo '{ "servicePort": 7315, "frontendPort": 7316, "certificatePath": "/opt/UniversalDevice/ssl/frontend.crt", "keyPath": "/opt/UniversalDevice/ssl/frontend.key", "dhPath": "/opt/UniversalDevice/ssl/dhparam.pem", "authPath": "/opt/UniversalDevice/authentication.json", "logPath": "/opt/UniversalDevice/UniversalDeviceFrontendService.log" }' > ./bin/UniversalDeviceFrontendService.json
 
 ENTRYPOINT [ "./scripts/docker_entry_point.sh" ]
+CMD [""]

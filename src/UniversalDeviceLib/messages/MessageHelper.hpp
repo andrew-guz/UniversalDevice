@@ -1,31 +1,32 @@
 #pragma once
 
+#include <nlohmann/json_fwd.hpp>
+
 #include "Enums.hpp"
 #include "Marshaling.hpp"
 #include "Message.hpp"
+#include "Provider.hpp"
 
 class MessageHelper final {
 public:
-    static Message Create(const ComponentDescription& description, Subject subject, const nlohmann::json& data);
+    static Message CreateDeviceMessage(DeviceType deviceType, const Uuid& deviceId, Subject subject, const nlohmann::json& data);
 
-    template<typename Type>
-    static Message Create(Type type, const Uuid& id, Subject subject, const nlohmann::json& data) {
-        ComponentDescription description;
-        description._type = type;
-        description._id = id;
-        return MessageHelper::Create(description, subject, data);
+    static Message CreateClientMessage(Subject subject, const nlohmann::json& data);
+
+    static Message CreateEventMessage(const Uuid& eventId, Subject subject, const nlohmann::json& data);
+
+    template<typename Object>
+    static Message CreateDeviceMessage(const DeviceType deviceType, const Uuid& deviceId, Subject subject, const Object& object) {
+        return CreateDeviceMessage(deviceType, deviceId, subject, nlohmann::json(object));
     }
 
     template<typename Object>
-    static Message Create(const ComponentDescription& description, Subject subject, const Object& object) {
-        return Create(description, subject, nlohmann::json(object));
+    static Message CreateClientMessage(const Subject subject, const Object& object) {
+        return CreateClientMessage(subject, nlohmann::json(object));
     }
 
-    template<typename Type, typename Object>
-    static Message Create(Type type, const Uuid& id, Subject subject, const Object& object) {
-        ComponentDescription description;
-        description._type = type;
-        description._id = id;
-        return MessageHelper::Create<Object>(description, subject, object);
+    template<typename Object>
+    static Message CreateEventMessage(const Uuid& eventId, const Subject subject, const Object& object) {
+        return CreateEventMessage(eventId, subject, nlohmann::json(object));
     }
 };

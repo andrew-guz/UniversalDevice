@@ -2,11 +2,17 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 
+#include "Enums.hpp"
 #include "Marshaling.hpp"
 #include "TimeHelper.hpp"
 #include "Uuid.hpp"
@@ -47,14 +53,6 @@ std::optional<DeviceType> DbExtension::FindValueByName<DeviceType>(const std::ve
 }
 
 template<>
-std::optional<ActorType> DbExtension::FindValueByName<ActorType>(const std::vector<std::string>& dbStrings, std::string_view name) {
-    std::optional<std::string> value = FindStringValueByName(dbStrings, name);
-    if (value.has_value())
-        return ActorTypeFromString(value.value());
-    return std::nullopt;
-}
-
-template<>
 std::optional<Uuid> DbExtension::FindValueByName<Uuid>(const std::vector<std::string>& dbStrings, const std::string_view name) {
     std::optional<std::string> value = FindStringValueByName(dbStrings, name);
     if (value.has_value())
@@ -84,6 +82,14 @@ std::optional<int> DbExtension::FindValueByName<int>(const std::vector<std::stri
     std::optional<std::string> value = FindStringValueByName(dbStrings, name);
     if (value.has_value())
         return std::atoi(value.value().c_str());
+    return std::nullopt;
+}
+
+template<>
+std::optional<std::uint64_t> DbExtension::FindValueByName<std::uint64_t>(const std::vector<std::string>& dbStrings, std::string_view name) {
+    std::optional<std::string> value = FindStringValueByName(dbStrings, name);
+    if (value.has_value())
+        return std::atoll(value.value().c_str());
     return std::nullopt;
 }
 

@@ -1,9 +1,20 @@
 #include "ThermometerEventEditor.hpp"
 
+#include <memory>
+
 #include <Wt/WGlobal.h>
 #include <Wt/WHBoxLayout.h>
+#include <Wt/WValidator.h>
 
+#include "BaseEventEditor.hpp"
+#include "Device.hpp"
+#include "DeviceComboBox.hpp"
+#include "Enums.hpp"
+#include "Event.hpp"
+#include "EventReceiverWidget.hpp"
+#include "Provider.hpp"
 #include "ThermometerEvent.hpp"
+#include "Uuid.hpp"
 
 using namespace Wt;
 
@@ -25,7 +36,7 @@ ThermometerEventEditor::ThermometerEventEditor() :
     _receiver = _mainLayout->addWidget(std::make_unique<EventReceiverWidget>(), 0, AlignmentFlag::Top);
 }
 
-void ThermometerEventEditor::SetDevices(const std::vector<ExtendedComponentDescription>& devices) {
+void ThermometerEventEditor::SetDevices(const Devices& devices) {
     BaseEventEditor::SetDevices(devices);
     _provider->SetDevices(FilteredDevices(DeviceType::Thermometer));
     _receiver->SetDevices(devices);
@@ -41,8 +52,8 @@ void ThermometerEventEditor::Cleanup() {
 
 void ThermometerEventEditor::FillUi(const Event& event) {
     BaseEventEditor::FillUi(event);
-    const ThermometerEvent& thermometerEvent = dynamic_cast<const ThermometerEvent&>(event);
-    _provider->SetSelectedDevice(event._provider._id);
+    const ThermometerEvent& thermometerEvent = std::get<ThermometerEvent>(event);
+    _provider->SetSelectedDevice(GetProviderId(thermometerEvent._provider));
     _temperature->setValue(thermometerEvent._temperature);
     _lower->setChecked(thermometerEvent._lower);
     _receiver->FillUi(event);
@@ -54,8 +65,8 @@ bool ThermometerEventEditor::IsValid() const {
 
 void ThermometerEventEditor::FillFromUi(Event& event) const {
     BaseEventEditor::FillFromUi(event);
-    ThermometerEvent& thermometerEvent = dynamic_cast<ThermometerEvent&>(event);
-    event._provider = _provider->GetSelectedDevice();
+    ThermometerEvent& thermometerEvent = std::get<ThermometerEvent>(event);
+    thermometerEvent._provider = _provider->GetSelectedDevice();
     thermometerEvent._temperature = _temperature->value();
     thermometerEvent._lower = _lower->isChecked();
     _receiver->FillFromUi(event);

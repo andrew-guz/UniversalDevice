@@ -1,14 +1,16 @@
 #pragma once
 
+#include <ixwebsocket/IXWebSocketMessage.h>
+
 #include "PeriodSettings.hpp"
 #include "Simulator.hpp"
-#include "UniversalDeviceCurrentValues.hpp"
+#include "UniversalValue.hpp"
 
 class UniversalDeviceSimulator final : public Simulator {
 public:
     UniversalDeviceSimulator();
 
-    UniversalDeviceCurrentValues GetValues() const;
+    UniversalValue GetValues() const;
 
     int GetPeriod() const;
 
@@ -19,5 +21,5 @@ protected:
 
 private:
     PeriodSettings periodSettings;
-    UniversalDeviceCurrentValues values;
+    UniversalValue values;
 };

@@ -1,143 +1,104 @@
 #include "ScenariosService.hpp"
 
+#include <string>
+
+#include <crow/app.h>
+#include <crow/common.h>
+#include <crow/http_response.h>
+#include <nlohmann/json_fwd.hpp>
+
+#include "BaseService.hpp"
+#include "Defines.hpp"
+#include "EventsController.hpp"
+#include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "Middleware.hpp"
 #include "Scenario.hpp"
-#include "ScenarioUtils.hpp"
-#include "SimpleTableStorageCache.hpp"
+#include "ScenariosController.hpp"
+#include "Uuid.hpp"
 
-ScenariosService::ScenariosService(IQueryExecutor* queryExecutor) :
-    BaseService(queryExecutor) {}
-
-void ScenariosService::Initialize(CrowApp& app) {
-    CROW_ROUTE(app, API_CLIENT_SCENARIOS).methods(crow::HTTPMethod::GET)(BaseService::bind(this, &ScenariosService::GetScenarios));
+ScenariosService::ScenariosService(CrowApp& app, ScenariosController& scenariosController, EventsController& eventsController) :
+    _scenariosController(scenariosController),
+    _eventsController(eventsController) //
+{
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS).methods(crow::HTTPMethod::GET)(ServiceExtension::bind(this, &ScenariosService::GetScenarios));
     CROW_ROUTE(app, API_CLIENT_SCENARIOS)
-        .methods(crow::HTTPMethod::POST)(BaseService::bindObject(this, &ScenariosService::AddScenario, "AddScenario"));
+        .methods(crow::HTTPMethod::POST)(ServiceExtension::bindObject(this, &ScenariosService::AddScenario, "AddScenario"));
     CROW_ROUTE(app, API_CLIENT_SCENARIOS)
-        .methods(crow::HTTPMethod::PUT)(BaseService::bindObject(this, &ScenariosService::UpdateScenario, "UpdateScenario"));
-    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::DELETE)(BaseService::bind(this, &ScenariosService::DeleteScenario));
-    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::PATCH)(BaseService::bind(this, &ScenariosService::ActivateScenario));
+        .methods(crow::HTTPMethod::PUT)(ServiceExtension::bindObject(this, &ScenariosService::UpdateScenario, "UpdateScenario"));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::DELETE)(ServiceExtension::bind(this, &ScenariosService::DeleteScenario));
+    CROW_ROUTE(app, API_CLIENT_SCENARIOS_ID).methods(crow::HTTPMethod::PATCH)(ServiceExtension::bind(this, &ScenariosService::ActivateScenario));
 }
 
 crow::response ScenariosService::GetScenarios() const {
+    nlohmann::json result;
+
     try {
-        auto storageCache = GetScenariosCache(_queryExecutor);
-        SimpleTableSelectAllOutput<Scenario> scenariosResult;
-        const StorageCacheProblem problem = storageCache->SelectAll(scenariosResult);
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems:
-                return crow::response{
-                    crow::OK,
-                    static_cast<nlohmann::json>(scenariosResult._data).dump(),
-                };
-            case StorageCacheProblemType::Empty:
-            case StorageCacheProblemType::NotExists:
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
-        }
+        result = _scenariosController.List();
     } catch (...) {
-        LOG_ERROR_MSG("Something went wrong in ClientService::GetScenarios");
+        LOG_ERROR_MSG("Something went wrong in ScenariosService::GetScenarios");
+        return crow::response(crow::BAD_REQUEST);
     }
-    return crow::response{
-        crow::OK,
-        nlohmann::json::array().dump(),
-    };
+
+    return crow::response(crow::OK, result.dump());
 }
 
 crow::response ScenariosService::AddScenario(Scenario& scenario) {
     try {
-        CleanupScenario(scenario, _queryExecutor);
+        _scenariosController.CleanupScenario(scenario);
 
-        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
-        const StorageCacheProblem problem = scenariosStorageCache->InsertOrReplace(SimpleTableInsertOrReplaceInput<Scenario>{
-            ._id = scenario._id,
-            ._data = scenario,
-        });
-
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems:
-                return crow::response{
-                    crow::OK,
-                };
-            case StorageCacheProblemType::Empty:
-            case StorageCacheProblemType::NotExists:
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
+        if (!_scenariosController.Add(scenario)) {
+            LOG_ERROR_MSG("Failed to add scenario");
+            return crow::response(crow::BAD_REQUEST);
         }
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::AddScenario");
+        return crow::response{ crow::BAD_REQUEST };
     }
-    return crow::response{
-        crow::BAD_REQUEST,
-    };
+
+    return crow::response{ crow::OK };
 }
 
 crow::response ScenariosService::UpdateScenario(Scenario& scenario) {
     try {
-        CleanupScenario(scenario, _queryExecutor);
+        _scenariosController.CleanupScenario(scenario);
 
-        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
-        const StorageCacheProblem problem = scenariosStorageCache->Update(SimpleTableUpdateInput<Scenario>{
-            ._id = scenario._id,
-            ._data = scenario,
-        });
-
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems:
-                return crow::response{
-                    crow::OK,
-                };
-            case StorageCacheProblemType::Empty:
-            case StorageCacheProblemType::NotExists:
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
+        if (!_scenariosController.Add(scenario)) {
+            LOG_ERROR_MSG("Failed to update scenario");
+            return crow::response(crow::BAD_REQUEST);
         }
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::UpdateScenario");
+        return crow::response{ crow::BAD_REQUEST };
     }
-    return crow::response{
-        crow::BAD_REQUEST,
-    };
+
+    return crow::response{ crow::OK };
 }
 
 crow::response ScenariosService::DeleteScenario(const std::string& scenarioId) {
     try {
-        IStorageCache* scenariosStorageCache = GetScenariosCache(_queryExecutor);
-        const StorageCacheProblem problem = scenariosStorageCache->Delete(SimpleTableDeleteInput{
-            ._id = Uuid(scenarioId),
-        });
-
-        switch (problem._type) {
-            case StorageCacheProblemType::NoProblems:
-                return crow::response{
-                    crow::OK,
-                };
-            case StorageCacheProblemType::Empty:
-            case StorageCacheProblemType::NotExists:
-            case StorageCacheProblemType::TooMany:
-                break;
-            case StorageCacheProblemType::SQLError:
-                LOG_SQL_ERROR(problem._message);
-                break;
+        if (!_scenariosController.Remove(Uuid{ scenarioId })) {
+            LOG_ERROR_MSG("Failed to remove scenario");
+            return crow::response(crow::BAD_REQUEST);
         }
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::DeleteScenario");
+        return crow::response{ crow::BAD_REQUEST };
     }
-    return crow::response{
-        crow::BAD_REQUEST,
-    };
+
+    return crow::response{ crow::OK };
 }
 
 crow::response ScenariosService::ActivateScenario(const std::string& scenarioId) {
-    return crow::response{
-        ::ActivateScenario(_queryExecutor, Uuid{ scenarioId }) ? crow::OK : crow::BAD_REQUEST,
-    };
+    try {
+        if (!_scenariosController.ActivateScenario(Uuid{ scenarioId })) {
+            LOG_ERROR_MSG("Failed to activate scenario");
+            return crow::response(crow::BAD_REQUEST);
+        }
+    } catch (...) {
+        LOG_ERROR_MSG("Something went wrong in ClientService::ActivateScenario");
+        return crow::response{ crow::BAD_REQUEST };
+    }
+
+    return crow::response{ crow::OK };
 }

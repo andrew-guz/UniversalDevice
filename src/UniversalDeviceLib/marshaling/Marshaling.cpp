@@ -1,46 +1,54 @@
 #include "Marshaling.hpp"
 
 #include <cstdint>
+#include <limits>
+#include <map>
 #include <set>
 #include <string>
+#include <string_view>
+#include <variant>
 
+#include <boost/hof.hpp>
+#include <boost/hof/match.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
 #include "Account.hpp"
 #include "Base64Helper.hpp"
-#include "ComponentDescription.hpp"
-#include "CurrentTime.hpp"
+#include "BaseEvent.hpp"
+#include "Command.hpp"
+#include "Constants.hpp"
+#include "Defines.hpp"
+#include "Device.hpp"
+#include "DeviceDescription.hpp"
 #include "DeviceInformationDescription.hpp"
 #include "DeviceProperty.hpp"
 #include "Enums.hpp"
 #include "Event.hpp"
-#include "ExtendedComponentDescription.hpp"
-#include "ExtendedMotionRelayCurrentState.hpp"
-#include "ExtendedRelayCurrentState.hpp"
-#include "ExtendedThermometerCurrentValue.hpp"
-#include "ExtendedUniversalDeviceCurrentValues.hpp"
 #include "LogInformation.hpp"
 #include "Logger.hpp"
 #include "Message.hpp"
 #include "MessageHeader.hpp"
-#include "MotionRelayCurrentState.hpp"
 #include "MotionRelaySettings.hpp"
+#include "MotionRelayValue.hpp"
 #include "PeriodSettings.hpp"
-#include "RelayCurrentState.hpp"
+#include "Provider.hpp"
+#include "Receiver.hpp"
 #include "RelayEvent.hpp"
 #include "RelayState.hpp"
+#include "RelayValue.hpp"
 #include "Scenario.hpp"
+#include "Settings.hpp"
 #include "SunriseEvent.hpp"
 #include "SunsetEvent.hpp"
-#include "ThermometerCurrentValue.hpp"
 #include "ThermometerEvent.hpp"
 #include "ThermometerLedBrightness.hpp"
+#include "ThermometerValue.hpp"
 #include "ThermostatEvent.hpp"
+#include "TimeHelper.hpp"
 #include "TimerEvent.hpp"
-#include "Types.hpp"
 #include "UniversalData.hpp"
-#include "UniversalDeviceCurrentValues.hpp"
+#include "UniversalValue.hpp"
 #include "Uuid.hpp"
 #include "WebSocketAuthentication.hpp"
 
@@ -267,31 +275,46 @@ UniversalDataType EnumFromString(const std::string& str) {
     return UniversalDataType::Bool;
 }
 
-std::string ActorTypeToString(const ActorType& type) {
-    switch (type.index()) {
-        case 0: // ClientActor
-            return "client";
-        case 1: // DeviceType
-            return EnumToString<DeviceType>(std::get<DeviceType>(type));
-        case 2: // EventType
-            return EnumToString<EventType>(std::get<EventType>(type));
+namespace nlohmann {
+    void adl_serializer<UniversalData>::to_json(json& json, const UniversalData& universalData) {
+        json = nlohmann::json{
+            { "type", EnumToString(universalData.GetType()) },
+        };
+        switch (universalData.GetType()) {
+            case UniversalDataType::Bool:
+                json += { "value", universalData.Get<bool>() };
+                break;
+            case UniversalDataType::Int:
+                json += { "value", universalData.Get<int>() };
+                break;
+            case UniversalDataType::Double:
+                json += { "value", universalData.Get<double>() };
+                break;
+            case UniversalDataType::String:
+                json += { "value", universalData.Get<std::string>() };
+                break;
+        }
     }
-    LOG_ERROR_MSG(fmt::format("Invalid Actor Type: {}", type.index()));
-    return {};
-}
 
-ActorType ActorTypeFromString(const std::string& str) {
-    if (str == "client")
-        return ClientActor{};
-    const DeviceType deviceType = DeviceTypeFromString(str);
-    if (deviceType != DeviceType::Undefined)
-        return deviceType;
-    const EventType eventType = EventTypeFromString(str);
-    if (eventType != EventType::Undefined)
-        return eventType;
-    LOG_ERROR_MSG(fmt::format("Invalid Actor Type: {}", str));
-    return ClientActor{};
-}
+    UniversalData adl_serializer<UniversalData>::from_json(const json& json) {
+        if (json.contains("type")) {
+            const UniversalDataType type = EnumFromString<UniversalDataType>(json.at("type").get<std::string>());
+            switch (type) {
+                case UniversalDataType::Bool:
+                    return UniversalData(json.at("value").get<bool>());
+                case UniversalDataType::Int:
+                    return UniversalData(json.at("value").get<int>());
+                case UniversalDataType::Double:
+                    return UniversalData(json.at("value").get<double>());
+                case UniversalDataType::String:
+                    return UniversalData(json.at("value").get<std::string>());
+            }
+        } else {
+            LOG_ERROR_MSG("Invalid UniversalData type");
+        }
+        return UniversalData{ false };
+    }
+} // namespace nlohmann
 
 void to_json(nlohmann::json& json, AccountType accountType) { json = EnumToString<AccountType>(accountType); }
 
@@ -308,10 +331,6 @@ void from_json(const nlohmann::json& json, EventType& eventType) { eventType = E
 void to_json(nlohmann::json& json, Subject subject) { json = EnumToString<Subject>(subject); }
 
 void from_json(const nlohmann::json& json, Subject& subject) { subject = EnumFromString<Subject>(json.get<std::string>()); }
-
-void to_json(nlohmann::json& json, const ActorType& type) { json = ActorTypeToString(type); }
-
-void from_json(const nlohmann::json& json, ActorType& type) { type = ActorTypeFromString(json.get<std::string>()); }
 
 void to_json(nlohmann::json& json, const Uuid& uuid) { json = uuid.data(); }
 
@@ -331,35 +350,45 @@ void from_json(const nlohmann::json& json, Account& account) {
     account._type = json.contains("type") ? json.at("type").get<AccountType>() : AccountType::Undefined;
 }
 
-void to_json(nlohmann::json& json, const ComponentDescription& componentDescription) {
-    json = {
-        { "type", componentDescription._type },
-        { "id", componentDescription._id.data() },
+void to_json(nlohmann::json& json, const Device& device) {
+    json = nlohmann::json{
+        { "id", device._id.data() },
+        { "type", device._type },
+        { "name", device._name },
+        { "grp", device._group },
+        { "timestamp", TimeHelper::TimeToInt(device._timestamp) },
     };
 }
 
-void from_json(const nlohmann::json& json, ComponentDescription& componentDescription) {
-    componentDescription._type = json["type"].get<ActorType>();
-    componentDescription._id = json["id"].get<Uuid>();
+void from_json(const nlohmann::json& json, Device& device) {
+    device._id = json["id"].get<Uuid>();
+    device._type = json["type"].get<DeviceType>();
+    device._name = json["name"].get<std::string>();
+    device._group = json["grp"].get<std::string>();
+    device._timestamp = TimeHelper::TimeFromInt(json["timestamp"].get<int64_t>());
 }
 
-void to_json(nlohmann::json& json, const CurrentTime& currentTime) {
+void to_json(nlohmann::json& json, const DeviceDescription& deviceDescription) {
     json = {
-        { "timestamp", TimeHelper::TimeToInt(currentTime._timestamp) },
+        { "type", deviceDescription._type },
+        { "id", deviceDescription._id },
     };
 }
 
-void from_json(const nlohmann::json& json, CurrentTime& currentTime) {
-    currentTime._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+void from_json(const nlohmann::json& json, DeviceDescription& deviceDescription) {
+    deviceDescription = DeviceDescription{
+        ._type = EnumFromString<DeviceType>(json.at("type").get<std::string>()),
+        ._id = json.at("id").get<Uuid>(),
+    };
 }
 
 void to_json(nlohmann::json& json, const DeviceInformationDescription& deviceInformationDescription) {
-    json = (const ComponentDescription&)deviceInformationDescription;
+    json = (const DeviceDescription&)deviceInformationDescription;
     json += { "seconds", deviceInformationDescription._seconds };
 }
 
 void from_json(const nlohmann::json& json, DeviceInformationDescription& deviceInformationDescription) {
-    (ComponentDescription&)deviceInformationDescription = json.get<ComponentDescription>();
+    (DeviceDescription&)deviceInformationDescription = json.get<DeviceDescription>();
     deviceInformationDescription._seconds = json.value("seconds", (std::uint64_t)0);
 }
 
@@ -371,75 +400,58 @@ void to_json(nlohmann::json& json, const DeviceProperty& deviceProperty) {
 
 void from_json(const nlohmann::json& json, DeviceProperty& deviceProperty) { deviceProperty._value = json.value("value", std::string()); }
 
-void to_json(nlohmann::json& json, const Event& event) {
+void to_json(nlohmann::json& json, const BaseEvent& baseEvent) {
     json = {
-        { "id", event._id.data() },      { "name", event._name },         { "active", event._active },   { "type", event._type },
-        { "provider", event._provider }, { "receiver", event._receiver }, { "command", event._command },
+        { "id", baseEvent._id.data() },      { "name", baseEvent._name },         { "active", baseEvent._active },
+        { "provider", baseEvent._provider }, { "receiver", baseEvent._receiver },
     };
 }
 
+void from_json(const nlohmann::json& json, BaseEvent& baseEvent) {
+    baseEvent._id = json["id"].get<Uuid>();
+    baseEvent._name = json.value("name", "");
+    baseEvent._active = json.value("active", true);
+    baseEvent._provider = json["provider"].get<Provider>();
+    baseEvent._receiver = json["receiver"].get<Receiver>();
+}
+
+void to_json(nlohmann::json& json, const Event& event) {
+    json = std::visit([](const auto& e) -> nlohmann::json { return static_cast<nlohmann::json>(e); }, event);
+}
+
 void from_json(const nlohmann::json& json, Event& event) {
-    event._id = json["id"].get<Uuid>();
-    event._name = json.value("name", "");
-    event._active = json.value("active", true);
-    event._type = json["type"].get<EventType>();
-    event._provider = json["provider"].get<ComponentDescription>();
-    event._receiver = json["receiver"].get<ComponentDescription>();
-    event._command = json["command"];
-}
+    const std::string type = json.value("type", std::string{});
+    if (type == "timer_event") {
+        event.emplace<TimerEvent>(json.get<TimerEvent>());
+        return;
+    }
 
-void to_json(nlohmann::json& json, const ExtendedComponentDescription& extendedComponentDescription) {
-    json = (const ComponentDescription&)extendedComponentDescription;
-    json += { "name", extendedComponentDescription._name };
-    json += { "grp", extendedComponentDescription._group };
-    json += { "timestamp", TimeHelper::TimeToInt(extendedComponentDescription._timestamp) };
-}
+    if (type == "thermometer_event") {
+        event.emplace<ThermometerEvent>(json.get<ThermometerEvent>());
+        return;
+    }
 
-void from_json(const nlohmann::json& json, ExtendedComponentDescription& extendedComponentDescription) {
-    (ComponentDescription&)extendedComponentDescription = json.get<ComponentDescription>();
-    extendedComponentDescription._name = json.value("name", "");
-    extendedComponentDescription._group = json.value("grp", "");
-    extendedComponentDescription._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
-}
+    if (type == "relay_event") {
+        event.emplace<RelayEvent>(json.get<RelayEvent>());
+        return;
+    }
 
-void to_json(nlohmann::json& json, const ExtendedMotionRelayCurrentState& extendedMotionRelayCurrentState) {
-    json = (const MotionRelayCurrentState&)extendedMotionRelayCurrentState;
-    json += { "timestamp", TimeHelper::TimeToInt(extendedMotionRelayCurrentState._timestamp) };
-}
+    if (type == "thermostat_event") {
+        event.emplace<ThermostatEvent>(json.get<ThermostatEvent>());
+        return;
+    }
 
-void from_json(const nlohmann::json& json, ExtendedMotionRelayCurrentState& extendedMotionRelayCurrentState) {
-    (MotionRelayCurrentState&)extendedMotionRelayCurrentState = json.get<MotionRelayCurrentState>();
-    extendedMotionRelayCurrentState._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
-}
+    if (type == "sunrise_event") {
+        event.emplace<SunriseEvent>(json.get<SunriseEvent>());
+        return;
+    }
 
-void to_json(nlohmann::json& json, const ExtendedRelayCurrentState& extendedRelayCurrentState) {
-    json = (const RelayCurrentState&)extendedRelayCurrentState;
-    json += { "timestamp", TimeHelper::TimeToInt(extendedRelayCurrentState._timestamp) };
-}
+    if (type == "sunset_event") {
+        event.emplace<SunsetEvent>(json.get<SunsetEvent>());
+        return;
+    }
 
-void from_json(const nlohmann::json& json, ExtendedRelayCurrentState& extendedRelayCurrentState) {
-    (RelayCurrentState&)extendedRelayCurrentState = json.get<RelayCurrentState>();
-    extendedRelayCurrentState._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
-}
-
-void to_json(nlohmann::json& json, const ExtendedThermometerCurrentValue& extendedThermometerCurrentValue) {
-    json = (const ThermometerCurrentValue&)extendedThermometerCurrentValue;
-    json += { "timestamp", TimeHelper::TimeToInt(extendedThermometerCurrentValue._timestamp) };
-}
-
-void from_json(const nlohmann::json& json, ExtendedThermometerCurrentValue& extendedThermometerCurrentValue) {
-    (ThermometerCurrentValue&)extendedThermometerCurrentValue = json.get<ThermometerCurrentValue>();
-    extendedThermometerCurrentValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
-}
-
-void to_json(nlohmann::json& json, const ExtendedUniversalDeviceCurrentValues& extendedUniversalDeviceCurrentValues) {
-    json = (const UniversalDeviceCurrentValues&)extendedUniversalDeviceCurrentValues;
-    json += { "timestamp", TimeHelper::TimeToInt(extendedUniversalDeviceCurrentValues._timestamp) };
-}
-
-void from_json(const nlohmann::json& json, ExtendedUniversalDeviceCurrentValues& extendedUniversalDeviceCurrentValues) {
-    (UniversalDeviceCurrentValues&)extendedUniversalDeviceCurrentValues = json.get<UniversalDeviceCurrentValues>();
-    extendedUniversalDeviceCurrentValues._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+    LOG_ERROR_MSG(fmt::format("Invalid EventType: {}", type));
 }
 
 void to_json(nlohmann::json& json, const LogInformation& logInformation) {
@@ -479,21 +491,9 @@ void to_json(nlohmann::json& json, const MessageHeader& messageHeader) {
 void from_json(const nlohmann::json& json, MessageHeader& messageHeader) {
     // since old devices have no id in header
     messageHeader._id = json.contains("id") ? json["id"].get<Uuid>() : Uuid();
-    messageHeader._description = json["description"].get<ComponentDescription>();
+    messageHeader._description = json["description"].get<Provider>();
     // TODO: do we really have message without Subject?
     messageHeader._subject = json.contains("subject") ? json["subject"].get<Subject>() : Subject::Undefined;
-}
-
-void to_json(nlohmann::json& json, const MotionRelayCurrentState& motionRelayCurrentState) {
-    json = {
-        { "motion", motionRelayCurrentState._motion },
-        { "state", motionRelayCurrentState._state },
-    };
-}
-
-void from_json(const nlohmann::json& json, MotionRelayCurrentState& motionRelayCurrentState) {
-    motionRelayCurrentState._motion = json.value("motion", false);
-    motionRelayCurrentState._state = json.value("state", std::numeric_limits<float>::min());
 }
 
 void to_json(nlohmann::json& json, const MotionRelaySettings& motionRelaySettings) {
@@ -506,6 +506,24 @@ void from_json(const nlohmann::json& json, MotionRelaySettings& motionRelaySetti
     motionRelaySettings._activityTime = json.value("activityTime", DEFAULT_ACTIVITY_TIME);
 }
 
+void to_json(nlohmann::json& json, const MotionRelayValue& motionRelayValue) {
+    json = {
+        { "motion", motionRelayValue._motion },
+        { "state", motionRelayValue._state },
+    };
+
+    if (motionRelayValue._timestamp.has_value())
+        json += { "timestamp", TimeHelper::TimeToInt(motionRelayValue._timestamp.value()) };
+}
+
+void from_json(const nlohmann::json& json, MotionRelayValue& motionRelayValue) {
+    motionRelayValue._motion = json.value("motion", false);
+    motionRelayValue._state = json.value("value", std::numeric_limits<int>::min());
+
+    if (json.contains("timestamp"))
+        motionRelayValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+}
+
 void to_json(nlohmann::json& json, const PeriodSettings& periodSettings) {
     json = {
         { "period", periodSettings._period },
@@ -514,24 +532,59 @@ void to_json(nlohmann::json& json, const PeriodSettings& periodSettings) {
 
 void from_json(const nlohmann::json& json, PeriodSettings& periodSettings) { periodSettings._period = json.value("period", DEFAULT_PERIOD); }
 
-void to_json(nlohmann::json& json, const RelayCurrentState& relayCurrentState) {
-    json = {
-        { "state", relayCurrentState._state },
-    };
+void to_json(nlohmann::json& json, const Provider& provider) {
+    std::visit(boost::hof::match([&json](const DeviceDescription& device) { json = device; },
+                                 [&json](const ClientProvider& client) {
+                                     json = {
+                                         { "type", "client" },
+                                         { "id", Constants::PredefinedIdClient },
+                                     };
+                                 },
+                                 [&json](const EventProvider& event) {
+                                     json = {
+                                         { "type", "event" },
+                                         { "id", event._id },
+                                     };
+                                 }),
+               provider);
 }
 
-void from_json(const nlohmann::json& json, RelayCurrentState& relayCurrentState) {
-    relayCurrentState._state = json.value("state", std::numeric_limits<float>::min());
+void from_json(const nlohmann::json& json, Provider& provider) {
+    const std::string_view type = json.at("type").get<std::string_view>();
+    if (type == "client")
+        provider = ClientProvider{};
+    else if (type == "event")
+        provider = EventProvider{
+            ._id = json.at("id").get<Uuid>(),
+        };
+    else
+        provider = json.get<DeviceDescription>();
+}
+
+void to_json(nlohmann::json& json, const Settings& settings) {
+    std::visit([&json](const auto& value) -> void { json = static_cast<nlohmann::json>(value); }, settings);
+}
+
+void from_json(const nlohmann::json& json, Settings& settings) {
+    if (json.find("activityTime") != json.end())
+        settings = json.get<MotionRelaySettings>();
+    else if (json.find("period") != json.end())
+        settings = json.get<PeriodSettings>();
+    else
+        LOG_ERROR_MSG(fmt::format("Invalid Settings: {}", json.dump()));
 }
 
 void to_json(nlohmann::json& json, const RelayEvent& relayEvent) {
-    json = (const Event&)relayEvent;
+    json = (const BaseEvent&)relayEvent;
+    json += { "type", relayEvent._type };
     json += { "state", relayEvent._state };
+    json += { "command", relayEvent._command };
 }
 
 void from_json(const nlohmann::json& json, RelayEvent& relayEvent) {
-    (Event&)relayEvent = json.get<Event>();
+    (BaseEvent&)relayEvent = json.get<BaseEvent>();
     relayEvent._state = json.value("state", 0);
+    relayEvent._command = json["command"].get<Command>();
 }
 
 void to_json(nlohmann::json& json, const RelayState& relayState) {
@@ -540,7 +593,23 @@ void to_json(nlohmann::json& json, const RelayState& relayState) {
     };
 }
 
-void from_json(const nlohmann::json& json, RelayState& relayState) { relayState._state = json.value("state", std::numeric_limits<float>::min()); }
+void from_json(const nlohmann::json& json, RelayState& relayState) { relayState._state = json.value("state", std::numeric_limits<int>::min()); }
+
+void to_json(nlohmann::json& json, const RelayValue& relayValue) {
+    json = {
+        { "state", relayValue._state },
+    };
+
+    if (relayValue._timestamp.has_value())
+        json += { "timestamp", TimeHelper::TimeToInt(relayValue._timestamp.value()) };
+}
+
+void from_json(const nlohmann::json& json, RelayValue& relayValue) {
+    relayValue._state = json.value("state", std::numeric_limits<int>::min());
+
+    if (json.contains("timestamp"))
+        relayValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+}
 
 void to_json(nlohmann::json& json, const Scenario& scenario) {
     json = {
@@ -568,115 +637,114 @@ void from_json(const nlohmann::json& json, ThermometerLedBrightness& thermometer
     thermometerLedBrightness._brightness = json.value("brightness", 7);
 }
 
-void to_json(nlohmann::json& json, const ThermometerCurrentValue& thermometerCurrentValue) {
-    json = {
-        { "value", thermometerCurrentValue._value },
-    };
+void to_json(nlohmann::json& json, const Command& command) {
+    std::visit([&json](const auto& value) -> void { json = static_cast<nlohmann::json>(value); }, command);
 }
 
-void from_json(const nlohmann::json& json, ThermometerCurrentValue& thermometerCurrentValue) {
-    thermometerCurrentValue._value = json.value("value", std::numeric_limits<float>::min());
+void from_json(const nlohmann::json& json, Command& command) {
+    if (json.find("state") != json.end())
+        command = json.get<RelayState>();
+    else if (json.find("brightness") != json.end())
+        command = json.get<ThermometerLedBrightness>();
+    else
+        LOG_ERROR_MSG(fmt::format("Invalid Command: {}", json.dump()));
+}
+
+void to_json(nlohmann::json& json, const ThermometerValue& thermometerValue) {
+    json = {
+        { "value", thermometerValue._value },
+    };
+
+    if (thermometerValue._timestamp.has_value())
+        json += { "timestamp", TimeHelper::TimeToInt(thermometerValue._timestamp.value()) };
+}
+
+void from_json(const nlohmann::json& json, ThermometerValue& thermometerValue) {
+    thermometerValue._value = json.value("value", std::numeric_limits<float>::min());
+
+    if (json.contains("timestamp"))
+        thermometerValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const ThermometerEvent& thermometerEvent) {
-    json = (const Event&)thermometerEvent;
+    json = (const BaseEvent&)thermometerEvent;
+    json += { "type", thermometerEvent._type };
     json += { "temperature", thermometerEvent._temperature };
     json += { "lower", thermometerEvent._lower };
+    json += { "command", thermometerEvent._command };
 }
 
 void from_json(const nlohmann::json& json, ThermometerEvent& thermometerEvent) {
-    (Event&)thermometerEvent = json.get<Event>();
+    (BaseEvent&)thermometerEvent = json.get<BaseEvent>();
     thermometerEvent._temperature = json.value("temperature", std::numeric_limits<float>::min());
     thermometerEvent._lower = json.value("lower", true);
+    thermometerEvent._command = json["command"].get<Command>();
 }
 
 void to_json(nlohmann::json& json, const ThermostatEvent& thermostatEvent) {
-    json = (const Event&)thermostatEvent;
+    json = (const BaseEvent&)thermostatEvent;
+    json += { "type", thermostatEvent._type };
     json += { "temperature", thermostatEvent._temperature };
     json += { "delta", thermostatEvent._delta };
 }
 
 void from_json(const nlohmann::json& json, ThermostatEvent& thermostatEvent) {
-    (Event&)thermostatEvent = json.get<Event>();
+    (BaseEvent&)thermostatEvent = json.get<BaseEvent>();
     thermostatEvent._temperature = json.value("temperature", std::numeric_limits<float>::min());
     thermostatEvent._delta = json.value("delta", 0.5f);
 }
 
 void to_json(nlohmann::json& json, const TimerEvent& timerEvent) {
-    json = (const Event&)timerEvent;
+    json = (const BaseEvent&)timerEvent;
+    json += { "type", timerEvent._type };
     json += { "hour", timerEvent._hour };
     json += { "minute", timerEvent._minute };
+    json += { "command", timerEvent._command };
 }
 
 void from_json(const nlohmann::json& json, TimerEvent& timerEvent) {
-    (Event&)timerEvent = json.get<Event>();
+    (BaseEvent&)timerEvent = json.get<BaseEvent>();
     timerEvent._hour = json.value("hour", 0);
     timerEvent._minute = json.value("minute", 0);
+    timerEvent._command = json["command"].get<Command>();
 }
 
-void to_json(nlohmann::json& json, const SunriseEvent& sunriseEvent) { json = (const Event&)sunriseEvent; }
-
-void from_json(const nlohmann::json& json, SunriseEvent& sunriseEvent) { (Event&)sunriseEvent = json.get<Event>(); }
-
-void to_json(nlohmann::json& json, const SunsetEvent& sunsetEvent) { json = (const Event&)sunsetEvent; }
-
-void from_json(const nlohmann::json& json, SunsetEvent& sunsetEvent) { (Event&)sunsetEvent = json.get<Event>(); }
-
-namespace nlohmann {
-    template<>
-    struct adl_serializer<UniversalData> {
-        static void to_json(json& json, const UniversalData& universalData) {
-            json = nlohmann::json{
-                { "type", EnumToString(universalData.GetType()) },
-            };
-            switch (universalData.GetType()) {
-                case UniversalDataType::Bool:
-                    json += { "value", universalData.Get<bool>() };
-                    break;
-                case UniversalDataType::Int:
-                    json += { "value", universalData.Get<int>() };
-                    break;
-                case UniversalDataType::Double:
-                    json += { "value", universalData.Get<double>() };
-                    break;
-                case UniversalDataType::String:
-                    json += { "value", universalData.Get<std::string>() };
-                    break;
-            }
-        }
-
-        static UniversalData from_json(const json& json) {
-            if (json.contains("type")) {
-                const UniversalDataType type = EnumFromString<UniversalDataType>(json.at("type").get<std::string>());
-                switch (type) {
-                    case UniversalDataType::Bool:
-                        return UniversalData(json.at("value").get<bool>());
-                    case UniversalDataType::Int:
-                        return UniversalData(json.at("value").get<int>());
-                    case UniversalDataType::Double:
-                        return UniversalData(json.at("value").get<double>());
-                    case UniversalDataType::String:
-                        return UniversalData(json.at("value").get<std::string>());
-                }
-            } else {
-                LOG_ERROR_MSG("Invalid UniversalData type");
-            }
-            return UniversalData{ false };
-        };
-    };
-} // namespace nlohmann
-
-void to_json(nlohmann::json& json, const UniversalDeviceCurrentValues& universalDeviceCurrentValues) {
-    json = nlohmann::json{
-        { "values", universalDeviceCurrentValues._values },
-    };
+void to_json(nlohmann::json& json, const SunriseEvent& sunriseEvent) {
+    json = (const BaseEvent&)sunriseEvent;
+    json += { "type", sunriseEvent._type };
+    json += { "command", sunriseEvent._command };
 }
 
-void from_json(const nlohmann::json& json, UniversalDeviceCurrentValues& universalDeviceCurrentValues) {
-    const nlohmann::json& values = json.at("values");
-    for (auto iter = values.begin(); iter != values.end(); ++iter) {
-        universalDeviceCurrentValues._values.try_emplace(iter.key(), iter.value().get<UniversalData>());
-    }
+void from_json(const nlohmann::json& json, SunriseEvent& sunriseEvent) {
+    (BaseEvent&)sunriseEvent = json.get<BaseEvent>();
+    sunriseEvent._command = json["command"].get<Command>();
+}
+
+void to_json(nlohmann::json& json, const SunsetEvent& sunsetEvent) {
+    json = (const BaseEvent&)sunsetEvent;
+    json += { "type", sunsetEvent._type };
+    json += { "command", sunsetEvent._command };
+}
+
+void from_json(const nlohmann::json& json, SunsetEvent& sunsetEvent) {
+    (BaseEvent&)sunsetEvent = json.get<BaseEvent>();
+    sunsetEvent._command = json["command"].get<Command>();
+}
+
+void to_json(nlohmann::json& json, const UniversalValue& universalValue) {
+    json = {
+        { "values", universalValue._values },
+    };
+
+    if (universalValue._timestamp.has_value())
+        json += { "timestamp", TimeHelper::TimeToInt(universalValue._timestamp.value()) };
+}
+
+void from_json(const nlohmann::json& json, UniversalValue& universalValue) {
+    universalValue._values = json.at("values").get<std::map<std::string, UniversalData>>();
+
+    if (json.contains("timestamp"))
+        universalValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const WebSocketAuthentication& webSocketAuthentication) {

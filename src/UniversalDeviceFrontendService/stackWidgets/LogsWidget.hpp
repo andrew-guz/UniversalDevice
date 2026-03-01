@@ -1,16 +1,20 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <Wt/WComboBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WTextArea.h>
 
+#include "ApplicationSettings.hpp"
 #include "BaseStackWidget.hpp"
+#include "IStackHolder.hpp"
 #include "LogInformation.hpp"
-#include "Settings.hpp"
 
 class LogsWidget final : public Wt::WContainerWidget, public BaseStackWidget {
 public:
-    LogsWidget(IStackHolder* stackHolder, const Settings& settings);
+    LogsWidget(IStackHolder* stackHolder, const ApplicationSettings& settings);
 
     virtual ~LogsWidget() = default;
 

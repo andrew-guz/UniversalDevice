@@ -1,10 +1,12 @@
 #pragma once
 
 #include <ixwebsocket/IXWebSocket.h>
+#include <ixwebsocket/IXWebSocketMessage.h>
 
 #include "BaseParameters.hpp"
 #include "Enums.hpp"
 #include "Message.hpp"
+#include "Uuid.hpp"
 
 class Simulator {
 protected:

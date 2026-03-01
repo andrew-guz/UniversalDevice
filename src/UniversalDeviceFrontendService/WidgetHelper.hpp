@@ -3,13 +3,16 @@
 #include <functional>
 #include <string>
 #include <tuple>
+#include <type_traits>
 
+#include <Wt/WContainerWidget.h>
 #include <Wt/WDialog.h>
 #include <Wt/WGridLayout.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WSpinBox.h>
 #include <Wt/WString.h>
+#include <Wt/WWidget.h>
 #include <fmt/format.h>
 
 class WidgetHelper final {

@@ -32,6 +32,7 @@
 #define API_CLIENT_DEVICE_GROUP    "/api/client/device/group/<string>"
 #define API_CLIENT_DEVICE_GET_INFO "/api/client/device"
 #define API_CLIENT_EVENTS          "/api/client/events"
+#define API_CLIENT_EVENTS_ID       "/api/client/events/<string>"
 #define API_CLIENT_SCENARIOS       "/api/client/scenarios"
 #define API_CLIENT_SCENARIOS_ID    "/api/client/scenarios/<string>"
 #define API_CLIENT_LOGS            "/api/client/backendLog"

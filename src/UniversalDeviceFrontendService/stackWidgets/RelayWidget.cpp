@@ -1,25 +1,42 @@
 #include "RelayWidget.hpp"
 
 #include <algorithm>
+#include <cstdint>
+#include <functional>
 #include <memory>
+#include <string>
 
 #include <Wt/Chart/WCartesianChart.h>
+#include <Wt/Chart/WChartGlobal.h>
+#include <Wt/WDialog.h>
 #include <Wt/WEvent.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WTimer.h>
 #include <fmt/format.h>
+#include <nlohmann/json_fwd.hpp>
 
+#include "ApplicationSettings.hpp"
+#include "BaseDeviceWidget.hpp"
 #include "ChartFactory.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
+#include "Enums.hpp"
+#include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "PeriodSettings.hpp"
+#include "RelayChartModel.hpp"
 #include "RelayState.hpp"
+#include "RelayValue.hpp"
+#include "RequestHelper.hpp"
+#include "SecondsComboBox.hpp"
+#include "TimeHelper.hpp"
+#include "UrlHelper.hpp"
 #include "WidgetHelper.hpp"
 
 using namespace Wt;
 
-RelayWidget::RelayWidget(IStackHolder* stackHolder, const Settings& settings) :
+RelayWidget::RelayWidget(IStackHolder* stackHolder, const ApplicationSettings& settings) :
     BaseDeviceWidget(stackHolder, settings) {
     _stateText = _mainLayout->addWidget(std::make_unique<WText>(), 0, AlignmentFlag::Center | AlignmentFlag::Top);
     _stateText->setText(WidgetHelper::TextWithFontSize("Выключено", 80));
@@ -51,25 +68,24 @@ void RelayWidget::OnBack() {
 void RelayWidget::Initialize() {
     const uint64_t seconds = _seconds->GetSeconds();
     if (_cachedValues.empty())
-        _cachedValues = GetValues<ExtendedRelayCurrentState>(DeviceType::Relay, seconds);
+        _cachedValues = GetValues<RelayValue>(DeviceType::Relay, seconds);
     else {
-        auto lastValues = GetValues<ExtendedRelayCurrentState>(DeviceType::Relay, 0);
+        auto lastValues = GetValues<RelayValue>(DeviceType::Relay, 0);
         if (lastValues.empty() ||
             lastValues[0]._timestamp != std::max_element(_cachedValues.begin(), _cachedValues.end(), [](const auto& a, const auto& b) {
                                             return a._timestamp < b._timestamp;
                                         })->_timestamp)
-            _cachedValues = GetValues<ExtendedRelayCurrentState>(DeviceType::Relay, seconds);
+            _cachedValues = GetValues<RelayValue>(DeviceType::Relay, seconds);
     }
     if (_cachedValues.size()) {
         _deviceState = _cachedValues.begin()->_state;
         const int activeCount =
-            std::count_if(_cachedValues.begin(), _cachedValues.end(), [](const ExtendedRelayCurrentState& state) -> bool { return state._state; });
+            std::count_if(_cachedValues.begin(), _cachedValues.end(), [](const RelayValue& state) -> bool { return state._state; });
         const std::string text =
             fmt::format("{} ({:.2f})", _deviceState ? "Включено" : "Выключено", (float)activeCount / (float)_cachedValues.size());
         _stateText->setText(WidgetHelper::TextWithFontSize(text, 80));
         _stateButton->setText(WidgetHelper::TextWithFontSize(_deviceState ? "Выключить" : "Включить", 32));
-        auto timestamp = _cachedValues.begin()->_timestamp;
-        _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(timestamp), 20));
+        _timeText->setText(WidgetHelper::TextWithFontSize(TimeHelper::TimeToString(_cachedValues.begin()->_timestamp), 20));
         _model->UpdateData(_cachedValues);
     } else
         Clear(BaseDeviceWidget::ClearType::Data);

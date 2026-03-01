@@ -1,9 +1,9 @@
 #pragma once
 
 #include <filesystem>
-#include <string_view>
 
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 class JsonFileReader final {
 public:
