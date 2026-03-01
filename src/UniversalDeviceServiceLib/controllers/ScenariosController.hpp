@@ -31,8 +31,12 @@ public:
 
     bool Remove(const Uuid& id);
 
+    bool CleanupCommands(const Uuid& deviceId);
+
 private:
     void FillCache() const;
+
+    bool UpdateImpl(const Scenario& scenario);
 
 private:
     mutable Cache<Uuid, Scenario> _cache;

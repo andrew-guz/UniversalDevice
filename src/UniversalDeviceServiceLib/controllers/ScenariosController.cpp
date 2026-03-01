@@ -80,17 +80,7 @@ bool ScenariosController::Update(const Scenario& scenario) {
     if (!_cache.Size())
         FillCache();
 
-    const std::string scenarioJson = static_cast<nlohmann::json>(scenario).dump();
-    const std::string query = fmt::format("UPDATE Scenarios SET scenario = '{}' WHERE id = '{}'", scenarioJson, scenario._id.data());
-
-    if (_queryExecutor->Execute(query)) {
-        _cache.Update(scenario._id, scenario);
-        return true;
-    }
-
-    LOG_SQL_ERROR(query);
-
-    return false;
+    return UpdateImpl(scenario);
 }
 
 void ScenariosController::CleanupScenario(Scenario& scenario) {
@@ -174,6 +164,24 @@ bool ScenariosController::Remove(const Uuid& id) {
     return false;
 }
 
+bool ScenariosController::CleanupCommands(const Uuid& deviceId) {
+    std::lock_guard<std::mutex> lockGuard{ _mutex };
+
+    if (!_cache.Size())
+        FillCache();
+
+    bool result = true;
+    for (Scenario& scenario : _cache.List()) {
+        const auto iter = scenario._commands.find(deviceId);
+        if (iter != scenario._commands.end()) {
+            scenario._commands.erase(iter);
+            result &= UpdateImpl(scenario);
+        }
+    }
+
+    return result;
+}
+
 void ScenariosController::FillCache() const {
     const std::string query = "SELECT * FROM Scenarios";
     std::vector<std::vector<std::string>> data;
@@ -184,4 +192,18 @@ void ScenariosController::FillCache() const {
         }
     } else
         LOG_SQL_ERROR(query);
+}
+
+bool ScenariosController::UpdateImpl(const Scenario& scenario) {
+    const std::string scenarioJson = static_cast<nlohmann::json>(scenario).dump();
+    const std::string query = fmt::format("UPDATE Scenarios SET scenario = '{}' WHERE id = '{}'", scenarioJson, scenario._id.data());
+
+    if (_queryExecutor->Execute(query)) {
+        _cache.Update(scenario._id, scenario);
+        return true;
+    }
+
+    LOG_SQL_ERROR(query);
+
+    return false;
 }

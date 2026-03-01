@@ -44,9 +44,9 @@ std::once_flag Platform::s_instanceFlag;
 Platform::Platform(CrowApp& app, IQueryExecutor* queryExecutor) :
     _settingsController(queryExecutor),
     _commandsController(queryExecutor),
-    _devicesController(queryExecutor, _settingsController, _commandsController),
     _eventsController(queryExecutor),
     _scenariosController(queryExecutor, _eventsController, _commandsController),
+    _devicesController(queryExecutor, _settingsController, _commandsController, _scenariosController),
     _thermometerValuesController(queryExecutor, _devicesController),
     _relayValuesController(queryExecutor),
     _motionRelayValuesController(queryExecutor),

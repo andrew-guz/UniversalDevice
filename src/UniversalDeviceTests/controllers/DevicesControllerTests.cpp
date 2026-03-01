@@ -12,7 +12,9 @@
 #include "Device.hpp"
 #include "DevicesController.hpp"
 #include "Enums.hpp"
+#include "EventsController.hpp"
 #include "PeriodSettings.hpp"
+#include "ScenariosController.hpp"
 #include "SettingsController.hpp"
 #include "Storage.hpp"
 #include "ThermometerLedBrightness.hpp"
@@ -28,7 +30,9 @@ TEST_CASE("DevicesController") {
 
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
+        EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
 
         REQUIRE(devicesController.List().size() == 0);
         REQUIRE(devicesController.Get(Uuid{}).has_value() == false);
