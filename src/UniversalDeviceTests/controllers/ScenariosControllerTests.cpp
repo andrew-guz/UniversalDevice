@@ -6,10 +6,13 @@
 #include <catch2/catch_all.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include "Command.hpp"
+#include "CommandsController.hpp"
 #include "Event.hpp"
 #include "EventUtils.hpp"
 #include "EventsController.hpp"
 #include "Provider.hpp"
+#include "RelayState.hpp"
 #include "Scenario.hpp"
 #include "ScenariosController.hpp"
 #include "Storage.hpp"
@@ -26,7 +29,8 @@ TEST_CASE("ScenariosControllerTests") {
         Storage storage{ dbPath };
 
         EventsController eventController{ &storage };
-        ScenariosController scenariosController{ &storage, eventController };
+        CommandsController commandsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventController, commandsController };
 
         REQUIRE(scenariosController.List().size() == 0);
         REQUIRE(scenariosController.Get(Uuid{}).has_value() == false);
@@ -44,6 +48,7 @@ TEST_CASE("ScenariosControllerTests") {
             ._name = "test",
             ._activateEvent = { GetEventId(event) },
             ._deactivateEvent = {},
+            ._commands = {},
         };
         REQUIRE(scenariosController.Add(scenario) == true);
 
@@ -61,6 +66,7 @@ TEST_CASE("ScenariosControllerTests") {
             ._name = "new",
             ._activateEvent = { Uuid{}, Uuid{} },
             ._deactivateEvent = { Uuid{}, Uuid{} },
+            ._commands = {},
         };
         REQUIRE(scenariosController.Add(scenario2) == true);
         REQUIRE(scenariosController.List().size() == 2);
@@ -93,7 +99,8 @@ TEST_CASE("Scenario activation test") {
         Storage storage{ dbPath };
 
         EventsController eventsController{ &storage };
-        ScenariosController scenariosController{ &storage, eventsController };
+        CommandsController commandsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
 
         const auto addEvent = [&eventsController](bool active) -> Uuid {
             TimerEvent event;
@@ -107,11 +114,17 @@ TEST_CASE("Scenario activation test") {
 
         const Uuid eventId1 = addEvent(true);
         const Uuid eventId2 = addEvent(false);
+        const Uuid deviceId;
+        const Command command = RelayState{
+            ._state = true,
+        };
 
-        const auto addScenario = [&scenariosController](const std::set<Uuid>& activate, const std::set<Uuid>& deactivate) -> Uuid {
+        const auto addScenario = [&scenariosController, &deviceId, &command](const std::set<Uuid>& activate,
+                                                                             const std::set<Uuid>& deactivate) -> Uuid {
             Scenario scenario{
                 ._activateEvent = activate,
                 ._deactivateEvent = deactivate,
+                ._commands = { { deviceId, command }, },
             };
             if (!scenariosController.Add(scenario))
                 throw std::runtime_error("Failed to create scenario");
@@ -122,27 +135,33 @@ TEST_CASE("Scenario activation test") {
         const Uuid scenarioId1 = addScenario({ eventId2 }, { eventId1 });
         const Uuid scenarioId2 = addScenario({ eventId1, Uuid{} }, { eventId2, Uuid{} });
 
-        const auto checkEventState = [&storage](const Uuid& eventId, bool expectedActivity) {
+        const auto checkEventState = [&storage, &deviceId, &command](const Uuid& eventId, bool expectedActivity, bool expectCommand) {
             EventsController eventsController{ &storage };
             const std::optional<Event> event = eventsController.GetById(eventId);
             if (!event.has_value())
                 throw std::runtime_error("Event check failed");
 
             REQUIRE(GetEventActivity(event.value()) == expectedActivity);
+
+            if (expectCommand) {
+                CommandsController commandsController{ &storage };
+                REQUIRE(commandsController.Get(deviceId).has_value());
+                REQUIRE(commandsController.Get(deviceId).value() == command);
+            }
         };
 
-        checkEventState(eventId1, true);
-        checkEventState(eventId2, false);
+        checkEventState(eventId1, true, false);
+        checkEventState(eventId2, false, false);
 
         REQUIRE(scenariosController.ActivateScenario(scenarioId1));
 
-        checkEventState(eventId1, false);
-        checkEventState(eventId2, true);
+        checkEventState(eventId1, false, true);
+        checkEventState(eventId2, true, true);
 
         REQUIRE(scenariosController.ActivateScenario(scenarioId2));
 
-        checkEventState(eventId1, true);
-        checkEventState(eventId2, false);
+        checkEventState(eventId1, true, true);
+        checkEventState(eventId2, false, true);
 
     } catch (...) {
         REQUIRE(false);

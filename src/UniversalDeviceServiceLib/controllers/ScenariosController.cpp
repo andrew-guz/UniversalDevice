@@ -10,6 +10,8 @@
 #include <nlohmann/json_fwd.hpp>
 
 #include "Cache.hpp"
+#include "Command.hpp"
+#include "CommandsController.hpp"
 #include "Controller.hpp"
 #include "DbExtension.hpp"
 #include "Event.hpp"
@@ -21,9 +23,10 @@
 #include "Scenario.hpp"
 #include "Uuid.hpp"
 
-ScenariosController::ScenariosController(IQueryExecutor* queryExecutor, EventsController& eventsController) :
+ScenariosController::ScenariosController(IQueryExecutor* queryExecutor, EventsController& eventsController, CommandsController& commandsController) :
     Controller(queryExecutor),
-    _eventsController(eventsController) //
+    _eventsController(eventsController),
+    _commandsController(commandsController) //
 {
     FillCache();
 }
@@ -140,6 +143,13 @@ bool ScenariosController::ActivateScenario(const Uuid& id) {
             LOG_ERROR_MSG("Failed to set event activity");
             return false;
         }
+
+    for (const auto& [deviceId, command] : scenario->_commands) {
+        if (!_commandsController.AddOrUpdate(deviceId, command)) {
+            LOG_ERROR_MSG("Failed to write command");
+            return false;
+        }
+    }
 
     if (!_queryExecutor->Commit()) {
         LOG_ERROR_MSG("Failed to update events for scenario: failed to end transaction");
