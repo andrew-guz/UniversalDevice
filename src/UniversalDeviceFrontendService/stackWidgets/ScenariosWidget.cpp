@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <Wt/WCheckBox.h>
+#include <Wt/WContainerWidget.h>
 #include <Wt/WGlobal.h>
 #include <Wt/WGroupBox.h>
 #include <Wt/WHBoxLayout.h>
@@ -94,6 +95,11 @@ ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const ApplicationSet
     _activateEventsGroup = groupsLayout->addWidget(std::make_unique<WGroupBox>("Активировать:"), 1);
 
     _deactivateEventsGroup = groupsLayout->addWidget(std::make_unique<WGroupBox>("Деактивировать:"), 1);
+
+    WContainerWidget* commandsCanvas = selectionLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Bottom);
+    commandsCanvas->setOverflow(Overflow::Scroll, Orientation::Vertical);
+    auto commandsLayout = commandsCanvas->setLayout(std::make_unique<WHBoxLayout>());
+    commandsLayout->setContentsMargins(0, 0, 0, 0);
 }
 
 void ScenariosWidget::Initialize(const std::string& data) { Refresh(); }
