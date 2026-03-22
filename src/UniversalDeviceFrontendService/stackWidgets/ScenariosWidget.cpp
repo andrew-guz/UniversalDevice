@@ -6,6 +6,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <Wt/WCheckBox.h>
@@ -17,14 +18,19 @@
 #include <Wt/WSelectionBox.h>
 #include <Wt/WText.h>
 #include <Wt/WVBoxLayout.h>
+#include <Wt/WWidget.h>
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
 #include "ApplicationSettings.hpp"
 #include "BaseStackWidget.hpp"
+#include "Command.hpp"
 #include "Constants.hpp"
 #include "Defines.hpp"
+#include "Device.hpp"
+#include "Enums.hpp"
 #include "Event.hpp"
+#include "EventReceiverWidget.hpp"
 #include "EventUtils.hpp"
 #include "FrontendDefines.hpp"
 #include "IStackHolder.hpp"
@@ -96,10 +102,10 @@ ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const ApplicationSet
 
     _deactivateEventsGroup = groupsLayout->addWidget(std::make_unique<WGroupBox>("Деактивировать:"), 1);
 
-    WContainerWidget* commandsCanvas = selectionLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Bottom);
-    commandsCanvas->setOverflow(Overflow::Scroll, Orientation::Vertical);
-    auto commandsLayout = commandsCanvas->setLayout(std::make_unique<WHBoxLayout>());
-    commandsLayout->setContentsMargins(0, 0, 0, 0);
+    _commandsCanvas = selectionLayout->addWidget(std::make_unique<WContainerWidget>(), 0, AlignmentFlag::Bottom);
+    _commandsCanvas->setOverflow(Overflow::Auto, Orientation::Vertical);
+    _commandsCanvas->setOverflow(Overflow::Hidden, Orientation::Horizontal);
+    _commandsLayout = _commandsCanvas->setLayout(std::make_unique<WGridLayout>());
 }
 
 void ScenariosWidget::Initialize(const std::string& data) { Refresh(); }
@@ -116,6 +122,7 @@ void ScenariosWidget::Clear() {
         _deactivateEventsGroup->removeWidget(deactivateCheckBox);
     _activatedEvents.clear();
     _deactivatedEvents.clear();
+    CleanupCommandsCanvas();
 }
 
 void ScenariosWidget::Refresh() {
@@ -170,8 +177,10 @@ void ScenariosWidget::AddScenario() {
 
 void ScenariosWidget::OnSelection(int index) {
     const int selectedIndex = _scenariosList->currentIndex();
-    if (selectedIndex == -1)
+    if (selectedIndex == -1) {
+        CleanupCommandsCanvas();
         return;
+    }
 
     const Scenario& scenario = _scenarios.at(selectedIndex);
 
@@ -187,6 +196,7 @@ void ScenariosWidget::OnSelection(int index) {
     }
     SetSelectedEventIndexes(_activatedEvents, activatedIndexes);
     SetSelectedEventIndexes(_deactivatedEvents, deactivatedIndexes);
+    FillCommandsCanvas(scenario._commands);
 }
 
 void ScenariosWidget::UpdateScenario() {
@@ -236,7 +246,7 @@ void ScenariosWidget::DeleteScenario() {
     Refresh();
 }
 
-std::set<Uuid> ScenariosWidget::GetSelectedEventIndexes(const std::vector<Wt::WCheckBox*>& container) const {
+std::set<Uuid> ScenariosWidget::GetSelectedEventIndexes(const std::vector<WCheckBox*>& container) const {
     std::set<Uuid> result;
     for (std::size_t index = 0; index < container.size(); ++index) {
         if (container.at(index)->isChecked())
@@ -245,9 +255,54 @@ std::set<Uuid> ScenariosWidget::GetSelectedEventIndexes(const std::vector<Wt::WC
     return result;
 }
 
-void ScenariosWidget::SetSelectedEventIndexes(const std::vector<Wt::WCheckBox*>& container, const std::set<std::size_t>& indexes) {
+void ScenariosWidget::SetSelectedEventIndexes(const std::vector<WCheckBox*>& container, const std::set<std::size_t>& indexes) {
     for (std::size_t index = 0; index < container.size(); ++index) {
         container.at(index)->setChecked(indexes.contains(index));
+    }
+}
+
+void ScenariosWidget::CleanupCommandsCanvas() {
+    for (auto iter = _commandsWidgets.rbegin(); iter != _commandsWidgets.rend(); ++iter) {
+        _commandsLayout->removeWidget(*iter);
+    }
+
+    _commandsWidgets.clear();
+
+    _commandsLayout->removeWidget(_commandEditor);
+    _commandsLayout->removeWidget(_addCommandButton);
+
+    _commandEditor = nullptr;
+    _addCommandButton = nullptr;
+}
+
+Devices ScenariosWidget::GetDevices() {
+    auto resultJson = RequestHelper::DoGetRequest({ BACKEND_IP, _settings._servicePort, API_CLIENT_DEVICES }, Constants::LoginService);
+    Devices devices = resultJson.is_null() ? Devices{} : resultJson.get<Devices>();
+    // right now not all devices can receive events
+    auto newEnd = std::remove_if(devices.begin(), devices.end(), [](const Device& device) {
+        return device._type == DeviceType::Undefined || device._type == DeviceType::UniversalDevice;
+    });
+    devices.erase(newEnd, devices.end());
+    return devices;
+}
+
+void ScenariosWidget::FillCommandsCanvas(const std::unordered_map<Uuid, Command>& commands) {
+    const Devices devices = GetDevices();
+
+    _commandEditor = _commandsLayout->addWidget(std::make_unique<EventReceiverWidget>(), 0, 0, 1, 2);
+    _commandEditor->SetDevices(devices);
+    _addCommandButton = _commandsLayout->addWidget(std::make_unique<WPushButton>("Добавить"), 0, 2, AlignmentFlag::Right);
+    WidgetHelper::SetUsualButtonSize(_addCommandButton);
+    for (const auto& [deviceId, command] : commands) {
+        EventReceiverWidget* eventReceiverWidget = _commandsLayout->addWidget(std::make_unique<EventReceiverWidget>(), 0, 0, 1, 2);
+        eventReceiverWidget->SetDevices(devices);       
+        _commandsWidgets.push_back(eventReceiverWidget);
+
+        WPushButton* deleteButton = _commandsLayout->addWidget(std::make_unique<WPushButton>("Добавить"), 0, 2, AlignmentFlag::Right);
+        WidgetHelper::SetUsualButtonSize(deleteButton);
+        _commandsWidgets.push_back(deleteButton);
+
+        (void)deviceId;
     }
 }
 
