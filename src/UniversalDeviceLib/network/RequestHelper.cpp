@@ -1,17 +1,22 @@
 #include "RequestHelper.hpp"
 
+#include <functional>
+#include <ostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include <fmt/format.h>
 #include <ixwebsocket/IXHttp.h>
 #include <ixwebsocket/IXHttpClient.h>
 #include <ixwebsocket/IXSocketTLSOptions.h>
+#include <nlohmann/json_fwd.hpp>
 
 #include "AccountManager.hpp"
 #include "Base64Helper.hpp"
 #include "Logger.hpp"
+#include "RequestAddress.hpp"
 
 nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress, const std::string_view login) {
     try {

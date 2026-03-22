@@ -8,10 +8,12 @@
 #include "CleanupController.hpp"
 #include "CommandsController.hpp"
 #include "DevicesController.hpp"
+#include "EventsController.hpp"
 #include "MotionRelayValue.hpp"
 #include "MotionRelayValuesController.hpp"
 #include "RelayValue.hpp"
 #include "RelayValuesController.hpp"
+#include "ScenariosController.hpp"
 #include "SettingsController.hpp"
 #include "Storage.hpp"
 #include "ThermometerValue.hpp"
@@ -31,7 +33,9 @@ TEST_CASE("CleanupController") {
         Storage storage{ dbPath };
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
+        EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         {
             ThermometerValuesController thermometerValuesController{ &storage, devicesController };
             RelayValuesController relayValuesController{ &storage };
@@ -66,7 +70,9 @@ TEST_CASE("CleanupController") {
 
             SettingsController settingsController{ &storage };
             CommandsController commandsController{ &storage };
-            DevicesController devicesController{ &storage, settingsController, commandsController };
+            EventsController eventsController{ &storage };
+            ScenariosController scenariosController{ &storage, eventsController, commandsController };
+            DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
             ThermometerValuesController thermometerValuesController{ &storage, devicesController };
             RelayValuesController relayValuesController{ &storage };
             MotionRelayValuesController motionRelayValuesController{ &storage };
@@ -95,7 +101,9 @@ TEST_CASE("CleanupController only several") {
         Storage storage{ dbPath };
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
+        EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         constexpr std::size_t count = 50;
         constexpr std::size_t requestCount = count * 2;
         {
@@ -135,7 +143,9 @@ TEST_CASE("CleanupController only several") {
 
             SettingsController settingsController{ &storage };
             CommandsController commandsController{ &storage };
-            DevicesController devicesController{ &storage, settingsController, commandsController };
+            EventsController eventsController{ &storage };
+            ScenariosController scenariosController{ &storage, eventsController, commandsController };
+            DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
             ThermometerValuesController thermometerValuesController{ &storage, devicesController };
             RelayValuesController relayValuesController{ &storage };
             MotionRelayValuesController motionRelayValuesController{ &storage };

@@ -13,6 +13,8 @@
 #include "Device.hpp"
 #include "DevicesController.hpp"
 #include "Enums.hpp"
+#include "EventsController.hpp"
+#include "ScenariosController.hpp"
 #include "SettingsController.hpp"
 #include "Storage.hpp"
 #include "ThermometerValue.hpp"
@@ -34,7 +36,9 @@ TEST_CASE("ThermometerValuesController") {
 
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
+        EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         ThermometerValuesController thermometerValuesController{ &storage, devicesController };
 
         Uuid deviceId;
@@ -93,7 +97,9 @@ TEST_CASE("ThermometerValuesController multiple add") {
 
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
+        EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         ThermometerValuesController thermometerValuesController{ &storage, devicesController };
 
         Uuid deviceId;

@@ -44,9 +44,9 @@ private:
 
     SettingsController _settingsController;
     CommandsController _commandsController;
-    DevicesController _devicesController;
     EventsController _eventsController;
     ScenariosController _scenariosController;
+    DevicesController _devicesController;
     ThermometerValuesController _thermometerValuesController;
     RelayValuesController _relayValuesController;
     MotionRelayValuesController _motionRelayValuesController;
