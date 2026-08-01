@@ -3,6 +3,7 @@ FROM debian:stable-slim AS base-image
 
 # for apt
 ENV DEBIAN_FRONTEND=noninteractive
+ENV CLANG_VERSION=19
 
 # update
 RUN apt-get update && apt-get upgrade -y
@@ -13,14 +14,15 @@ RUN ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 # install all needed for build
 RUN apt-get install -y wget lsb-release wget gnupg make cmake libssl-dev libasio-dev libboost-all-dev uuid-dev libsqlite3-dev git jq libgtest-dev
 
-# get clang 17
-RUN wget https://apt.llvm.org/llvm.sh
-RUN chmod +x ./llvm.sh
-RUN ./llvm.sh 19
+# get clang 
+#RUN wget https://apt.llvm.org/llvm.sh
+#RUN chmod +x ./llvm.sh
+#RUN ./llvm.sh ${CLANG_VERSION}
+RUN apt-get install -y clang-${CLANG_VERSION} lldb-${CLANG_VERSION} lld-${CLANG_VERSION} clangd-${CLANG_VERSION} clang-tools-${CLANG_VERSION}
 
 # add links
-RUN ln -s /usr/bin/clang++-19 /usr/bin/clang++
-RUN ln -s /usr/bin/clang-format-19 /usr/bin/clang-format
+RUN ln -s /usr/bin/clang++-${CLANG_VERSION} /usr/bin/clang++
+RUN ln -s /usr/bin/clang-format-${CLANG_VERSION} /usr/bin/clang-format
 
 # main image
 FROM base-image AS universal-device-image

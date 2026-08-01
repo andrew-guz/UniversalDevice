@@ -12,5 +12,8 @@ if [ "$1" = "test" ]; then
     ./UniversalDeviceSimulator &
 fi
 
-# without this will finish container
-/bin/bash
+# wait for any process to be finished
+wait -n
+
+# return fail code
+exit $?
