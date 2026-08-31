@@ -1,5 +1,6 @@
 #include "ScenariosService.hpp"
 
+#include <optional>
 #include <string>
 
 #include <crow/app.h>
@@ -16,6 +17,7 @@
 #include "Scenario.hpp"
 #include "ScenariosController.hpp"
 #include "Uuid.hpp"
+#include "WebsocketsCache.hpp"
 
 ScenariosService::ScenariosService(CrowApp& app, ScenariosController& scenariosController, EventsController& eventsController) :
     _scenariosController(scenariosController),
@@ -91,9 +93,16 @@ crow::response ScenariosService::DeleteScenario(const std::string& scenarioId) {
 
 crow::response ScenariosService::ActivateScenario(const std::string& scenarioId) {
     try {
-        if (!_scenariosController.ActivateScenario(Uuid{ scenarioId })) {
+        const std::optional<Scenario> scenario = _scenariosController.ActivateScenario(Uuid{ scenarioId });
+        if (!scenario.has_value()) {
             LOG_ERROR_MSG("Failed to activate scenario");
             return crow::response(crow::BAD_REQUEST);
+        }
+
+        for (const auto& [deviceId, command] : scenario.value()._commands) {
+            auto connection = WebsocketsCache::Instance()->GetWebSocketConnection(deviceId);
+            if (connection)
+                connection->send_text(static_cast<nlohmann::json>(command).dump());
         }
     } catch (...) {
         LOG_ERROR_MSG("Something went wrong in ClientService::ActivateScenario");

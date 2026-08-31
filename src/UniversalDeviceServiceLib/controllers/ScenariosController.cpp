@@ -10,6 +10,8 @@
 #include <nlohmann/json_fwd.hpp>
 
 #include "Cache.hpp"
+#include "Command.hpp"
+#include "CommandsController.hpp"
 #include "Controller.hpp"
 #include "DbExtension.hpp"
 #include "Event.hpp"
@@ -21,9 +23,10 @@
 #include "Scenario.hpp"
 #include "Uuid.hpp"
 
-ScenariosController::ScenariosController(IQueryExecutor* queryExecutor, EventsController& eventsController) :
+ScenariosController::ScenariosController(IQueryExecutor* queryExecutor, EventsController& eventsController, CommandsController& commandsController) :
     Controller(queryExecutor),
-    _eventsController(eventsController) //
+    _eventsController(eventsController),
+    _commandsController(commandsController) //
 {
     FillCache();
 }
@@ -77,17 +80,7 @@ bool ScenariosController::Update(const Scenario& scenario) {
     if (!_cache.Size())
         FillCache();
 
-    const std::string scenarioJson = static_cast<nlohmann::json>(scenario).dump();
-    const std::string query = fmt::format("UPDATE Scenarios SET scenario = '{}' WHERE id = '{}'", scenarioJson, scenario._id.data());
-
-    if (_queryExecutor->Execute(query)) {
-        _cache.Update(scenario._id, scenario);
-        return true;
-    }
-
-    LOG_SQL_ERROR(query);
-
-    return false;
+    return UpdateImpl(scenario);
 }
 
 void ScenariosController::CleanupScenario(Scenario& scenario) {
@@ -110,7 +103,7 @@ void ScenariosController::CleanupScenario(Scenario& scenario) {
     removeNotExistingEvents(scenario._deactivateEvent, eventIds);
 }
 
-bool ScenariosController::ActivateScenario(const Uuid& id) {
+std::optional<Scenario> ScenariosController::ActivateScenario(const Uuid& id) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
     if (!_cache.Size())
@@ -119,35 +112,42 @@ bool ScenariosController::ActivateScenario(const Uuid& id) {
     std::optional<Scenario> scenario = _cache.Get(id);
     if (!scenario.has_value()) {
         LOG_ERROR_MSG("Scenario not found");
-        return false;
+        return std::nullopt;
     }
 
     CleanupScenario(scenario.value());
 
     if (!_queryExecutor->Begin()) {
         LOG_ERROR_MSG("Failed to update events for scenario: failed to start transaction");
-        return false;
+        return std::nullopt;
     }
 
     for (const Uuid& activeEventId : scenario->_activateEvent)
         if (!_eventsController.SetActivity(activeEventId, true).has_value()) {
             LOG_ERROR_MSG("Failed to set event activity");
-            return false;
+            return std::nullopt;
         }
 
     for (const Uuid& activeEventId : scenario->_deactivateEvent)
         if (!_eventsController.SetActivity(activeEventId, false).has_value()) {
             LOG_ERROR_MSG("Failed to set event activity");
-            return false;
+            return std::nullopt;
         }
+
+    for (const auto& [deviceId, command] : scenario->_commands) {
+        if (!_commandsController.AddOrUpdate(deviceId, command)) {
+            LOG_ERROR_MSG("Failed to write command");
+            return std::nullopt;
+        }
+    }
 
     if (!_queryExecutor->Commit()) {
         LOG_ERROR_MSG("Failed to update events for scenario: failed to end transaction");
-        return false;
+        return std::nullopt;
     }
 
     LOG_INFO_MSG(fmt::format("Scenario '{}' activated!", scenario->_name));
-    return true;
+    return scenario;
 }
 
 bool ScenariosController::Remove(const Uuid& id) {
@@ -164,6 +164,24 @@ bool ScenariosController::Remove(const Uuid& id) {
     return false;
 }
 
+bool ScenariosController::CleanupCommands(const Uuid& deviceId) {
+    std::lock_guard<std::mutex> lockGuard{ _mutex };
+
+    if (!_cache.Size())
+        FillCache();
+
+    bool result = true;
+    for (Scenario& scenario : _cache.List()) {
+        const auto iter = scenario._commands.find(deviceId);
+        if (iter != scenario._commands.end()) {
+            scenario._commands.erase(iter);
+            result &= UpdateImpl(scenario);
+        }
+    }
+
+    return result;
+}
+
 void ScenariosController::FillCache() const {
     const std::string query = "SELECT * FROM Scenarios";
     std::vector<std::vector<std::string>> data;
@@ -174,4 +192,18 @@ void ScenariosController::FillCache() const {
         }
     } else
         LOG_SQL_ERROR(query);
+}
+
+bool ScenariosController::UpdateImpl(const Scenario& scenario) {
+    const std::string scenarioJson = static_cast<nlohmann::json>(scenario).dump();
+    const std::string query = fmt::format("UPDATE Scenarios SET scenario = '{}' WHERE id = '{}'", scenarioJson, scenario._id.data());
+
+    if (_queryExecutor->Execute(query)) {
+        _cache.Update(scenario._id, scenario);
+        return true;
+    }
+
+    LOG_SQL_ERROR(query);
+
+    return false;
 }

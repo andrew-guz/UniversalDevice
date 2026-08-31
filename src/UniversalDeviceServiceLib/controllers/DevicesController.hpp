@@ -9,12 +9,16 @@
 #include "Controller.hpp"
 #include "Device.hpp"
 #include "IQueryExecutor.hpp"
+#include "ScenariosController.hpp"
 #include "SettingsController.hpp"
 #include "Uuid.hpp"
 
 class DevicesController final : public Controller {
 public:
-    DevicesController(IQueryExecutor* queryExecutor, SettingsController& settingsController, CommandsController& commandsController);
+    DevicesController(IQueryExecutor* queryExecutor,
+                      SettingsController& settingsController,
+                      CommandsController& commandsController,
+                      ScenariosController& scenariosController);
 
     ~DevicesController() = default;
 
@@ -39,4 +43,5 @@ private:
     mutable Cache<Uuid, Device> _cache;
     SettingsController& _settingsController;
     CommandsController& _commandsController;
+    ScenariosController& _scenariosController;
 };

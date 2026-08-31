@@ -25,6 +25,7 @@
 #include "RelayEvent.hpp"
 #include "RelayState.hpp"
 #include "RelayValue.hpp"
+#include "ScenariosController.hpp"
 #include "SettingsController.hpp"
 #include "Storage.hpp"
 #include "SunriseEvent.hpp"
@@ -67,8 +68,9 @@ TEST_CASE("TimerEvent") {
 
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
         EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         EventsProcessor eventsProcessor{ eventsController, commandsController };
 
         createDevices(devicesController);
@@ -168,8 +170,9 @@ TEST_CASE("ThermometerEvent") {
 
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
         EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         EventsProcessor eventsProcessor{ eventsController, commandsController };
 
         createDevices(devicesController);
@@ -282,8 +285,9 @@ TEST_CASE("RelayEvent") {
 
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
         EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         EventsProcessor eventsProcessor{ eventsController, commandsController };
 
         createDevices(devicesController);
@@ -393,8 +397,9 @@ TEST_CASE("ThermostatEvent") {
 
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
         EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         EventsProcessor eventsProcessor{ eventsController, commandsController };
 
         createDevices(devicesController);
@@ -474,8 +479,9 @@ TEST_CASE("SunriseEvent") {
 
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
         EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         EventsProcessor eventsProcessor{ eventsController, commandsController };
 
         createDevices(devicesController);
@@ -583,8 +589,9 @@ TEST_CASE("SunsetEvent") {
 
         SettingsController settingsController{ &storage };
         CommandsController commandsController{ &storage };
-        DevicesController devicesController{ &storage, settingsController, commandsController };
         EventsController eventsController{ &storage };
+        ScenariosController scenariosController{ &storage, eventsController, commandsController };
+        DevicesController devicesController{ &storage, settingsController, commandsController, scenariosController };
         EventsProcessor eventsProcessor{ eventsController, commandsController };
 
         createDevices(devicesController);

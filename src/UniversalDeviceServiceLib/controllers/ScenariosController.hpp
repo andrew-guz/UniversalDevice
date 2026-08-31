@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Cache.hpp"
+#include "CommandsController.hpp"
 #include "Controller.hpp"
 #include "EventsController.hpp"
 #include "IQueryExecutor.hpp"
@@ -12,7 +13,7 @@
 
 class ScenariosController final : public Controller {
 public:
-    ScenariosController(IQueryExecutor* queryExecutor, EventsController& eventsController);
+    ScenariosController(IQueryExecutor* queryExecutor, EventsController& eventsController, CommandsController& commandsController);
 
     ~ScenariosController() = default;
 
@@ -26,14 +27,19 @@ public:
 
     void CleanupScenario(Scenario& scenario);
 
-    bool ActivateScenario(const Uuid& id);
+    std::optional<Scenario> ActivateScenario(const Uuid& id);
 
     bool Remove(const Uuid& id);
+
+    bool CleanupCommands(const Uuid& deviceId);
 
 private:
     void FillCache() const;
 
+    bool UpdateImpl(const Scenario& scenario);
+
 private:
     mutable Cache<Uuid, Scenario> _cache;
     EventsController& _eventsController;
+    CommandsController& _commandsController;
 };

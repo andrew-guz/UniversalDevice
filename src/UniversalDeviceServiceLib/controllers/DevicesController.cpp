@@ -15,13 +15,18 @@
 #include "IQueryExecutor.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
+#include "ScenariosController.hpp"
 #include "SettingsController.hpp"
 #include "TimeHelper.hpp"
 
-DevicesController::DevicesController(IQueryExecutor* queryExecutor, SettingsController& settingsController, CommandsController& commandsController) :
+DevicesController::DevicesController(IQueryExecutor* queryExecutor,
+                                     SettingsController& settingsController,
+                                     CommandsController& commandsController,
+                                     ScenariosController& scenariosController) :
     Controller(queryExecutor),
     _settingsController(settingsController),
-    _commandsController(commandsController) //
+    _commandsController(commandsController),
+    _scenariosController(scenariosController) //
 {
     FillCache();
 }
@@ -139,6 +144,7 @@ bool DevicesController::Remove(const Uuid& id) {
 
         _settingsController.Remove(id);
         _commandsController.Remove(id);
+        _scenariosController.CleanupCommands(id);
 
         return true;
     }
