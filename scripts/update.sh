@@ -22,7 +22,7 @@ cd build
 
 cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++ --fresh ..
 
-cmake --build . -j 12 
+cmake --build . -j $(nproc)
 
 make install
 
