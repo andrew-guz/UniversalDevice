@@ -63,7 +63,7 @@ crow::response ScenariosService::UpdateScenario(Scenario& scenario) {
     try {
         _scenariosController.CleanupScenario(scenario);
 
-        if (!_scenariosController.Add(scenario)) {
+        if (!_scenariosController.Update(scenario)) {
             LOG_ERROR_MSG("Failed to update scenario");
             return crow::response(crow::BAD_REQUEST);
         }

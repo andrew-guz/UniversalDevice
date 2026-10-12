@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.18)
 set(PROJECT_NAME "UniversalDevice")
 
 # name of a project
-project(${PROJECT_NAME} VERSION 2.0.1)
+project(${PROJECT_NAME} VERSION 2.1.0)
 
 # create file with version defines
 configure_file(Version.hpp.in Version.hpp)
