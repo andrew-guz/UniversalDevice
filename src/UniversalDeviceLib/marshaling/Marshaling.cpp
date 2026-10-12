@@ -518,7 +518,7 @@ void to_json(nlohmann::json& json, const MotionRelayValue& motionRelayValue) {
 
 void from_json(const nlohmann::json& json, MotionRelayValue& motionRelayValue) {
     motionRelayValue._motion = json.value("motion", false);
-    motionRelayValue._state = json.value("value", std::numeric_limits<int>::min());
+    motionRelayValue._state = json.value("state", std::numeric_limits<int>::min());
 
     if (json.contains("timestamp"))
         motionRelayValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
