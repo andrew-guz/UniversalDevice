@@ -65,7 +65,7 @@ std::optional<std::chrono::system_clock::time_point>
 DbExtension::FindValueByName<std::chrono::system_clock::time_point>(const std::vector<std::string>& dbStrings, std::string_view name) {
     std::optional<std::string> value = FindStringValueByName(dbStrings, name);
     if (value.has_value())
-        return TimeHelper::TimeFromInt((int64_t)std::stoll(value.value()));
+        return TimeHelper::TimeFromInt((std::int64_t)std::stoll(value.value()));
     return std::nullopt;
 }
 

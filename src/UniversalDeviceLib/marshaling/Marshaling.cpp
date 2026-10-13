@@ -365,7 +365,7 @@ void from_json(const nlohmann::json& json, Device& device) {
     device._type = json["type"].get<DeviceType>();
     device._name = json["name"].get<std::string>();
     device._group = json["grp"].get<std::string>();
-    device._timestamp = TimeHelper::TimeFromInt(json["timestamp"].get<int64_t>());
+    device._timestamp = TimeHelper::TimeFromInt(json["timestamp"].get<std::int64_t>());
 }
 
 void to_json(nlohmann::json& json, const DeviceDescription& deviceDescription) {
@@ -521,7 +521,7 @@ void from_json(const nlohmann::json& json, MotionRelayValue& motionRelayValue) {
     motionRelayValue._state = json.value("state", std::numeric_limits<int>::min());
 
     if (json.contains("timestamp"))
-        motionRelayValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+        motionRelayValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (std::int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const PeriodSettings& periodSettings) {
@@ -608,7 +608,7 @@ void from_json(const nlohmann::json& json, RelayValue& relayValue) {
     relayValue._state = json.value("state", std::numeric_limits<int>::min());
 
     if (json.contains("timestamp"))
-        relayValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+        relayValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (std::int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const Scenario& scenario) {
@@ -663,7 +663,7 @@ void from_json(const nlohmann::json& json, ThermometerValue& thermometerValue) {
     thermometerValue._value = json.value("value", std::numeric_limits<float>::min());
 
     if (json.contains("timestamp"))
-        thermometerValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+        thermometerValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (std::int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const ThermometerEvent& thermometerEvent) {
@@ -744,7 +744,7 @@ void from_json(const nlohmann::json& json, UniversalValue& universalValue) {
     universalValue._values = json.at("values").get<std::map<std::string, UniversalData>>();
 
     if (json.contains("timestamp"))
-        universalValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (int64_t)0));
+        universalValue._timestamp = TimeHelper::TimeFromInt(json.value("timestamp", (std::int64_t)0));
 }
 
 void to_json(nlohmann::json& json, const WebSocketAuthentication& webSocketAuthentication) {

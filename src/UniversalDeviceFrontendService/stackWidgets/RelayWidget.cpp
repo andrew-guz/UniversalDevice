@@ -66,7 +66,7 @@ void RelayWidget::OnBack() {
 }
 
 void RelayWidget::Initialize() {
-    const uint64_t seconds = _seconds->GetSeconds();
+    const std::uint64_t seconds = _seconds->GetSeconds();
     if (_cachedValues.empty())
         _cachedValues = GetValues<RelayValue>(DeviceType::Relay, seconds);
     else {
