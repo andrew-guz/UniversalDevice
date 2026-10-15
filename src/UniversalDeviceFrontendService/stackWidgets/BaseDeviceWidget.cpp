@@ -20,7 +20,6 @@
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
-#include "Enums.hpp"
 #include "FrontendDefines.hpp"
 #include "IStackHolder.hpp"
 #include "Logger.hpp"
