@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 #include "Account.hpp"
@@ -16,15 +17,17 @@ public:
 
     void Init(std::shared_ptr<IAccountManagerInitializer> initializer);
 
-    bool IsValidAccount(const std::string& login, const std::string& password);
+    bool IsValidAccount(const std::string& login, const std::string& password) const;
 
-    bool IsValidAccount(std::string_view authorizationString);
+    bool IsValidAccount(std::string_view authorizationString) const;
 
     std::string GetAuthString(std::string_view login) const;
 
     std::string GetBasicAuthString(std::string_view login) const;
 
-    AccountType GetAccountType(std::string_view login) const;
+    AccountType GetAccountType(std::string_view login, std::string_view password) const;
+
+    std::tuple<bool, std::string, std::string> ParseAuthorizationString(std::string_view authorizationString) const;
 
 private:
     std::shared_ptr<IAccountManagerInitializer> _initializer;

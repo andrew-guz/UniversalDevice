@@ -44,10 +44,66 @@ TEST_CASE("GetAuthString") {
 
 TEST_CASE("CheckAccountTypes") {
     AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializerStub>());
-    REQUIRE(AccountManager::Instance()->GetAccountType("login1") == AccountType::Undefined);
-    REQUIRE(AccountManager::Instance()->GetAccountType("login2") == AccountType::Viewer);
-    REQUIRE(AccountManager::Instance()->GetAccountType("login3") == AccountType::User);
-    REQUIRE(AccountManager::Instance()->GetAccountType("login4") == AccountType::Admin);
-    REQUIRE(AccountManager::Instance()->GetAccountType("login5") == AccountType::Internal);
-    REQUIRE(AccountManager::Instance()->GetAccountType("login6") == AccountType::Undefined);
+    REQUIRE(AccountManager::Instance()->GetAccountType("login1", "password1") == AccountType::Undefined);
+    REQUIRE(AccountManager::Instance()->GetAccountType("login2", "password2") == AccountType::Viewer);
+    REQUIRE(AccountManager::Instance()->GetAccountType("login3", "password3") == AccountType::User);
+    REQUIRE(AccountManager::Instance()->GetAccountType("login4", "password4") == AccountType::Admin);
+    REQUIRE(AccountManager::Instance()->GetAccountType("login5", "password5") == AccountType::Internal);
+    REQUIRE(AccountManager::Instance()->GetAccountType("login6", "password6") == AccountType::Undefined);
+}
+
+TEST_CASE("CheckAccountTypesWrongPassword") {
+    AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializerStub>());
+    REQUIRE(AccountManager::Instance()->GetAccountType("login4", "password5") == AccountType::Undefined);
+    REQUIRE(AccountManager::Instance()->GetAccountType("login4", "") == AccountType::Undefined);
+    REQUIRE(AccountManager::Instance()->GetAccountType("", "") == AccountType::Undefined);
+}
+
+TEST_CASE("ParseAuthorizationString") {
+    AccountManager::Instance()->Init(std::make_shared<AccountManagerInitializerStub>());
+
+    SECTION("valid account") {
+        const auto [valid, login, password] =
+            AccountManager::Instance()->ParseAuthorizationString("Basic "s + Base64Helper::ToBase64("login2:password2"));
+        REQUIRE(valid);
+        REQUIRE(login == "login2"s);
+        REQUIRE(password == "password2"s);
+    }
+
+    SECTION("wrong password") {
+        const auto [valid, login, password] =
+            AccountManager::Instance()->ParseAuthorizationString("Basic "s + Base64Helper::ToBase64("login2:password23"));
+        REQUIRE_FALSE(valid);
+    }
+
+    SECTION("account with undefined type") {
+        const auto [valid, login, password] =
+            AccountManager::Instance()->ParseAuthorizationString("Basic "s + Base64Helper::ToBase64("login1:password1"));
+        REQUIRE_FALSE(valid);
+    }
+
+    SECTION("unknown account") {
+        const auto [valid, login, password] =
+            AccountManager::Instance()->ParseAuthorizationString("Basic "s + Base64Helper::ToBase64("login6:password6"));
+        REQUIRE_FALSE(valid);
+    }
+
+    SECTION("no delimiter") {
+        const auto [valid, login, password] =
+            AccountManager::Instance()->ParseAuthorizationString("Basic "s + Base64Helper::ToBase64("login2password2"));
+        REQUIRE_FALSE(valid);
+    }
+
+    SECTION("no Basic prefix") {
+        const auto [valid, login, password] = AccountManager::Instance()->ParseAuthorizationString(Base64Helper::ToBase64("login2:password2"));
+        REQUIRE_FALSE(valid);
+    }
+
+    SECTION("empty and too short strings") {
+        for (const std::string& authorization : { ""s, "Basic"s, "Basic "s }) {
+            REQUIRE_NOTHROW(AccountManager::Instance()->ParseAuthorizationString(authorization));
+            const auto [valid, login, password] = AccountManager::Instance()->ParseAuthorizationString(authorization);
+            REQUIRE_FALSE(valid);
+        }
+    }
 }

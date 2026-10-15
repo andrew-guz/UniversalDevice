@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include <crow.h>
 #include <crow/app.h>
 #include <crow/common.h>
@@ -7,6 +9,7 @@
 #include <crow/http_response.h>
 
 #include "AccountManager.hpp"
+#include "Constants.hpp"
 #include "Defines.hpp"
 
 struct Authorization {
@@ -16,8 +19,12 @@ struct Authorization {
         if (request.url == API_VERSION)
             return;
 
-        auto authorization = request.get_header_value("Authorization");
-        if (authorization.empty() || !AccountManager::Instance()->IsValidAccount(authorization)) {
+        // not authorized - NOT allowed
+        // client -  ALL allowed
+        // device or any other (direct request) - NOT allowed
+        const std::string authorization = request.get_header_value("Authorization");
+        const auto [valid, login, _] = AccountManager::Instance()->ParseAuthorizationString(authorization);
+        if (!valid || login != Constants::LoginService) {
             response.code = crow::status::UNAUTHORIZED;
             response.end();
         }
