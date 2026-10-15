@@ -9,6 +9,7 @@
 #include <fmt/format.h>
 
 #include "CommandsController.hpp"
+#include "Constants.hpp"
 #include "Controller.hpp"
 #include "DbExtension.hpp"
 #include "Device.hpp"
@@ -32,18 +33,16 @@ bool DevicesController::Add(const Device& device) {
     if (_cache.Get(device._id).has_value())
         return false;
 
-    const std::string query = fmt::format("INSERT INTO Devices (id, type, timestamp) VALUES ('{}', '{}', {})",
-                                          device._id.data(),
-                                          EnumToString(device._type),
-                                          TimeHelper::TimeToInt(device._timestamp));
-    if (_queryExecutor->Execute(query)) {
-        _cache.Add(device._id, device);
+    if (_queryExecutor->NewInsert("INSERT INTO Devices (id, type, timestamp) VALUES (?, ?, ?)",
+                                  device._id.data(),
+                                  EnumToString(device._type),
+                                  TimeHelper::TimeToInt(device._timestamp)) == Constants::InvalidId) {
+        return false;
+    }
 
-        return true;
-    } else
-        LOG_SQL_ERROR(query);
+    _cache.Add(device._id, device);
 
-    return false;
+    return true;
 }
 
 Devices DevicesController::List() const {
@@ -79,15 +78,14 @@ std::optional<Device> DevicesController::UpdateDeviceTimestamp(const Uuid& id, c
     if (!device.has_value())
         return std::nullopt;
 
-    const std::string query = fmt::format("UPDATE Devices SET timestamp = {} WHERE id = '{}'", TimeHelper::TimeToInt(timestamp), id.data());
-    if (_queryExecutor->Execute(query)) {
-        device->_timestamp = timestamp;
-        _cache.AddOrUpdate(id, device.value());
-        return device;
-    } else
-        LOG_SQL_ERROR(query);
+    if (!_queryExecutor->NewUpdate("UPDATE Devices SET timestamp = ? WHERE id = ?", TimeHelper::TimeToInt(timestamp), id.data())) {
+        return std::nullopt;
+    }
 
-    return std::nullopt;
+    device->_timestamp = timestamp;
+    _cache.AddOrUpdate(id, device.value());
+
+    return device;
 }
 
 std::optional<Device> DevicesController::UpdateDeviceName(const Uuid& id, const std::string& name) {
@@ -97,15 +95,14 @@ std::optional<Device> DevicesController::UpdateDeviceName(const Uuid& id, const 
     if (!device.has_value())
         return std::nullopt;
 
-    const std::string query = fmt::format("UPDATE Devices SET name = '{}' WHERE id = '{}'", name, id.data());
-    if (_queryExecutor->Execute(query)) {
-        device->_name = name;
-        _cache.AddOrUpdate(id, device.value());
-        return device;
-    } else
-        LOG_SQL_ERROR(query);
+    if (!_queryExecutor->NewUpdate("UPDATE Devices SET name = ? WHERE id = ?", name, id.data())) {
+        return std::nullopt;
+    }
 
-    return std::nullopt;
+    device->_name = name;
+    _cache.AddOrUpdate(id, device.value());
+
+    return device;
 }
 
 std::optional<Device> DevicesController::UpdateDeviceGroup(const Uuid& id, const std::string& group) {
@@ -115,15 +112,14 @@ std::optional<Device> DevicesController::UpdateDeviceGroup(const Uuid& id, const
     if (!device.has_value())
         return std::nullopt;
 
-    const std::string query = fmt::format("UPDATE Devices SET grp = '{}' WHERE id = '{}'", group, id.data());
-    if (_queryExecutor->Execute(query)) {
-        device->_group = group;
-        _cache.AddOrUpdate(id, device.value());
-        return device;
-    } else
-        LOG_SQL_ERROR(query);
+    if (!_queryExecutor->NewUpdate("UPDATE Devices SET grp = ? WHERE id = ?", group, id.data())) {
+        return std::nullopt;
+    }
 
-    return std::nullopt;
+    device->_group = group;
+    _cache.AddOrUpdate(id, device.value());
+
+    return device;
 }
 
 bool DevicesController::Remove(const Uuid& id) {
@@ -133,29 +129,23 @@ bool DevicesController::Remove(const Uuid& id) {
     if (!device.has_value())
         return false;
 
-    const std::string query = fmt::format("DELETE FROM Devices WHERE id='{}'", id.data());
-    if (_queryExecutor->Execute(query)) {
-        _cache.Remove(id);
-
-        _settingsController.Remove(id);
-        _commandsController.Remove(id);
-
-        return true;
+    if (!_queryExecutor->NewDelete("DELETE FROM Devices WHERE id=?", id.data())) {
+        return false;
     }
+    _cache.Remove(id);
 
-    LOG_SQL_ERROR(query);
+    _settingsController.Remove(id);
+    _commandsController.Remove(id);
 
-    return false;
+    return true;
 }
 
 void DevicesController::FillCache() const {
-    const std::string query = "SELECT * FROM Devices";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
+    if (_queryExecutor->NewSelect(data, "SELECT * FROM Devices")) {
         const Devices result = DbExtension::CreateVectorFromDbStrings<Device>(data);
         for (const Device& device : result) {
             _cache.Add(device._id, device);
         }
-    } else
-        LOG_SQL_ERROR(query);
+    }
 }

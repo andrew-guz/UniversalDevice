@@ -14,6 +14,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 
+#include "Constants.hpp"
 #include "Controller.hpp"
 #include "DbExtension.hpp"
 #include "Event.hpp"
@@ -75,18 +76,15 @@ bool EventsController::Add(const Event& event) {
     if (_cache.empty())
         FillCache();
 
-    const std::string eventId = GetEventId(event).data();
-    const std::string eventJson = static_cast<nlohmann::json>(event).dump();
-    const std::string query = fmt::format("INSERT INTO Events (id, event) VALUES ('{}', '{}')", eventId, eventJson);
-
-    if (_queryExecutor->Execute(query)) {
-        _cache.emplace_back(std::move(event));
-        return true;
+    if (_queryExecutor->NewInsert("INSERT INTO Events (id, event) VALUES (?, ?)",
+                                  GetEventId(event).data(),
+                                  static_cast<nlohmann::json>(event).dump()) == Constants::InvalidId) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _cache.emplace_back(std::move(event));
 
-    return false;
+    return true;
 }
 
 std::optional<Event> EventsController::Update(Event& event) {
@@ -136,51 +134,43 @@ bool EventsController::Delete(const Uuid& eventId) {
         return false;
     }
 
-    const std::string query = fmt::format("DELETE FROM Events WHERE id='{}'", eventId.data());
-    if (_queryExecutor->Execute(query)) {
-        FillCache(); // due to I can't operator= for variant, I can't remove from vector and have to reread it
-        return true;
+    if (!_queryExecutor->NewDelete("DELETE FROM Events WHERE id=?", eventId.data())) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    FillCache(); // due to I can't operator= for variant, I can't remove from vector and have to reread it
 
-    return false;
+    return true;
 }
 
 void EventsController::FillCache() const {
-    const std::string query = "SELECT * FROM Events";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
+    if (_queryExecutor->NewSelect(data, "SELECT * FROM Events")) {
         _cache = DbExtension::CreateVectorFromDbStrings<Event>(data);
-    } else
-        LOG_SQL_ERROR(query);
+    }
 }
 
 std::optional<Event> EventsController::UpdateImpl(Event& event) {
-    const std::string eventJson = static_cast<nlohmann::json>(event).dump();
     const Uuid eventId = GetEventId(event);
-    const std::string query = fmt::format("UPDATE Events SET event = '{}' WHERE id = '{}'", eventJson, eventId.data());
 
-    if (_queryExecutor->Execute(query)) {
-        auto iter = std::find_if(_cache.begin(), _cache.end(), [&eventId](const Event& event) -> bool { return GetEventId(event) == eventId; });
-
-        if (iter == _cache.end()) {
-            LOG_ERROR_MSG("WTF??? Event exists in database, but not in cache!");
-            return std::nullopt;
-        }
-
-        Event& currentEvent = *iter;
-        std::visit(boost::hof::match([&currentEvent](TimerEvent& e) { currentEvent.emplace<TimerEvent>(e); },
-                                     [&currentEvent](ThermometerEvent& e) { currentEvent.emplace<ThermometerEvent>(e); },
-                                     [&currentEvent](RelayEvent& e) { currentEvent.emplace<RelayEvent>(e); },
-                                     [&currentEvent](ThermostatEvent& e) { currentEvent.emplace<ThermostatEvent>(e); },
-                                     [&currentEvent](SunriseEvent& e) { currentEvent.emplace<SunriseEvent>(e); },
-                                     [&currentEvent](SunsetEvent& e) { currentEvent.emplace<SunsetEvent>(e); }),
-                   event);
-        return event;
+    if (!_queryExecutor->NewUpdate("UPDATE Events SET event = ? WHERE id = ?", static_cast<nlohmann::json>(event).dump(), eventId.data())) {
+        return std::nullopt;
     }
 
-    LOG_SQL_ERROR(query);
+    auto iter = std::find_if(_cache.begin(), _cache.end(), [&eventId](const Event& event) -> bool { return GetEventId(event) == eventId; });
 
-    return std::nullopt;
+    if (iter == _cache.end()) {
+        LOG_ERROR_MSG("WTF??? Event exists in database, but not in cache!");
+        return std::nullopt;
+    }
+
+    Event& currentEvent = *iter;
+    std::visit(boost::hof::match([&currentEvent](TimerEvent& e) { currentEvent.emplace<TimerEvent>(e); },
+                                 [&currentEvent](ThermometerEvent& e) { currentEvent.emplace<ThermometerEvent>(e); },
+                                 [&currentEvent](RelayEvent& e) { currentEvent.emplace<RelayEvent>(e); },
+                                 [&currentEvent](ThermostatEvent& e) { currentEvent.emplace<ThermostatEvent>(e); },
+                                 [&currentEvent](SunriseEvent& e) { currentEvent.emplace<SunriseEvent>(e); },
+                                 [&currentEvent](SunsetEvent& e) { currentEvent.emplace<SunsetEvent>(e); }),
+               event);
+    return event;
 }

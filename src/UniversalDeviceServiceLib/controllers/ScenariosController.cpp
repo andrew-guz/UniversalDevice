@@ -10,6 +10,7 @@
 #include <nlohmann/json_fwd.hpp>
 
 #include "Cache.hpp"
+#include "Constants.hpp"
 #include "Controller.hpp"
 #include "DbExtension.hpp"
 #include "Event.hpp"
@@ -58,17 +59,15 @@ bool ScenariosController::Add(const Scenario& scenario) {
     if (!_cache.Size())
         FillCache();
 
-    const std::string scenarioJson = static_cast<nlohmann::json>(scenario).dump();
-    const std::string query = fmt::format("INSERT INTO Scenarios (id, scenario) VALUES ('{}', '{}')", scenario._id.data(), scenarioJson);
-
-    if (_queryExecutor->Execute(query)) {
-        _cache.Add(scenario._id, scenario);
-        return true;
+    if (_queryExecutor->NewInsert("INSERT INTO Scenarios (id, scenario) VALUES (?, ?)",
+                                  scenario._id.data(),
+                                  static_cast<nlohmann::json>(scenario).dump()) == Constants::InvalidId) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _cache.Add(scenario._id, scenario);
 
-    return false;
+    return true;
 }
 
 bool ScenariosController::Update(const Scenario& scenario) {
@@ -77,17 +76,14 @@ bool ScenariosController::Update(const Scenario& scenario) {
     if (!_cache.Size())
         FillCache();
 
-    const std::string scenarioJson = static_cast<nlohmann::json>(scenario).dump();
-    const std::string query = fmt::format("UPDATE Scenarios SET scenario = '{}' WHERE id = '{}'", scenarioJson, scenario._id.data());
-
-    if (_queryExecutor->Execute(query)) {
-        _cache.Update(scenario._id, scenario);
-        return true;
+    if (!_queryExecutor->NewUpdate(
+            "UPDATE Scenarios SET scenario = ? WHERE id = ?", static_cast<nlohmann::json>(scenario).dump(), scenario._id.data())) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _cache.Update(scenario._id, scenario);
 
-    return false;
+    return true;
 }
 
 void ScenariosController::CleanupScenario(Scenario& scenario) {
@@ -124,7 +120,8 @@ bool ScenariosController::ActivateScenario(const Uuid& id) {
 
     CleanupScenario(scenario.value());
 
-    if (!_queryExecutor->Begin()) {
+    Transaction transaction{ _queryExecutor };
+    if (!transaction.IsActive()) {
         LOG_ERROR_MSG("Failed to update events for scenario: failed to start transaction");
         return false;
     }
@@ -141,7 +138,7 @@ bool ScenariosController::ActivateScenario(const Uuid& id) {
             return false;
         }
 
-    if (!_queryExecutor->Commit()) {
+    if (!transaction.Commit()) {
         LOG_ERROR_MSG("Failed to update events for scenario: failed to end transaction");
         return false;
     }
@@ -153,25 +150,21 @@ bool ScenariosController::ActivateScenario(const Uuid& id) {
 bool ScenariosController::Remove(const Uuid& id) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
-    const std::string query = fmt::format("DELETE FROM Scenarios WHERE id='{}'", id.data());
-    if (_queryExecutor->Execute(query)) {
-        _cache.Remove(id);
-        return true;
+    if (!_queryExecutor->NewDelete("DELETE FROM Scenarios WHERE id=?", id.data())) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _cache.Remove(id);
 
-    return false;
+    return true;
 }
 
 void ScenariosController::FillCache() const {
-    const std::string query = "SELECT * FROM Scenarios";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
+    if (_queryExecutor->NewSelect(data, "SELECT * FROM Scenarios")) {
         const std::vector<Scenario> result = DbExtension::CreateVectorFromDbStrings<Scenario>(data);
         for (const Scenario& scenario : result) {
             _cache.Add(scenario._id, scenario);
         }
-    } else
-        LOG_SQL_ERROR(query);
+    }
 }

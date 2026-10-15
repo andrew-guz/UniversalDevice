@@ -11,6 +11,7 @@
 
 #include "Cache.hpp"
 #include "Command.hpp"
+#include "Constants.hpp"
 #include "Controller.hpp"
 #include "DbExtension.hpp"
 #include "IQueryExecutor.hpp"
@@ -37,17 +38,15 @@ std::optional<Command> CommandsController::Get(const Uuid& deviceId) const {
 bool CommandsController::AddOrUpdate(const Uuid& deviceId, const Command& command) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
-    const std::string query = fmt::format(
-        "INSERT OR REPLACE INTO Commands (id, command) VALUES ('{}', '{}')", deviceId.data(), static_cast<nlohmann::json>(command).dump());
-
-    if (_queryExecutor->Execute(query)) {
-        _cache.AddOrUpdate(deviceId, command);
-        return true;
+    if (_queryExecutor->NewInsert("INSERT OR REPLACE INTO Commands (id, command) VALUES (?, ?)",
+                                  deviceId.data(),
+                                  static_cast<nlohmann::json>(command).dump()) == Constants::InvalidId) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _cache.AddOrUpdate(deviceId, command);
 
-    return false;
+    return true;
 }
 
 bool CommandsController::Remove(const Uuid& deviceId) {
@@ -59,21 +58,18 @@ bool CommandsController::Remove(const Uuid& deviceId) {
         return false;
     }
 
-    const std::string query = fmt::format("DELETE FROM Commands WHERE id='{}'", deviceId.data());
-    if (_queryExecutor->Delete(query)) {
-        _cache.Remove(deviceId);
-        return true;
+    if (!_queryExecutor->NewDelete("DELETE FROM Commands WHERE id=?", deviceId.data())) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _cache.Remove(deviceId);
 
-    return false;
+    return true;
 }
 
 void CommandsController::FillCache() {
-    const std::string query = "SELECT * FROM Commands";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
+    if (_queryExecutor->NewSelect(data, "SELECT * FROM Commands")) {
         for (const std::vector<std::string>& dbStrings : data) {
             if (dbStrings.size() % 2 == 0) {
                 auto deviceId = DbExtension::FindValueByName<Uuid>(dbStrings, "id");
@@ -84,6 +80,5 @@ void CommandsController::FillCache() {
             } else
                 LOG_ERROR_MSG("Invalid db strings");
         }
-    } else
-        LOG_SQL_ERROR(query);
+    }
 }

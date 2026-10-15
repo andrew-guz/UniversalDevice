@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 
 #include "Cache.hpp"
+#include "Constants.hpp"
 #include "DbExtension.hpp"
 #include "Device.hpp"
 #include "DevicesController.hpp"
@@ -45,18 +46,16 @@ bool ThermometerValuesController::Add(const Uuid& id, const ThermometerValue& va
         return false;
     }
 
-    const std::string query = fmt::format("INSERT INTO Thermometers (id, timestamp, value) VALUES ('{}', {}, '{}')",
-                                          id.data(),
-                                          TimeHelper::TimeToInt(value._timestamp.value()),
-                                          value._value);
-    if (_queryExecutor->Execute(query)) {
-        _caches[id].Add(value._timestamp.value(), value);
-        return true;
+    if (_queryExecutor->NewInsert("INSERT INTO Thermometers (id, timestamp, value) VALUES (?, ?, ?)",
+                                  id.data(),
+                                  TimeHelper::TimeToInt(value._timestamp.value()),
+                                  value._value) == Constants::InvalidId) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _caches[id].Add(value._timestamp.value(), value);
 
-    return false;
+    return true;
 }
 
 std::vector<ThermometerValue> ThermometerValuesController::Get(const Uuid& id, const std::uint64_t seconds) {
@@ -84,9 +83,8 @@ std::vector<ThermometerValue> ThermometerValuesController::Get(const Uuid& id, c
 }
 
 void ThermometerValuesController::FillCache() {
-    const std::string query = "SELECT * FROM Thermometers";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
+    if (_queryExecutor->NewSelect(data, "SELECT * FROM Thermometers")) {
         for (const auto& dbString : data) {
             if (dbString.size() % 2 == 0) {
                 auto deviceId = DbExtension::FindValueByName<Uuid>(dbString, "id");
@@ -104,6 +102,5 @@ void ThermometerValuesController::FillCache() {
             } else
                 LOG_ERROR_MSG("Invalid db strings");
         }
-    } else
-        LOG_SQL_ERROR(query);
+    }
 }

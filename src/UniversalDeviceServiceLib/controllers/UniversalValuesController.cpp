@@ -14,6 +14,7 @@
 #include <nlohmann/json_fwd.hpp>
 
 #include "Cache.hpp"
+#include "Constants.hpp"
 #include "DbExtension.hpp"
 #include "IQueryExecutor.hpp"
 #include "Logger.hpp"
@@ -37,18 +38,16 @@ bool UniversalValuesController::Add(const Uuid& id, const UniversalValue& value)
         return false;
     }
 
-    const std::string query = fmt::format("INSERT INTO UniversalDevices (id, timestamp, 'values') VALUES ('{}', {}, '{}')",
-                                          id.data(),
-                                          TimeHelper::TimeToInt(value._timestamp.value()),
-                                          static_cast<nlohmann::json>(value._values).dump());
-    if (_queryExecutor->Execute(query)) {
-        _caches[id].Add(value._timestamp.value(), value);
-        return true;
+    if (_queryExecutor->NewInsert("INSERT INTO UniversalDevices (id, timestamp, \"values\") VALUES (?, ?, ?)",
+                                  id.data(),
+                                  TimeHelper::TimeToInt(value._timestamp.value()),
+                                  static_cast<nlohmann::json>(value._values).dump()) == Constants::InvalidId) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _caches[id].Add(value._timestamp.value(), value);
 
-    return false;
+    return true;
 }
 
 std::vector<UniversalValue> UniversalValuesController::Get(const Uuid& id, const std::uint64_t seconds) {
@@ -76,9 +75,8 @@ std::vector<UniversalValue> UniversalValuesController::Get(const Uuid& id, const
 }
 
 void UniversalValuesController::FillCache() {
-    const std::string query = "SELECT * FROM UniversalDevices";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
+    if (_queryExecutor->NewSelect(data, "SELECT * FROM UniversalDevices")) {
         for (const auto& dbString : data) {
             if (dbString.size() % 2 == 0) {
                 auto deviceId = DbExtension::FindValueByName<Uuid>(dbString, "id");
@@ -97,6 +95,5 @@ void UniversalValuesController::FillCache() {
             } else
                 LOG_ERROR_MSG("Invalid db strings");
         }
-    } else
-        LOG_SQL_ERROR(query);
+    }
 }

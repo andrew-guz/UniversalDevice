@@ -73,7 +73,7 @@ template<>
 std::optional<bool> DbExtension::FindValueByName<bool>(const std::vector<std::string>& dbStrings, std::string_view name) {
     std::optional<std::string> value = FindStringValueByName(dbStrings, name);
     if (value.has_value())
-        return std::atoi(value.value().c_str());
+        return value == "1";
     return std::nullopt;
 }
 

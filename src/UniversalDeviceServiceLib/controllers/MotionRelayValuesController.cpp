@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 
 #include "Cache.hpp"
+#include "Constants.hpp"
 #include "DbExtension.hpp"
 #include "IQueryExecutor.hpp"
 #include "Logger.hpp"
@@ -33,19 +34,17 @@ bool MotionRelayValuesController::Add(const Uuid& id, const MotionRelayValue& va
         return false;
     }
 
-    const std::string query = fmt::format("INSERT INTO MotionRelays (id, timestamp, motion, state) VALUES ('{}', {}, '{}', '{}')",
-                                          id.data(),
-                                          TimeHelper::TimeToInt(value._timestamp.value()),
-                                          value._motion,
-                                          value._state);
-    if (_queryExecutor->Execute(query)) {
-        _caches[id].Add(value._timestamp.value(), value);
-        return true;
+    if (_queryExecutor->NewInsert("INSERT INTO MotionRelays (id, timestamp, motion, state) VALUES (?, ?, ?, ?)",
+                                  id.data(),
+                                  TimeHelper::TimeToInt(value._timestamp.value()),
+                                  value._motion,
+                                  value._state) == Constants::InvalidId) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _caches[id].Add(value._timestamp.value(), value);
 
-    return false;
+    return true;
 }
 
 std::vector<MotionRelayValue> MotionRelayValuesController::Get(const Uuid& id, const std::uint64_t seconds) {
@@ -73,9 +72,8 @@ std::vector<MotionRelayValue> MotionRelayValuesController::Get(const Uuid& id, c
 }
 
 void MotionRelayValuesController::FillCache() {
-    const std::string query = "SELECT * FROM MotionRelays";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
+    if (_queryExecutor->NewSelect(data, "SELECT * FROM MotionRelays")) {
         for (const auto& dbString : data) {
             if (dbString.size() % 2 == 0) {
                 auto deviceId = DbExtension::FindValueByName<Uuid>(dbString, "id");
@@ -95,6 +93,5 @@ void MotionRelayValuesController::FillCache() {
             } else
                 LOG_ERROR_MSG("Invalid db strings");
         }
-    } else
-        LOG_SQL_ERROR(query);
+    }
 }

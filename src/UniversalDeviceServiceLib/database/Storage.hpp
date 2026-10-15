@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstdint>
 #include <filesystem>
+#include <memory>
 #include <mutex>
 #include <sqlite3.h>
 #include <string>
@@ -12,22 +13,28 @@
 #include "IQueryExecutor.hpp"
 
 class Storage final : public IQueryExecutor {
+private:
+    struct Query final {
+        explicit Query(sqlite3_stmt* statement) :
+            _statement(statement) {}
+
+        ~Query() { sqlite3_finalize(_statement); }
+
+        Query(const Query& other) = delete;
+
+        Query(Query&& other) = delete;
+
+        Query& operator=(const Query& other) = delete;
+
+        Query& operator=(Query&& other) = delete;
+
+        sqlite3_stmt* _statement = nullptr;
+    };
+
 public:
     Storage(const std::filesystem::path& dbPath);
 
     virtual ~Storage();
-
-    virtual bool Begin() override;
-
-    virtual bool Execute(std::string_view query, std::uint64_t* lastInsertedIndex = nullptr) override;
-
-    virtual bool Execute(std::string_view query, int (*callback)(void*, int, char**, char**), std::uint64_t* lastInsertedIndex = nullptr) override;
-
-    virtual bool Select(std::string_view query, std::vector<std::vector<std::string>>& data) override;
-
-    virtual bool Delete(std::string query) override;
-
-    virtual bool Commit() override;
 
     virtual std::vector<std::string> GetAllTables() const override;
 
@@ -37,12 +44,29 @@ public:
 
     virtual void CleanupOldData(const std::chrono::system_clock::time_point& timestamp) override;
 
+    /************************************************************************* */
+protected:
+    [[nodiscard]] virtual std::int64_t NewInsertImpl(std::string_view query, const DatabaseValues& databaseValues) override;
+
+    [[nodiscard]] virtual bool
+    NewSelectImpl(std::vector<std::vector<std::string>>& data, std::string_view query, const DatabaseValues& databaseValues) override;
+
+    [[nodiscard]] virtual bool NewUpdateImpl(std::string_view query, const DatabaseValues& databaseValues) override;
+
+    [[nodiscard]] virtual bool NewDeleteImpl(std::string_view query, const DatabaseValues& databaseValues) override;
+
+    virtual bool Begin() override;
+
+    virtual bool Rollback() override;
+
+    virtual bool Commit() override;
+
+    bool ExecuteRaw(std::string_view query, const DatabaseValues& databaseValues, std::string_view errorMsg);
+
 private:
-    bool InternalExecute(std::string_view query,
-                         int (*callback)(void*, int, char**, char**),
-                         void* data,
-                         std::uint64_t* lastInsertedIndex = nullptr,
-                         int repeatCount = 0);
+    std::unique_ptr<Storage::Query> CreateQuery(std::string_view query);
+
+    int BindQuery(sqlite3_stmt* statement, const DatabaseValues& databaseValues);
 
     void InitializeDb();
 

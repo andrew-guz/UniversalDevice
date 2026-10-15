@@ -1,11 +1,15 @@
 #pragma once
 
+#include <cstdint>
 #include <string_view>
 
 #include "Uuid.hpp"
 
 class Constants final {
 public:
+    // invalid index
+    static constexpr std::int64_t InvalidId = static_cast<std::uint64_t>(-1);
+
     // login
     static constexpr std::string_view LoginService = "service";
     static constexpr std::string_view LoginDevice = "device";

@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 
 #include "Cache.hpp"
+#include "Constants.hpp"
 #include "DbExtension.hpp"
 #include "IQueryExecutor.hpp"
 #include "Logger.hpp"
@@ -33,18 +34,15 @@ bool RelayValuesController::Add(const Uuid& id, const RelayValue& value) {
         return false;
     }
 
-    const std::string query = fmt::format("INSERT INTO Relays (id, timestamp, state) VALUES ('{}', {}, '{}')",
-                                          id.data(),
-                                          TimeHelper::TimeToInt(value._timestamp.value()),
-                                          value._state);
-    if (_queryExecutor->Execute(query)) {
-        _caches[id].Add(value._timestamp.value(), value);
-        return true;
+    if (_queryExecutor->NewInsert(
+            "INSERT INTO Relays (id, timestamp, state) VALUES (?, ?, ?)", id.data(), TimeHelper::TimeToInt(value._timestamp.value()), value._state) ==
+        Constants::InvalidId) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _caches[id].Add(value._timestamp.value(), value);
 
-    return false;
+    return true;
 }
 
 std::vector<RelayValue> RelayValuesController::Get(const Uuid& id, const std::uint64_t seconds) {
@@ -72,9 +70,8 @@ std::vector<RelayValue> RelayValuesController::Get(const Uuid& id, const std::ui
 }
 
 void RelayValuesController::FillCache() {
-    const std::string query = "SELECT * FROM Relays";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
+    if (_queryExecutor->NewSelect(data, "SELECT * FROM Relays")) {
         for (const auto& dbString : data) {
             if (dbString.size() % 2 == 0) {
                 auto deviceId = DbExtension::FindValueByName<Uuid>(dbString, "id");
@@ -92,6 +89,5 @@ void RelayValuesController::FillCache() {
             } else
                 LOG_ERROR_MSG("Invalid db strings");
         }
-    } else
-        LOG_SQL_ERROR(query);
+    }
 }

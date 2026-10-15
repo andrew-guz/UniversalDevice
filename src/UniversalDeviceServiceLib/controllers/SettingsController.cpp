@@ -10,6 +10,7 @@
 #include <nlohmann/json_fwd.hpp>
 
 #include "Cache.hpp"
+#include "Constants.hpp"
 #include "Controller.hpp"
 #include "DbExtension.hpp"
 #include "IQueryExecutor.hpp"
@@ -37,17 +38,15 @@ std::optional<Settings> SettingsController::Get(const Uuid& deviceId) const {
 bool SettingsController::AddOrUpdate(const Uuid& deviceId, const Settings& settings) {
     std::lock_guard<std::mutex> lockGuard{ _mutex };
 
-    const std::string query = fmt::format(
-        "INSERT OR REPLACE INTO Settings (id, settings) VALUES ('{}', '{}')", deviceId.data(), static_cast<nlohmann::json>(settings).dump());
-
-    if (_queryExecutor->Execute(query)) {
-        _cache.AddOrUpdate(deviceId, settings);
-        return true;
+    if (_queryExecutor->NewInsert("INSERT OR REPLACE INTO Settings (id, settings) VALUES (?, ?)",
+                                  deviceId.data(),
+                                  static_cast<nlohmann::json>(settings).dump()) == Constants::InvalidId) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _cache.AddOrUpdate(deviceId, settings);
 
-    return false;
+    return true;
 }
 
 bool SettingsController::Remove(const Uuid& deviceId) {
@@ -59,21 +58,18 @@ bool SettingsController::Remove(const Uuid& deviceId) {
         return false;
     }
 
-    const std::string query = fmt::format("DELETE FROM Settings WHERE id='{}'", deviceId.data());
-    if (_queryExecutor->Delete(query)) {
-        _cache.Remove(deviceId);
-        return true;
+    if (!_queryExecutor->NewDelete("DELETE FROM Settings WHERE id=?", deviceId.data())) {
+        return false;
     }
 
-    LOG_SQL_ERROR(query);
+    _cache.Remove(deviceId);
 
-    return false;
+    return true;
 }
 
 void SettingsController::FillCache() {
-    const std::string query = "SELECT * FROM Settings";
     std::vector<std::vector<std::string>> data;
-    if (_queryExecutor->Select(query, data)) {
+    if (_queryExecutor->NewSelect(data, "SELECT * FROM Settings")) {
         for (const std::vector<std::string>& dbStrings : data) {
             if (dbStrings.size() % 2 == 0) {
                 auto deviceId = DbExtension::FindValueByName<Uuid>(dbStrings, "id");
@@ -84,6 +80,5 @@ void SettingsController::FillCache() {
             } else
                 LOG_ERROR_MSG("Invalid db strings");
         }
-    } else
-        LOG_SQL_ERROR(query);
+    }
 }
