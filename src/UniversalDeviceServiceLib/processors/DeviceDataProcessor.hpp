@@ -25,8 +25,9 @@ protected:
         ValueType value = message._data.get<ValueType>();
         value._timestamp = timestamp;
 
-        if (!_controller.Add(GetProviderId(message._header._description), value))
-            return {};
+        // WE do not care, was message added or not - we should always send "acknowledge"
+        // "acknowledge" is just a confirmation that network is OK
+        _controller.Add(GetProviderId(message._header._description), value);
 
         return nlohmann::json{
             { "acknowledge", message._header._id },
