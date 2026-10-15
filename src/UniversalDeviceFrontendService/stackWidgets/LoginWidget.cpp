@@ -17,6 +17,7 @@
 #include "ApplicationSettings.hpp"
 #include "Base64Helper.hpp"
 #include "BaseStackWidget.hpp"
+#include "Enums.hpp"
 #include "IStackHolder.hpp"
 #include "WidgetHelper.hpp"
 
@@ -56,16 +57,24 @@ void LoginWidget::Initialize(const std::string& data) {
 void LoginWidget::Login() {
     auto login = _login->text().toUTF8();
     auto password = _password->text().toUTF8();
-    if (AccountManager::Instance()->IsValidUser(login, password)) {
-        auto data = login + ":" + password;
-        auto encoded = Base64Helper::ToBase64(data);
-        Http::Cookie authorizationCookie("authorization");
-        authorizationCookie.setMaxAge(std::chrono::seconds(60 * 60 * 24 * 10));
-        authorizationCookie.setSecure(true);
-        authorizationCookie.setValue(encoded);
-        WApplication::instance()->setCookie(authorizationCookie);
-        _stackHolder->SetWidget(StackWidgetType::Devices, {});
+    if (AccountManager::Instance()->IsValidAccount(login, password)) {
+        const AccountType accountType = AccountManager::Instance()->GetAccountType(login);
+        if (accountType == AccountType::Viewer || accountType == AccountType::User || accountType == AccountType::Admin) {
+            _stackHolder->SetAccountType(accountType);
+            auto data = login + ":" + password;
+            auto encoded = Base64Helper::ToBase64(data);
+            Http::Cookie authorizationCookie("authorization");
+            authorizationCookie.setMaxAge(std::chrono::seconds(60 * 60 * 24 * 10));
+            authorizationCookie.setSecure(true);
+            authorizationCookie.setValue(encoded);
+            WApplication::instance()->setCookie(authorizationCookie);
+            _stackHolder->SetWidget(StackWidgetType::Devices, {});
+            return;
+        }
+
+        WidgetHelper::ShowSimpleMessage(this, "Ошибка", "У вас недостаточно прав!");
         return;
     }
+
     WidgetHelper::ShowSimpleMessage(this, "Ошибка", "Неизвестный пользователь!");
 }

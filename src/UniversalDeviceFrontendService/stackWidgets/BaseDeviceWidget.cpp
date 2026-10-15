@@ -20,6 +20,7 @@
 #include "Constants.hpp"
 #include "Defines.hpp"
 #include "DeviceProperty.hpp"
+#include "Enums.hpp"
 #include "FrontendDefines.hpp"
 #include "IStackHolder.hpp"
 #include "Logger.hpp"
@@ -58,7 +59,14 @@ BaseDeviceWidget::BaseDeviceWidget(IStackHolder* stackHolder, const ApplicationS
 
     auto settingsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Настройки"), 0, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(settingsButton);
-    settingsButton->clicked().connect([this]() { OnSettingsButton(); });
+    settingsButton->clicked().connect([this]() {
+        if (!_stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
+        OnSettingsButton();
+    });
 
     auto refresh = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refresh);

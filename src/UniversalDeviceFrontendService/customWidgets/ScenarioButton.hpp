@@ -3,11 +3,12 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WTimer.h>
 
+#include "IStackHolder.hpp"
 #include "Scenario.hpp"
 
 class ScenarioButton final : public Wt::WPushButton {
 public:
-    ScenarioButton(int port, Scenario scenario);
+    ScenarioButton(IStackHolder* stackHolder, int port, Scenario scenario);
 
     virtual ~ScenarioButton();
 

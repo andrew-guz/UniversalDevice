@@ -6,10 +6,10 @@
 
 enum class AccountType : std::uint8_t {
     Undefined,
-    Viewer,
-    User,
-    Admin,
-    Internal,
+    Viewer,   ///< View devices only
+    User,     ///< All except logs
+    Admin,    ///< All
+    Internal, ///< For services/device communication only
 };
 
 enum class DeviceType : std::uint8_t {

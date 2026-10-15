@@ -42,7 +42,14 @@ MotionRelayWidget::MotionRelayWidget(IStackHolder* stackHolder, const Applicatio
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
     _stateButton->setMinimumSize(200, 200);
     _stateButton->setMaximumSize(200, 200);
-    _stateButton->clicked().connect([this]() { OnStateButton(); });
+    _stateButton->clicked().connect([this]() {
+        if (!_stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
+        OnStateButton();
+    });
 
     _mainLayout->addWidget(std::make_unique<WContainerWidget>(), 10, AlignmentFlag::Bottom);
 }

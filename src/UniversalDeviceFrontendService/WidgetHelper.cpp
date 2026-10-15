@@ -107,3 +107,5 @@ void WidgetHelper::ShowSimpleMessage(Wt::WWidget* parent, const std::string& hea
     }
     dialog->exec();
 }
+
+void WidgetHelper::ShowAccountRightsMessage(Wt::WWidget* parent) { WidgetHelper::ShowSimpleMessage(parent, "Ошибка", "Недостаточно прав"); }

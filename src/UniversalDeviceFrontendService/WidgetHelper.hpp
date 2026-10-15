@@ -45,4 +45,6 @@ public:
                              std::function<void(void)> restartFunction);
 
     static void ShowSimpleMessage(Wt::WWidget* parent, const std::string& header, const std::string& message, int timeout = 0);
+
+    static void ShowAccountRightsMessage(Wt::WWidget* parent);
 };

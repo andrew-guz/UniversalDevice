@@ -73,7 +73,13 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const ApplicationSettings&
 
     auto deleteButton = tableLayout->addWidget(std::make_unique<Wt::WPushButton>("Удалить"), 0, Wt::AlignmentFlag::Left | Wt::AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(deleteButton);
-    deleteButton->clicked().connect([&] { DeleteEvent(); });
+    deleteButton->clicked().connect([&] {
+        if (!_stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+        DeleteEvent();
+    });
 
     _eventsTableModel = std::make_shared<EventsTableModel>();
 
@@ -99,12 +105,26 @@ EventsWidget::EventsWidget(IStackHolder* stackHolder, const ApplicationSettings&
 
     auto addButton = addUpdateLayout->addWidget(std::make_unique<Wt::WPushButton>("Добавить"), 0, Wt::AlignmentFlag::Left | Wt::AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(addButton);
-    addButton->clicked().connect([&] { AddEvent(); });
+    addButton->clicked().connect([&] {
+        if (!_stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
+        AddEvent();
+    });
 
     auto updateButton =
         addUpdateLayout->addWidget(std::make_unique<Wt::WPushButton>("Применить"), 0, Wt::AlignmentFlag::Right | Wt::AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(updateButton);
-    updateButton->clicked().connect([&] { UpdateEvent(); });
+    updateButton->clicked().connect([&] {
+        if (!_stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
+        UpdateEvent();
+    });
 
     auto eventGroup = editLayout->addWidget(std::make_unique<Wt::WGroupBox>("Событие"), 1, Wt::AlignmentFlag::Top);
     auto eventLayout = eventGroup->setLayout(std::make_unique<Wt::WVBoxLayout>());

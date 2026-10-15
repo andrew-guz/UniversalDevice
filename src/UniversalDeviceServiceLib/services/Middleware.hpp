@@ -17,7 +17,7 @@ struct Authorization {
             return;
 
         auto authorization = request.get_header_value("Authorization");
-        if (authorization.empty() || !AccountManager::Instance()->IsValidUser(authorization)) {
+        if (authorization.empty() || !AccountManager::Instance()->IsValidAccount(authorization)) {
             response.code = crow::status::UNAUTHORIZED;
             response.end();
         }

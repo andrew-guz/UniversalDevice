@@ -16,13 +16,13 @@ void AccountManager::Init(std::shared_ptr<IAccountManagerInitializer> initialize
     initializer->Initialize(_accounts);
 }
 
-bool AccountManager::IsValidUser(const std::string& login, const std::string& password) {
+bool AccountManager::IsValidAccount(const std::string& login, const std::string& password) {
     return std::any_of(_accounts.begin(), _accounts.end(), [&login, &password](const auto& a) {
         return a._type != AccountType::Undefined && std::tie(a._login, a._password) == std::tie(login, password);
     });
 }
 
-bool AccountManager::IsValidUser(const std::string_view authorizationString) {
+bool AccountManager::IsValidAccount(const std::string_view authorizationString) {
     if (authorizationString.find("Basic") == std::string::npos)
         return false;
     auto base64 = authorizationString.substr(6);
@@ -32,7 +32,7 @@ bool AccountManager::IsValidUser(const std::string_view authorizationString) {
         return false;
     auto login = loginPassword.substr(0, delimeterIndex);
     auto password = loginPassword.substr(delimeterIndex + 1);
-    return IsValidUser(login, password);
+    return IsValidAccount(login, password);
 }
 
 std::string AccountManager::GetAuthString(const std::string_view login) {
@@ -42,7 +42,7 @@ std::string AccountManager::GetAuthString(const std::string_view login) {
     return {};
 }
 
-AccountType AccountManager::GetUserType(std::string_view login) const {
+AccountType AccountManager::GetAccountType(std::string_view login) const {
     if (auto iter = std::find_if(_accounts.begin(), _accounts.end(), [&login](const auto& account) { return account._login == login; });
         iter != _accounts.end())
         return iter->_type;

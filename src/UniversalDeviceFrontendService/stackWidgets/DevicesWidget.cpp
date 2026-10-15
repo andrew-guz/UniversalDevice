@@ -68,6 +68,7 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const ApplicationSetting
     WidgetHelper::SetUsualButtonSize(exitButton);
     exitButton->clicked().connect([this]() {
         WApplication::instance()->removeCookie(Http::Cookie{ "authorization" });
+        _stackHolder->SetAccountType(AccountType::Undefined);
         _stackHolder->SetWidget(StackWidgetType::Login, {});
     });
 
@@ -81,11 +82,25 @@ DevicesWidget::DevicesWidget(IStackHolder* stackHolder, const ApplicationSetting
 
     auto logsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Логи"), 0, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(logsButton);
-    logsButton->clicked().connect([this]() { _stackHolder->SetWidget(StackWidgetType::Logs, {}); });
+    logsButton->clicked().connect([this]() {
+        if (!_stackHolder->IsAdmin()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
+        _stackHolder->SetWidget(StackWidgetType::Logs, {});
+    });
 
     auto settingsButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Настройки"), 0, AlignmentFlag::Center);
     WidgetHelper::SetUsualButtonSize(settingsButton);
-    settingsButton->clicked().connect([this]() { OnSettings(); });
+    settingsButton->clicked().connect([this]() {
+        if (!_stackHolder->IsAdmin()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
+        OnSettings();
+    });
 
     auto refreshButton = buttonsLayout->addWidget(std::make_unique<WPushButton>("Обновить..."), 0, AlignmentFlag::Right);
     WidgetHelper::SetUsualButtonSize(refreshButton);
@@ -269,6 +284,11 @@ void DevicesWidget::AddDeviceButton(WHBoxLayout* layout, const Device& device) {
             auto popup = std::make_unique<Wt::WPopupMenu>();
             auto deleteItem = popup->addItem("Удалить...");
             deleteItem->triggered().connect([this, &device]() {
+                if (!_stackHolder->CanEdit()) {
+                    WidgetHelper::ShowAccountRightsMessage(this);
+                    return;
+                }
+
                 auto result = RequestHelper::DoDeleteRequest(
                     { BACKEND_IP, _settings._servicePort, UrlHelper::Url(API_DEVICE, "<string>", device._id.data()) }, Constants::LoginService);
                 if (result == 200)
@@ -283,8 +303,8 @@ void DevicesWidget::AddDeviceButton(WHBoxLayout* layout, const Device& device) {
 }
 
 void DevicesWidget::AddScenarioButton(WHBoxLayout* layout, const Scenario& scenario) {
-    ScenarioButton* button =
-        layout->addWidget(std::make_unique<ScenarioButton>(_settings._servicePort, scenario), 0, AlignmentFlag::Top | AlignmentFlag::Left);
+    ScenarioButton* button = layout->addWidget(
+        std::make_unique<ScenarioButton>(_stackHolder, _settings._servicePort, scenario), 0, AlignmentFlag::Top | AlignmentFlag::Left);
     _widgets.push_back(std::make_pair<WWidget*, WLayout*>(button, layout));
 }
 

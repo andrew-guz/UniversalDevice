@@ -46,7 +46,14 @@ RelayWidget::RelayWidget(IStackHolder* stackHolder, const ApplicationSettings& s
     _stateButton->setText(WidgetHelper::TextWithFontSize("Включить", 32));
     _stateButton->setMinimumSize(200, 200);
     _stateButton->setMaximumSize(200, 200);
-    _stateButton->clicked().connect([this]() { OnStateButton(); });
+    _stateButton->clicked().connect([this]() {
+        if (!_stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
+        OnStateButton();
+    });
 
     _model = std::make_shared<RelayChartModel>();
     _mainLayout->addWidget(

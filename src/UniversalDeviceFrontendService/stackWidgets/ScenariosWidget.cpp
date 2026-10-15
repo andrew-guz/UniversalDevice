@@ -62,7 +62,14 @@ ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const ApplicationSet
 
     auto deleteButton = listLayout->addWidget(std::make_unique<WPushButton>("Удалить"), 0, AlignmentFlag::Left);
     WidgetHelper::SetUsualButtonSize(deleteButton);
-    deleteButton->clicked().connect([this]() { DeleteScenario(); });
+    deleteButton->clicked().connect([this]() {
+        if (!_stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
+        DeleteScenario();
+    });
 
     _scenariosList = listLayout->addWidget(std::make_unique<WSelectionBox>(), 1);
     _scenariosList->setSelectionMode(SelectionMode::Single);
@@ -78,11 +85,24 @@ ScenariosWidget::ScenariosWidget(IStackHolder* stackHolder, const ApplicationSet
 
     auto addButton = addUpdateLayout->addWidget(std::make_unique<WPushButton>("Добавить"), 0, AlignmentFlag::Left | AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(addButton);
-    addButton->clicked().connect([this]() { AddScenario(); });
+    addButton->clicked().connect([this]() {
+        if (!_stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+        AddScenario();
+    });
 
     auto updateButton = addUpdateLayout->addWidget(std::make_unique<WPushButton>("Применить"), 0, AlignmentFlag::Right | AlignmentFlag::Top);
     WidgetHelper::SetUsualButtonSize(updateButton);
-    updateButton->clicked().connect([this]() { UpdateScenario(); });
+    updateButton->clicked().connect([this]() {
+        if (!_stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
+        UpdateScenario();
+    });
 
     selectionLayout->addWidget(std::make_unique<WText>("Имя:"), 0, AlignmentFlag::Top);
     _nameEditor = selectionLayout->addWidget(std::make_unique<WLineEdit>(), 0, AlignmentFlag::Top);

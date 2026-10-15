@@ -15,9 +15,11 @@
 
 #include "Constants.hpp"
 #include "Defines.hpp"
+#include "Enums.hpp"
 #include "Event.hpp"
 #include "EventUtils.hpp"
 #include "FrontendDefines.hpp"
+#include "IStackHolder.hpp"
 #include "Logger.hpp"
 #include "Marshaling.hpp"
 #include "RequestHelper.hpp"
@@ -25,14 +27,19 @@
 
 using namespace Wt;
 
-ScenarioButton::ScenarioButton(int port, Scenario scenario) :
+ScenarioButton::ScenarioButton(IStackHolder* stackHolder, int port, Scenario scenario) :
     WPushButton(),
     _port(port),
     _scenario(std::move(scenario)) {
     setText(_scenario._name);
     WidgetHelper::SetUsualButtonSize(this);
 
-    clicked().connect([this]() {
+    clicked().connect([this, stackHolder]() {
+        if (!stackHolder->CanEdit()) {
+            WidgetHelper::ShowAccountRightsMessage(this);
+            return;
+        }
+
         const auto result = RequestHelper::DoPatchRequest(
             { BACKEND_IP, _port, fmt::format("{}/{}", API_CLIENT_SCENARIOS, _scenario._id.data()) }, Constants::LoginService, {});
         if (result != 200) {

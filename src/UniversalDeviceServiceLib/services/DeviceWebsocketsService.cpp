@@ -40,7 +40,7 @@ void DeviceWebsocketsService::OnWebSocketMessage(crow::websocket::connection& co
         auto message = ServiceExtension::GetMessageFromWebSocketData(data);
         if (message._header._subject == Subject::WebSocketAuthorization) {
             auto webSocketAuthentication = message._data.get<WebSocketAuthentication>();
-            if (AccountManager::Instance()->IsValidUser(webSocketAuthentication._authString))
+            if (AccountManager::Instance()->IsValidAccount(webSocketAuthentication._authString))
                 WebsocketsCache::Instance()->AddWebSocketConnection(GetProviderId(message._header._description), connection);
             else {
                 LOG_ERROR_MSG("Not authorized connection");

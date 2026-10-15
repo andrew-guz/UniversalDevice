@@ -11,6 +11,7 @@
 
 #include "ApplicationSettings.hpp"
 #include "DevicesWidget.hpp"
+#include "Enums.hpp"
 #include "EventsWidget.hpp"
 #include "IStackHolder.hpp"
 #include "IStackWidget.hpp"
@@ -70,3 +71,7 @@ void Application::SetWidget(StackWidgetType type, const std::string& data) {
     else
         LOG_ERROR_MSG(fmt::format("Unknown widget type: {}", static_cast<int>(type)));
 }
+
+AccountType Application::GetAccountType() const { return _accountType; }
+
+void Application::SetAccountType(const AccountType accountType) { _accountType = accountType; }

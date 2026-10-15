@@ -16,13 +16,13 @@ public:
 
     void Init(std::shared_ptr<IAccountManagerInitializer> initializer);
 
-    bool IsValidUser(const std::string& login, const std::string& password);
+    bool IsValidAccount(const std::string& login, const std::string& password);
 
-    bool IsValidUser(std::string_view authorizationString);
+    bool IsValidAccount(std::string_view authorizationString);
 
     std::string GetAuthString(std::string_view login);
 
-    AccountType GetUserType(std::string_view login) const;
+    AccountType GetAccountType(std::string_view login) const;
 
 private:
     std::shared_ptr<IAccountManagerInitializer> _initializer;

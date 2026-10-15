@@ -7,6 +7,7 @@
 #include <Wt/WStackedWidget.h>
 
 #include "ApplicationSettings.hpp"
+#include "Enums.hpp"
 #include "IStackHolder.hpp"
 
 class Application final : public Wt::WApplication, public IStackHolder {
@@ -17,7 +18,12 @@ public:
 
     virtual void SetWidget(StackWidgetType type, const std::string& data) override;
 
+    virtual AccountType GetAccountType() const override;
+
+    virtual void SetAccountType(AccountType accountType) override;
+
 private:
     Wt::WHBoxLayout* _mainLayout;
     Wt::WStackedWidget* _mainStack;
+    AccountType _accountType = AccountType::Undefined;
 };
