@@ -7,6 +7,8 @@
 #include <string_view>
 #include <tuple>
 
+#include <fmt/format.h>
+
 #include "Base64Helper.hpp"
 #include "Enums.hpp"
 #include "IAccountManagerInitializer.hpp"
@@ -35,14 +37,18 @@ bool AccountManager::IsValidAccount(const std::string_view authorizationString) 
     return IsValidAccount(login, password);
 }
 
-std::string AccountManager::GetAuthString(const std::string_view login) {
+std::string AccountManager::GetAuthString(const std::string_view login) const {
     if (auto iter = std::find_if(_accounts.begin(), _accounts.end(), [&login](const auto& account) { return account._login == login; });
         iter != _accounts.end())
         return iter->_login + std::string(":") + iter->_password;
     return {};
 }
 
-AccountType AccountManager::GetAccountType(std::string_view login) const {
+std::string AccountManager::GetBasicAuthString(const std::string_view login) const {
+    return fmt::format("Basic {}", Base64Helper::ToBase64(AccountManager::Instance()->GetAuthString(login)));
+}
+
+AccountType AccountManager::GetAccountType(const std::string_view login) const {
     if (auto iter = std::find_if(_accounts.begin(), _accounts.end(), [&login](const auto& account) { return account._login == login; });
         iter != _accounts.end())
         return iter->_type;

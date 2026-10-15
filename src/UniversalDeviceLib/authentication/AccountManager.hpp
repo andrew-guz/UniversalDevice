@@ -20,7 +20,9 @@ public:
 
     bool IsValidAccount(std::string_view authorizationString);
 
-    std::string GetAuthString(std::string_view login);
+    std::string GetAuthString(std::string_view login) const;
+
+    std::string GetBasicAuthString(std::string_view login) const;
 
     AccountType GetAccountType(std::string_view login) const;
 

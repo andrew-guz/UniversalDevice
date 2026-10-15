@@ -10,7 +10,6 @@
 #include <ixwebsocket/IXSocketTLSOptions.h>
 
 #include "AccountManager.hpp"
-#include "Base64Helper.hpp"
 #include "Logger.hpp"
 
 nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress, const std::string_view login) {
@@ -24,8 +23,7 @@ nlohmann::json RequestHelper::DoGetRequest(const RequestAddress& requestAddress,
         options.disable_hostname_validation = true;
         client.setTLSOptions(options);
         ix::HttpRequestArgsPtr args = client.createRequest(url, "GET");
-        args->extraHeaders.emplace("Authorization",
-                                   fmt::format("Basic {}", Base64Helper::ToBase64(AccountManager::Instance()->GetAuthString(login))));
+        args->extraHeaders.emplace("Authorization", AccountManager::Instance()->GetBasicAuthString(login));
         const ix::HttpResponsePtr response = client.request(url, "GET", {}, args);
 
         if (response->statusCode != 200)
@@ -115,8 +113,7 @@ int RequestHelper::DoRequest(const std::string& method,
         options.disable_hostname_validation = true;
         client.setTLSOptions(options);
         ix::HttpRequestArgsPtr args = client.createRequest(url, ix::HttpClient::kGet);
-        args->extraHeaders.emplace("Authorization",
-                                   fmt::format("Basic {}", Base64Helper::ToBase64(AccountManager::Instance()->GetAuthString(login))));
+        args->extraHeaders.emplace("Authorization", AccountManager::Instance()->GetBasicAuthString(login));
         args->extraHeaders.emplace("Content-Type", "application/json");
         if (method == "DELETE")
             client.setForceBody(true);

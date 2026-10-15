@@ -11,6 +11,7 @@
 #include "AccountManager.hpp"
 #include "AccountManagerInitializer.hpp"
 #include "BaseParameters.hpp"
+#include "Constants.hpp"
 #include "Defines.hpp"
 #include "Enums.hpp"
 #include "Marshaling.hpp"
@@ -34,7 +35,7 @@ Simulator::Simulator(const DeviceType type) :
     _websocket.setOnMessageCallback([&](const ix::WebSocketMessagePtr& message) {
         if (message->type == ix::WebSocketMessageType::Open) {
             WebSocketAuthentication auth;
-            auth._authString = "Basic ZGV2aWNlOmVBITdSPWgmVnU=";
+            auth._authString = AccountManager::Instance()->GetBasicAuthString(Constants::LoginDevice);
             auto authMessage = MessageHelper::CreateDeviceMessage(_type, _parameters._id, Subject::WebSocketAuthorization, auth);
             _websocket.send(nlohmann::json(authMessage).dump());
             AskForSettings();
