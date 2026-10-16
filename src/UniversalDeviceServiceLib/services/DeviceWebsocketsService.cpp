@@ -12,6 +12,7 @@
 
 #include "AccountManager.hpp"
 #include "BaseService.hpp"
+#include "Constants.hpp"
 #include "Defines.hpp"
 #include "Enums.hpp"
 #include "Logger.hpp"
@@ -40,7 +41,8 @@ void DeviceWebsocketsService::OnWebSocketMessage(crow::websocket::connection& co
         auto message = ServiceExtension::GetMessageFromWebSocketData(data);
         if (message._header._subject == Subject::WebSocketAuthorization) {
             auto webSocketAuthentication = message._data.get<WebSocketAuthentication>();
-            if (AccountManager::Instance()->IsValidAccount(webSocketAuthentication._authString))
+            const auto [isValid, login, _] = AccountManager::Instance()->ParseAuthorizationString(webSocketAuthentication._authString);
+            if (isValid && login == Constants::LoginDevice)
                 WebsocketsCache::Instance()->AddWebSocketConnection(GetProviderId(message._header._description), connection);
             else {
                 LOG_ERROR_MSG("Not authorized connection");
@@ -52,7 +54,8 @@ void DeviceWebsocketsService::OnWebSocketMessage(crow::websocket::connection& co
             }
         } else {
             auto knownConnection = WebsocketsCache::Instance()->GetWebSocketConnection(GetProviderId(message._header._description));
-            if (knownConnection) {
+            // connection != null always
+            if (knownConnection == &connection) {
                 // not all messages need answers
                 auto result = CallProcessorsJsonResult(timestamp, message);
                 if (!result.is_null())
